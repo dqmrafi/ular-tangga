@@ -1739,12 +1739,60 @@ async function fly(p,to,dur,hgt){
   await tween(dur,k=>{ p.pawn.position.lerpVectors(a,b,k); p.pawn.position.y+=Math.sin(k*Math.PI)*hgt; });
   p.pawn.position.copy(b);
 }
+/* ---------- Dragon Feature 1: Portal Block 100 (visual + trigger) ----------
+   Tile 100 = portal gelap berbintik energi. Dormant (sangat subtle) sampai ada pemain di petak 100, lalu efek menguat
+   dan End Crystal muncul. Hanya visual: tidak mengubah nomor/posisi tile, gerak, dadu, giliran, ular, tangga, HUD, kamera.
+   Memakai 1 InstancedMesh (geometri+material bersama), 2 bidang glow, 1 kristal; tanpa lampu dinamis. Tidak memakai rnd() dunia. */
+var PORTAL=null;
+function buildPortal(t){
+  const g=new THREE.Group(); g.position.set(t.x,t.h,t.z);
+  let sd=1357; const lr2=()=>(sd=(sd*16807)%2147483647)/2147483647; /* PRNG lokal: urutan rnd() dunia tidak terganggu */
+  const N=46,geo=new THREE.BoxGeometry(1,1,1);
+  const pm=new THREE.MeshBasicMaterial({color:0xFFFFFF,transparent:true,opacity:0.95,depthWrite:false,blending:THREE.AdditiveBlending});
+  const inst=new THREE.InstancedMesh(geo,pm,N); inst.frustumCulled=false;
+  const pt=[],pal=[0x4AEDD9,0xE040FF,0xB59CFF,0xFFFFFF];
+  for(let i=0;i<N;i++) pt.push({x:(lr2()-0.5)*0.88,z:(lr2()-0.5)*0.88,ph:lr2()*6.283,sp:0.5+lr2()*1.1,c:new THREE.Color(pal[i%4]),rise:i%3===0});
+  inst.setColorAt(0,pt[0].c); g.add(inst);
+  const c=document.createElement('canvas'); c.width=c.height=64; const x=c.getContext('2d'),gr=x.createRadialGradient(32,32,2,32,32,32);
+  gr.addColorStop(0,'rgba(255,255,255,0.9)'); gr.addColorStop(0.4,'rgba(255,255,255,0.35)'); gr.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=gr; x.fillRect(0,0,64,64);
+  const tex=new THREE.CanvasTexture(c);
+  const mkPlane=(col,sz,y)=>{ const m=new THREE.Mesh(new THREE.PlaneGeometry(sz,sz),new THREE.MeshBasicMaterial({map:tex,color:col,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending}));
+    m.rotation.x=-Math.PI/2; m.position.y=y; m.frustumCulled=false; g.add(m); return m; };
+  const glow=mkPlane(0x7A4DFF,2.2,0.035), ring=mkPlane(0x4AEDD9,1.4,0.045);
+  /* End Crystal: tersembunyi sampai portal aktif */
+  const cr=new THREE.Group(); cr.position.y=1.3; cr.visible=false; cr.scale.setScalar(0.001);
+  const core=new THREE.Mesh(new THREE.BoxGeometry(0.26,0.26,0.26),new THREE.MeshBasicMaterial({color:0xE040FF}));
+  const shell=new THREE.Mesh(new THREE.BoxGeometry(0.42,0.42,0.42),new THREE.MeshBasicMaterial({color:0x4AEDD9,transparent:true,opacity:0.38,depthWrite:false}));
+  core.rotation.set(0.6155,0,Math.PI/4); shell.rotation.copy(core.rotation); cr.add(core,shell); g.add(cr);
+  return {g,inst,pt,glow,ring,cr,core,shell,act:0,on:false,m4:new THREE.Matrix4(),q:new THREE.Quaternion(),p:new THREE.Vector3(),sc:new THREE.Vector3(),col:new THREE.Color()};
+}
+function updatePortal(dt,now){
+  const P=PORTAL; if(!P) return;
+  const t=now*0.001,want=players.some(p=>p.pos===100)?1:0;
+  if(want&&!P.on){ P.on=true; dragon.visible=true; } /* tepi naik: pemain tiba di 100 (naga existing tampil; Awakening = fitur berikutnya) */
+  else if(!want&&P.on){ P.on=false; dragon.visible=false; }
+  P.act+=(want-P.act)*Math.min(1,dt*2.2); const a=P.act;
+  P.glow.material.opacity=(0.16+0.5*a)*(0.8+0.2*Math.sin(t*(1.5+2.5*a)));
+  P.glow.scale.setScalar(1+0.07*Math.sin(t*(1.2+2*a))+0.35*a);
+  const k=(t*(0.3+0.7*a))%1; P.ring.scale.setScalar(0.7+k*0.9); P.ring.material.opacity=(1-k)*(0.1+0.45*a);
+  const br=0.3+0.7*a;
+  for(let i=0;i<P.pt.length;i++){
+    const o=P.pt[i],tw=0.5+0.5*Math.sin(t*(1.2+o.sp*2)+o.ph);
+    let y=0.03,s=0.035+0.05*tw*(0.45+0.55*a);
+    if(o.rise&&a>0.04){ const r=((t*0.32*o.sp+o.ph)%1); y+=r*1.05*a; s*=1-0.75*r; }
+    P.p.set(o.x,y+s/2,o.z); P.sc.set(s,s,s); P.m4.compose(P.p,P.q,P.sc); P.inst.setMatrixAt(i,P.m4);
+    P.inst.setColorAt(i,P.col.copy(o.c).multiplyScalar(br*(0.35+0.65*tw)));
+  }
+  P.inst.instanceMatrix.needsUpdate=true; if(P.inst.instanceColor) P.inst.instanceColor.needsUpdate=true;
+  const e=Math.max(0,Math.min(1,(a-0.25)/0.6)),ease=e*e*(3-2*e); P.cr.visible=e>0.01; P.cr.scale.setScalar(Math.max(0.001,ease));
+  P.cr.position.y=1.3+Math.sin(t*2.2)*0.06; P.cr.rotation.y=t*1.1; P.shell.material.opacity=0.28+0.2*Math.sin(t*3);
+}
 function buildWorld(key){
   const th=THEMES.find(x=>x.key===key)||THEMES[0];
   theme=th; themeKey=th.key;
   const tk=++worldToken;
   seed=20241022+THEMES.indexOf(th)*977;
-  disposeGroup(world); disposeGroup(sky);
+  PORTAL=null; disposeGroup(world); disposeGroup(sky);
   clouds=[]; snow=null; LADINFO={}; SNAKEINFO={}; fades.length=0; clearFX();
   const rs=document.documentElement.style;
   rs.setProperty('--sky-top',th.skyTop); rs.setProperty('--sky-bot',th.skyBot);
@@ -1755,6 +1803,11 @@ function buildWorld(key){
   for(let n=1;n<=100;n++){
     const t=TILES[n],colTop=t.h-0.2,hh=colTop+0.5;
     addBox(TB,t.x,-0.5+hh/2,t.z,1,hh,1,jit(pick(th.wall),0.06));
+    if(n===100){ /* Block 100 = portal: permukaan hitam gelap (4x4 kotak seperti tile lain) + rim ungu tipis */
+      for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,(i+j)%2?0x0A0712:0x120B1E,{edge:false});
+      [[0,-0.47,0.96,0.06],[0,0.47,0.96,0.06],[-0.47,0,0.06,0.88],[0.47,0,0.06,0.88]].forEach(f=>addBox(TB,t.x+f[0],t.h+0.012,t.z+f[1],f[2],0.024,f[3],0x2B1659,{edge:false}));
+      continue;
+    }
     {
       const bc=th.key==='minecraft'?mcBlock(n,th.key):tileBlock(n,t,th);
       for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,tileShade(bc,n,t,i,j,th.key),{edge:false});
@@ -1781,6 +1834,7 @@ function buildWorld(key){
   addBox(TB,G.x-0.36,G.h+2.35,G.z-0.36,0.22,0.22,0.22,0xFFD23F);
   for(let c=0;c<4;c++) for(let r=0;r<2;r++) addBox(TB,G.x-0.36+0.22+c*0.22,G.h+2.05-r*0.22,G.z-0.36,0.22,0.22,0.05,(c+r)%2===0?th.flag:0xFFFFFF);
   world.add(buildBatch(TB));
+  PORTAL=buildPortal(TILES[100]); world.add(PORTAL.g);
   buildMobs(th);
 
   /* obor di 4 sudut papan: api berkedip + lampu (menyala saat malam) */
@@ -1928,10 +1982,11 @@ function makeDragon(){
   const T=TILES[100]; g.position.set(T.x,T.h+2.4,T.z);
   g.userData={wR,wL,y0:T.h+2.4,dy:0,shk:0,mats:[]};
   g.traverse(o=>{ if(o.material) g.userData.mats.push(o.material); });
+  g.visible=false; /* dormant: naga baru tampil saat ada pemain di Block 100 */
   scene.add(g); return g;
 }
 const dragon=makeDragon();
-function resetDragon(){ dragon.visible=true; dragon.scale.setScalar(1.3); dragon.userData.dy=0; dragon.userData.shk=0; }
+function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(1.3); dragon.userData.dy=0; dragon.userData.shk=0; }
 async function hitDragon(p,v){
    const D=dragon.userData,dmg=v*DMG,gid=gameId,atk='Serangan '+v+' x '+DMG+' = '+dmg+' damage!';
    /* 4.1.9: 1 serangan = 1 presentation utama (combat strip HUD, dengan guard gid). setMsg + attack card hanya FALLBACK bila HUD combat tidak tersedia, agar tidak jadi 3 notifikasi yang sama. */
@@ -2564,6 +2619,7 @@ function frame(now){
       snow.pts.geometry.attributes.position.needsUpdate=true;
     }
   }
+  updatePortal(dt,now);
   { const D=dragon.userData,wr=Math.sin(now*0.006)*0.55;
     D.wR.rotation.z=wr; D.wL.rotation.z=-wr;
     dragon.position.y=D.y0+Math.sin(now*0.003)*0.18+D.dy; dragon.rotation.y=Math.sin(now*0.0015)*0.2+D.shk; }
