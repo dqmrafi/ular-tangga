@@ -1,6 +1,7 @@
 /* Paksa landscape. Lapis 1: manifest PWA orientation=landscape (aplikasi terpasang). Lapis 2: screen.orientation.lock('landscape')
    (butuh layar penuh di browser biasa; dicoba saat dibuka dan saat pemain mengetuk tombol). Lapis 3: layar "Putar HP" menutupi game selama portrait
-   di perangkat sentuh. Tidak menyentuh gameplay. index.html (halaman pasang aplikasi) tidak diblokir. */
+   di perangkat sentuh; gate dipasang SEGERA saat script ini dieksekusi (atribut data-ut-gate di <html> + CSS yang menyembunyikan body) supaya
+   halaman portrait tidak sempat tercat sebelum overlay #ut-rotate dibangun. Tidak menyentuh gameplay. index.html (halaman pasang aplikasi) tidak diblokir. */
 (function () {
   'use strict';
   var path = location.pathname;
@@ -35,8 +36,19 @@
     });
     return box;
   }
-  function sync() { if (!document.body) return; build().classList.toggle('on', portrait.matches); if (!portrait.matches) tryLock(); }
+  /* Gate awal: dipasang sinkron saat script jalan (sebelum body ada & sebelum first paint). Hanya menyembunyikan visual; Three.js tetap boleh bootstrap. */
+  var gateCss = document.createElement('style');
+  gateCss.id = 'ut-rotate-early';
+  gateCss.textContent = 'html[data-ut-gate]{background:linear-gradient(#2d8cf0,#1a62b8) fixed!important}html[data-ut-gate] body{visibility:hidden!important}html[data-ut-gate] #ut-rotate{visibility:visible!important}';
+  (document.head || document.documentElement).appendChild(gateCss);
+  function sync() {
+    var de = document.documentElement, p = portrait.matches;
+    if (p) de.setAttribute('data-ut-gate', ''); else de.removeAttribute('data-ut-gate');
+    if (document.body) build().classList.toggle('on', p);
+    if (!p) tryLock();
+  }
   if (portrait.addEventListener) portrait.addEventListener('change', sync); else portrait.addListener(sync);
   window.addEventListener('resize', sync); window.addEventListener('orientationchange', sync);
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync); else sync();
+  sync(); /* langsung: gate aktif sebelum first paint */
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', sync);
 })();
