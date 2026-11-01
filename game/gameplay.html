@@ -539,6 +539,19 @@ body #side .tn .msg{grid-area:msg;font-size:12px;min-height:0!important;margin-t
   body #side .tn .msg{font-size:11px;margin-top:4px;min-height:0!important}
 }
 </style>
+<style id="hud-responsive">
+/* HUD responsif terhadap ukuran perangkat. --hs dihitung gameplay/hud-scale.js (default 1 bila skrip tidak jalan).
+   zoom hanya dipasang di tiga wadah teratas (jangan di anak-anaknya, karena zoom bersifat berlapis).
+   Catatan: di dalam elemen ber-zoom, satuan vw tetap berarti lebar layar penuh, jadi lebar "satu layar" ditulis 100vw / --hs. */
+:root{--hs:1}
+#hud,#side .col,#side .rcol{zoom:var(--hs)}
+#hud{max-width:calc((100vw - 16px) / var(--hs))}
+@media (orientation:landscape) and (max-height:430px){
+  body .hud,.hud{max-width:calc((100vw - 8px) / var(--hs))}
+  #side .pnl.pu{max-width:calc(100vw / var(--hs) - clamp(190px,34vw,250px) - 24px)}
+}
+</style>
+<script src="gameplay/hud-scale.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 if (typeof THREE === 'undefined') {
