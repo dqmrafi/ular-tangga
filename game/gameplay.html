@@ -74,7 +74,7 @@ body.playing .side{display:block}
 .pb:disabled{opacity:.35;cursor:default}
 .pb b{position:absolute;right:2px;bottom:-2px;font:10px var(--font-display);color:#fff;text-shadow:1px 1px #000}
 
-@media(max-width:699px){
+@media(max-width:699px) and (orientation:portrait){
   .col{left:8px;right:8px;top:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px));width:auto;gap:8px}
   .sc,.pl h3,.pu h3{display:none}
   .pl{order:1}.pu{order:2;position:static;transform:none}.tn{order:3}
@@ -161,7 +161,7 @@ body.playing .side{display:block}
 .tools{justify-content:center;flex-wrap:nowrap}.hud{max-width:none}.hud .btn.small{font-size:10px;padding:7px 8px;white-space:nowrap}
 @media(max-height:760px){.ttl{transform:scale(.72);transform-origin:top left}.col{top:calc(104px + env(safe-area-inset-top,0px))}.pnl{padding:9px}.pr{padding:6px 8px;margin-bottom:6px}.tn .msg{display:none}}
 @media(max-width:1060px){.rl{display:none}.hud{max-width:70vw}}
-@media(max-width:699px){.ttl{display:none}.hud{left:0;transform:none;max-width:100%;padding-left:8px}.tools{justify-content:flex-start}.pu{position:static;left:auto;bottom:auto}.col{top:auto;width:auto}}
+@media(max-width:699px) and (orientation:portrait){.ttl{display:none}.hud{left:0;transform:none;max-width:100%;padding-left:8px}.tools{justify-content:flex-start}.pu{position:static;left:auto;bottom:auto}.col{top:auto;width:auto}}
 .btn.light[aria-pressed=true]{background:var(--sun)}
 </style>
 <style>
@@ -181,7 +181,7 @@ body.playing .side{display:block}
 .hud{left:auto;right:0;transform:none;padding:calc(10px + env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 0 12px}
 .tools{justify-content:flex-end}
 .tn .msg{display:block!important;min-height:2.6em}.tn .trow{padding-right:12px}
-@media(max-width:699px){.rcol{left:8px;right:8px;width:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px))}.col{top:auto;bottom:calc(185px + env(safe-area-inset-bottom,0px))}#pus{flex-wrap:nowrap;max-width:none;justify-content:center}.pb{width:46px;height:46px}.pb em{display:none}.tn h3{display:none}.tn .msg{min-height:0;font-size:11px}.hud{left:0;padding-left:8px}.tools{justify-content:flex-start}}
+@media(max-width:699px) and (orientation:portrait){.rcol{left:8px;right:8px;width:auto;bottom:calc(8px + env(safe-area-inset-bottom,0px))}.col{top:auto;bottom:calc(185px + env(safe-area-inset-bottom,0px))}#pus{flex-wrap:nowrap;max-width:none;justify-content:center}.pb{width:46px;height:46px}.pb em{display:none}.tn h3{display:none}.tn .msg{min-height:0;font-size:11px}.hud{left:0;padding-left:8px}.tools{justify-content:flex-start}}
 </style>
 <style>
 .pucard{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:15;pointer-events:none;min-width:250px;max-width:86vw;text-align:center;padding:16px 26px 18px;background:var(--hud-bg,#2a211b);border:4px solid #0f0b08;box-shadow:inset 0 0 0 3px #ffd23f,0 8px 0 rgba(0,0,0,.5);border-radius:6px;color:#f1e8d6;animation:pcin .22s ease-out}
@@ -265,7 +265,7 @@ body .card p{color:#eaf6ff;font-weight:700}
 #win[data-state=lose] .btn.light{background:linear-gradient(#ff8f8f,#d93434);text-shadow:0 2px 0 #8f1620;box-shadow:0 5px 0 #8f1620,0 10px 14px rgba(120,10,20,.35),inset 0 2px 2px rgba(255,255,255,.6)}
 body .eyebrow,body .lbl{color:#d7ecff;text-transform:none;letter-spacing:.02em;font-size:15px}
 body #pauseMenu,body #exitConfirm{background:rgba(18,51,127,.5);backdrop-filter:blur(6px)}
-@media(max-width:699px){body .tn .msg{font-size:12px}body .btn.small,body .hud .btn.small{font-size:12px;padding:6px 10px}}
+@media(max-width:699px) and (orientation:portrait){body .tn .msg{font-size:12px}body .btn.small,body .hud .btn.small{font-size:12px;padding:6px 10px}}
 /* 4.2.1 Camera Part 1: grup kontrol ANGLE (satu baris, compact) */
 body .hud .btn.ico{display:inline-flex;align-items:center;justify-content:center;width:36px;padding:6px 0}
 body .hud .btn.ico[aria-pressed=false]{background:rgba(255,255,255,.16);color:rgba(255,255,255,.7);box-shadow:none;border-color:rgba(255,255,255,.3)}
@@ -380,7 +380,7 @@ body .hud select.camsel option{color:#12337f;background:#fff;text-shadow:none}
    Sistem: panel biru glossy, pill header navy bertumpuk di tepi atas panel, outline terang 3px, tombol utama emas. */
 #side{--slot:clamp(54px,4.7vw,76px);--ok:#3cc23c;--warn:#ffb62a;--off:#7a8fb0;--navy:#0d3a9a;--rim:#6cc0ff}
 #side .pnl{position:relative;overflow:visible}
-@media(max-width:699px){#side .pnl.pu{position:relative}}
+@media(max-width:699px) and (orientation:portrait){#side .pnl.pu{position:relative}}
 /* pill header */
 #side .pnl>h3{position:absolute;top:-17px;margin:0;padding:3px 18px 4px;border-radius:999px;font-size:clamp(15px,1.15vw,18px);line-height:1.15;white-space:nowrap;
   background:linear-gradient(#2d78e0,var(--navy));box-shadow:0 3px 0 var(--bd),inset 0 0 0 2px var(--rim),inset 0 2px 2px rgba(255,255,255,.35);display:flex;align-items:center;gap:8px;text-align:center}
@@ -475,7 +475,7 @@ body .pucard{min-width:clamp(250px,22vw,340px);padding:18px 30px 20px}
   #side .tn .msg{min-height:2.4em}
 }
 /* --- Mobile: kolom bertumpuk di bawah --- */
-@media(max-width:699px){
+@media(max-width:699px) and (orientation:portrait){
   #side .col{bottom:calc(262px + env(safe-area-inset-bottom,0px))}
   #hud .tools{flex-wrap:wrap;justify-content:flex-start;gap:6px}
   #side .pnl.pl{padding-top:24px}
@@ -509,8 +509,32 @@ body #side .tn .die-scene{grid-area:die;position:relative;top:auto;right:auto;zo
 body #side .tn #btnRoll{grid-area:btn;height:clamp(46px,3.8vw,56px);margin-top:12px;font-size:clamp(20px,1.7vw,24px);gap:10px}
 body #side .tn .msg{grid-area:msg;font-size:12px;min-height:0!important;margin-top:8px}
 @media(min-width:700px){body #side .rcol{width:clamp(240px,19vw,300px)}}
-@media(max-width:699px){#side{--tav:54px}body #side .rcol .pnl.tn{padding:14px 12px 8px}body #side .tn-av{margin-bottom:6px}body #side .tn .die-scene{zoom:1}body #side .tn #btnRoll{height:44px;margin-top:6px}body #side .tn .msg{margin-top:5px}}
+@media(max-width:699px) and (orientation:portrait){#side{--tav:54px}body #side .rcol .pnl.tn{padding:14px 12px 8px}body #side .tn-av{margin-bottom:6px}body #side .tn .die-scene{zoom:1}body #side .tn #btnRoll{height:44px;margin-top:6px}body #side .tn .msg{margin-top:5px}}
 @media(min-width:700px) and (max-height:560px){#side{--tav:54px}body #side .rcol .pnl.tn{padding:14px 12px 8px;margin-top:18px}body #side .tn .die-scene{zoom:1;margin:2px 4px 2px 0}body #side .tn #btnRoll{height:42px;margin-top:8px;font-size:20px}body #side .tn .msg{margin-top:5px}}
+</style>
+<style id="landscape-compact">
+/* 4.1.17C: landscape pendek (HP): aturan "mobile" (max-width:699px) kini hanya untuk portrait; di sini layout landscape kompak
+   (kolom pemain kiri, power kiri-bawah, panel giliran kanan-bawah, tombol atas kanan). Hanya presentasi; papan/kamera tidak diubah. */
+@media (orientation:landscape) and (max-height:430px){
+  .ttl{display:none}
+  body .hud,.hud{left:auto;right:0;transform:none;max-width:calc(100vw - 8px);padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) 0 8px}
+  #hud .tools{flex-wrap:wrap;justify-content:flex-end;gap:6px}
+  body .btn.small,body .hud .btn.small{font-size:11px;padding:6px 10px;min-height:40px}
+  #side .col{left:max(8px,env(safe-area-inset-left,0px));top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;right:auto;width:clamp(120px,21vw,176px);gap:6px}
+  #side .pnl.pl{padding:6px}#side .pnl.pl h3,.sc{display:none}
+  #side .pr{min-height:30px;margin:0 0 4px;padding:3px 6px;font-size:10px}
+  #side .pnl.pu{position:fixed;left:max(8px,env(safe-area-inset-left,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));width:auto;max-width:calc(100vw - clamp(190px,34vw,250px) - 24px);padding:16px 6px 6px}
+  #side .pnl.pu h3{display:none}
+  #side #pus{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:none;gap:4px;scrollbar-width:none}
+  #side .pb{flex:0 0 44px;min-width:44px;width:44px;height:48px;font-size:20px}#side .pb em{display:none}
+  #side .rcol{left:auto;right:max(8px,env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));top:auto;width:clamp(180px,32vw,240px)}
+  body #side .rcol .pnl.tn{margin-top:16px;padding:12px 10px 8px;grid-template-areas:"name die" "btn btn" "msg msg"}
+  body #side .tn-av,body #side .tn-meta{display:none}
+  body #side #turnName{font-size:16px}
+  body #side .tn .die-scene{zoom:.7;margin:0 2px 0 0}
+  body #side .tn #btnRoll{height:44px;margin-top:6px;font-size:18px}
+  body #side .tn .msg{font-size:11px;margin-top:4px;min-height:0!important}
+}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>

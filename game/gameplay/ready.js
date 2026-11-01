@@ -39,7 +39,11 @@
     '#readyScreen .rd-nm{max-width:100%;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
     '#readyScreen .rd-btn{width:100%;min-height:44px;font-size:13px}' +
     '#readyScreen .rd-card.ok .rd-btn{background:#7ddc5a;color:#16300d}' +
-    '@media (min-width:560px){#readyScreen .rd-grid.n4{--cols:4}}';
+    '@media (min-width:560px){#readyScreen .rd-grid.n4{--cols:4}}' +
+    /* 4.1.17C: landscape pendek -> semua kartu satu baris, elemen dikecilkan agar muat tanpa scroll */
+    '@media (orientation:landscape) and (max-height:430px){#readyScreen .rd-box{padding:8px 10px 10px}#readyScreen h2{font-size:14px;margin:0}#readyScreen .rd-sub{margin:2px 0 4px;font-size:10px}' +
+    '#readyScreen .rd-time{margin:0 0 6px;padding:2px 10px;font-size:16px}#readyScreen .rd-grid{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:6px}' +
+    '#readyScreen .rd-card{gap:3px;padding:5px 4px 6px}#readyScreen .rd-ord{width:24px;height:24px;font-size:13px}#readyScreen .rd-st{font-size:9px}#readyScreen .rd-av{width:40px;height:40px}#readyScreen .rd-nm{font-size:10px}#readyScreen .rd-btn{min-height:40px;font-size:11px}}';
 
   function injectCSS() {
     if (doc.getElementById('readyCSS')) return;
