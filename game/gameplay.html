@@ -551,6 +551,12 @@ body #side .tn .msg{grid-area:msg;font-size:12px;min-height:0!important;margin-t
   #side .pnl.pu{max-width:calc(100vw / var(--hs) - clamp(190px,34vw,250px) - 24px)}
 }
 </style>
+<style id="player-colors">
+/* Warna pemain (Merah/Biru/Kuning/Hijau) di HUD: wajah diberi cincin putih tipis lalu cincin warna, agar tetap terbaca di panel biru. */
+body .pr img,body .sr img{border:2px solid #fff;box-shadow:0 0 0 3px var(--pc,#fff),0 2px 0 3px rgba(18,51,127,.45)}
+/* chip posisi ikut berwarna pemain agar identitas warna terbaca sekilas */
+body #side .pr .pos{background:var(--pc,rgba(10,40,120,.6));box-shadow:inset 0 0 0 2px rgba(255,255,255,.85);text-shadow:0 1px 0 rgba(0,0,0,.45)}
+</style>
 <script src="gameplay/hud-scale.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -655,6 +661,14 @@ const PNG_DEFS=[
   {name:'Pejabat',key:'pejabat',hex:0x6B6B7B,css:'#5a5a68',png:true},
   {name:'Sakura',key:'sakura',hex:0xFF8FB8,css:'#d9709a',png:true},
   {name:'Warden',key:'warden',hex:0x2AA5A0,css:'#1f7f7a',png:true}
+];
+/* Warna khas pemain ala Ludo, ditentukan per KURSI (urutan giliran awal), bukan per skin: Merah, Biru, Kuning, Hijau.
+   Dipilih agak lembut (tidak neon) supaya nyaman di mata. Dipakai HUD (--pc), cincin di bawah bidak, dan benjolan saat dimakan ular. */
+const SEAT_COLORS=[
+  {name:'Merah',hex:0xE5484D,css:'#e5484d'},
+  {name:'Biru',hex:0x3B7DDD,css:'#3b7ddd'},
+  {name:'Kuning',hex:0xF2B632,css:'#f2b632'},
+  {name:'Hijau',hex:0x3FB36B,css:'#3fb36b'}
 ];
 const VILLAGER_DEF={name:'Villager',key:'villager',hex:0xC9A24A,css:'#a8832f'}; /* khusus Computer; tidak masuk PLAYER_DEFS (urutan default tetap) */
 const SKIN3D={},SKIN_IMG={};
@@ -1840,6 +1854,9 @@ function makePawn(d){
   const marker=new THREE.Mesh(new THREE.OctahedronGeometry(0.13),new THREE.MeshLambertMaterial({color:d.hex,emissive:d.hex,emissiveIntensity:0.35}));
   marker.position.y=1.22; marker.visible=false;
   g.add(marker); g.userData.marker=marker;
+  /* cincin warna pemain di kaki bidak (gaya Ludo) */
+  const base=new THREE.Mesh(new THREE.CylinderGeometry(0.31,0.35,0.045,24),new THREE.MeshLambertMaterial({color:d.hex,emissive:d.hex,emissiveIntensity:0.18}));
+  base.position.y=0.02; g.add(base); g.userData.base=base;
   const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:haloTex,color:0xFFE6A8,transparent:true,opacity:0.3,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));
   halo.scale.setScalar(1.2); halo.position.y=0.45; halo.visible=false; halo.renderOrder=3; g.add(halo); g.userData.halo=halo;
   return g;
@@ -2415,10 +2432,10 @@ function startGame(m,keys){
   let defs;
   keys=keys||(m==='cpu'?['steve','villager']:PLAYER_DEFS.slice(0,+m).map(d=>d.key));
   if(m==='cpu') keys=[keys[0]||'steve','villager']; /* 4.1.14.10: Computer selalu Villager, bukan Mob/skin acak */
-  defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } return d; });
+  defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
   defs.forEach((d,i)=>{
     const pawn=makePawn(d); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
-    players.push({idx:i,name:d.name,key:d.key,css:d.css,hex:d.hex,cpu:!!d.cpu,pos:0,sixes:0,dhp:100,pawn,score:0,bonus:0,extra:false,p4:false,shield:false,pu:startPU()});
+    players.push({idx:i,name:d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:100,pawn,score:0,bonus:0,extra:false,p4:false,shield:false,pu:startPU()});
   });
   cur=0; resetCam();
   $('win').hidden=true;
