@@ -520,9 +520,12 @@ body #side .tn .msg{grid-area:msg;font-size:12px;min-height:0!important;margin-t
   body .hud,.hud{left:auto;right:0;transform:none;max-width:calc(100vw - 8px);padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) 0 8px}
   #hud .tools{flex-wrap:wrap;justify-content:flex-end;gap:6px}
   body .btn.small,body .hud .btn.small{font-size:11px;padding:6px 10px;min-height:40px}
-  #side .col{left:max(8px,env(safe-area-inset-left,0px));top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;right:auto;width:clamp(120px,21vw,176px);gap:6px}
+  #side .col{left:max(8px,env(safe-area-inset-left,0px));top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;right:auto;width:clamp(136px,24vw,176px);gap:6px}
   #side .pnl.pl{padding:6px}#side .pnl.pl h3,.sc{display:none}
-  #side .pr{min-height:30px;margin:0 0 4px;padding:3px 6px;font-size:10px}
+  #side .pr{min-height:30px;margin:0 0 4px;padding:3px 6px;font-size:10px;flex-wrap:nowrap;gap:4px}
+  body #side .pr img{width:24px;height:24px;border-width:2px;border-radius:6px}
+  body #side .pr span:not(.pos):not(.bf){flex:1 1 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px}
+  body #side .pr .pos{flex:none;padding:0 5px;font-size:9px}
   #side .pnl.pu{position:fixed;left:max(8px,env(safe-area-inset-left,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));width:auto;max-width:calc(100vw - clamp(190px,34vw,250px) - 24px);padding:16px 6px 6px}
   #side .pnl.pu h3{display:none}
   #side #pus{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:none;gap:4px;scrollbar-width:none}
