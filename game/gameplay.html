@@ -286,6 +286,8 @@ body.cam-angle #hud .btn.ico{width:34px;padding-left:0;padding-right:0}
 body .hud select.camsel{appearance:none;-webkit-appearance:none;font-family:inherit;line-height:1.2;cursor:pointer;padding-right:24px;max-width:none;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M1 3l4 4 4-4' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 8px center/10px 10px,linear-gradient(#4aa8ff,#1f6fe0)}
 body .hud select.camsel option{color:#12337f;background:#fff;text-shadow:none}
+#btnRoll.holding{transform:scale(.97);filter:brightness(1.12);box-shadow:0 0 0 3px rgba(74,237,217,.8)}
+#btnRoll.special{touch-action:none;-webkit-user-select:none;user-select:none}
 body.awk-lock button,body.awk-lock select,body.awk-lock canvas{pointer-events:none}
 body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.35)}
 </style>
@@ -2437,11 +2439,11 @@ function beginTurn(extra){
   applyPendingTheme();
   const p=players[cur];
   if(FBK) FBK.setCurrentMarker(players,cur);
-  focus=p.pawn; renderChips(); syncCrystals();
+  focus=p.pawn; renderChips(); syncCrystals(); syncRollLabel();
   hud('showTurn',p,{extra:!!extra});
   if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Lempar dadu.'));
   else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll dadu.':'Giliran '+p.name+'. Tekan Lempar dadu.'));
-  setRoll(!p.cpu); startTurnTimer();
+  specialHint(p); setRoll(!p.cpu); startTurnTimer();
   if(p.cpu){ const gid=gameId; setTimeout(async()=>{ if(gid!==gameId||gameOver) return; const ks=['sword','feather','potion','apple','tnt'].filter(k=>cpuPUValid(p,k)); const go=()=>{ if(gid!==gameId||gameOver) return; if(busy||paused){ setTimeout(go,paused?250:500); return; } doRoll(); }; if(paused){ go(); return; } if(ks.length&&Math.random()<0.6) await usePU(ks[0],true); go(); },950); }
 }
 /* 4.1.15.6: snapshot state giliran (baca-saja) agar modul lain/uji bisa membaca tanpa mengekspos players. Sumber kebenaran tetap players[]+cur. */
@@ -2615,11 +2617,64 @@ async function playTurn(p,v,gid,bn){
   if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); }
   else nextTurn();
 }
-async function doRoll(){
+/* ---------- Dragon Feature 4: Special Dice Control ----------
+   Memperluas dadu existing (showDie + doRoll), BUKAN sistem dadu baru. Mode khusus hanya untuk pemain manusia yang berada di Block 100 setelah Awakening
+   (fase End Crystal dan fase serang Dragon). Tahan tombol Roll: angka berputar 1>2>3>4>5>6>1...; lepas: angka saat itu dipilih dan diteruskan ke doRoll({value}).
+   Dadu normal (di luar Block 100, CPU, AFK auto-roll) tidak berubah. Pointer Events: pointerdown/up/cancel (+lostpointercapture, blur, visibilitychange, watchdog) agar tombol tidak stuck. */
+const DICE_HOLD_MS=170,DH={on:false,id:null,v:1,timer:0,gid:0};
+function specialDiceActive(p){ return !!(p&&!p.cpu&&p.pos===100&&AWK.done&&!gameOver); }
+function specialHint(p){
+  if(!specialDiceActive(p)||AWK.running) return;
+  setMsg(p.ready?p.name+': tahan Roll, lepas untuk memilih angka serangan Dragon.':p.name+': tahan Roll, lepas saat angka = '+(p.crystal+1)+' untuk menghancurkan Crystal '+(p.crystal+1)+'.');
+}
+function syncRollLabel(){
+  const b=$('btnRoll'),sp=specialDiceActive(players[cur]); b.classList.toggle('special',sp); b.classList.toggle('holding',DH.on);
+  b.textContent=DH.on?'Lepas untuk memilih':(sp?'Tahan & lepas':'Roll dadu');
+}
+function holdStart(id){
+  if(DH.on||busy||paused||gameOver||AWK.running||$('btnRoll').disabled||!specialDiceActive(players[cur])) return false;
+  DH.on=true; DH.id=id; DH.v=1; DH.gid=gameId; clearTurnTimer(); showDie(1,false); sfx.shuffleTick(); syncRollLabel();
+  DH.timer=setInterval(()=>{
+    /* watchdog: bila kondisi berubah saat ditahan (game baru, jeda, tombol nonaktif, giliran lain) -> batal, tidak stuck */
+    if(!DH.on||DH.gid!==gameId||busy||paused||gameOver||AWK.running||$('btnRoll').disabled||!specialDiceActive(players[cur])){ holdEnd(false); return; }
+    DH.v=DH.v%6+1; showDie(DH.v,false); sfx.shuffleTick();
+  },DICE_HOLD_MS);
+  return true;
+}
+function holdEnd(select){
+  if(!DH.on) return;
+  const v=DH.v,gid=DH.gid; DH.on=false; DH.id=null; clearInterval(DH.timer); DH.timer=0;
+  try{ $('btnRoll').releasePointerCapture&&DH.pc&&$('btnRoll').releasePointerCapture(DH.pc); }catch(e){} DH.pc=null;
+  syncRollLabel();
+  if(select&&gid===gameId&&!busy&&!paused&&!gameOver&&specialDiceActive(players[cur])){ ensureAudio(); doRoll({value:v}); }
+  else if(gid===gameId&&!busy&&!gameOver){ startTurnTimer(); } /* batal: dadu kembali normal, timer AFK jalan lagi */
+}
+(function wireSpecialDice(){
+  const b=$('btnRoll');
+  b.style.touchAction='none'; b.style.userSelect='none'; b.style.webkitUserSelect='none'; b.style.webkitTouchCallout='none';
+  b.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse'&&e.button!==0) return;
+    if(DH.on||!specialDiceActive(players[cur])||b.disabled) return;
+    e.preventDefault(); ensureAudio();
+    if(holdStart(e.pointerId)){ DH.pc=e.pointerId; try{ b.setPointerCapture(e.pointerId); }catch(err){} }
+  });
+  const up=e=>{ if(DH.on&&e.pointerId===DH.id) holdEnd(true); },cancel=e=>{ if(DH.on&&e.pointerId===DH.id) holdEnd(false); };
+  b.addEventListener('pointerup',up); b.addEventListener('pointercancel',cancel); b.addEventListener('lostpointercapture',cancel);
+  window.addEventListener('pointerup',up,true); window.addEventListener('pointercancel',cancel,true); /* fallback bila capture gagal (lepas di luar tombol) */
+  window.addEventListener('blur',()=>holdEnd(false)); document.addEventListener('visibilitychange',()=>{ if(document.hidden) holdEnd(false); });
+  b.addEventListener('contextmenu',e=>{ if(specialDiceActive(players[cur])) e.preventDefault(); });
+  /* keyboard (aksesibilitas): Space/Enter tahan = putar, lepas = pilih */
+  b.addEventListener('keydown',e=>{ if((e.key===' '||e.key==='Enter')&&specialDiceActive(players[cur])){ e.preventDefault(); if(!e.repeat&&holdStart('kbd')) DH.id='kbd'; } });
+  b.addEventListener('keyup',e=>{ if((e.key===' '||e.key==='Enter')&&DH.on&&DH.id==='kbd'){ e.preventDefault(); holdEnd(true); } });
+  b.addEventListener('blur',()=>holdEnd(false));
+})();
+async function doRoll(opt){
   if(busy||paused||gameOver||!players.length||AWK.running) return;
+  if(DH.on) holdEnd(false); /* tombol roll tidak boleh tertinggal dalam mode tahan */
   busy=true; setRoll(false); clearTurnTimer();
   const gid=gameId,p=players[cur];let v=1+Math.floor(Math.random()*6);
-  if(p.p4){ v=4+Math.floor(Math.random()*3); p.p4=false; }
+  if(opt&&Number.isInteger(opt.value)&&opt.value>=1&&opt.value<=6&&specialDiceActive(p)) v=opt.value; /* Special Dice: angka dipilih lewat tahan-lepas (hanya di Block 100) */
+  else if(p.p4){ v=4+Math.floor(Math.random()*3); p.p4=false; }
   sfx.roll(); showDie(v,!reduce);
   try{
     await sleep(reduce?250:1150); if(gid!==gameId) return;
@@ -2697,7 +2752,7 @@ function applyDice(k){
 $('btnDice').addEventListener('click',()=>applyDice(DICE[(DICE.findIndex(x=>x.key===diceKey)+1)%DICE.length].key));
 applyDice(diceKey);
 updateNightUI();
-$('btnRoll').addEventListener('click',()=>{ ensureAudio(); doRoll(); });
+$('btnRoll').addEventListener('click',()=>{ if(specialDiceActive(players[cur])) return; /* mode khusus ditangani pointer/keyboard hold */ ensureAudio(); doRoll(); });
 $('btnCam').addEventListener('click',()=>resetCam());
 camLoad(); camUI();
 camRefit=()=>{ if(camLocked()) goal.zoom=lockZoom(); };
