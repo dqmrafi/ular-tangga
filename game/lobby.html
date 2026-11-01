@@ -9,7 +9,7 @@
 html{font-size:min(1vw,1.78vh)}
 html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff;background:linear-gradient(#3d9bfd,#6fbdfc 50%,#bfe4ff 85%,#d8f0ff)}
 #gl{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
-#ui{position:fixed;left:0;top:50%;width:100vw;height:56.25rem;translate:0 -50%;pointer-events:none}
+#ui{position:fixed;left:50%;top:50%;width:100rem;height:56.25rem;translate:-50% -50%;pointer-events:none}
 #ui>*{pointer-events:auto}
 .ab{position:absolute}
 svg{display:block}
@@ -95,10 +95,8 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 .tg{min-width:7.6rem;height:3.8rem;border-radius:2rem;background:#7b8aa8;box-shadow:inset 0 .2rem .4rem rgba(0,0,0,.3);font-size:2rem;padding:0 1rem}.tg.on{background:var(--g)}
 #toast{position:fixed;left:50%;bottom:3rem;translate:-50% 2rem;background:var(--bd);padding:.8rem 2.4rem;border-radius:2rem;font-size:2.4rem;opacity:0;transition:opacity .3s,translate .35s cubic-bezier(.3,1.8,.5,1);z-index:99;pointer-events:none;white-space:nowrap}
 #toast.on{opacity:1;translate:-50% 0}
-#rot{position:fixed;inset:0;display:none;place-items:center;text-align:center;background:linear-gradient(#4aa6f0,#bfe6ff);z-index:200;font-size:6vw;padding:2rem}
-@media(max-aspect-ratio:1/1){#rot{display:grid}}
 @media(prefers-reduced-motion:reduce){#play,#ui>*{animation:none!important}}
-</style><style>:root{--curbar-right:11.8rem;--curbar-top:1.9rem;--cur-h:4.3rem;--cur-icon:4.8rem;--cur-plus:2.9rem;--cur-fs:2.3rem;--cur-minw:12.3rem}</style><link rel="stylesheet" href="assets/css/shared-ui.css"><script src="assets/js/landscape.js"></script></head>
+</style><style>:root{--curbar-right:11.8rem;--curbar-top:1.9rem;--cur-h:4.3rem;--cur-icon:4.8rem;--cur-plus:2.9rem;--cur-fs:2.3rem;--cur-minw:12.3rem}</style><link rel="stylesheet" href="assets/css/shared-ui.css"><style>@media (max-aspect-ratio:1/1){html body .ut-curbar{position:absolute;top:var(--curbar-top);right:var(--curbar-right);gap:var(--cur-gap,3.4rem)}}</style><script src="assets/js/landscape.js"></script></head>
 <body>
 <canvas id="gl"></canvas>
 <div id="ui">
@@ -139,7 +137,6 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 
 <div class="ov" id="modal"><div class="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
 <div id="toast"></div>
-<div id="rot"><div>Putar perangkat ke mode landscape untuk bermain.</div></div>
 
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/item-art.js"></script>
@@ -286,7 +283,7 @@ mesh.castShadow=mesh.receiveShadow=true;mesh.frustumCulled=false;scene.add(mesh)
 const hero=new THREE.Group();let chI=character(PAL,'idle'),chC=character(PAL,'cheer');chC.visible=false;hero.add(chI,chC);hero.position.set(.3,0,0);scene.add(hero);
 hero3d={rebuild(){const p=AR.palette(PD.equippedId('skin'))||AR.palette('skin.steve');hero.remove(chI);hero.remove(chC);chI=character(p,'idle');chC=character(p,'cheer');chC.visible=false;hero.add(chI,chC)}};
 let cheer=0;
-cv.addEventListener('pointerdown',e=>{const x=e.clientX/innerWidth,y=e.clientY/innerHeight;if(x>.33&&x<.57&&y>.2&&y<.68){cheer=1.6;chI.visible=false;chC.visible=true;buzz()}});
+cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;if(x>.33&&x<.57&&y>.2&&y<.68){cheer=1.6;chI.visible=false;chC.visible=true;buzz()}});
 // pointer parallax
 let px=0,py=0,tx=0,ty=0;addEventListener('pointermove',e=>{tx=e.clientX/innerWidth-.5;ty=e.clientY/innerHeight-.5});
 function fit(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(w,h,false);cam.aspect=w/h;const a=w/h,base=36;cam.fov=a<16/9?2*Math.atan(Math.tan(base*Math.PI/360)*(16/9)/a)*180/Math.PI:base;const u=$('#ui').getBoundingClientRect(),d=w/2-(u.left+u.width*.445);cam.setViewOffset(w,h,Math.round(d),0,w,h);try{renderer.render(scene,cam)}catch(e){}/* setSize mengosongkan canvas; gambar ulang sekarang agar tidak ada frame kosong (kilatan putih) saat rotasi */}
