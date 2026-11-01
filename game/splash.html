@@ -70,6 +70,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 @keyframes roll{0%{transform:rotateX(-25deg) rotateY(-35deg) rotateZ(0)}50%{transform:rotateX(335deg) rotateY(325deg) rotateZ(18deg)}100%{transform:rotateX(695deg) rotateY(685deg) rotateZ(0)}}
 .face{position:absolute;inset:0;border:3px solid #193b55;border-radius:12px;background:linear-gradient(145deg,#fff,#dcecff);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:8px;box-shadow:inset 0 0 8px rgba(31,75,110,.16)}
 .face i{width:10px;height:10px;border-radius:50%;background:#12324e;place-self:center}
+.face i.o{visibility:hidden}
 .f1{transform:translateZ(32px)}.f6{transform:rotateY(180deg) translateZ(32px)}.f2{transform:rotateY(90deg) translateZ(32px)}.f5{transform:rotateY(-90deg) translateZ(32px)}.f3{transform:rotateX(90deg) translateZ(32px)}.f4{transform:rotateX(-90deg) translateZ(32px)}
 .f1 i:nth-child(5){background:#f04d61;width:13px;height:13px}
 .spark{position:absolute;color:#edffb0;font-size:22px;animation:twinkle 2s ease-in-out infinite}
@@ -127,7 +128,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   <div class="cl cl3"><svg class="vx" data-shape="cloudC" data-s=".8" aria-hidden="true"></svg></div>
   <div class="cl cl6"><svg class="vx" data-shape="cloudB" data-s=".7" aria-hidden="true"></svg></div>
 
-  <div class="brand"><div class="small">DUNIA PETUALANGAN VOXEL</div><h1>ULAR TANGGA <span>BLOK</span></h1></div>
 
   <span class="star st1">✦</span><span class="star st2">✧</span><span class="star st3">✦</span>
 
@@ -204,14 +204,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   <section class="bottom-ui">
     <div class="dice-wrap" aria-hidden="true">
       <span class="spark sp1">✦</span><span class="spark sp2">✧</span>
-      <div class="dice">
-        <div class="face f1"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="face f2"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="face f3"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="face f4"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="face f5"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="face f6"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      </div>
+      <div class="dice"><div class="face f1"><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i></div><div class="face f2"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f3"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f4"><i></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f5"><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f6"><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i></div></div>
     </div>
     <div class="status">Sedang Memuat...</div>
     <div class="loading-track"><div class="loading-fill" id="fill"></div></div>

@@ -22,33 +22,29 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
 #ov{z-index:10;display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Lilita One',system-ui,-apple-system,"Segoe UI",sans-serif;
   background:radial-gradient(ellipse at 50% 60%,rgba(220,246,255,.7),transparent 55%),linear-gradient(180deg,#1357c4 0%,#3b92ee 40%,#8fd0ff 72%,#d4efff 100%)}
 #ov.hide{opacity:0;visibility:hidden;pointer-events:none;transition:opacity .25s ease,visibility 0s linear .25s}
-#ov .box{display:flex;flex-direction:column;align-items:center;gap:7vmin;margin-bottom:2%}
-#ov .scene{--s:min(24vmin,130px);position:relative;width:var(--s);height:var(--s);perspective:calc(var(--s)*5);filter:drop-shadow(0 14px 14px rgba(8,37,76,.28))}
-#ov .die{position:absolute;inset:0;transform-style:preserve-3d;animation:spin 3.2s linear infinite}
-#ov .f{position:absolute;inset:0;border-radius:14%;background:linear-gradient(145deg,#fff,#dfe9f6);border:2px solid #b9cde6;box-sizing:border-box;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:15%;backface-visibility:hidden}
-#ov .f i{width:62%;height:62%;margin:auto;border-radius:50%;background:#1d3b66;visibility:hidden}
-#ov .f1{transform:rotateY(0) translateZ(calc(var(--s)/2))}
-#ov .f2{transform:rotateY(90deg) translateZ(calc(var(--s)/2))}
-#ov .f3{transform:rotateY(180deg) translateZ(calc(var(--s)/2))}
-#ov .f4{transform:rotateY(-90deg) translateZ(calc(var(--s)/2))}
-#ov .f5{transform:rotateX(90deg) translateZ(calc(var(--s)/2))}
-#ov .f6{transform:rotateX(-90deg) translateZ(calc(var(--s)/2))}
-#ov .f1 i:nth-child(5),
-#ov .f2 i:nth-child(1),#ov .f2 i:nth-child(9),
-#ov .f3 i:nth-child(1),#ov .f3 i:nth-child(5),#ov .f3 i:nth-child(9),
-#ov .f4 i:nth-child(1),#ov .f4 i:nth-child(3),#ov .f4 i:nth-child(7),#ov .f4 i:nth-child(9),
-#ov .f5 i:nth-child(1),#ov .f5 i:nth-child(3),#ov .f5 i:nth-child(5),#ov .f5 i:nth-child(7),#ov .f5 i:nth-child(9),
-#ov .f6 i:nth-child(1),#ov .f6 i:nth-child(3),#ov .f6 i:nth-child(4),#ov .f6 i:nth-child(6),#ov .f6 i:nth-child(7),#ov .f6 i:nth-child(9){visibility:visible}
+#ov .box{display:flex;flex-direction:column;align-items:center;gap:2.2vmin}
+#ov .dice-wrap{position:relative;width:74px;height:74px;margin:0 auto 17px;perspective:500px}
+#ov .dice{position:absolute;inset:5px;transform-style:preserve-3d;animation:roll 2.1s cubic-bezier(.5,.05,.3,1) infinite}
+#ov .face{position:absolute;inset:0;border:3px solid #193b55;border-radius:12px;background:linear-gradient(145deg,#fff,#dcecff);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:8px;box-shadow:inset 0 0 8px rgba(31,75,110,.16)}
+#ov .face i{width:10px;height:10px;border-radius:50%;background:#12324e;place-self:center}
+#ov .face i.o{visibility:hidden}
+#ov .f1{transform:translateZ(32px)}
+#ov .f6{transform:rotateY(180deg) translateZ(32px)}
+#ov .f2{transform:rotateY(90deg) translateZ(32px)}
+#ov .f5{transform:rotateY(-90deg) translateZ(32px)}
+#ov .f3{transform:rotateX(90deg) translateZ(32px)}
+#ov .f4{transform:rotateX(-90deg) translateZ(32px)}
+#ov .f1 i:nth-child(5){background:#f04d61;width:13px;height:13px}
+@keyframes roll{0%{transform:rotateX(-25deg) rotateY(-35deg) rotateZ(0)}50%{transform:rotateX(335deg) rotateY(325deg) rotateZ(18deg)}100%{transform:rotateX(695deg) rotateY(685deg) rotateZ(0)}}
+#ov .dice-wrap{scale:1.7;margin:3.2vmin auto 2vmin}
 #ov.quiet .box{visibility:hidden}
-#ov .pct{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:2;min-width:2.6em;padding:.1em .45em;border-radius:99px;background:rgba(7,35,75,.78);border:1px solid rgba(255,255,255,.6);font-size:clamp(16px,4.6vmin,24px);letter-spacing:.04em;text-align:center;text-shadow:0 2px 4px rgba(0,0,0,.35)}
 #ov .t{font-size:clamp(16px,4vmin,22px);letter-spacing:.06em;text-shadow:0 3px 8px rgba(6,36,74,.28)}
-@keyframes spin{from{transform:rotateX(-24deg) rotateY(0) rotateZ(10deg)}to{transform:rotateX(-24deg) rotateY(360deg) rotateZ(10deg)}}
-@media (prefers-reduced-motion:reduce){#ov .die{animation-duration:12s}#ov.hide{transition:none}}
+@media (prefers-reduced-motion:reduce){#ov .dice{animation-duration:8s}#ov.hide{transition:none}}
 </style>
 </head>
 <body>
 <iframe id="f" title="Ular Tangga Blok" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
-<div id="ov" role="status" aria-live="polite"><div class="box"><div class="scene"><div class="die"><div class="f f1"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f2"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f3"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f4"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f5"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f6"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="t">Memuat...</div></div></div></div></div>
+<div id="ov" role="status" aria-live="polite"><div class="box"><div class="dice-wrap" aria-hidden="true"><div class="dice"><div class="face f1"><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i></div><div class="face f2"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f3"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f4"><i></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f5"><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f6"><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i></div></div></div><div class="t">Memuat...</div></div></div>
 <noscript>Game ini memerlukan JavaScript.</noscript>
 <script>
 (function () {
