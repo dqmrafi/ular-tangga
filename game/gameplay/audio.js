@@ -64,7 +64,11 @@
     gulp(){ beep(220,0.18,'sine',0.1,0,90); beep(200,0.18,'sine',0.1,0.24,80); },
     pop(){ beep(300,0.12,'triangle',0.08,0,900); },
     bounce(){ beep(330,0.2,'triangle',0.07,0,140); },
-    win(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }
+    win(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); },
+    /* 4.1.15 CP4a: SFX acak urutan giliran (Ready Screen). Sintetis lewat beep() yang sama (tanpa file asset baru; bila nanti ada asset khusus, ganti isi fungsi ini saja). */
+    shuffleTick(){ beep(700+Math.random()*700,0.03,'square',0.03); },
+    revealTick(){ beep(660,0.07,'square',0.05); },
+    revealFirst(){ beep(660,0.07,'square',0.05); beep(990,0.14,'square',0.05,0.08); }
   };
 
   /* Gerbang urutan: SFX baru boleh bunyi setelah gameplay menandai audio siap (setelah percobaan BGM pada gesture pertama). */
