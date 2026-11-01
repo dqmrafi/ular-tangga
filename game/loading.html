@@ -134,7 +134,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   st.textContent = to === 'gameplay' ? 'Masuk ke Arena...' : 'Kembali ke Lobi...';
   UT_Preload.run(list, p => {
     out.textContent = p + '%'; fill.style.width = p + '%'; bar.setAttribute('aria-valuenow', p);
-  }, 1500).then(() => {
+  }).then(() => {
     st.textContent = 'Siap Bertualang!';
     try { sessionStorage.setItem('ut:booted', '1'); } catch (e) {}
     go();

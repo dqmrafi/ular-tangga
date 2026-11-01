@@ -39,6 +39,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
 #ov .f4 i:nth-child(1),#ov .f4 i:nth-child(3),#ov .f4 i:nth-child(7),#ov .f4 i:nth-child(9),
 #ov .f5 i:nth-child(1),#ov .f5 i:nth-child(3),#ov .f5 i:nth-child(5),#ov .f5 i:nth-child(7),#ov .f5 i:nth-child(9),
 #ov .f6 i:nth-child(1),#ov .f6 i:nth-child(3),#ov .f6 i:nth-child(4),#ov .f6 i:nth-child(6),#ov .f6 i:nth-child(7),#ov .f6 i:nth-child(9){visibility:visible}
+#ov.quiet .box{visibility:hidden}
 #ov .pct{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:2;min-width:2.6em;padding:.1em .45em;border-radius:99px;background:rgba(7,35,75,.78);border:1px solid rgba(255,255,255,.6);font-size:clamp(16px,4.6vmin,24px);letter-spacing:.04em;text-align:center;text-shadow:0 2px 4px rgba(0,0,0,.35)}
 #ov .t{font-size:clamp(16px,4vmin,22px);letter-spacing:.06em;text-shadow:0 3px 8px rgba(6,36,74,.28)}
 @keyframes spin{from{transform:rotateX(-24deg) rotateY(0) rotateZ(10deg)}to{transform:rotateX(-24deg) rotateY(360deg) rotateZ(10deg)}}
@@ -47,7 +48,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
 </head>
 <body>
 <iframe id="f" title="Ular Tangga Blok" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
-<div id="ov" role="status" aria-live="polite"><div class="box"><div class="scene"><div class="die"><div class="f f1"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f2"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f3"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f4"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f5"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f6"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="pct" id="ovp">0%</div></div><div class="t">Memuat...</div></div></div></div></div>
+<div id="ov" role="status" aria-live="polite"><div class="box"><div class="scene"><div class="die"><div class="f f1"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f2"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f3"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f4"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f5"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="f f6"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="t">Memuat...</div></div></div></div></div>
 <noscript>Game ini memerlukan JavaScript.</noscript>
 <script>
 (function () {
@@ -64,29 +65,21 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
      splash.html & loading.html punya layar muat sendiri, jadi layar ini tidak ditampilkan di atasnya. */
   var SELF_LOADING = /^(splash|loading)\.html$/;
   function pageName(w) { try { return (w.location.pathname.split('/').pop() || 'index.html'); } catch (e) { return ''; } }
-  /* Progress 0 -> 100%: naik mulus mendekati 90% selama halaman belum siap, lalu melompat ke 100% begitu siap (lalu layar hilang). */
-  var ovp = document.getElementById('ovp'), prog = 0, progRaf = 0, hideT = 0, shown = true;
-  function setProg(p) { prog = p; ovp.textContent = Math.round(p) + '%'; }
-  function ramp() {
-    cancelAnimationFrame(progRaf);
-    (function step() {
-      if (!shown) return;
-      setProg(prog + (90 - prog) * 0.06 + 0.05);
-      progRaf = requestAnimationFrame(step);
-    })();
-  }
-  function showOv() {
+  /* Overlay antar-halaman: hanya dadu berputar (tanpa persen palsu; progres asli dihitung di splash/loading).
+     Setelah splash/loading (yang sudah memuat dan menyimpan aset di cache) overlay hanya latar polos, agar tidak tampak memuat dua kali. */
+  var hideT = 0, shown = true;
+  function showOv(quiet) {
     clearTimeout(hideT);
     if (shown && !ov.classList.contains('hide')) return;   // pagehide + beforeunload bisa datang berurutan
-    shown = true; setProg(0);
-    ov.classList.remove('hide'); ramp();
+    shown = true; ov.classList.toggle('quiet', !!quiet);
+    ov.classList.remove('hide');
   }
   function hideOv() {
     if (!shown) return;
-    shown = false; cancelAnimationFrame(progRaf); setProg(100);
-    clearTimeout(hideT); hideT = setTimeout(function () { ov.classList.add('hide'); }, 220);
+    shown = false; clearTimeout(hideT);
+    hideT = setTimeout(function () { ov.classList.add('hide'); }, 120);
   }
-  ramp();   // overlay sudah tampil saat pembungkus pertama dibuka
+  ov.classList.add('quiet');   // pembukaan pertama: splash langsung tampil di bawahnya, jangan ada dadu/teks lebih dulu
 
   function whenReady(w, cb) {
     var d; try { d = w.document; } catch (e) { cb(); return; }
@@ -172,7 +165,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
 
     // layar memuat
     if (SELF_LOADING.test(name)) hideOv(); else whenReady(w, hideOv);
-    var leave = function () { showOv(); };
+    var leave = function () { showOv(SELF_LOADING.test(name)); };
     try {
       w.addEventListener('beforeunload', leave);
       w.addEventListener('pagehide', leave);
