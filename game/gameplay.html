@@ -1898,6 +1898,10 @@ function syncCrystals(){
   const p=players[cur],pr=(p&&p.pos===100)?p.crystal:0;
   A.cv.forEach((c,i)=>{ c.want=(i>=pr)?1:0; }); A.act=(p&&p.pos===100&&pr<4)?pr:-1;
 }
+/* ---------- Dragon Feature 5: Dragon Attack ----------
+   Hanya pemain yang sudah menyelesaikan Crystal 4 (p.ready) yang boleh menyerang. Angka serangan datang dari Special Dice (Feature 4);
+   damage/HP/animasi/kemenangan tetap memakai hitDragon + playTurn existing (tidak ada combat baru). */
+function canAttackDragon(p){ return !!(p&&p.ready&&p.crystal>=4&&p.pos===100&&AWK.done&&!AWK.running&&!gameOver); }
 async function crystalRoll(p,v,gid){
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },n=p.crystal+1;
   if(v!==n){
@@ -2152,6 +2156,7 @@ function makeDragon(){
 const dragon=makeDragon();
 function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(1.3); dragon.userData.dy=0; dragon.userData.shk=0; }
 async function hitDragon(p,v){
+   if(!canAttackDragon(p)) return; /* Feature 5: pemain yang belum READY (Crystal 1-4) tidak boleh melukai Dragon */
    const D=dragon.userData,dmg=v*DMG,gid=gameId,atk='Serangan '+v+' x '+DMG+' = '+dmg+' damage!';
    /* 4.1.9: 1 serangan = 1 presentation utama (combat strip HUD, dengan guard gid). setMsg + attack card hanya FALLBACK bila HUD combat tidak tersedia, agar tidak jadi 3 notifikasi yang sama. */
    const H=window.UT&&UT.GameplayHUD;
@@ -2557,6 +2562,7 @@ async function playTurn(p,v,gid,bn){
       if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); } else nextTurn();
       return;
     }
+    if(!canAttackDragon(p)){ nextTurn(); return; } /* guard Feature 5 */
     sfx.dragonIdle();
     await A(hitDragon(p,v));
     if(p.dhp<=0){ await A(celebrate(p)); finishGame(p); return; }
