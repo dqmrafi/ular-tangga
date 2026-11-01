@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a62b8">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Ular Tangga Blok</title>
+<style>
+/* Pembungkus game (Stage 4.1.19). Landscape / desktop: iframe memenuhi layar.
+   HP portrait (pointer kasar): iframe berukuran 100dvh x 100dvw lalu diputar 90° searah jarum jam, sehingga isi game tampil landscape
+   memenuhi tinggi layar tanpa pemain memutar HP. Bila HP diputar ke landscape, otomatis kembali normal. */
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;overscroll-behavior:none}
+#f{position:fixed;left:0;top:0;width:100vw;height:100vh;width:100dvw;height:100dvh;border:0;display:block;background:#1a62b8}
+@media (orientation:portrait) and (pointer:coarse){
+  #f{width:100vh;height:100vw;width:100dvh;height:100dvw;transform-origin:0 0;transform:translateX(100vw) rotate(90deg);transform:translateX(100dvw) rotate(90deg)}
+}
+</style>
+</head>
+<body>
+<iframe id="f" title="Ular Tangga Blok" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
+<noscript>Game ini memerlukan JavaScript.</noscript>
+<script>
+(function () {
+  var f = document.getElementById('f'), go = 'splash.html';
+  try {
+    var q = new URLSearchParams(location.search).get('go');
+    // hanya halaman .html di folder yang sama (bukan play.html/index.html) agar tidak jadi open redirect
+    if (q && /^[A-Za-z0-9_-]+\.html(\?[^#]*)?(#.*)?$/.test(q) && !/^(play|index)\.html/.test(q)) go = q;
+  } catch (e) {}
+  f.addEventListener('load', function () { try { f.contentWindow.focus(); } catch (e) {} });
+  f.src = go;
+})();
+</script>
+</body>
+</html>
