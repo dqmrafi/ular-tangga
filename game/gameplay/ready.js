@@ -113,7 +113,7 @@
             k.shown = v; k.ord.textContent = String(v);
           });
         }
-        var revealed = 0, finalStarted = false, t0 = Date.now(), tickNo = 0;
+        var revealed = 0, finalStarted = false, t0 = Date.now(), lastT = t0, tickNo = 0;
         function reveal(no) {
           var p = ordered[no - 1], k = cardOf(p); p.turnOrder = no;
           k.locked = true; k.ord.textContent = String(no); k.ord.classList.remove('scr'); k.ord.classList.add('set', 'lock'); k.c.classList.add('lock');
@@ -130,7 +130,8 @@
         }
         function tick() {
           if (ctx.cancelled || run !== ctx) { clearInterval(ctx.anim); ctx.anim = null; return; }
-          var el = Date.now() - t0;
+          var nowT = Date.now(); if (A().held()) { t0 += nowT - lastT; lastT = nowT; return; } /* CP4b: tab hidden / Putar HP -> animasi reveal ikut berhenti */
+          lastT = nowT; var el = nowT - t0;
           if (revealed < n && el >= SCRAMBLE_MS + revealed * REVEAL_GAP_MS) reveal(++revealed); /* maks. satu reveal per tick */
           if (revealed >= n) { finalResult(); return; }
           scrambleOpen(); if ((tickNo++ & 1) === 0) sfx('shuffleTick');
