@@ -64,3 +64,16 @@ html body .ov > .box > .x {
    (mis. skrip error), halaman tampil sendiri setelah 1.5 detik. Saat ut-ready ada, tampil langsung tanpa delay. */
 html:not(.ut-ready) body { visibility: hidden; animation: ut-reveal 0s 1.5s forwards !important; }
 @keyframes ut-reveal { to { visibility: visible; } }
+
+/* ---------- Stage 16:10 (Stage 4.1.19) ----------
+   Halaman dengan <html class="stage16">: di landscape, <body> menjadi kotak 16:10 di tengah layar (space kiri-kanan/atas-bawah bila
+   rasio layar berbeda). Transform pada body membuat semua elemen position:fixed/absolute (#ui, #sky, modal, toast, currency bar)
+   ikut berpatokan ke kotak ini, bukan ke layar penuh. Portrait tetap memakai layout reflow masing-masing halaman. */
+@media (min-aspect-ratio: 1/1) {
+  html.stage16 { font-size: min(1vw, 1.6vh); }
+  html.stage16 body {
+    position: absolute; left: 50%; top: 50%; translate: -50% -50%;
+    width: min(100vw, 160vh); height: min(100vh, 62.5vw);
+    background: transparent;
+  }
+}
