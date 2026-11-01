@@ -254,6 +254,7 @@ $('#gear').addEventListener('click',()=>{const T=SET(),row=(k,l)=>`<div class="r
 $('#back').addEventListener('click',()=>{location.href='lobby.html'});
 window.openModeScreen=()=>{$('#stage').style.display=''};window.closeModeScreen=()=>{$('#stage').style.display='none'};
 renderModes();renderBars();money();
+document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 })();
 </script>
 </body></html>

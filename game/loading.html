@@ -124,7 +124,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   const THREE = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
   const list = to === 'gameplay'
     ? ['gameplay.html', 'assets/js/game-integration.js', 'assets/sfx/button.mp3', 'assets/sfx/power.mp3', 'assets/sfx/kalah.mp3', 'assets/sfx/game_assets_sfx_chest.mp3', THREE]
-    : ['lobby.html', 'assets/js/item-art.js', 'assets/js/player-data.js', 'assets/sfx/button.mp3', THREE];
+    : ['lobby.html', 'assets/css/shared-ui.css', 'assets/js/landscape.js', 'assets/js/boot-guard.js', 'shop.html', 'inventory.html', 'profile.html', 'promosi/placeholder.jpg', 'assets/js/item-art.js', 'assets/js/player-data.js', 'assets/sfx/button.mp3', THREE];
   st.textContent = to === 'gameplay' ? 'Masuk ke Arena...' : 'Kembali ke Lobi...';
   UT_Preload.run(list, p => {
     out.textContent = p + '%'; fill.style.width = p + '%'; bar.setAttribute('aria-valuenow', p);

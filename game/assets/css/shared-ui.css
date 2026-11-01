@@ -57,3 +57,10 @@ html body .ov > .box > .x {
   display: grid; place-items: center; line-height: 1;
   background: #ee4a4a; box-shadow: 0 .3rem 0 #8e1d1d; color: #fff; font-size: 2.4rem; cursor: pointer;
 }
+
+/* ---------- Initial visual cover (Stage 4.1.17B) ----------
+   Halaman tetap disembunyikan (layout tetap dihitung; latar html tetap terlihat) sampai skrip halaman menambahkan
+   class "ut-ready" pada <html> setelah render awal. Fallback murni CSS: bila sinyal tidak pernah datang
+   (mis. skrip error), halaman tampil sendiri setelah 1.5 detik. Saat ut-ready ada, tampil langsung tanpa delay. */
+html:not(.ut-ready) body { visibility: hidden; animation: ut-reveal 0s 1.5s forwards !important; }
+@keyframes ut-reveal { to { visibility: visible; } }

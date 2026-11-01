@@ -2,7 +2,7 @@
 <html lang="id"><head><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Hadiah Harian</title>
-<link rel="stylesheet" href="assets/css/base.css"><style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><style>
 :root{--bd:#12337f;--g:#3cc23c}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 html{font-size:min(1vw,2vh)}
@@ -273,6 +273,7 @@ if(ok&&rigs.length){clock=new THREE.Clock();new ResizeObserver(fit).observe(docu
 else{$('#hero').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:6rem">🧑‍🚀</div>';$('#chest').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:8rem">🎁</div>'}
 // ---------- init
 sync();renderDays();tick();setInterval(tick,1000);
+document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 })();
 </script>
 </body></html>

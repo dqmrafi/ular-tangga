@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Leaderboard</title>
-<link rel="stylesheet" href="assets/css/base.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css">
 <style>
 :root{
   --bd:#12337f;
@@ -439,6 +439,7 @@ renderTabs();renderAll();
 if(ok)build();
 if(ok&&R){new ResizeObserver(fit).observe($('#pod'));fit();requestAnimationFrame(loop)}
 else $('#pod').insertAdjacentHTML('afterbegin','<div style="position:absolute;inset:0;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>');
+document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 })();
 </script>
 </body>

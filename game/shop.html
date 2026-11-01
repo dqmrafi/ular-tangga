@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Toko</title>
-<link rel="stylesheet" href="assets/css/base.css">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css">
 <style>
 :root{
   --bd:#12337f;
@@ -543,6 +543,7 @@ if(typeof THREE==='undefined')ok=false;
 renderCats();renderGrid();renderInfo();
 if(ok){main=rig($('#gl'),true,3.4,17,36);if(ok){buildModels();new ResizeObserver(fit).observe(document.body);new ResizeObserver(fit).observe($('#show'));fit();requestAnimationFrame(loop)}}
 if(!ok){$('#show').innerHTML='<div style="height:100%;display:grid;place-items:center;font-size:3rem">3D tidak tersedia</div>'}
+document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 })();
 </script>
 </body>

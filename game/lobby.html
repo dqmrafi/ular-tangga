@@ -301,6 +301,7 @@ function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Ma
  ring.material.opacity=.75+Math.sin(t*2.5)*.2;ring.scale.setScalar(1+Math.sin(t*2.5)*.03);
  renderer.render(scene,cam)}
 loop();
+document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 })();
 </script>
 </body></html>
