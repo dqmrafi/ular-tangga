@@ -289,7 +289,7 @@ let cheer=0;
 cv.addEventListener('pointerdown',e=>{const x=e.clientX/innerWidth,y=e.clientY/innerHeight;if(x>.33&&x<.57&&y>.2&&y<.68){cheer=1.6;chI.visible=false;chC.visible=true;buzz()}});
 // pointer parallax
 let px=0,py=0,tx=0,ty=0;addEventListener('pointermove',e=>{tx=e.clientX/innerWidth-.5;ty=e.clientY/innerHeight-.5});
-function fit(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(w,h,false);cam.aspect=w/h;const a=w/h,base=36;cam.fov=a<16/9?2*Math.atan(Math.tan(base*Math.PI/360)*(16/9)/a)*180/Math.PI:base;const u=$('#ui').getBoundingClientRect(),d=w/2-(u.left+u.width*.445);cam.setViewOffset(w,h,Math.round(d),0,w,h)}
+function fit(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(w,h,false);cam.aspect=w/h;const a=w/h,base=36;cam.fov=a<16/9?2*Math.atan(Math.tan(base*Math.PI/360)*(16/9)/a)*180/Math.PI:base;const u=$('#ui').getBoundingClientRect(),d=w/2-(u.left+u.width*.445);cam.setViewOffset(w,h,Math.round(d),0,w,h);try{renderer.render(scene,cam)}catch(e){}/* setSize mengosongkan canvas; gambar ulang sekarang agar tidak ada frame kosong (kilatan putih) saat rotasi */}
 addEventListener('resize',fit);fit();
 const clock=new THREE.Clock();
 function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Math.min(clock.getDelta(),.05);
