@@ -1831,7 +1831,18 @@ function buildArena(){
   const mkPlane=(col,sz,y)=>{ const m=new THREE.Mesh(new THREE.PlaneGeometry(sz,sz),new THREE.MeshBasicMaterial({map:tex,color:col,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); m.rotation.x=-Math.PI/2; m.position.y=y; m.frustumCulled=false; g.add(m); return m; };
   const glowP=mkPlane(0x7A4DFF,4.2,0.85),glowC=mkPlane(0xE040FF,2.4,cr.position.y),ring=mkPlane(0x4AEDD9,3,0.88);
   const beam=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xE040FF,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); beam.visible=false; beam.frustumCulled=false; g.add(beam);
-  return {g,tw,cr,core,shell,inst,pt,glowP,glowC,ring,beam,rise:0,tower:0,crystal:0,energy:0,burst:0,m4:new THREE.Matrix4(),q:new THREE.Quaternion(),p:new THREE.Vector3(),sc:new THREE.Vector3(),col:new THREE.Color()};
+  /* Feature 3: 4 End Crystal progression di 4 sudut arena (urut searah jarum jam dari kiri-atas). Tampilan mengikuti progress pemain yang sedang giliran. */
+  const cvs=[[-1,-1],[1,-1],[1,1],[-1,1]].map((q,i)=>{
+    const cg=new THREE.Group(); cg.position.set(q[0]*(W/2-0.2),2.25,q[1]*(D/2-0.2)); cg.visible=false;
+    const cc=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3),new THREE.MeshBasicMaterial({color:0xE040FF}));
+    const cs2=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.5,0.5),new THREE.MeshBasicMaterial({color:0x4AEDD9,transparent:true,opacity:0.38,depthWrite:false}));
+    cc.rotation.set(0.6155,0,Math.PI/4); cs2.rotation.copy(cc.rotation); cg.add(cc,cs2); g.add(cg);
+    const c3=document.createElement('canvas'); c3.width=c3.height=64; const x3=c3.getContext('2d'); x3.fillStyle='rgba(10,6,20,0.7)'; x3.fillRect(8,8,48,48); x3.strokeStyle='#4AEDD9'; x3.lineWidth=3; x3.strokeRect(8,8,48,48); x3.fillStyle='#FFFFFF'; x3.font='bold 36px sans-serif'; x3.textAlign='center'; x3.textBaseline='middle'; x3.fillText(String(i+1),32,34);
+    const lab=new THREE.Mesh(new THREE.PlaneGeometry(0.5,0.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c3),transparent:true,opacity:0,depthWrite:false})); lab.rotation.x=-Math.PI/2; lab.position.set(cg.position.x,2.9,cg.position.z); lab.visible=false; g.add(lab);
+    const fl=mkPlane(0xFFFFFF,1.8,2.25); fl.position.set(cg.position.x,2.25,cg.position.z); fl.rotation.x=-Math.PI/2;
+    return {cg,cc,cs2,lab,fl,s:0,want:0,flash:0};
+  });
+  return {cv:cvs,act:-1,g,tw,cr,core,shell,inst,pt,glowP,glowC,ring,beam,rise:0,tower:0,crystal:0,energy:0,burst:0,m4:new THREE.Matrix4(),q:new THREE.Quaternion(),p:new THREE.Vector3(),sc:new THREE.Vector3(),col:new THREE.Color()};
 }
 const ease3=k=>k*k*(3-2*k);
 function updateArena(dt,now){
@@ -1853,17 +1864,50 @@ function updateArena(dt,now){
     A.m4.compose(A.p,A.q,A.sc); A.inst.setMatrixAt(i,A.m4); A.inst.setColorAt(i,A.col.copy(o.c).multiplyScalar(0.4+0.6*en));
   }
   A.inst.instanceMatrix.needsUpdate=true; if(A.inst.instanceColor) A.inst.instanceColor.needsUpdate=true;
+  for(let i=0;i<A.cv.length;i++){
+    const c=A.cv[i],act=(i===A.act);
+    c.s+=(c.want-c.s)*Math.min(1,dt*(c.want?4:9)); if(Math.abs(c.want-c.s)<0.004) c.s=c.want;
+    c.flash=Math.max(0,c.flash-dt*1.6);
+    c.cg.visible=c.s>0.02; c.cg.scale.setScalar(Math.max(0.001,c.s*(act?1.18+0.1*Math.sin(t*5):1)));
+    c.cg.position.y=2.25+Math.sin(t*2+i)*0.07; c.cg.rotation.y=t*(act?2.4:1);
+    c.cs2.material.opacity=act?0.5:0.22; c.cc.material.color.setHex(act?0xFF8CFF:0xB030D0);
+    c.lab.visible=c.s>0.5; c.lab.material.opacity=act?1:0.45;
+    c.fl.material.opacity=c.flash*0.8+(act?0.12+0.08*Math.sin(t*5):0); c.fl.scale.setScalar(0.6+(1-c.flash)*(c.flash>0?2.2:0.4));
+  }
 }
 /* state arena sesuai AWK: dipanggil setelah world dibangun ulang (ganti tema) & saat game baru */
 function applyArenaState(){
   const A=ARENA; if(!A) return;
   const fin=AWK.done;
-  A.g.visible=fin; A.rise=fin?1:0; A.tower=fin?1:0; A.crystal=fin?1:0; A.energy=fin?0.35:0; A.burst=0;
+  A.g.visible=fin; A.rise=fin?1:0; A.tower=fin?1:0; A.crystal=0; A.energy=0; A.burst=0; /* crystal tower diganti 4 End Crystal progression setelah awakening */
+  A.cv.forEach(c=>{ c.want=0; c.s=0; c.flash=0; }); A.act=-1; if(fin) syncCrystals();
   if(FARMG) FARMG.visible=!fin;
 }
 function resetAwakening(){
   AWK.done=false; AWK.running=false; document.body.classList.remove('awk-lock');
   applyArenaState();
+}
+/* ---------- Dragon Feature 3: End Crystal progression (per player) ----------
+   p.crystal = jumlah crystal yang sudah dihancurkan pemain itu (0..4); p.ready = READY menyerang Dragon (setelah crystal 4).
+   Crystal n hanya hancur bila pemain melempar angka n; selain itu tidak ada progress. Tidak menyentuh progress pemain lain.
+   Tampilan 4 crystal di arena mengikuti pemain yang sedang giliran (pemain yang tidak di Block 100 = semua utuh). */
+function syncCrystals(){
+  const A=ARENA; if(!A||!AWK.done) return;
+  const p=players[cur],pr=(p&&p.pos===100)?p.crystal:0;
+  A.cv.forEach((c,i)=>{ c.want=(i>=pr)?1:0; }); A.act=(p&&p.pos===100&&pr<4)?pr:-1;
+}
+async function crystalRoll(p,v,gid){
+  const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },n=p.crystal+1;
+  if(v!==n){
+    setMsg(p.name+' melempar '+v+'. Crystal '+n+' butuh angka '+n+'. Tidak ada progress.'); fb('event','dragon','Crystal '+n+' butuh angka '+n+' (dapat '+v+')',{gid,ttl:1800}); sfx.bounce();
+    await S(sleep(900)); return false;
+  }
+  p.crystal=n; syncCrystals();
+  const c=ARENA&&ARENA.cv[n-1]; if(c){ c.flash=1; } sfx.crystalBreak();
+  setMsg(p.name+' menghancurkan Crystal '+n+'! ('+n+'/4)'); fb('event','dragon','Crystal '+n+' hancur! '+n+'/4',{gid,ttl:1800});
+  await S(sleep(900)); renderChips();
+  if(n===4){ p.ready=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.win(); renderChips(); await S(sleep(700)); }
+  return true;
 }
 async function awakenDragon(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
@@ -1890,7 +1934,9 @@ async function awakenDragon(p,gid){
     await S(tween(1.0*F,k=>{ dragon.scale.setScalar(0.05+1.25*k); }));
     await S(tween(1.8*F,k=>{ dragon.position.x=ax+(T.x-ax)*k; dragon.position.z=az+(T.z-az)*k; Dd.dy=(ay-Dd.y0)*(1-k)+Math.sin(k*Math.PI)*1.0; Dd.shk=hd*(1-k); A.energy=1-0.65*k; }));
     dragon.position.x=T.x; dragon.position.z=T.z; Dd.dy=0; Dd.shk=0; dragon.scale.setScalar(1.3);
-    await S(tween(0.6*F,k=>{ A.energy=0.35; }));
+    const e0=A.energy; await S(tween(0.8*F,k=>{ A.crystal=1-k; A.energy=e0*(1-k); }));
+    A.cv.forEach(c=>{ c.want=1; c.flash=0.6; }); A.act=0; /* 4 End Crystal progression muncul; progress per player ditentukan saat giliran */
+    await S(sleep(600*F));
     finished=true;
   }finally{
     if(gid===gameId){ /* STALE (game baru) ditangani resetAwakening di startGame */
@@ -2361,10 +2407,10 @@ function renderChips(){
     const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':''); d.style.setProperty('--pc',p.css);
     const im=document.createElement('img'); im.src=faceURL(p.key); im.alt='';
     const nm=document.createElement('span'); nm.textContent=p.name;
-    const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===100?'Naga '+p.dhp:String(p.pos));
+    const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===100?(p.ready?'Naga '+p.dhp:'Crystal '+p.crystal+'/4'):String(p.pos));
     d.appendChild(im); d.appendChild(nm); d.appendChild(ps);
     const bfT=[p.bonus?'🗡️+3':'',p.extra?'🪶 ekstra':'',p.p4?'🧪 dadu 4-6':'',p.shield?'🗿 kebal':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
-    if(p.pos===100){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=p.dhp+'%'; hp.appendChild(b); d.appendChild(hp); }
+    if(p.pos===100&&p.ready){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=p.dhp+'%'; hp.appendChild(b); d.appendChild(hp); }
     box.appendChild(d);
     const r=document.createElement('div'); r.className='sr'; r.style.color=p.key==='ender'?'#c9a2ff':p.css;
     const im2=document.createElement('img'); im2.src=faceURL(p.key); im2.alt='';
@@ -2391,7 +2437,7 @@ function beginTurn(extra){
   applyPendingTheme();
   const p=players[cur];
   if(FBK) FBK.setCurrentMarker(players,cur);
-  focus=p.pawn; renderChips();
+  focus=p.pawn; renderChips(); syncCrystals();
   hud('showTurn',p,{extra:!!extra});
   if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Lempar dadu.'));
   else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll dadu.':'Giliran '+p.name+'. Tekan Lempar dadu.'));
@@ -2504,6 +2550,11 @@ async function playTurn(p,v,gid,bn){
   focus=p.pawn;
   if(p.pos===100){
     if(!AWK.done) await A(awakenDragon(p,gid)); /* jaga-jaga: naga tak boleh diserang sebelum Awakening */
+    if(!p.ready){ /* Feature 3: belum READY -> lawan End Crystal, bukan Dragon */
+      await A(crystalRoll(p,v,gid));
+      if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); } else nextTurn();
+      return;
+    }
     sfx.dragonIdle();
     await A(hitDragon(p,v));
     if(p.dhp<=0){ await A(celebrate(p)); finishGame(p); return; }
@@ -2607,7 +2658,7 @@ function startGame(m,keys){
   defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
   defs.forEach((d,i)=>{
     const pawn=makePawn(d); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
-    players.push({idx:i,name:d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:100,pawn,score:0,bonus:0,extra:false,p4:false,shield:false,pu:startPU()});
+    players.push({idx:i,name:d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:100,crystal:0,ready:false,pawn,score:0,bonus:0,extra:false,p4:false,shield:false,pu:startPU()});
   });
   cur=0; resetCam();
   $('win').hidden=true;
