@@ -165,7 +165,7 @@ window.UT = window.UT || {};
   /* ================= Audio (fondasi; TIDAK menggantikan WebAudio gameplay) ================= */
   var SFX_BASE = 'assets/sfx/';
   var SFX = {                       /* nama logis -> file yang ADA di assets/sfx */
-    button: 'button.mp3',
+    button: 'button-click.mp3', /* sebelumnya 'button.mp3' (file tidak ada) sehingga suara tombol tidak pernah bunyi */
     chest: 'game_assets_sfx_chest.mp3', /* nama file asli di project; file tidak diganti nama */
     kalah: 'kalah.mp3',
     power: 'power.mp3'
@@ -182,6 +182,10 @@ window.UT = window.UT || {};
   };
   UT.Audio.play = function (name) {
     if (muted) return false;
+    /* Ketukan tombol dimainkan oleh pembungkus (play.html) bila ada: suara tetap bunyi walau halaman langsung berpindah. */
+    if (name === 'button') {
+      try { if (win.parent && win.parent !== win && win.parent.UTShell) { win.parent.UTShell.click(); return true; } } catch (e) {}
+    }
     var a = UT.Audio.get(name); if (!a) return false;
     try {
       a.volume = volume; a.currentTime = 0;
@@ -236,6 +240,17 @@ window.UT = window.UT || {};
         }
         last = now;
       });
+    }
+    /* Suara ketukan tombol otomatis untuk halaman yang belum punya playSound sendiri (halaman lain sudah memanggil UT.Audio.play('button')).
+       Hanya bunyi bila pengaturan "Suara" aktif. */
+    if (['lobby', 'mode', 'friendship'].indexOf(UT.App.page) > -1) {
+      doc.addEventListener('click', function (e) {
+        var t = e.target && e.target.closest ? e.target.closest('button,[role="button"],a[href],[data-act]') : null;
+        if (!t || t.disabled) return;
+        var s = UT.State.getSettings();
+        if (s && s.sound === false) return;
+        UT.Audio.play('button');
+      }, true);
     }
     UT.App.ready = true;
     UT.Events.emit('appReady', { page: UT.App.page });
