@@ -55,6 +55,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   .cl8{width:140px;bottom:4%}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:0.01ms!important;animation-iteration-count:1!important}}
+/* Stage 1.85:1 (Stage 4.1.19): di landscape konten jadi kotak 1.85:1 di tengah; min-height portrait dilepas agar tidak terpotong di HP landscape */
+@media (min-aspect-ratio:1/1){
+  body{background:radial-gradient(ellipse at 50% 60%,rgba(220,246,255,.7),transparent 55%),linear-gradient(180deg,#1357c4 0%,#3b92ee 40%,#8fd0ff 72%,#d4efff 100%)}
+  .screen{position:absolute;left:50%;top:50%;translate:-50% -50%;width:min(100vw,185vh);height:min(100vh,54.054vw);min-height:0;background:none;container-type:size}
+  .ui{width:min(440px,60cqw)}
+}
 </style>
 <script src="assets/js/landscape.js"></script></head>
 <body>

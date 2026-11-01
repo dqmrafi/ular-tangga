@@ -95,6 +95,17 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   .st1,.st2,.st3{display:none}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:0.01ms!important;animation-iteration-count:1!important}}
+/* Stage 1.85:1 (Stage 4.1.19): di landscape konten jadi kotak 1.85:1 di tengah; min-height portrait dilepas agar tidak terpotong di HP landscape */
+@media (min-aspect-ratio:1/1){
+  body{background:radial-gradient(ellipse at 50% 62%,rgba(220,246,255,.7),transparent 52%),linear-gradient(180deg,#1357c4 0%,#3b92ee 40%,#8fd0ff 72%,#d4efff 100%)}
+  .splash{position:absolute;left:50%;top:50%;translate:-50% -50%;width:min(100vw,185vh);height:min(100vh,54.054vw);min-height:0;background:none;container-type:size}
+  .brand{top:4cqh}
+  .brand h1{font-size:clamp(22px,7cqh,54px)}
+  .isl.main{width:min(46cqh,470px);top:45%}
+  .bottom-ui{bottom:3cqh;width:min(420px,60cqw)}
+  .dice-wrap{scale:.62;margin:-14px auto -6px}
+  .status{font-size:18px;margin-bottom:8px}
+}
 </style>
 <script src="assets/js/landscape.js"></script></head>
 <body>
