@@ -41,6 +41,7 @@ svg{display:block}
 .mode:focus-visible{outline:.4rem solid #fff}
 .art{position:absolute;left:0;right:0;top:0;height:16.5rem;background:linear-gradient(var(--a1),var(--a2));border-radius:2.6rem 2.6rem 0 0}
 .art svg{width:100%;height:100%}
+.art{overflow:hidden}.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
 .pn{position:absolute;left:0;right:0;bottom:0;top:15.6rem;display:flex;flex-direction:column;padding:2.3rem 1.5rem 1.5rem;background:linear-gradient(var(--p1),var(--p2));border-radius:2.2rem 2.2rem 0 0;box-shadow:inset 0 .25rem 0 rgba(255,255,255,.28)}
 .tag{position:absolute;left:1.3rem;top:14.6rem;z-index:2;padding:0 1.3rem;height:2.5rem;line-height:2.5rem;border-radius:1.3rem;font-size:1.2rem;white-space:nowrap;background:var(--tg);color:var(--tgc,#fff);box-shadow:inset 0 .15rem .2rem rgba(255,255,255,.45),0 0 0 .18rem rgba(255,255,255,.35),0 .2rem 0 rgba(0,0,0,.25)}
 .mode h3{margin:0;font-size:3.7rem;white-space:nowrap;line-height:1;letter-spacing:.02em;-webkit-text-stroke:.55rem var(--c3);paint-order:stroke fill;text-shadow:0 .3rem 0 var(--c3)}
@@ -199,8 +200,9 @@ const BARS=[
 // ---------- render
 function renderModes(){$('#modes').innerHTML=MODES.map((m,i)=>{const c=m.c;
  return `<div class="mode ${m.id===sel?'sel':''}" data-id="${m.id}" tabindex="0" role="button" aria-pressed="${m.id===sel}" aria-label="${m.name}" style="--c1:${c[0]};--c2:${c[1]};--c3:${c[2]};--p1:${c[3]};--p2:${c[4]};--a1:${c[5]};--a2:${c[6]};--tg:${c[7]};--tgc:${m.tc||'#fff'};animation-delay:${i*70}ms">
- <div class="art">${ART[m.id]()}</div><span class="tag">${m.tag}</span>
+ <div class="art"><img src="assets/Images/mode/${m.id}.jpg" alt="" draggable="false" decoding="async" data-id="${m.id}"></div><span class="tag">${m.tag}</span>
  <div class="pn"><h3>${m.name}</h3><p>${m.d}</p><button class="cta ${m.cta}" data-act="${m.id}">${I[m.ic]}${m.btn}</button></div></div>`}).join('');
+ document.querySelectorAll('.art img').forEach(im=>im.addEventListener('error',()=>{const a=im.parentNode;if(a&&ART[im.dataset.id])a.innerHTML=ART[im.dataset.id]()}));
  document.querySelectorAll('.mode').forEach(el=>{
   el.addEventListener('click',e=>{select(el.dataset.id);if(e.target.closest('.cta')){act(el.dataset.id);sparkle(e.target.closest('.cta'))}});
   el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(el.dataset.id);act(el.dataset.id)}})})}
