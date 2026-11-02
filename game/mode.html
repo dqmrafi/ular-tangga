@@ -106,7 +106,42 @@ html{font-size:2.6vw}html,body{overflow:auto}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 
-<style>:root{--curbar-right:7.8rem;--curbar-top:1.9rem;--cur-fs:1.9rem;--cur-icon:5.4rem}</style><link rel="stylesheet" href="assets/css/shared-ui.css"><script src="assets/js/landscape.js"></script></head>
+<style>:root{--curbar-right:7.8rem;--curbar-top:1.9rem;--cur-fs:1.9rem;--cur-icon:5.4rem}</style><link rel="stylesheet" href="assets/css/shared-ui.css"><script src="assets/js/landscape.js"></script><style>
+/* ===== redesign mode (referensi redesign-hud/mode.jpg): hanya tampilan, logika tidak berubah ===== */
+.blue{background:linear-gradient(#3f93f4,#1d58c6);border-radius:1rem;box-shadow:0 0 0 .22rem #0b1530,0 .5rem 0 .22rem #0b1530,inset 0 .2rem .2rem rgba(255,255,255,.55),inset 0 0 0 .25rem rgba(150,205,255,.45)}
+#back,#gear{border-radius:1rem}
+#title{border-radius:1rem;text-shadow:0 .2rem 0 #0b1530;-webkit-text-stroke:.2rem #0b1530;paint-order:stroke fill}
+#gear{width:5rem;height:5rem;right:2.4rem;top:1.7rem}
+:root{--curbar-right:9rem;--curbar-top:2rem;--cur-h:4.4rem;--cur-icon:4.8rem;--cur-plus:3rem;--cur-fs:2.3rem;--cur-minw:14.4rem;--cur-gap:2.2rem}
+html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);border-radius:.9rem;box-shadow:0 0 0 .2rem #0b1220,0 .35rem 0 .2rem #0b1220,inset 0 0 0 .2rem #8696ad;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
+html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
+.mode{border-radius:1.6rem;box-shadow:0 0 0 .3rem #0b0c10,0 .7rem 0 .3rem #0b0c10,0 1.4rem 2rem rgba(18,30,100,.35),inset 0 0 0 .38rem var(--c2)}
+.mode.sel{box-shadow:0 0 0 .3rem #0b0c10,0 0 0 .75rem #ffd73a,0 0 2.8rem 1rem rgba(255,225,70,.65),0 .7rem 0 .3rem #0b0c10,inset 0 0 0 .38rem #ffd73a}
+.art{border-radius:1.4rem 1.4rem 0 0;margin:.38rem .38rem 0;left:0;right:0;height:16.4rem}
+.pn{border-radius:0;background:linear-gradient(var(--p1),var(--p2));box-shadow:none;margin:0 .38rem .38rem;padding:2.4rem 1.3rem 1.3rem}
+.lk{border-radius:1.4rem 1.4rem 0 0;margin:.38rem .38rem 0;height:16.4rem;background:rgba(10,12,30,.35)}
+.lk svg{filter:grayscale(1) brightness(1.25) drop-shadow(0 .3rem 0 rgba(0,0,0,.45))}
+.lk b{color:#1a1206;border-radius:.8rem;background:linear-gradient(#ffe65a,#ffc21a);box-shadow:0 0 0 .22rem #1a1206,0 .3rem 0 .22rem #1a1206,inset 0 .15rem .2rem rgba(255,255,255,.6)}
+.tag{left:1.4rem;top:14.9rem;border-radius:1rem;box-shadow:0 0 0 .2rem #0b0c10,inset 0 .15rem .2rem rgba(255,255,255,.4)}
+.mode h3{-webkit-text-stroke:.5rem #0b0c10;text-shadow:0 .3rem 0 #0b0c10;font-size:3.5rem}
+.cta{border-radius:.9rem;box-shadow:0 0 0 .2rem #0b0c10,0 .4rem 0 .2rem #0b0c10,inset 0 .2rem .2rem rgba(255,255,255,.45)}
+.cta.g{background:linear-gradient(#4fd24a,#27992a);text-shadow:0 .15rem 0 #0e4a12}
+.cta.off{background:linear-gradient(#9aa0ab,#6a707c);box-shadow:0 0 0 .2rem #0b0c10,0 .4rem 0 .2rem #0b0c10,inset 0 .2rem .2rem rgba(255,255,255,.3);color:#d9dde4}
+.bb{border-radius:1.2rem;background:linear-gradient(#3f93f4,#1d58c6);box-shadow:0 0 0 .25rem #0b1530,0 .5rem 0 .25rem #0b1530,inset 0 .2rem .3rem rgba(255,255,255,.5),inset 0 0 0 .22rem rgba(150,205,255,.45)}
+.bb b{-webkit-text-stroke:.2rem #0b1530;paint-order:stroke fill}
+.mode.locked .pn{filter:none}
+.mode.locked h3{color:#fff}.mode.locked p{color:#e6e9f0}
+.pn{top:16.5rem}.tag{top:15.2rem;z-index:4}
+.bb{gap:1rem;padding:0 1.2rem}
+.bb>svg:first-child{width:3.8rem;height:3.8rem}
+.bb b{font-size:1.5rem}.bb small{font-size:.95rem}
+.bb .tx{overflow:hidden}.bb .ch{width:1.7rem;height:1.7rem}
+.bb .soon{display:none}
+@media(min-aspect-ratio:1/1){
+#modes{left:4.6rem;right:4.6rem;top:9.4rem;height:35rem;gap:1.6rem}
+#bar{left:4.6rem;right:4.6rem;top:46.6rem;height:7.4rem;gap:1.8rem}
+}
+</style></head>
 <body>
 <div id="sky"></div>
 <div id="stage">
@@ -199,10 +234,10 @@ chev:'<svg class="ch" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" str
 bot:'<svg class="bot" viewBox="0 0 60 64"><circle cx="30" cy="6" r="3" fill="#ffd24d"/><rect x="29" y="6" width="2" height="6" fill="#cfe6ff"/><rect x="3" y="26" width="7" height="14" rx="3" fill="#2f6fd0"/><rect x="50" y="26" width="7" height="14" rx="3" fill="#2f6fd0"/><rect x="8" y="11" width="44" height="40" rx="12" fill="#4aa8ff" stroke="#1f6fe0" stroke-width="2"/><rect x="14" y="21" width="32" height="22" rx="7" fill="#10244f"/><rect x="20" y="27" width="6" height="9" rx="2" fill="#6cf0ff"/><rect x="34" y="27" width="6" height="9" rx="2" fill="#6cf0ff"/><path d="M26 39q4 3 8 0" stroke="#6cf0ff" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="16" y="52" width="28" height="11" rx="4" fill="#fff"/></svg>'};
 // ---------- data
 const MODES=[
-{id:'classic',name:'Classic',tag:'4 Player',d:'Mode klasik yang seru<br>dan penuh kejutan.',btn:'Mulai',ic:'play',cta:'y',c:['#2f9bff','#6cc3ff','#0d3a9a','#2a86f0','#1b63d8','#58b8ff','#2f90f0','#1f78e8']},
-{id:'ranked',name:'Ranked',tag:'Solo / Duo',d:'Buktikan skill mu dan<br>raih peringkat tertinggi!',btn:'Masuk',ic:'trophy',cta:'b',c:['#8a3df0','#c58cff','#4a1a9a','#7a35e0','#6026c8','#b45cff','#6a2ae0','#7a35e0']},
-{id:'team',name:'Team',tag:'2 - 4 Player',d:'Bermain bersama tim<br>menjadi lebih seru!',btn:'Buat Tim',ic:'people',cta:'b',c:['#34c74f','#7be08a','#127a2a','#2fc04a','#1ea038','#6ae878','#2fb04a','#1ea038']},
-{id:'turnamen',name:'Turnamen',tag:'Solo / Duo / Squad',d:'Kompetisi antar pemain<br>dengan hadiah menarik!',btn:'Lihat Jadwal',ic:'trophy',cta:'y',c:['#ff9a2a','#ffc46a','#a44a08','#f58a1e','#e8700e','#ffc848','#ff8a1a','#ffd24d'],tc:'#8a4a0a'}];
+{id:'classic',name:'Classic',tag:'4 Player',d:'Mode klasik yang seru<br>dan penuh kejutan.',btn:'Mulai',ic:'play',cta:'g',c:['#34383f','#4a4f58','#0b0c10','#2f3237','#1f2124','#58b8ff','#2f90f0','#2f7fe8']},
+{id:'ranked',name:'Ranked',tag:'Solo / Duo',d:'Buktikan skill mu dan<br>raih peringkat tertinggi!',btn:'Masuk',ic:'trophy',cta:'b',c:['#4a2b8c','#6a44b8','#0b0c10','#35205f','#27164a','#3a2a6a','#201440','#7a35e0']},
+{id:'team',name:'Team',tag:'2 - 4 Player',d:'Bermain bersama tim<br>menjadi lebih seru!',btn:'Buat Tim',ic:'people',cta:'b',c:['#2f6a3c','#47905a','#0b0c10','#25472d','#1a3321','#3a6a48','#1c3a26','#2fa04a']},
+{id:'turnamen',name:'Turnamen',tag:'Solo / Duo / Squad',d:'Kompetisi antar pemain<br>dengan hadiah menarik!',btn:'Lihat Jadwal',ic:'trophy',cta:'y',c:['#7a4d22','#a06a32','#0b0c10','#4a3017','#35220f','#6a4a2a','#3a2814','#f58a1e'],tc:'#3a1c04'}];
 const BARS=[
 {id:'khusus',ic:'crown',t:'Mode Khusus',d:'Event terbatas dengan<br>hadiah spesial!'},
 {id:'room',ic:'people',t:'Custom Room',d:'Buat room sendiri<br>dan main bersama teman!'},
