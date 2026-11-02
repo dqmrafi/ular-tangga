@@ -156,3 +156,9 @@ currency/settings) ? tidak ada yang diimpor, tidak ada data palsu dibuat. Fresh 
 
 Events: memakai `inventoryChanged` existing (bridge app.js membandingkan snapshot inventory) —
 tidak ada event bus baru; `powerupChanged` belum dibuat karena belum ada pemakaian yang perlu event khusus.
+
+## Update Stage 4.1.20 - identity Totem
+- ID Power untuk Totem sekarang `totem` (sebelumnya `apple`); nama tampilan `Totem`. Effect TIDAK berubah (`p.shield=true`).
+- Canonical IDs sekarang: `sword`, `feather`, `tnt`, `totem`, `potion`, `grass`. Bagian di atas yang menyebut `apple` = ID lama.
+- Kompatibilitas: `ItemCatalog.normalizePowerId('apple') -> 'totem'`; `PlayerData` (sanitize) membaca `inventory.apple` lama sebagai `totem`
+  dan menggabungkan jumlahnya bila keduanya ada. Tidak ada schema/migration version baru; hasil normalisasi tersimpan pada penulisan berikutnya.

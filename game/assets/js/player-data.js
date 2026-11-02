@@ -102,14 +102,20 @@
     };
     var inv = (o.inventory && typeof o.inventory === 'object' && !Array.isArray(o.inventory)) ? o.inventory : {};
     var maxSeq = -1;
-    Object.keys(inv).forEach(function (id) {
-      var e = inv[id]; if (!e || typeof e !== 'object') return;
+    Object.keys(inv).forEach(function (rawId) {
+      var e = inv[rawId]; if (!e || typeof e !== 'object') return;
+      /* Stage 4.1.20: save lama menyimpan Totem sebagai 'apple' -> baca sebagai 'totem' (idempoten; ID lain tidak berubah).
+         Bila 'apple' dan 'totem' sama-sama ada, jumlahnya digabung (tidak ada duplikat, stok tidak hilang). */
+      var id = C.normalizePowerId ? C.normalizePowerId(rawId) : rawId;
       var it = C.byId(id);
       var qty = Math.floor(+e.qty); if (!(qty >= 1)) qty = 1;
       if (it && !it.stackable) qty = 1;
       var seq = Math.floor(+e.seq); if (!(seq >= 0)) seq = maxSeq + 1;
+      var acq = isFinite(e.acquiredAt) ? +e.acquiredAt : st.createdAt;
+      var prev = st.inventory[id];
+      if (prev) { qty = prev.qty + qty; acq = Math.min(prev.acquiredAt, acq); seq = Math.min(prev.seq, seq); }
       if (seq > maxSeq) maxSeq = seq;
-      st.inventory[id] = { qty: qty, acquiredAt: isFinite(e.acquiredAt) ? +e.acquiredAt : st.createdAt, seq: seq };
+      st.inventory[id] = { qty: qty, acquiredAt: acq, seq: seq };
     });
     st.nextSeq = Math.max(maxSeq + 1, Math.floor(+o.nextSeq) || 0);
     C.starters().forEach(function (it) { /* item awal tidak pernah hilang */

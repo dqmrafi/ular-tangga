@@ -52,7 +52,7 @@
     sword: ['🗡️', 'Pedang', 'langkah berikutnya +3'],
     feather: ['🪶', 'Bulu', 'giliran tambahan'],
     tnt: ['🧨', 'TNT', 'pemain terdepan mundur 6'],
-    apple: ['🗿', 'Totem Undying', 'kebal dari 1 ular atau mob jahat'],
+    totem: ['🗿', 'Totem', 'kebal dari 1 ular atau mob jahat'],
     potion: ['🧪', 'Ramuan', 'dadu berikutnya 4 sampai 6'],
     grass: ['🟩', 'Blok Rumput', 'tukar posisi dengan pemain terdepan']
   };
