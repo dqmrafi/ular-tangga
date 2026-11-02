@@ -40,8 +40,11 @@
     }catch(e){}
   }
   /* Warm-up: file SFX dimuat lebih awal (tanpa diputar, tanpa butuh gesture) agar pemutaran pertama tidak menunggu fetch/decode. */
-  var SFX_FILES=['jump.mp3','Strong_attack5.ogg.mp3','Teleport2.ogg','Creeper_fuse.ogg','skelton_shoot.ogg','Ender_dragon_hurt4.ogg','Ender_dragon_death.ogg','Ender_dragon_idle3.ogg','100.mp3','ularmakan.mp3','Chest_open.ogg','Chest_close2.ogg','rewardpower.mp3','naiktangga.mp3'],warm=[];
+  var SFX_FILES=['jump.mp3','Strong_attack5.ogg.mp3','Teleport2.ogg','Creeper_fuse.ogg','skelton_shoot.ogg','Ender_dragon_hurt4.ogg','Ender_dragon_death.ogg','Ender_dragon_idle3.ogg','100.mp3','ularmakan.mp3','Chest_open.ogg','Chest_close2.ogg','rewardpower.mp3','naiktangga.mp3','earthquake.mp3','tower.mp3','crsytalshoot.mp3','crystalhancur.mp3'],warm=[];
   function preload(){ if(warm.length) return; SFX_FILES.forEach(function(f){ try{ var a=new Audio(); a.preload='auto'; a.src='assets/sfx/'+f; warm.push(a); }catch(e){} }); }
+  /* File SFX baru (Dragon Awakening): cek mute, kembalikan elemen Audio supaya bisa di-fade/stop. */
+  function fileSfx(file,vol,fb){ if(muted) return null; try{ const a=new Audio('assets/sfx/'+file); a.volume=vol; a.play().catch(fb||function(){}); return a; }catch(e){ if(fb) fb(); return null; } }
+  function fadeOut(a,ms){ if(!a) return; try{ const v0=a.volume,t0=Date.now(),id=setInterval(function(){ const k=Math.min(1,(Date.now()-t0)/ms); a.volume=v0*(1-k); if(k>=1){ clearInterval(id); a.pause(); } },50); }catch(e){} }
   const sfx={
     hop(){ try{ const a=new Audio('assets/sfx/jump.mp3'); a.volume=0.5; a.play().catch(()=>beep(480+Math.random()*120,0.08,'square',0.04)); }catch(e){ beep(480+Math.random()*120,0.08,'square',0.04); } },
     hit(){ try{ const a=new Audio('assets/sfx/Strong_attack5.ogg.mp3'); a.volume=0.7; a.play().catch(()=>beep(330,0.2,'triangle',0.07,0,140)); }catch(e){ beep(330,0.2,'triangle',0.07,0,140); } },
@@ -53,7 +56,13 @@
     dragonIdle(){ try{ const a=new Audio('assets/sfx/Ender_dragon_idle3.ogg'); a.volume=0.5; a.play().catch(()=>{}); }catch(e){} },
     /* Dragon Awakening (Feature 2): PLACEHOLDER SFX 'assets/sfx/dragon-awakening.mp3' (cracking + echo). File belum ada -> fallback sintetis (retak + gema). Ganti file saja bila aset sudah siap. */
     dragonAwakening(){ let done=false;const fb=()=>{ if(done) return; done=true; noise(0.18,0.1,0,900); noise(0.14,0.08,0.22,1400); beep(70,0.9,'sawtooth',0.06,0.05,38); [0.35,0.75,1.2].forEach((w,i)=>{ noise(0.1,0.05/(i+1),w,1100); beep(110-i*20,0.5,'sine',0.05/(i+1),w,50); }); }; if(muted) return; try{ const a=new Audio('assets/sfx/dragon-awakening.mp3'); a.volume=0.9; a.addEventListener('error',fb); a.play().catch(fb); }catch(e){ fb(); } },
-    crystalBreak(){ noise(0.25,0.1,0,2500); beep(900,0.22,'triangle',0.06,0,200); beep(1400,0.12,'square',0.03,0.04,500); },
+    crystalBreak(){ fileSfx('crystalhancur.mp3',0.9,function(){ noise(0.25,0.1,0,2500); beep(900,0.22,'triangle',0.06,0,200); beep(1400,0.12,'square',0.03,0.04,500); }); },
+    quakeStart(){ return fileSfx('earthquake.mp3',0.9,function(){ noise(0.6,0.1,0,900); }); },
+    quakeStop(a){ fadeOut(a,700); },
+    towerRise(){ return fileSfx('tower.mp3',0.8); },
+    towerStop(a){ fadeOut(a,600); },
+    crystalAppear(){ return fileSfx('crsytalshoot.mp3',0.7,function(){ beep(900,0.4,'sine',0.05,0,1400); }); },
+    dragonSpawn(){ return fileSfx('Ender_dragon_idle3.ogg',0.8); },
     hundred(){ try{ const a=new Audio('assets/sfx/100.mp3'); a.volume=0.7; a.play().catch(()=>beep(523,0.2,'square',0.05)); }catch(e){ beep(523,0.2,'square',0.05); } },
     caplokular(){ try{ const a=new Audio('assets/sfx/ularmakan.mp3'); a.volume=0.8; a.play().catch(()=>beep(200,0.12,'square',0.09,0,60)); }catch(e){ beep(200,0.12,'square',0.09,0,60); } },
     chest(){ try{ const a=new Audio('assets/sfx/Chest_open.ogg'); a.volume=0.7; a.play().catch(()=>beep(300,0.12,'triangle',0.08,0,900)); }catch(e){ beep(300,0.12,'triangle',0.08,0,900); } },

@@ -2335,10 +2335,10 @@ async function awakenDragon(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,T=TILES[100],Dd=dragon.userData;
   AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer();
-  const pg={x:panGoal.x,z:panGoal.z}; let finished=false;
+  const pg={x:panGoal.x,z:panGoal.z}; let finished=false,qk=null,tw=null;
   try{
     while(paused) await S(sleep(200)); /* pause dibuka sebelum sequence: tunggu dilanjutkan */
-    setMsg('Block 100 aktif! Gunung di kiri papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); sfx.dragonAwakening(); /* SFX existing (assets/sfx/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
+    setMsg('Block 100 aktif! Gunung di kiri papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); qk=sfx.quakeStart(); /* SFX existing (assets/sfx/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
     panGoal.x=pg.x-6; /* kamera menggeser ke Arena (kosmetik; dipulihkan di akhir) */
     if(!A){ await S(sleep(700*F)); Dd.dy=0; dragon.position.x=T.x; dragon.position.z=T.z; dragon.visible=true; finished=true; return; }
     const M=MOUNT,MW=(d,fn)=>S(tween(d,k=>{ if(gid===gameId) fn(k); })); /* tween lama tidak dibersihkan saat game baru: jangan tulis ke gunung milik game lain */
@@ -2349,23 +2349,27 @@ async function awakenDragon(p,gid){
     }else await S(sleep(700*F));
     setMsg('Dragon Arena terbuka...'); A.g.visible=true;
     await S(Promise.all([tween(1.7*F,k=>{ A.rise=k; }),M?tween(1.4*F,k=>{ if(gid===gameId) M.dust=0.6+0.4*k; }):null])); /* arena naik dari bawah reruntuhan, debu menipis */
+    sfx.quakeStop(qk); qk=null;
     await S(sleep(250*F));
-    setMsg('Tower muncul dari bawah...'); await S(tween(1.5*F,k=>{ A.tower=k; }));
-    setMsg('End Crystal aktif!'); await S(tween(0.7*F,k=>{ A.crystal=k; }));
+    setMsg('Tower muncul dari bawah...'); tw=sfx.towerRise(); await S(tween(1.5*F,k=>{ A.tower=k; }));
+    setMsg('End Crystal aktif!'); sfx.crystalAppear(); await S(tween(0.7*F,k=>{ A.crystal=k; }));
     await S(tween(1.4*F,k=>{ A.energy=k; })); /* energi spiral + beam menguat */
     setMsg('Energi Crystal membangunkan Dragon...');
     await S(tween(0.5*F,k=>{ A.burst=Math.sin(k*Math.PI)*0.8; }));
     /* Dragon spawn dari crystal, tumbuh, lalu bertengger di atas tower di Dragon Arena (tidak pindah ke Block 100) */
     const ax=A.g.position.x,az=A.g.position.z,ay=0.8+ARENA_TOWER_H+0.6,hd=Math.atan2(T.x-ax,T.z-az);
+    sfx.dragonSpawn();
     dragon.visible=true; dragon.position.x=ax; dragon.position.z=az; Dd.dy=ay-Dd.y0; Dd.shk=hd; dragon.scale.setScalar(0.05);
     await S(tween(1.0*F,k=>{ dragon.scale.setScalar(0.05+1.25*k); }));
+    sfx.towerStop(tw); tw=null;
     await S(tween(1.2*F,k=>{ Dd.dy=ay-Dd.y0+Math.sin(k*Math.PI)*0.5; A.energy=1-0.65*k; }));
     dragon.position.x=ax; dragon.position.z=az; Dd.dy=ay-Dd.y0; Dd.shk=hd; dragon.scale.setScalar(1.3);
     const e0=A.energy; await S(tween(0.8*F,k=>{ A.crystal=1-k; A.energy=e0*(1-k); }));
-    A.cv.forEach(c=>{ c.want=1; c.flash=0.6; }); A.act=0; /* 4 End Crystal progression muncul; progress per player ditentukan saat giliran */
+    A.cv.forEach(c=>{ c.want=1; c.flash=0.6; }); A.act=0; sfx.crystalAppear(); /* 4 End Crystal progression muncul; progress per player ditentukan saat giliran */
     await S(sleep(600*F));
     finished=true;
   }finally{
+    sfx.quakeStop(qk); sfx.towerStop(tw);
     if(gid===gameId){ /* STALE (game baru) ditangani resetAwakening di startGame */
       if(!finished){ dragon.visible=true; dragon.position.x=ARENA_POS.x; dragon.position.z=ARENA_POS.z; Dd.dy=0.8+ARENA_TOWER_H+0.6-Dd.y0; Dd.shk=Math.atan2(T.x-ARENA_POS.x,T.z-ARENA_POS.z); dragon.scale.setScalar(1.3); } /* error tak terduga: jangan sampai game macet */
       panGoal.x=pg.x; panGoal.z=pg.z; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState(); /* gunung berakhir sebagai rubble (juga bila sequence terputus error) */
