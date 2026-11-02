@@ -1831,7 +1831,7 @@ function makeSnakeHead(pal){
   addBox(tb,-0.04,0.025,0.58,0.04,0.02,0.12,0xE53935,{edge:false});
   addBox(tb,0.04,0.025,0.58,0.04,0.02,0.12,0xE53935,{edge:false});
   tg.add(buildBatch(tb,{cast:false}));
-  const head=new THREE.Group(); head.rotation.order='YXZ';
+  const head=new THREE.Group(); head.rotation.order='YXZ'; head.scale.setScalar(0.6); /* kepala diperkecil agar seukuran badan */
   head.add(buildBatch(up));
   const jaw=new THREE.Group(); jaw.position.set(0,-0.1,-0.28);
   jaw.add(buildBatch(jw)); jaw.add(tg);
@@ -1847,7 +1847,7 @@ function buildSnakes(th){
   Object.keys(SNAKES).forEach(key=>{
     const head=+key,tail=SNAKES[key],H=TILES[head],Tt=TILES[tail],pal=th.snakes[si++%th.snakes.length];
     const dx=Tt.x-H.x,dz=Tt.z-H.z,len=Math.hypot(dx,dz),ux=dx/len,uz=dz/len,px=-uz,pz=ux;
-    const N=Math.round(len*9),yH=H.h+1.12,yT=Tt.h+0.2,kw=Math.max(1,Math.round(len/1.7));
+    const N=Math.round(len*9),yH=H.h+0.34,yT=Tt.h+0.2,kw=Math.max(1,Math.round(len/1.7));
     const pts=[];
     for(let i=0;i<=N;i++){
       const t=i/N,dd=t*len;
@@ -1865,17 +1865,16 @@ function buildSnakes(th){
       const acc=Math.floor(i/4)%3===2;
       addBox(SB,p.x,p.y,p.z,p.s,p.s,p.s,jit(acc?pal[1]:pal[0],0.05));
     });
-    for(let j=0;j<4;j++) addBox(SB,H.x,H.h+0.14+0.28*j,H.z,0.28,0.28,0.28,jit(pal[0],0.05));
     const fx=-ux,fz=-uz,yaw=Math.atan2(fx,fz);
     const hd=makeSnakeHead(pal);
     hd.head.position.set(H.x,yH,H.z); hd.head.rotation.y=yaw;
     dyn.add(hd.head);
     const bridge=[];
-    const bm=new THREE.MeshLambertMaterial({color:pal[0]}),bg=new THREE.BoxGeometry(0.27,0.27,0.27);
+    const bm=new THREE.MeshLambertMaterial({color:pal[0]}),bg=new THREE.BoxGeometry(0.2,0.2,0.2);
     for(let i=0;i<3;i++){ const m=new THREE.Mesh(bg,bm); m.castShadow=true; m.visible=false; dyn.add(m); bridge.push(m); }
     out[head]={
       path:pts,head:hd.head,jaw:hd.jaw,tongue:hd.tongue,bridge,busy:false,phase:rnd()*6,
-      rest:{x:H.x,y:yH,z:H.z},neckTopY:H.h+0.98,f:[fx,fz],
+      rest:{x:H.x,y:yH,z:H.z},neckTopY:yH,f:[fx,fz],
       bitePos:new THREE.Vector3(H.x+fx*0.42,H.h,H.z+fz*0.42)
     };
   });
@@ -3028,26 +3027,27 @@ async function bite(p,from,to,gid){
   const S=SNAKEINFO[from],pts=S.path;
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
   S.busy=true;
+  const LUNGE=0.3; /* tinggi kepala saat menyambar (kepala kini rendah di atas petak, tanpa tiang) */
   await A(hopTo(p.pawn,S.bitePos.clone(),0.35,0.3));
   p.pawn.rotation.y=Math.atan2(-S.f[0],-S.f[1]);
   focus=p.pawn;
   sfx.hiss();
   await A(tween(0.4,k=>poseHead(S,0,0.18*k,-0.45*k,1.05*k)));
-  await A(tween(0.2,k=>poseHead(S,lerp(0,0.42,k),lerp(0.18,-0.52,k),lerp(-0.45,0.9,k),1.05),k=>k*k));
+  await A(tween(0.2,k=>poseHead(S,lerp(0,0.42,k),lerp(0.18,LUNGE,k),lerp(-0.45,0.9,k),1.05),k=>k*k));
   S.head.updateMatrixWorld(true);
   const mouth=S.head.localToWorld(new THREE.Vector3(0,-0.12,0.42));
   const p0=p.pawn.position.clone();
   sfx.chomp();
   await A(tween(0.16,k=>{
-    poseHead(S,0.42,-0.52,0.9,lerp(1.05,0.02,k));
+    poseHead(S,0.42,LUNGE,0.9,lerp(1.05,0.02,k));
     p.pawn.position.lerpVectors(p0,mouth,k);
     p.pawn.scale.setScalar(lerp(1,0.2,k));
   }));
   p.pawn.visible=false;
-  await A(tween(0.18,k=>poseHead(S,0.42,-0.52,0.9+0.12*Math.sin(k*24),0.02)));
+  await A(tween(0.18,k=>poseHead(S,0.42,LUNGE,0.9+0.12*Math.sin(k*24),0.02)));
   sfx.gulp();
   scene.add(lump); lump.visible=true; lump.material.color.setHex(p.hex); focus=lump;
-  const back=tween(0.45,k=>poseHead(S,lerp(0.42,0,k),lerp(-0.52,0,k),lerp(0.9,0,k),0));
+  const back=tween(0.45,k=>poseHead(S,lerp(0.42,0,k),lerp(LUNGE,0,k),lerp(0.9,0,k),0));
   const total=pts.length,dur=Math.max(1.0,total*0.036);
   let ate=false; /* suara 'makan' dipicu dari progres animasi: saat benjolan mencapai tengah badan ular */
   const trip=tween(dur,k=>{
