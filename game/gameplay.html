@@ -729,10 +729,10 @@ function mcBlock(n,themeKey){
   if(LADDERS[n]) return 0xE2BE3C;
   if(SNAKES[n]) return 0xD9577A;
   const r=Math.random();
-  if(n<=20) return r<0.28?0x8A5B33:0x5FAE3E;
+  if(n<=20) return r<0.28?0x8A5B33:0x5DA73A;
   if(n<=40) return r<0.25?0xD9C98A:0xE8D9A0;
   if(n<=60) return r<0.12?0xE8D9A0:(r<0.5?0x2F5FCC:0x3F76E4);
-  if(n<=80) return r<0.3?0x8E8E8E:(r<0.4?0x9A9490:0x5FAE3E);
+  if(n<=80) return r<0.3?0x8E8E8E:(r<0.4?0x9A9490:0x5DA73A);
   return r<0.1?0xE0561A:(r<0.25?0x5A4636:(r<0.6?0x8A2B2B:0x6E2222));
 }
 /*LOGIC-END*/
@@ -986,7 +986,7 @@ function cascadeHill(B,dir,u0,u1,v0,v1,stone,K){
   for(let l=0;l<3;l++){
     const du=fu(l)-bu(l),uc=(fu(l)+bu(l))/2;
     bx(uc,vc,(l+0.5)*0.5,du,0.5,wv(l),ljit(stone?0x7F7F7F:0x8A5B33,0.07));
-    bx(uc,vc,(l+1)*0.5+0.02,du-0.04,0.06,wv(l)-0.04,ljit(stone?0x6E8F5A:0x5FAE3E,0.05),F);
+    bx(uc,vc,(l+1)*0.5+0.02,du-0.04,0.06,wv(l)-0.04,ljit(stone?0x6E8F5A:0x5DA73A,0.05),F);
   }
   const ps=bu(2)+0.25,pu=(ps+fu(2))/2,pd=fu(2)-ps;
   bx(ps+pd*0.3,vc,1.6,pd*0.6,0.1,1.4,ljit(0x4FA0FF,0.05),F);
@@ -1492,7 +1492,7 @@ function addHill(B,x0,x1,z0,z1,n,stone){
   for(let l=0;l<n;l++){
     const i=l*0.55,w=x1-x0-2*i,d=z1-z0-2*i; if(w<=0.3||d<=0.3) break;
     addBox(B,(x0+x1)/2,(l+0.5)*0.5,(z0+z1)/2,w,0.5,d,jit(stone?0x7F7F7F:0x8A5B33,0.06));
-    addBox(B,(x0+x1)/2,(l+1)*0.5+0.02,(z0+z1)/2,w-0.04,0.06,d-0.04,jit(stone?0x6E8F5A:0x5FAE3E,0.05),{edge:false});
+    addBox(B,(x0+x1)/2,(l+1)*0.5+0.02,(z0+z1)/2,w-0.04,0.06,d-0.04,jit(stone?0x6E8F5A:0x5DA73A,0.05),{edge:false});
   }
 }
 function addAnimal(B,x,z,yaw,cow,cc,dd){
@@ -1521,17 +1521,21 @@ function lift(B,fn,h){
   for(let i=l0+1;i<B.lpos.length;i+=3) B.lpos[i]+=h;
 }
 function buildMcTerrain(TB,th){
-  const mc=th.key==='minecraft',G=mc?0x4F9A34:th.ground,W=mc?0x8A5B33:th.wall[0],S=mc?0x7A7A7A:th.deep[0],M=mc?0x8A8F86:th.deep[1];
+  const mc=th.key==='minecraft',grassy=mc||th.key==='rumput',G=mc?0x4E9A34:th.ground,W=mc?0x98643B:th.wall[0],S=mc?0x7A7A7A:th.deep[0],M=mc?0x8A8F86:th.deep[1];
+  /* rumput: 3 nuansa hijau (gelap/utama/terang) dipilih deterministik per petak -> tidak satu warna rata & tidak neon.
+     Pakai hash koordinat, BUKAN rnd(), supaya urutan acak dunia (pohon, dekorasi) tidak bergeser. */
+  const GRS=[0x4E9A34,0x5DA73A,0x66AC45],gh=(x,z,k)=>{ const v=Math.sin(x*12.9898+z*78.233+k*37.719)*43758.5453; return v-Math.floor(v); };
+  const gv=(x,z)=>{ const h=gh(x,z,0); return new THREE.Color(GRS[h<0.3?0:(h<0.75?1:2)]).offsetHSL(0,0,(gh(x,z,1)-0.5)*0.05); };
   const BM=UT.Gameplay.Biomes,PK=mc?BM.MC.PK:(BM.PK[th.key]||BM.FALLBACK.PK),R=mc?BM.MC.R:(BM.R[th.key]||BM.FALLBACK.R);
   for(let ix=-7.5;ix<=7.5;ix+=1) for(let iz=-6.5;iz<=6.5;iz+=1){
     if(Math.abs(ix)<5&&Math.abs(iz)<5) continue;
-    addBox(TB,ix,-0.1,iz,1,0.2,1,jit(G,0.08));
+    { const j=jit(G,0.08); addBox(TB,ix,-0.1,iz,1,0.2,1,grassy?gv(ix,iz):j); }
   }
   for(let gx=-33;gx<=33;gx+=2) for(let gz=-28;gz<=28;gz+=2){
     if(Math.abs(gx)+1<=8&&Math.abs(gz)+1<=7) continue;
     const h=mcH(gx,gz),hi=h>=1.5;
     addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,jit(hi?S:W,0.07),{edge:false});
-    addBox(TB,gx,h-0.1,gz,2,0.2,2,jit(h>=3.5?PK:(h>=2.5?M:G),0.08));
+    { const j=jit(h>=3.5?PK:(h>=2.5?M:G),0.08); addBox(TB,gx,h-0.1,gz,2,0.2,2,(grassy&&h<2.5)?gv(gx,gz):j); }
   }
   for(let z=7;z<=28;z+=1) addBox(TB,7+0.5*Math.sin(z*0.7),-0.04,z,1.8+z*0.04,0.16,1,jit(R,0.06),{edge:false});
   /* jembatan kayu melengkung di sungai kanan: di bawah board (z=9, ~3.5 dari tepi board) agar tidak menempel board */
@@ -2462,7 +2466,7 @@ function buildWorld(key){
       const bc=th.key==='minecraft'?mcBlock(n,th.key):tileBlock(n,t,th);
       for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,tileShade(bc,n,t,i,j,th.key),{edge:false});
       const cx=()=>t.x+(rnd()<0.5?-0.34:0.34),cz=()=>t.z+(rnd()<0.5?-0.34:0.34);
-      if(bc===0x5FAE3E&&rnd()<0.6) addBox(TB,cx(),t.h+0.08,cz(),0.1,0.16,0.1,pick([0xF0453A,0xFFD23F,0xFF7EB6,0xFFFFFF,0x6AA8FF]),{edge:false});
+      if(bc===0x5DA73A&&rnd()<0.6) addBox(TB,cx(),t.h+0.08,cz(),0.1,0.16,0.1,pick([0xF0453A,0xFFD23F,0xFF7EB6,0xFFFFFF,0x6AA8FF]),{edge:false});
       if(bc===0x8E8E8E) for(let k=0;k<3;k++) addBox(TB,cx(),t.h+0.04,cz(),0.12,0.08,0.12,pick([0x222222,0x4AEDD9,0xFFD23F,0xD8AF93]),{edge:false});
       if((bc===0x3F76E4||bc===0x2F5FCC)&&rnd()<0.3) addBox(TB,cx(),t.h+0.02,cz(),0.22,0.03,0.22,0x2E8B2E,{edge:false});
       if(bc===0x8A2B2B&&rnd()<0.3) addBox(TB,cx(),t.h+0.06,cz(),0.1,0.12,0.1,0xE0561A,{edge:false});
