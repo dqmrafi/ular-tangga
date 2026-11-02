@@ -1005,13 +1005,18 @@ function cascadeHill(B,dir,u0,u1,v0,v1,stone,K){
 const ROAM=[],ROAMQ=[],NOWALK=[];
 /* peternakan + mob liar: state (dibersihkan di clearFX) */
 const BEES=[],HOST=[],HOSTQ=[],ARROWS=[];
-const PY=2;                                            /* tinggi dataran peternakan di atas gunung kanan (sama dengan puncak bukit di sana) */
-const RANCH={x0:10.4,x1:19.4,z0:-6.6,z1:2.8,y:PY,bees:[]};   /* peternakan di dataran atas gunung kosong sebelah kanan board; gunung di sekelilingnya tetap utuh */
-const PENS=[                                           /* 4 kandang terpisah, lorong tengah z -3.6..-2.8; pintu menghadap lorong */
-  {k:'cow',x0:10.4,x1:14.6,z0:-6.6,z1:-3.6,gate:'s',y:PY},
-  {k:'pig',x0:15.2,x1:19.4,z0:-6.6,z1:-3.6,gate:'s',y:PY},
-  {k:'sheep',x0:10.4,x1:14.6,z0:-2.8,z1:0.2,gate:'n',y:PY},
-  {k:'chicken',x0:15.2,x1:19.4,z0:-2.8,z1:0.2,gate:'n',y:PY}];
+const RB=1;                                            /* tinggi tanah dasar peternakan (kaki lereng, di sini jalan batu mulai naik) */
+const RANCH={x0:10.4,x1:19.4,z0:-7.2,z1:2.8,y:RB,bees:[]};   /* peternakan berundak di lereng gunung kanan board; gunung di sekelilingnya tetap utuh */
+/* 4 kandang berundak di kiri-kanan jalan batu tengah (x 14.6..15.8) yang naik ke utara (-z); pintu 'e'/'w' menghadap jalan.
+   Selang-seling kiri/kanan dan beda tinggi (y): babi paling rendah, lalu ayam, domba, sapi paling tinggi. Kandang babi = ukuran lama /1.2 */
+const PENS=[
+  {k:'pig',x0:12.0,x1:14.5,z0:-0.7,z1:2.8,gate:'e',y:RB},
+  {k:'chicken',x0:15.9,x1:18.9,z0:-2.6,z1:1.6,gate:'w',y:1.5},
+  {k:'sheep',x0:11.5,x1:14.5,z0:-4.9,z1:-1.1,gate:'e',y:2.0},
+  {k:'cow',x0:15.9,x1:18.9,z0:-7.2,z1:-3.4,gate:'w',y:3.0}];
+/* jalan batu: [z_awal, z_akhir, tinggi permukaan]; tinggi sama = jalan datar, beda = anak tangga */
+const PATH=[[2.8,0.6,1.0],[0.6,0.3,1.25],[0.3,0.0,1.5],[0.0,-1.1,1.5],[-1.1,-1.4,1.75],[-1.4,-1.7,2.0],[-1.7,-3.6,2.0],[-3.6,-3.9,2.25],[-3.9,-4.2,2.5],[-4.2,-4.5,2.75],[-4.5,-4.8,3.0],[-4.8,-7.2,3.0]];
+const PATHX=15.2,PATHW=1.2;
 const HZ={x0:-6.2,x1:3.6,z0:8.8,z1:11.7};              /* zona jelajah mob jahat: bawah, di pinggir pohon */
 const GZ={x0:-6.4,x1:4.2,z0:6.9,z1:11.8};              /* zona patroli golem (mencakup zona mob jahat) */
 let MCFLAT=false;                                      /* true hanya untuk tema minecraft: ratakan tanah kandang & zona mob */
@@ -1079,7 +1084,7 @@ function makeCreature(kind,c1,c2,far){
 function spawnRoamers(){
   ROAMQ.forEach(q=>{
     const far=Math.abs(q.x)>13||Math.abs(q.z)>12,o=makeCreature(q.kind,q.c1,q.c2,far);
-    o.x=o.hx=q.x; o.z=o.hz=q.z; o.yaw=q.yaw||0; o.y0=(q.pen&&q.pen.y)||0; o.g.position.set(o.x,o.y0,o.z); o.g.rotation.y=o.yaw;
+    o.x=o.hx=q.x; o.z=o.hz=q.z; o.yaw=q.yaw||0; o.y0=(q.pen&&q.pen.y)||0; o.g.position.set(o.x,o.y0,o.z); o.g.rotation.y=o.yaw; if(q.kind==='chicken') o.g.scale.setScalar(0.7); /* ayam diperkecil */
     if(q.pen){ o.pen=q.pen; o.rad=4; } /* hewan kandang: hanya berkeliling di dalam pagar */
     world.add(o.g); ROAM.push(o);
   });
@@ -1147,47 +1152,76 @@ function addRanch(DB){
   const railX=(x,z,w)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,w,0.04,0.04,W(0x7A4E2A,0.06),F));
   const railZ=(x,z,d)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,0.04,0.04,d,W(0x7A4E2A,0.06),F));
   const GROUND={cow:0x7C6A3A,pig:0x6E5A34,sheep:0x7C6A3A,chicken:0x8E7A44};
-  /* satu kandang: tanah + jerami + pagar (pintu di sisi lorong tengah) + obor + isi khas hewan */
+  /* satu kandang: platform batu + tanah + jerami + pagar (pintu menghadap jalan batu) + obor + isi khas hewan.
+     Dibangun di koordinat lokal (lx melintang pintu, lz menuju pintu) lalu diputar sesuai gate 's'/'n'/'e'/'w'; y relatif ke tinggi kandang. */
   function buildPen(P){
-    const cx=(P.x0+P.x1)/2,cz=(P.z0+P.z1)/2,nx=5,nz=4,sx=(P.x1-P.x0)/nx,sz=(P.z1-P.z0)/nz,gz=P.gate==='s'?P.z1:P.z0,bz=P.gate==='s'?P.z0:P.z1,back=P.gate==='s'?1:-1; /* back: arah dari dinding belakang menuju isi kandang/pintu (+z untuk pintu selatan) */
-    addBox(DB,cx,0.02,cz,P.x1-P.x0,0.04,P.z1-P.z0,W(GROUND[P.k],0.08),F);
-    for(let i=0;i<7;i++) addBox(DB,P.x0+0.4+lr()*(P.x1-P.x0-0.8),0.05,P.z0+0.4+lr()*(P.z1-P.z0-0.8),0.3+lr()*0.3,0.03,0.25+lr()*0.25,W(0xD9B44A,0.1),F);
-    for(let i=0;i<=nx;i++){ const x=P.x0+i*sx; [P.z0,P.z1].forEach(z=>{ const gate=(z===gz&&(i===2||i===3)); post(x,z,gate?0.7:0.48); if(i<nx&&!(z===gz&&i===2)) railX(x+sx/2,z,sx); }); }
-    for(let k=1;k<nz;k++){ const z=P.z0+k*sz; [P.x0,P.x1].forEach(x=>post(x,z)); }
-    for(let k=0;k<nz;k++){ const z=P.z0+k*sz+sz/2; [P.x0,P.x1].forEach(x=>railZ(x,z,sz)); }
-    const to=P.gate==='s'?0.12:-0.12;
-    TORCH.push([P.x0+2*sx-0.28,gz+to],[P.x0+3*sx+0.28,gz+to]); /* obor dipasang setelah lift (butuh y dataran) */
-    const zT=bz+(P.gate==='s'?0.5:-0.5); /* garis belakang kandang (jauh dari pintu) */
+    const sw=P.gate==='e'||P.gate==='w',W_=sw?P.z1-P.z0:P.x1-P.x0,D_=sw?P.x1-P.x0:P.z1-P.z0,hw=W_/2,hd=D_/2;
+    const cx=(P.x0+P.x1)/2,cz=(P.z0+P.z1)/2,nx=5,nz=4,sx=W_/nx,sz=D_/nz;
+    const f={s:[0,1],n:[0,-1],e:[1,0],w:[-1,0]}[P.gate],r=sw?[0,1]:[1,0];
+    const w2=(lx,lz)=>[cx+lx*r[0]+lz*f[0],cz+lx*r[1]+lz*f[1]];
+    const bl=(lx,y,lz,bw,bh,bd,c,o)=>{ const q=w2(lx,lz); addBox(DB,q[0],y,q[1],sw?bd:bw,bh,sw?bw:bd,c,o); };
+    const brl=(lx,lz,hx,hz)=>{ const q=w2(lx,lz); blockRect(q[0],q[1],sw?hz:hx,sw?hx:hz); };
+    const lpost=(lx,lz,h)=>{ h=h||0.48; bl(lx,h/2,lz,0.09,h,0.09,W(0x8A5B33,0.06),F); };
+    const lrailX=(lx,lz,w)=>[0.2,0.36].forEach(y=>bl(lx,y,lz,w,0.04,0.04,W(0x7A4E2A,0.06),F));
+    const lrailZ=(lx,lz,d)=>[0.2,0.36].forEach(y=>bl(lx,y,lz,0.04,0.04,d,W(0x7A4E2A,0.06),F));
+    /* platform batu penahan tanah (kandang yang lebih tinggi dari tanah dasar) */
+    const up=P.y-RB;
+    if(up>0.01){
+      addBox(DB,cx,-up/2,cz,P.x1-P.x0+0.3,up,P.z1-P.z0+0.3,W(0x777770,0.06));
+      addBox(DB,cx,-0.04,cz,P.x1-P.x0+0.34,0.1,P.z1-P.z0+0.34,W(0x4F9A34,0.07),F);
+    }
+    bl(0,0.02,0,W_,0.04,D_,W(GROUND[P.k],0.08),F);
+    for(let i=0;i<7;i++) bl(-hw+0.4+lr()*(W_-0.8),0.05,-hd+0.4+lr()*(D_-0.8),0.3+lr()*0.3,0.03,0.25+lr()*0.25,W(0xD9B44A,0.1),F);
+    for(let i=0;i<=nx;i++){ const lx=-hw+i*sx; [-hd,hd].forEach(lz=>{ const gate=(lz===hd&&(i===2||i===3)); lpost(lx,lz,gate?0.7:0.48); if(i<nx&&!(lz===hd&&i===2)) lrailX(lx+sx/2,lz,sx); }); }
+    for(let k=1;k<nz;k++){ const lz=-hd+k*sz; [-hw,hw].forEach(lx=>lpost(lx,lz)); }
+    for(let k=0;k<nz;k++){ const lz=-hd+k*sz+sz/2; [-hw,hw].forEach(lx=>lrailZ(lx,lz,sz)); }
+    [w2(-hw+2*sx-0.28,hd+0.12),w2(-hw+3*sx+0.28,hd+0.12)].forEach(q=>TORCH.push([q[0],P.y,q[1]])); /* obor dipasang setelah lift */
+    const zT=-hd+0.5; /* garis belakang kandang (jauh dari pintu) */
     if(P.k!=='chicken'&&P.k!=='pig'){ /* palung minum (sapi, domba) */
-      addBox(DB,cx,0.12,zT,1.0,0.16,0.26,W(0x7A4E2A,0.06)); addBox(DB,cx,0.17,zT,0.88,0.05,0.16,0x4FA0FF,F); blockRect(cx,zT,0.62,0.3);
+      bl(0,0.12,zT,1.0,0.16,0.26,W(0x7A4E2A,0.06)); bl(0,0.17,zT,0.88,0.05,0.16,0x4FA0FF,F); brl(0,zT,0.62,0.3);
     }
     if(P.k==='cow'||P.k==='sheep'){ /* jerami bale di pojok belakang */
-      [[P.x0+0.6,zT],[P.x0+0.6,zT+(P.gate==='s'?0.65:-0.65)]].forEach(q=>{ addBox(DB,q[0],0.17,q[1],0.6,0.34,0.5,W(0xD9B44A,0.08)); addBox(DB,q[0],0.17,q[1],0.62,0.05,0.52,0x8A6A22,F); }); blockRect(P.x0+0.6,zT+(P.gate==='s'?0.32:-0.32),0.4,0.62);
+      [[-hw+0.6,zT],[-hw+0.6,zT+0.65]].forEach(q=>{ bl(q[0],0.17,q[1],0.6,0.34,0.5,W(0xD9B44A,0.08)); bl(q[0],0.17,q[1],0.62,0.05,0.52,0x8A6A22,F); }); brl(-hw+0.6,zT+0.32,0.4,0.62);
     }
     if(P.k==='pig'){ /* kubangan lumpur + palung makan */
-      addBox(DB,cx+0.5,0.045,cz,1.2,0.02,0.9,W(0x5A4028,0.06),F);
-      addBox(DB,P.x0+0.9,0.12,zT,1.0,0.16,0.26,W(0x7A4E2A,0.06)); addBox(DB,P.x0+0.9,0.17,zT,0.88,0.05,0.16,0xC98A4A,F); blockRect(P.x0+0.9,zT,0.62,0.3);
+      bl(0.5,0.045,0,1.2,0.02,0.9,W(0x5A4028,0.06),F);
+      bl(-hw+0.9,0.12,zT,1.0,0.16,0.26,W(0x7A4E2A,0.06)); bl(-hw+0.9,0.17,zT,0.88,0.05,0.16,0xC98A4A,F); brl(-hw+0.9,zT,0.62,0.3);
     }
     if(P.k==='chicken'){ /* kandang ayam kecil + palung biji */
-      const hx=P.x1-0.85;
-      addBox(DB,hx,0.25,zT,1.0,0.5,0.7,W(0x9A6B3A,0.06)); addBox(DB,hx,0.54,zT,1.12,0.08,0.82,W(0x7A3E22,0.05)); addBox(DB,hx,0.2,zT+back*0.36,0.26,0.3,0.02,0x2A1A0A,F);
-      blockRect(hx,zT,0.6,0.45);
-      addBox(DB,P.x0+0.9,0.1,zT,0.8,0.12,0.22,W(0x7A4E2A,0.06)); addBox(DB,P.x0+0.9,0.15,zT,0.7,0.04,0.14,0xE8C85A,F); blockRect(P.x0+0.9,zT,0.5,0.28);
+      const hx=hw-0.85;
+      bl(hx,0.25,zT,1.0,0.5,0.7,W(0x9A6B3A,0.06)); bl(hx,0.54,zT,1.12,0.08,0.82,W(0x7A3E22,0.05)); bl(hx,0.2,zT+0.36,0.26,0.3,0.02,0x2A1A0A,F);
+      brl(hx,zT,0.6,0.45);
+      bl(-hw+0.9,0.1,zT,0.8,0.12,0.22,W(0x7A4E2A,0.06)); bl(-hw+0.9,0.15,zT,0.7,0.04,0.14,0xE8C85A,F); brl(-hw+0.9,zT,0.5,0.28);
     }
     /* hewan: di tengah kandang, jauh dari palung */
     const lay={cow:[[-0.9,0.5,'cow'],[0.9,2.2,'cow']],pig:[[-0.8,0.6,'pig'],[0.3,3.0,'pig'],[1.1,1.4,'pig']],sheep:[[-1.1,0.2,'sheep'],[0,4.0,'sheep'],[1.1,5.2,'sheep']],chicken:[[-1.2,0.9,'chicken'],[-0.4,3.3,'chicken'],[0.4,1.6,'chicken'],[0.9,5.0,'chicken']]}[P.k];
-    lay.forEach(a=>queuePen(cx+a[0],cz+back*0.15,a[1],a[2],undefined,undefined,P));
+    lay.forEach(a=>{ const q=w2(a[0],0.15); queuePen(q[0],q[1],a[1],a[2],undefined,undefined,P); });
   }
-  lift(DB,()=>{ /* semua isi peternakan dibangun di tanah y=0 lalu diangkat ke dataran PY */
-  PENS.forEach(buildPen);
-  /* pohon + sarang lebah di strip selatan (dekat jalan), di luar pagar */
+  /* jalan batu tengah yang naik ke atas lereng: badan batu, tiap tinggi ada ubin kerikil; beda tinggi = anak tangga */
+  function buildPath(){
+    PATH.forEach(s=>{
+      const za=s[0],zb=s[1],top=s[2],len=za-zb,zm=(za+zb)/2,body=top-RB;
+      if(body>0.01) addBox(DB,PATHX,RB+body/2,zm,PATHW,body,len,W(0x77776F,0.06),F);
+      const nzt=Math.max(1,Math.round(len/0.4)),tz=len/nzt;
+      for(let j=0;j<nzt;j++) for(let c=-1;c<=1;c++) addBox(DB,PATHX+c*0.4,top+0.02,za-tz*(j+0.5),0.37,0.04,tz*0.92,W(0x9A9A90,0.1),F);
+    });
+    /* plaza batu di kaki lereng (awal jalan) */
+    for(let ix=0;ix<8;ix++) for(let iz=0;iz<3;iz++) if(!((ix===0||ix===7)&&iz===2)&&Math.abs(13.7+ix*0.4-PATHX)>0.65) addBox(DB,13.7+ix*0.4,RB+0.02,2.5-iz*0.4,0.37,0.04,0.37,W(0x9A9A90,0.1),F);
+    /* tiang obor di pinggir jalan pada tiap tangga */
+    [[0.9,1.0],[-1.05,1.5],[-3.7,2.0]].forEach(t=>{ addTorch(DB,PATHX+PATHW/2+0.05,t[1],t[0]); });
+  }
+  buildPath();
+  PENS.forEach(P=>lift(DB,()=>buildPen(P),P.y)); /* tiap kandang dibangun di y=0 lalu diangkat ke tingginya sendiri */
+  lift(DB,()=>{ /* pohon, sarang lebah, bunga: di tanah dasar */
+  /* pohon + sarang lebah di pinggir peternakan, di luar pagar */
   const hive=(x,y,z)=>{ addBox(DB,x,y,z,0.28,0.28,0.28,W(0xE2B24A,0.05)); addBox(DB,x,y-0.07,z,0.3,0.05,0.3,0x8A5B1E,F); addBox(DB,x,y+0.07,z,0.3,0.05,0.3,0x8A5B1E,F); addBox(DB,x,y-0.04,z+0.145,0.1,0.06,0.02,0x2A0A0A,F); };
-  [[11.0,1.8,0.7],[18.8,1.9,0.75]].forEach(o=>{ addOak(DB,o[0],o[1],o[2]); blockRect(o[0],o[1],0.5,0.5); hive(o[0]+0.28,0.78,o[1]); RANCH.bees.push({cx:o[0]+0.28,cy:0.95,cz:o[1],r:0.5},{cx:o[0]+0.28,cy:1.2,cz:o[1],r:0.7}); });
-  addBox(DB,15.0,0.3,1.6,0.08,0.6,0.08,W(0x6B4423,0.05),F); hive(15.0,0.74,1.6); RANCH.bees.push({cx:15.0,cy:0.9,cz:1.6,r:0.5},{cx:15.0,cy:0.85,cz:1.6,r:0.7});
+  [[10.9,1.8,0.7],[19.0,2.3,0.75]].forEach(o=>{ addOak(DB,o[0],o[1],o[2]); blockRect(o[0],o[1],0.5,0.5); hive(o[0]+0.28,0.78,o[1]); RANCH.bees.push({cx:o[0]+0.28,cy:0.95,cz:o[1],r:0.5},{cx:o[0]+0.28,cy:1.2,cz:o[1],r:0.7}); });
+  addBox(DB,17.3,0.3,2.3,0.08,0.6,0.08,W(0x6B4423,0.05),F); hive(17.3,0.74,2.3); RANCH.bees.push({cx:17.3,cy:0.9,cz:2.3,r:0.5},{cx:17.3,cy:0.85,cz:2.3,r:0.7});
+  addOak(DB,11.2,-6.2,0.8); blockRect(11.2,-6.2,0.5,0.5); /* pohon di pojok atas kiri lereng */
   /* bunga di sekitar sarang */
-  for(let i=0;i<14;i++){ const x=10.6+lr()*8.4,z=0.7+lr()*2.0; addBox(DB,x,0.09,z,0.1,0.18,0.1,[0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6][Math.floor(lr()*4)],F); }
-  },PY);
-  TORCH.forEach(t=>addTorch(DB,t[0],PY,t[1])); RANCH.bees.forEach(b=>{ b.cy+=PY; });
+  for(let i=0;i<14;i++){ const x=10.6+lr()*8.4,z=2.0+lr()*0.7; if(x>13.4&&x<17.0) continue; addBox(DB,x,0.09,z,0.1,0.18,0.1,[0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6][Math.floor(lr()*4)],F); }
+  },RB);
+  TORCH.forEach(t=>addTorch(DB,t[0],t[1],t[2])); RANCH.bees.forEach(b=>{ b.cy+=RB; });
   /* mob liar di bawah board, di pinggir pohon (1 golem saja) */
   [['golem',-1.8,7.8],['zombie',-4.6,9.8],['zombie',-0.8,10.8],['skeleton',-2.6,9.4],['skeleton',1.8,10.2],['creeper',0.6,9.2],['spider',-5.0,11.0],['spider',2.8,11.0]]
     .forEach(q=>HOSTQ.push({kind:q[0],x:q[1],z:q[2]}));
@@ -1471,7 +1505,7 @@ function addBamboo(B,x,z){ for(let i=0;i<5;i++){ const h=1.2+rnd()*1.4,bx=x+(rnd
 function mcH(x,z){
   if(MCFLAT){
     if(x>0&&x<4&&z<-7&&z>-13) return 0;      /* tanah datar lama (di belakang portal), dibiarkan */
-    if(x>10&&x<20&&z>-7&&z<3) return PY;     /* dataran di atas gunung kanan untuk 4 kandang (naik ke puncak bukit, bukan diratakan); gunung lain tetap */
+    if(x>10&&x<20&&z>-7.6&&z<3) return RB;   /* tanah dasar peternakan berundak di lereng kanan (kandang diangkat sendiri-sendiri); gunung lain tetap */
     if(x>-8&&x<4&&z>6&&z<13) return 0;       /* strip datar di bawah board untuk mob liar */
   }
   if(x>4.8&&x<9.8&&z>-13) return 0; /* koridor sungai kanan sampai hulu (gunung mundur ke belakang) */
