@@ -177,8 +177,7 @@ $('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>
 /* ---------- game modes ---------- */
 const MODES=[['Ular Tangga Blok','Main sendiri atau lawan bot'],['Lawan Teman','Main bareng di satu perangkat'],['Online','Cari lawan secara acak']];
 let mi=-1;
-const setMode=i=>{mi=i;$('#pm').textContent=i<0?'Pilih Mode':MODES[i][0]};
-$('#pr').addEventListener('click',e=>{e.stopPropagation();setMode(mi>=MODES.length-1?-1:mi+1);buzz()});
+const setMode=i=>{mi=i};/* teks tombol selalu "Pilih Mode"; panah ❯ ikut membuka mode.html lewat klik #play */
 function startMode(i){closeModal();setMode(i);buzz();location.href='mode.html'}
 $('#play').addEventListener('click',()=>{buzz();location.href='mode.html'});
 /* ---------- event: gambar saja; klik membuka modal (gambar sendiri per event) ----------
