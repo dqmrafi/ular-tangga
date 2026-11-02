@@ -69,8 +69,8 @@
       t.textContent = '$';
       svg.appendChild(t);
     } else {
-      svg.appendChild(svgEl('path', { d: 'M6 3h12l4 6-10 12L2 9z', fill: '#4cc9ff', stroke: '#1d7fd0', 'stroke-width': '1.2', 'stroke-linejoin': 'round' }));
-      svg.appendChild(svgEl('path', { d: 'M2 9h20M9 3l-2 6 5 12 5-12-2-6', fill: 'none', stroke: '#bff0ff', 'stroke-width': '.8' }));
+      svg.appendChild(svgEl('path', { d: 'M6 3h12l4 6-10 12L2 9z', fill: '#34d68b', stroke: '#0b8a55', 'stroke-width': '1.2', 'stroke-linejoin': 'round' }));
+      svg.appendChild(svgEl('path', { d: 'M2 9h20M9 3l-2 6 5 12 5-12-2-6', fill: 'none', stroke: '#c8fbe3', 'stroke-width': '.8' }));
     }
     return svg;
   }
