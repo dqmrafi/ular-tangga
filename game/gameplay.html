@@ -3076,7 +3076,7 @@ async function playTurn(p,v,gid,bn){
     if(k==='creeper'){
       setMsg('Creeper meledak! '+p.name+' terlempar mundur 2 blok.'); fb('event','mob','Creeper! Meledak, mundur 2 blok',{gid});
       sfx.creeper();
-      await A(sleep(300)); await A(explode(p));
+      await A(sleep(300)); sfx.playerHurt(); await A(explode(p));
       const to=Math.max(1,p.pos-2); await A(walk(p,p.pos,to)); p.pos=to;
     }else if(k==='ender'){
       let to; do{ to=p.pos+Math.floor(Math.random()*21)-10; }while(to<1||to>98||to===p.pos);
@@ -3089,12 +3089,12 @@ async function playTurn(p,v,gid,bn){
 }else if(k==='skeleton'){
       setMsg('Skeleton menembak! '+p.name+' terpental mundur 1 blok.'); fb('event','mob','Skeleton! Terpental mundur 1 blok',{gid});
       sfx.skeltonSh();
-      const to=Math.max(1,p.pos-1); await A(sleep(400)); await A(fly(p,to,0.45,0.9)); p.pos=to;
+      const to=Math.max(1,p.pos-1); await A(sleep(400)); sfx.playerHurt(); await A(fly(p,to,0.45,0.9)); p.pos=to;
     }else{
       const bk=MOBBACK[k],to=Math.max(1,p.pos-bk);
       setMsg(MOBNAME[k]+' menghantam! '+p.name+' terpental mundur '+bk+' blok ke '+to+'.'); fb('event','mob',MOBNAME[k]+'! Mundur '+bk+' blok',{gid});
       showAttackCard(MOBNAME[k],p.name,'hit',MOBNAME[k]+' menghantam '+p.name+' dan mundur '+bk+' blok.');
-      sfx.hit();
+      sfx.hit(); sfx.playerHurt();
       await A(sleep(450)); await A(fly(p,to,bk>3?0.8:0.45,bk>3?2.4:0.9)); p.pos=to;
     }
   }
@@ -3177,9 +3177,9 @@ async function doRoll(opt){
   const gid=gameId,p=players[cur];let v=1+Math.floor(Math.random()*6);
   if(opt&&Number.isInteger(opt.value)&&opt.value>=1&&opt.value<=6&&specialDiceActive(p)) v=opt.value; /* Special Dice: angka dipilih lewat tahan-lepas (hanya di Block 100) */
   else if(p.p4){ v=4+Math.floor(Math.random()*3); p.p4=false; }
-  sfx.roll(); showDie(v,!reduce);
+  const rs=sfx.roll(); showDie(v,!reduce);
   try{
-    await sleep(reduce?250:1150); if(gid!==gameId) return;
+    await sleep(reduce?250:1150); sfx.rollStop(rs); if(gid!==gameId) return;
     setMsg(p.name+' melempar '+v+'.');
     p.sixes=(v===6)?p.sixes+1:0;
     await sleep(300); if(gid!==gameId) return;

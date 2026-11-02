@@ -40,7 +40,7 @@
     }catch(e){}
   }
   /* Warm-up: file SFX dimuat lebih awal (tanpa diputar, tanpa butuh gesture) agar pemutaran pertama tidak menunggu fetch/decode. */
-  var SFX_FILES=['jump.mp3','Strong_attack5.ogg.mp3','Teleport2.ogg','Creeper_fuse.ogg','skelton_shoot.ogg','Ender_dragon_hurt4.ogg','Ender_dragon_death.ogg','Ender_dragon_idle3.ogg','100.mp3','ularmakan.mp3','Chest_open.ogg','Chest_close2.ogg','rewardpower.mp3','naiktangga.mp3','earthquake.mp3','tower.mp3','crsytalshoot.mp3','crystalhancur.mp3'],warm=[];
+  var SFX_FILES=['jump.mp3','Strong_attack5.ogg.mp3','Teleport2.ogg','Creeper_fuse.ogg','skelton_shoot.ogg','Ender_dragon_hurt4.ogg','Ender_dragon_death.ogg','Ender_dragon_idle3.ogg','100.mp3','ularmakan.mp3','Chest_open.ogg','Chest_close2.ogg','rewardpower.mp3','naiktangga.mp3','earthquake.mp3','tower.mp3','crsytalshoot.mp3','crystalhancur.mp3','shake-and-roll-dice-soundbible.mp3','minecraft_hit_soundmp3converter.mp3'],warm=[];
   function preload(){ if(warm.length) return; SFX_FILES.forEach(function(f){ try{ var a=new Audio(); a.preload='auto'; a.src='assets/sfx/'+f; warm.push(a); }catch(e){} }); }
   /* File SFX baru (Dragon Awakening): cek mute, kembalikan elemen Audio supaya bisa di-fade/stop. */
   function fileSfx(file,vol,fb){ if(muted) return null; try{ const a=new Audio('assets/sfx/'+file); a.volume=vol; a.play().catch(fb||function(){}); return a; }catch(e){ if(fb) fb(); return null; } }
@@ -69,7 +69,9 @@
     chestClose(){ try{ const a=new Audio('assets/sfx/Chest_close2.ogg'); a.volume=0.6; a.play().catch(()=>beep(200,0.1,'square',0.05)); }catch(e){ beep(200,0.1,'square',0.05); } },
     rewardpower(){ try{ const a=new Audio('assets/sfx/rewardpower.mp3'); a.volume=0.6; a.play().catch(()=>beep(523,0.12,'square',0.05,0,784)); }catch(e){ beep(523,0.12,'square',0.05,0,784); } },
     naiktangga(){ try{ const a=new Audio('assets/sfx/naiktangga.mp3'); a.volume=0.7; a.play().catch(()=>[392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11))); }catch(e){ [392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11)); } },
-    roll(){ for(let i=0;i<7;i++) beep(180+Math.random()*320,0.05,'square',0.035,i*0.13); },
+    roll(){ return fileSfx('shake-and-roll-dice-soundbible.mp3',0.8,function(){ for(let i=0;i<7;i++) beep(180+Math.random()*320,0.05,'square',0.035,i*0.13); }); },
+    rollStop(a){ fadeOut(a,250); },
+    playerHurt(){ return fileSfx('minecraft_hit_soundmp3converter.mp3',0.9,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
     ladder(){ [392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11)); },
     hiss(){ noise(0.55,0.09,0,4500); },
     chomp(){ beep(200,0.12,'square',0.09,0,60); beep(90,0.25,'sawtooth',0.08,0.02); noise(0.12,0.07,0,1500); },
