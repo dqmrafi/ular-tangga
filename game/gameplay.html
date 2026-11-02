@@ -430,6 +430,31 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
 #side .pb:not(:disabled):active{transform:translateY(1px) scale(.93)}
 #side .pb:focus-visible{outline:3px solid #ffe36a;outline-offset:1px}
 
+/* --- Stage 4.1.21: feedback Power (perolehan / aktivasi / shield). Class toggle + @keyframes, HANYA transform/opacity, <=.6s,
+       pointer-events:none, tidak mengubah layout. Class dipasang oleh puFxApply() (renderChips) dan hilang sendiri saat DOM dibangun ulang. --- */
+.pb[class*="pfx-"],.pr[class*="pfx-"]{position:relative}
+.pb[class*="pfx-"]::after,.pr[class*="pfx-"]::after{content:"";position:absolute;inset:-3px;border-radius:inherit;border:3px solid var(--fxc,#ffd24d);opacity:0;pointer-events:none;animation:pfx-ring .55s ease-out var(--fx-d,0ms)}
+.pb[class*="pfx-"] b{animation:pfx-badge .45s ease-out var(--fx-d,0ms)}
+.pb.pfx-get{--fxc:#ffd24d;animation:pfx-pop .55s cubic-bezier(.3,1.6,.5,1) var(--fx-d,0ms)}
+.pb.pfx-sword{--fxc:#dff3ff;animation:pfx-slash .42s cubic-bezier(.2,1.4,.4,1) var(--fx-d,0ms)}
+.pb.pfx-feather{--fxc:#ffffff;animation:pfx-float .55s ease-out var(--fx-d,0ms)}
+.pb.pfx-tnt{--fxc:#ff5a3c;animation:pfx-shake .5s linear var(--fx-d,0ms)}
+.pb.pfx-totem{--fxc:#ffd24d;animation:pfx-pulse .6s ease-out var(--fx-d,0ms)}
+.pb.pfx-potion{--fxc:#c04fd0;animation:pfx-pulse .55s ease-out var(--fx-d,0ms)}
+.pb.pfx-grass{--fxc:#78d957;animation:pfx-hop .5s ease-out var(--fx-d,0ms)}
+.pr.pfx-shield{--fxc:#ffd24d}
+.pr.pfx-hit{--fxc:#ffffff}
+.pr.shielded{outline:2px solid #ffd24d;outline-offset:-2px} /* shield aktif: indikator statis ringan, tanpa animasi */
+@keyframes pfx-ring{0%{opacity:.9;transform:scale(.92)}100%{opacity:0;transform:scale(1.28)}}
+@keyframes pfx-badge{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+@keyframes pfx-pop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+@keyframes pfx-slash{0%{transform:scale(1) rotate(0)}35%{transform:scale(1.16) rotate(-10deg)}60%{transform:scale(1.08) rotate(6deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes pfx-float{0%{transform:translateY(0)}40%{transform:translateY(-6px) scale(1.06)}100%{transform:translateY(0)}}
+@keyframes pfx-shake{0%,100%{transform:translateX(0)}15%{transform:translateX(-3px) scale(1.06)}30%{transform:translateX(3px)}45%{transform:translateX(-2px)}60%{transform:translateX(2px)}80%{transform:translateX(0) scale(1.04)}}
+@keyframes pfx-pulse{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+@keyframes pfx-hop{0%{transform:translateY(0)}35%{transform:translateY(-5px)}100%{transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.pb[class*="pfx-"],.pb[class*="pfx-"] b,.pb[class*="pfx-"]::after,.pr[class*="pfx-"]::after{animation:none}}
+
 /* --- Panel giliran (kanan bawah): avatar + dadu menonjol di atas panel --- */
 #side .rcol .pnl.tn{display:flex;flex-direction:column;margin-top:clamp(70px,7vw,110px);padding:14px 16px 12px;
   background:linear-gradient(#2a86ee,#1456c4);box-shadow:0 6px 0 var(--bd),0 14px 24px rgba(18,51,127,.35),inset 0 2px 3px rgba(255,255,255,.5),inset 0 0 0 3px var(--rim)}
@@ -2995,7 +3020,7 @@ function startPU(){ const o={sword:0,feather:0,tnt:0,totem:0,potion:0,grass:0},k
 async function giveChest(p){
    openChest(p.pos);
    const ks=Object.keys(p.pu),k=ks[Math.floor(Math.random()*ks.length)];
-   p.pu[k]++; p.score+=5; sfx.chest(); setMsg(p.name+' membuka peti: '+PUN[k][1]+' '+PUN[k][0]); fb('event','chest','Chest ditemukan! Dapat '+PUN[k][1]); renderChips();
+   p.pu[k]++; p.score+=5; sfx.chest(); setMsg(p.name+' membuka peti: '+PUN[k][1]+' '+PUN[k][0]); fb('event','chest','Chest ditemukan! Dapat '+PUN[k][1]); puFx('pb:'+p.idx+':'+k,'pfx-get'); renderChips();
    await (fb('reward',p,k)||showPUCard(p,k));
    sfx.chestClose();
 }
@@ -3022,6 +3047,7 @@ async function usePU(k,cpu){
   if(k==='grass'&&(!L||L.pos<=p.pos)){ if(cpu) return; fb('event','info','Tidak ada pemain di depanmu.'); return setMsg('Tidak ada pemain di depanmu.'); }
   busy=true; setRoll(false); clearTurnTimer(); p.pu[k]--; sfx.pop(); setMsg(p.name+' memakai '+PUN[k][1]+': '+PUN[k][2]+'.');
   if(k==='sword') p.bonus=3; if(k==='feather') p.extra=true; if(k==='potion') p.p4=true; if(k==='totem') p.shield=true;
+  puFx('pb:'+p.idx+':'+k,'pfx-'+k); if(k==='totem') puFx('pr:'+p.idx,'pfx-shield');
   renderChips();
   const oldL=L?L.pos:0; /* posisi sebelum efek, untuk feedback target (TNT/Grass) */
   try{
@@ -3039,10 +3065,15 @@ async function usePU(k,cpu){
   }else{ const po={gid,icon:PUN[k][0],desc:PUN[k][2]}; fb('short',k,PUN[k][1],p.name,po)||hud('showPower',k,PUN[k][1],p.name,po); }
   busy=false; if(!p.cpu) setRoll(true); focus=p.pawn; renderChips(); startTurnTimer(); /* setelah Power, hitung ulang 15 dtk */
 }
+/* Stage 4.1.21 — feedback Power lewat sistem class-toggle existing (renderChips + data-state). renderChips() membangun ulang DOM, jadi feedback disimpan sebagai
+   cap waktu pendek lalu dipasang ulang dengan animation-delay negatif (animasi lanjut, tidak restart). Tanpa timer/rAF/listener baru; kedaluwarsa otomatis. */
+const PUFX={}, PUFX_MS=650;
+function puFx(key,cls){ if(reduce) return; PUFX[key]={cls,t:performance.now()}; }
+function puFxApply(el,key){ const f=PUFX[key]; if(!f) return; const e=performance.now()-f.t; if(e>=PUFX_MS){ delete PUFX[key]; return; } el.classList.add(f.cls); el.style.setProperty('--fx-d',(-e)+'ms'); }
 function renderChips(){
   const box=$('players'),sc=$('scores'),pu=$('pus'); box.textContent=''; sc.textContent=''; pu.textContent='';
   players.forEach((p,i)=>{
-    const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':''); d.style.setProperty('--pc',p.css);
+    const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':'')+(p.shield?' shielded':''); puFxApply(d,'pr:'+p.idx); d.style.setProperty('--pc',p.css);
     const im=document.createElement('img'); im.src=faceURL(p.key); im.alt='';
     const nm=document.createElement('span'); nm.textContent=p.name;
     const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===100?(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/4'):String(p.pos));
@@ -3063,7 +3094,7 @@ function renderChips(){
     bt.setAttribute('aria-label',PUN[k][1]+': '+PUN[k][2]); UT.Gameplay.Config.setPuIcon(bt,k); const lb=document.createElement('em'); lb.textContent=PUN[k][1].split(' ')[0]; bt.appendChild(lb);
     const n=document.createElement('b'); n.textContent=c?c.pu[k]:0; bt.appendChild(n);
     bt.disabled=!c||c.cpu||busy||gameOver||!c.pu[k]||(c.pos===100&&(k==='sword'||k==='totem'));
-    bt.dataset.state=(!c||!c.pu[k])?'empty':(bt.disabled?'locked':'ready'); /* HUD: ready/locked/empty utk styling */
+    bt.dataset.state=(!c||!c.pu[k])?'empty':(bt.disabled?'locked':'ready'); /* HUD: ready/locked/empty utk styling */ if(c) puFxApply(bt,'pb:'+c.idx+':'+k);
     bt.addEventListener('click',()=>{ ensureAudio(); usePU(k); });
     pu.appendChild(bt);
   });
@@ -3218,7 +3249,7 @@ async function playTurn(p,v,gid,bn){
     const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); sfx.naiktangga();
     await A(sleep(350)); await A(climb(p,p.pos,to)); p.pos=to; p.score+=10;
   }else if(p.shield&&(SNAKES[p.pos]||(mobOn(p.pos,themeKey)&&mobOn(p.pos,themeKey)!=='villager'))){
-    p.shield=false; setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900));
+    p.shield=false; puFx('pr:'+p.idx,'pfx-hit'); renderChips(); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900));
   }else if(SNAKES[p.pos]){
     const to=SNAKES[p.pos];
     if(!SNAKEINFO[p.pos]){ p.pos=to; setMsg('Ular! '+p.name+' turun ke '+to+'.'); fb('event','snake','Kena Ular! Turun ke '+to,{gid}); await A(sleep(350)); await A(hopTo(p.pawn,slotPos(p.idx,to),0.5,0.8)); }
