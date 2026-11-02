@@ -223,8 +223,21 @@
     return '<svg class="art-powerup" viewBox="0 0 500 500" role="img" aria-label="' + label + '">' + defs + b + '</svg>';
   }
 
-  /* Power-Up (Tahap 3.1): ikon blok sederhana per gameplay key — satu sistem art, tanpa aset eksternal. */
+  /* Stage 4.1.19: ikon Power = gambar dari data/power (path dari katalog: it.icon). SVG blok di bawah (powerupSvg) dipertahankan
+     sebagai cadangan: tampil dulu, disembunyikan hanya setelah gambar berhasil dimuat; bila gagal, SVG tetap terlihat.
+     Tetap berupa <svg> agar CSS ukuran existing (.th svg, #art svg) tetap berlaku. */
   function powerup(itemId, label) {
+    var it = C.byId(itemId); if (!it || it.kind !== 'powerup') return '';
+    var fb = powerupSvg(itemId, label);
+    if (!it.icon || !fb) return fb;
+    return '<svg class="art-powerup" viewBox="0 0 64 64" role="img" aria-label="' + (label || it.name) + '">' +
+      fb.replace('<svg ', '<svg x="0" y="0" width="64" height="64" ') +
+      '<image x="0" y="0" width="64" height="64" preserveAspectRatio="xMidYMid meet" href="' + it.icon + '" ' +
+      'onload="this.previousElementSibling.setAttribute(\'display\',\'none\')"/></svg>';
+  }
+
+  /* Power-Up (Tahap 3.1): ikon blok sederhana per gameplay key — kini cadangan bila gambar data/power gagal dimuat. */
+  function powerupSvg(itemId, label) {
     var it = C.byId(itemId); if (!it || it.kind !== 'powerup') return '';
     var k = it.gameKey, s = '';
     if (k === 'sword') {
@@ -237,8 +250,8 @@
       s += rect(10, 16, 44, 36, '#d63a2a') + rect(10, 16, 44, 8, '#e8564a') + rect(10, 30, 44, 8, '#ffffff');
       s += rect(16, 32, 6, 4, '#4a0d07') + rect(24, 32, 5, 4, '#4a0d07') + rect(31, 32, 6, 4, '#4a0d07') + rect(40, 32, 5, 4, '#4a0d07');
       s += rect(29, 8, 6, 8, '#8a5a2b') + rect(35, 4, 6, 4, '#ffb02e');
-    } else if (k === 'apple') {
-      return totem(label || it.name); /* id internal tetap 'apple'; tampilan = Totem Undying */
+    } else if (k === 'totem') {
+      return totem(label || it.name); /* fallback SVG Totem (dipakai hanya bila data/power/sm/totem.webp gagal dimuat) */
     } else if (k === 'potion') {
       s += rect(26, 4, 12, 6, '#8a5a2b') + rect(24, 10, 16, 8, '#b9c9e4');
       s += rect(14, 18, 36, 38, '#dff3ff') + rect(14, 36, 36, 20, '#c04fd0') + rect(18, 40, 8, 6, '#e08ae8');

@@ -65,13 +65,23 @@
       rarity: rarity, price: price, desc: desc, starter: price === 0, art: art }, extra || {});
   }
   /* Power-Up (Tahap 3.1): consumable ber-quantity.
-     ID canonical = PERSIS key gameplay di gameplay.html (p.pu: sword/feather/tnt/apple/potion/grass)
+     ID canonical = PERSIS key gameplay di gameplay.html (p.pu: sword/feather/tnt/totem/potion/grass)
      — tanpa prefiks, agar tidak perlu bridge ID (lihat DATA_MIGRATION.md "Power-Up").
      price: null = EKONOMI BELUM DITENTUKAN — tidak dijual di shop, tidak boleh diarang.
      rarity 'common' = default netral untuk UI; gameplay sendiri tidak mengenal rarity power-up. */
+  /* Stage 4.1.19: SATU-SATUNYA sumber path ikon Power (versi 192px dari data/power). Dibaca oleh
+     gameplay (Config.PUIMG), Shop/Inventory/Profil (ItemArt.powerup). Key = ID Power (identity), bukan nama effect. */
+  var POWER_ICON = {
+    sword: 'data/power/sm/pedang.webp', feather: 'data/power/sm/feather.webp', tnt: 'data/power/sm/dinamit.webp',
+    totem: 'data/power/sm/totem.webp', potion: 'data/power/sm/ramuan.webp', grass: 'data/power/sm/block.webp'
+  };
+  /* Stage 4.1.20: ID Power lama -> identity sekarang. Dipakai HANYA untuk membaca data lama (save/localStorage pemain
+     yang menyimpan Totem sebagai 'apple'); ID lama tidak dipakai lagi sebagai identity visual maupun di gameplay. */
+  var LEGACY_POWER_ID = { apple: 'totem' };
+  function normalizePowerId(id) { return Object.prototype.hasOwnProperty.call(LEGACY_POWER_ID, id) ? LEGACY_POWER_ID[id] : id; }
   function powerup(gameKey, name, rarity, desc, extra) {
     return Object.assign({ id: gameKey, kind: 'powerup', gameKey: gameKey, name: name,
-      rarity: rarity, price: null, desc: desc, starter: false, stackable: true }, extra || {});
+      rarity: rarity, price: null, desc: desc, starter: false, stackable: true, icon: POWER_ICON[gameKey] || null }, extra || {});
   }
 
   var ITEMS = [
@@ -124,13 +134,13 @@
     /* ---- Power-Up (Tahap 3.1) ----
        Metadata & efek = hasil audit gameplay.html (PUN + usePU), TIDAK diarang:
        sword  -> p.bonus=3 (langkah berikutnya +3)      feather -> p.extra=true (giliran tambahan)
-       tnt    -> pemain terdepan mundur 6 (teleport)    apple   -> p.shield=true (kebal 1 ular/mob)
+       tnt    -> pemain terdepan mundur 6 (teleport)    totem   -> p.shield=true (kebal 1 ular/mob; dulu ID 'apple', effect TIDAK berubah)
        potion -> p.p4=true (dadu berikutnya 4-6)        grass   -> tukar posisi dgn pemain terdepan
        Pemakaian & pengurangan quantity tetap di gameplay (p.pu); integrasi PlayerData menyusul. */
     powerup('sword',   'Pedang',     'common', 'Langkah berikutnya +3.'),
     powerup('feather', 'Bulu',       'common', 'Giliran tambahan sekali lempar.'),
     powerup('tnt',     'TNT',        'common', 'Pemain terdepan mundur 6 petak.'),
-    powerup('apple',   'Totem Undying', 'common', 'Kebal dari 1 ular atau mob jahat.'),
+    powerup('totem',   'Totem',      'common', 'Kebal dari 1 ular atau mob jahat.'),
     powerup('potion',  'Ramuan',     'common', 'Dadu berikutnya selalu 4 sampai 6.'),
     powerup('grass',   'Blok Rumput','common', 'Tukar posisi dengan pemain terdepan.')
   ];
@@ -162,6 +172,8 @@
     items: Object.freeze(ITEMS.slice()),
     byId: function (id) { return Object.prototype.hasOwnProperty.call(BY_ID, id) ? BY_ID[id] : null; },
     byGameKey: function (kind, gameKey) { return BY_ID[kind + '.' + gameKey] || null; },
+    /* ID Power lama ('apple') -> identity sekarang ('totem'); ID lain dikembalikan apa adanya. Untuk membaca data lama saja. */
+    normalizePowerId: normalizePowerId,
     /* Path texture PNG skin (relatif) atau null untuk skin legacy / path tidak valid */
     skinTexture: function (id) { var it = BY_ID[id]; return it && it.kind === 'skin' && it.textureValid ? it.texture : null; },
     /* Skin cadangan bila texture hilang/rusak (= skin default; selalu dimiliki sebagai starter) */
