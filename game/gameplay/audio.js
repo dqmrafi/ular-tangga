@@ -1,4 +1,4 @@
-/* Gameplay Audio (Stage 4.1.11) — HANYA presentation suara: AudioContext lazy, beep/noise sintetis, dan objek SFX (file di assets/sfx + fallback beep).
+/* Gameplay Audio (Stage 4.1.11) — HANYA presentation suara: AudioContext lazy, beep/noise sintetis, dan objek SFX (file di assets/sfx/<kategori>/ + fallback beep).
    Isi blok di bawah dipindahkan APA ADANYA dari gameplay.html (frekuensi, gain, durasi, path file, urutan fallback tidak diubah).
    Gameplay tetap yang menentukan KAPAN suara dimainkan; state mute/musik/persistence tetap di gameplay.html (modul hanya diberi setMuted).
    Tanpa timer gameplay; semua kegagalan audio ditelan di dalam helper (try/catch) sehingga game tidak berhenti.
@@ -39,47 +39,73 @@
       src.connect(f); f.connect(g); g.connect(actx.destination); src.start(actx.currentTime+(when||0));
     }catch(e){}
   }
+  /* ============================ LOKASI FILE SFX ============================
+     Satu tabel path. Struktur folder: assets/sfx/<kategori>/<nama>.<ext>
+       ui/ dice/ board/ reward/ powerup/ mob/ dragon/   (daftar lengkap: assets/sfx/README.md)
+     Mengganti/menambah file cukup ubah baris di sini; fungsi sfx di bawah hanya memakai kuncinya. */
+  const SFX_DIR='assets/sfx/';
+  const FILE={
+    /* dice */   roll:'dice/dice-roll.mp3',
+    /* board */  hop:'board/pawn-hop.mp3', ladder:'board/ladder-up.mp3', snakeBite:'board/snake-bite.mp3', block100:'board/block-100.mp3',
+    /* reward */ chestOpen:'reward/chest-open.ogg', chestClose:'reward/chest-close.ogg', powerReward:'reward/power-reward.mp3',
+    /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.ogg', skeletonShoot:'mob/skeleton-shoot.ogg', endermanTp:'mob/enderman-teleport.ogg',
+    /* dragon */ dragonIdle:'dragon/dragon-idle.ogg', dragonHurt:'dragon/dragon-hurt.ogg', dragonDeath:'dragon/dragon-death.ogg',
+               earthquake:'dragon/earthquake.mp3', tower:'dragon/tower-rise.mp3', crystalAppear:'dragon/crystal-appear.mp3', crystalBreak:'dragon/crystal-break.mp3'
+  };
+  const FILE_AWAKENING='dragon/dragon-awakening.mp3'; /* PLACEHOLDER: file belum ada -> fallback sintetis (retak + gema). Taruh file bernama ini untuk menggantinya. */
   /* Warm-up: file SFX dimuat lebih awal (tanpa diputar, tanpa butuh gesture) agar pemutaran pertama tidak menunggu fetch/decode. */
-  var SFX_FILES=['jump.mp3','Strong_attack5.ogg.mp3','Teleport2.ogg','Creeper_fuse.ogg','skelton_shoot.ogg','Ender_dragon_hurt4.ogg','Ender_dragon_death.ogg','Ender_dragon_idle3.ogg','100.mp3','ularmakan.mp3','Chest_open.ogg','Chest_close2.ogg','rewardpower.mp3','naiktangga.mp3','earthquake.mp3','tower.mp3','crsytalshoot.mp3','crystalhancur.mp3','shake-and-roll-dice-soundbible.mp3','minecraft_hit_soundmp3converter.mp3'],warm=[];
-  function preload(){ if(warm.length) return; SFX_FILES.forEach(function(f){ try{ var a=new Audio(); a.preload='auto'; a.src='assets/sfx/'+f; warm.push(a); }catch(e){} }); }
-  /* File SFX baru (Dragon Awakening): cek mute, kembalikan elemen Audio supaya bisa di-fade/stop. */
-  function fileSfx(file,vol,fb){ if(muted) return null; try{ const a=new Audio('assets/sfx/'+file); a.volume=vol; a.play().catch(fb||function(){}); return a; }catch(e){ if(fb) fb(); return null; } }
+  var warm=[];
+  function preload(){ if(warm.length) return; Object.keys(FILE).forEach(function(k){ try{ var a=new Audio(); a.preload='auto'; a.src=SFX_DIR+FILE[k]; warm.push(a); }catch(e){} }); }
+  /* Putar file SFX. fb = fallback sintetis bila file gagal/diblok. Mengembalikan elemen Audio (bisa di-fade/stop) atau null. Hormati tombol mute. */
+  function fileSfx(key,vol,fb){ if(muted) return null; try{ const a=new Audio(SFX_DIR+(FILE[key]||key)); a.volume=vol; a.play().catch(fb||function(){}); return a; }catch(e){ if(fb) fb(); return null; } }
   function fadeOut(a,ms){ if(!a) return; try{ const v0=a.volume,t0=Date.now(),id=setInterval(function(){ const k=Math.min(1,(Date.now()-t0)/ms); a.volume=v0*(1-k); if(k>=1){ clearInterval(id); a.pause(); } },50); }catch(e){} }
+  const ladderBeeps=()=>[392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11));
+
   const sfx={
-    hop(){ try{ const a=new Audio('assets/sfx/jump.mp3'); a.volume=0.5; a.play().catch(()=>beep(480+Math.random()*120,0.08,'square',0.04)); }catch(e){ beep(480+Math.random()*120,0.08,'square',0.04); } },
-    hit(){ try{ const a=new Audio('assets/sfx/Strong_attack5.ogg.mp3'); a.volume=0.7; a.play().catch(()=>beep(330,0.2,'triangle',0.07,0,140)); }catch(e){ beep(330,0.2,'triangle',0.07,0,140); } },
-    enderman(){ try{ const a=new Audio('assets/sfx/Teleport2.ogg'); a.volume=0.7; a.play().catch(()=>beep(700,0.2,'square',0.05,0,1000)); }catch(e){ beep(700,0.2,'square',0.05,0,1000); } },
-    creeper(){ try{ const a=new Audio('assets/sfx/Creeper_fuse.ogg'); a.volume=0.7; a.play().catch(()=>beep(200,0.12,'square',0.09,0,60)); }catch(e){ beep(200,0.12,'square',0.09,0,60); } },
-    skeltonSh(){ try{ const a=new Audio('assets/sfx/skelton_shoot.ogg'); a.volume=0.7; a.play().catch(()=>beep(400,0.1,'square',0.05)); }catch(e){ beep(400,0.1,'square',0.05); } },
-    dragonHurt(){ try{ const a=new Audio('assets/sfx/Ender_dragon_hurt4.ogg'); a.volume=0.8; a.play().catch(()=>beep(523,0.2,'square',0.05)); }catch(e){ beep(523,0.2,'square',0.05); } },
-    dragonDeath(){ try{ const a=new Audio('assets/sfx/Ender_dragon_death.ogg'); a.volume=0.9; a.play().catch(()=>beep(1047,0.4,'square',0.08)); }catch(e){ beep(1047,0.4,'square',0.08); } },
-    dragonIdle(){ try{ const a=new Audio('assets/sfx/Ender_dragon_idle3.ogg'); a.volume=0.5; a.play().catch(()=>{}); }catch(e){} },
-    /* Dragon Awakening (Feature 2): PLACEHOLDER SFX 'assets/sfx/dragon-awakening.mp3' (cracking + echo). File belum ada -> fallback sintetis (retak + gema). Ganti file saja bila aset sudah siap. */
-    dragonAwakening(){ let done=false;const fb=()=>{ if(done) return; done=true; noise(0.18,0.1,0,900); noise(0.14,0.08,0.22,1400); beep(70,0.9,'sawtooth',0.06,0.05,38); [0.35,0.75,1.2].forEach((w,i)=>{ noise(0.1,0.05/(i+1),w,1100); beep(110-i*20,0.5,'sine',0.05/(i+1),w,50); }); }; if(muted) return; try{ const a=new Audio('assets/sfx/dragon-awakening.mp3'); a.volume=0.9; a.addEventListener('error',fb); a.play().catch(fb); }catch(e){ fb(); } },
-    crystalBreak(){ fileSfx('crystalhancur.mp3',0.9,function(){ noise(0.25,0.1,0,2500); beep(900,0.22,'triangle',0.06,0,200); beep(1400,0.12,'square',0.03,0.04,500); }); },
-    quakeStart(){ return fileSfx('earthquake.mp3',0.9,function(){ noise(0.6,0.1,0,900); }); },
-    quakeStop(a){ fadeOut(a,700); },
-    towerRise(){ return fileSfx('tower.mp3',0.8); },
-    towerStop(a){ fadeOut(a,600); },
-    crystalAppear(){ return fileSfx('crsytalshoot.mp3',0.7,function(){ beep(900,0.4,'sine',0.05,0,1400); }); },
-    dragonSpawn(){ return fileSfx('Ender_dragon_idle3.ogg',0.8); },
-    hundred(){ try{ const a=new Audio('assets/sfx/100.mp3'); a.volume=0.7; a.play().catch(()=>beep(523,0.2,'square',0.05)); }catch(e){ beep(523,0.2,'square',0.05); } },
-    caplokular(){ try{ const a=new Audio('assets/sfx/ularmakan.mp3'); a.volume=0.8; a.play().catch(()=>beep(200,0.12,'square',0.09,0,60)); }catch(e){ beep(200,0.12,'square',0.09,0,60); } },
-    chest(){ try{ const a=new Audio('assets/sfx/Chest_open.ogg'); a.volume=0.7; a.play().catch(()=>beep(300,0.12,'triangle',0.08,0,900)); }catch(e){ beep(300,0.12,'triangle',0.08,0,900); } },
-    chestClose(){ try{ const a=new Audio('assets/sfx/Chest_close2.ogg'); a.volume=0.6; a.play().catch(()=>beep(200,0.1,'square',0.05)); }catch(e){ beep(200,0.1,'square',0.05); } },
-    rewardpower(){ try{ const a=new Audio('assets/sfx/rewardpower.mp3'); a.volume=0.6; a.play().catch(()=>beep(523,0.12,'square',0.05,0,784)); }catch(e){ beep(523,0.12,'square',0.05,0,784); } },
-    naiktangga(){ try{ const a=new Audio('assets/sfx/naiktangga.mp3'); a.volume=0.7; a.play().catch(()=>[392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11))); }catch(e){ [392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11)); } },
-    roll(){ return fileSfx('shake-and-roll-dice-soundbible.mp3',0.8,function(){ for(let i=0;i<7;i++) beep(180+Math.random()*320,0.05,'square',0.035,i*0.13); }); },
+    /* ---------- DADU ---------- */
+    roll(){ return fileSfx('roll',0.8,function(){ for(let i=0;i<7;i++) beep(180+Math.random()*320,0.05,'square',0.035,i*0.13); }); },
     rollStop(a){ fadeOut(a,250); },
-    playerHurt(){ return fileSfx('minecraft_hit_soundmp3converter.mp3',0.9,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
-    ladder(){ [392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11)); },
+
+    /* ---------- PAPAN: gerak & kejadian di tile ---------- */
+    hop(){ fileSfx('hop',0.5,function(){ beep(480+Math.random()*120,0.08,'square',0.04); }); },
+    naiktangga(){ fileSfx('ladder',0.7,ladderBeeps); },
+    ladder(){ ladderBeeps(); },
+    caplokular(){ fileSfx('snakeBite',0.8,function(){ beep(200,0.12,'square',0.09,0,60); }); },
+    hundred(){ fileSfx('block100',0.7,function(){ beep(523,0.2,'square',0.05); }); },
     hiss(){ noise(0.55,0.09,0,4500); },
     chomp(){ beep(200,0.12,'square',0.09,0,60); beep(90,0.25,'sawtooth',0.08,0.02); noise(0.12,0.07,0,1500); },
     gulp(){ beep(220,0.18,'sine',0.1,0,90); beep(200,0.18,'sine',0.1,0.24,80); },
     pop(){ beep(300,0.12,'triangle',0.08,0,900); },
     bounce(){ beep(330,0.2,'triangle',0.07,0,140); },
+
+    /* ---------- HADIAH & PETI ---------- */
+    chest(){ fileSfx('chestOpen',0.7,function(){ beep(300,0.12,'triangle',0.08,0,900); }); },
+    chestClose(){ fileSfx('chestClose',0.6,function(){ beep(200,0.1,'square',0.05); }); },
+    rewardpower(){ fileSfx('powerReward',0.6,function(){ beep(523,0.12,'square',0.05,0,784); }); },
     win(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); },
-    /* 4.1.15 CP4a: SFX acak urutan giliran (Ready Screen). Sintetis lewat beep() yang sama (tanpa file asset baru; bila nanti ada asset khusus, ganti isi fungsi ini saja). */
+
+    /* ---------- MOB DI BOARD ---------- */
+    hit(){ fileSfx('punch',0.7,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
+    playerHurt(){ return fileSfx('playerHurt',0.9,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
+    creeper(){ fileSfx('creeperFuse',0.7,function(){ beep(200,0.12,'square',0.09,0,60); }); },
+    skeltonSh(){ fileSfx('skeletonShoot',0.7,function(){ beep(400,0.1,'square',0.05); }); },
+    enderman(){ fileSfx('endermanTp',0.7,function(){ beep(700,0.2,'square',0.05,0,1000); }); },
+
+    /* ---------- DRAGON ---------- */
+    dragonIdle(){ fileSfx('dragonIdle',0.5); },
+    dragonHurt(){ fileSfx('dragonHurt',0.8,function(){ beep(523,0.2,'square',0.05); }); },
+    dragonDeath(){ fileSfx('dragonDeath',0.9,function(){ beep(1047,0.4,'square',0.08); }); },
+    dragonSpawn(){ return fileSfx('dragonIdle',0.8); },
+    /* Dragon Awakening: file placeholder (lihat FILE_AWAKENING); fallback sintetis = retak + gema. Tidak dipakai lagi oleh gameplay (diganti quakeStart). */
+    dragonAwakening(){ let done=false;const fb=()=>{ if(done) return; done=true; noise(0.18,0.1,0,900); noise(0.14,0.08,0.22,1400); beep(70,0.9,'sawtooth',0.06,0.05,38); [0.35,0.75,1.2].forEach((w,i)=>{ noise(0.1,0.05/(i+1),w,1100); beep(110-i*20,0.5,'sine',0.05/(i+1),w,50); }); }; if(muted) return; try{ const a=new Audio(SFX_DIR+FILE_AWAKENING); a.volume=0.9; a.addEventListener('error',fb); a.play().catch(fb); }catch(e){ fb(); } },
+    quakeStart(){ return fileSfx('earthquake',0.9,function(){ noise(0.6,0.1,0,900); }); },
+    quakeStop(a){ fadeOut(a,700); },
+    towerRise(){ return fileSfx('tower',0.8); },
+    towerStop(a){ fadeOut(a,600); },
+    crystalAppear(){ return fileSfx('crystalAppear',0.7,function(){ beep(900,0.4,'sine',0.05,0,1400); }); },
+    crystalBreak(){ fileSfx('crystalBreak',0.9,function(){ noise(0.25,0.1,0,2500); beep(900,0.22,'triangle',0.06,0,200); beep(1400,0.12,'square',0.03,0.04,500); }); },
+
+    /* ---------- READY SCREEN (acak urutan giliran) — sintetis ---------- */
     shuffleTick(){ beep(700+Math.random()*700,0.03,'square',0.03); },
     revealTick(){ beep(660,0.07,'square',0.05); },
     revealFirst(){ beep(660,0.07,'square',0.05); beep(990,0.14,'square',0.05,0.08); }

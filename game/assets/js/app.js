@@ -165,10 +165,10 @@ window.UT = window.UT || {};
   /* ================= Audio (fondasi; TIDAK menggantikan WebAudio gameplay) ================= */
   var SFX_BASE = 'assets/sfx/';
   var SFX = {                       /* nama logis -> file yang ADA di assets/sfx */
-    button: 'button-click.mp3', /* sebelumnya 'button.mp3' (file tidak ada) sehingga suara tombol tidak pernah bunyi */
-    chest: 'game_assets_sfx_chest.mp3', /* nama file asli di project; file tidak diganti nama */
-    kalah: 'kalah.mp3',
-    power: 'power.mp3'
+    button: 'ui/button-click.mp3',
+    chest: 'ui/chest-reward.mp3',
+    kalah: 'ui/game-lose.mp3',
+    power: 'ui/power-claim.mp3'
   };
   var audioCache = {}, muted = false, volume = 1;
   UT.Audio.sources = SFX;

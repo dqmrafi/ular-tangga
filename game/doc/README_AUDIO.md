@@ -1,3 +1,5 @@
+> **Update:** struktur `assets/sfx/` sudah dirapikan per kategori (`ui/`, `dice/`, `board/`, `reward/`, `powerup/`, `mob/`, `dragon/`). Daftar terbaru dan path file ada di `assets/sfx/README.md`; nama file di bawah adalah catatan lama.
+
 # README_AUDIO â€” Referensi Audio Ular Tangga Blok
 
 Tidak ada file audio baru yang ditambahkan di Tahap 3 (tidak ada audio palsu/base64/unduhan).
@@ -40,7 +42,7 @@ Catatan:
 - Jangan menambahkan base64/dependency eksternal; cukup ganti file mp3 dengan nama yang sama.
 - Gameplay WebAudio (synth) tidak diubah di Tahap 3.
 
-## Power-Up SFX (referensi Tahap 3.1 — file BELUM ada, jangan buat audio palsu)
+## Power-Up SFX (referensi Tahap 3.1 ï¿½ file BELUM ada, jangan buat audio palsu)
 
 Nama file maksimal 3 kata; taruh di `assets/sfx/` bila nanti file aslinya ditambahkan,
 lalu daftarkan di `UT.Audio.sources` (`assets/js/app.js`). Tidak ada base64/unduhan.
