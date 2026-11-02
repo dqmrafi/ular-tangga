@@ -15,6 +15,7 @@
      MOB_COLOR      {mob: 0xRRGGBB}           warna petak mob
      MOB_NAME       {mob: nama tampil}
      DMG            damage per angka dadu ke Ender Dragon
+     DRAGON_REWARD  {coins, gems}            nominal hadiah mengalahkan Ender Dragon (dipakai PlayerData.grant)
      PUN            {powerKey: [emoji, nama, deskripsi]} metadata power-up
    Catatan: ukuran papan (10 x 10 = 100) belum ada sebagai konfigurasi di source (masih literal di
    logic), jadi sengaja tidak dibuat di sini agar tidak ada nilai ganda. */
@@ -43,6 +44,9 @@
     warden: 'Warden', villager: 'Villager', blaze: 'Blaze'
   };
   C.DMG = C.DMG || 5;
+  /* Dragon Feature 6: hadiah mengalahkan Ender Dragon. Hanya NOMINAL; diberikan lewat PlayerData.grant existing
+     (bukan currency/reward system baru). Diberikan 1x per game ke pemain manusia yang menang. */
+  C.DRAGON_REWARD = C.DRAGON_REWARD || { coins: 500, gems: 10 };
 
   C.PUN = C.PUN || {
     sword: ['🗡️', 'Pedang', 'langkah berikutnya +3'],

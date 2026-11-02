@@ -1901,7 +1901,56 @@ function syncCrystals(){
 /* ---------- Dragon Feature 5: Dragon Attack ----------
    Hanya pemain yang sudah menyelesaikan Crystal 4 (p.ready) yang boleh menyerang. Angka serangan datang dari Special Dice (Feature 4);
    damage/HP/animasi/kemenangan tetap memakai hitDragon + playTurn existing (tidak ada combat baru). */
-function canAttackDragon(p){ return !!(p&&p.ready&&p.crystal>=4&&p.pos===100&&AWK.done&&!AWK.running&&!gameOver); }
+function canAttackDragon(p){ return !!(p&&p.ready&&p.crystal>=4&&p.pos===100&&AWK.done&&!AWK.running&&!gameOver&&!DRG.defeated); }
+/* ---------- Dragon Feature 6: Dragon Defeat & Reward ----------
+   Efek/suara/feedback kalah memakai yang existing di hitDragon + celebrate (sfx.dragonDeath, panel "Ender Dragon kalah!", konfeti, sfx.win).
+   Hadiah = PlayerData.grant existing (nominal: UT.Gameplay.Config.DRAGON_REWARD). Tidak ada currency/reward system baru.
+   Anti-ganda: (1) DRG.defeated menutup hitDragon begitu naga kalah, (2) DRG.done/busy mengunci settle, (3) token unik per game dicocokkan dengan catatan tersimpan.
+   Catatan kemenangan: localStorage 'ut-dragon-win' = {v,wins,last:{token,winner,skin,cpu,mode,at,settled,rewarded,coins,gems}} (terpisah dari PlayerData; ditulis aman via try/catch). */
+const DRG={defeated:false,done:false,busy:false,token:'',result:null,text:''},DRG_KEY='ut-dragon-win';
+function resetDragonDefeat(){ DRG.defeated=false; DRG.done=false; DRG.busy=false; DRG.result=null; DRG.text=''; DRG.token='dw-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,8); }
+function dragonWinLoad(){
+  let raw=null; try{ raw=localStorage.getItem(DRG_KEY); }catch(e){}
+  const rec={v:1,wins:0,last:null};
+  if(!raw) return rec;
+  try{ const o=JSON.parse(raw); if(o&&typeof o==='object'&&!Array.isArray(o)){ if(isFinite(o.wins)&&o.wins>=0) rec.wins=Math.floor(o.wins); if(o.last&&typeof o.last==='object'&&!Array.isArray(o.last)) rec.last=o.last; return rec; } }catch(e){}
+  try{ localStorage.setItem(DRG_KEY+':corrupt:'+Date.now(),raw); }catch(e){} /* rusak: cadangkan dulu, jangan hapus */
+  return rec;
+}
+function dragonWinSave(rec){ try{ localStorage.setItem(DRG_KEY,JSON.stringify(rec)); return true; }catch(e){ return false; } }
+/* Idempoten: panggilan ke-2 dst untuk game yang sama TIDAK memberi hadiah lagi. Sinkron (tanpa await) agar tidak bisa disela game baru. */
+function settleDragonDefeat(p){
+  if(DRG.done||DRG.busy) return {status:'duplicate'};
+  DRG.busy=true;
+  try{
+    const rec=dragonWinLoad();
+    if(rec.last&&rec.last.token===DRG.token&&rec.last.settled){ DRG.done=true; return {status:'duplicate'}; }
+    const rec1={token:DRG.token,winner:p.name,skin:p.key,cpu:!!p.cpu,mode:String(mode),at:Date.now(),settled:true,rewarded:false,coins:0,gems:0};
+    if(!p.cpu){ /* CPU menang = pemain kalah: kemenangan dicatat, hadiah tidak diberikan */
+      const R=(UT.Gameplay&&UT.Gameplay.Config&&UT.Gameplay.Config.DRAGON_REWARD)||{},PD=window.PlayerData;
+      const coins=Math.max(0,Math.floor(+R.coins||0)),gems=Math.max(0,Math.floor(+R.gems||0));
+      if(!PD||typeof PD.grant!=='function') return DRG.result={status:'unavailable'};
+      const r=PD.grant({coins,gems,reason:'dragon-defeat'}); /* atomik; gagal = tidak ada yang tertulis, boleh dicoba ulang */
+      if(!r||!r.ok) return DRG.result={status:'failed',reason:r&&r.reason};
+      rec1.rewarded=true; rec1.coins=coins; rec1.gems=gems; rec.wins++;
+    }
+    rec.last=rec1; dragonWinSave(rec); DRG.done=true;
+    return DRG.result={status:rec1.rewarded?'granted':'no-reward',coins:rec1.coins,gems:rec1.gems};
+  }finally{ DRG.busy=false; }
+}
+/* Dipanggil playTurn setelah efek kemenangan (celebrate). Settle sudah terjadi saat naga kalah; di sini hanya feedback hadiah. */
+async function dragonDefeatReward(p,gid){
+  const R=(DRG.done?DRG.result:null)||settleDragonDefeat(p);
+  if(!R||R.status!=='granted'){
+    if(R&&(R.status==='failed'||R.status==='unavailable')) setMsg('Hadiah Dragon gagal disimpan.');
+    return;
+  }
+  const parts=[]; if(R.coins>0) parts.push('+'+R.coins+' Coin'); if(R.gems>0) parts.push('+'+R.gems+' Gem');
+  DRG.text='Hadiah: '+parts.join(' · ')+'.';
+  setMsg(p.name+' mendapat hadiah Dragon: '+parts.join(', ')+'.');
+  sfx.rewardpower(); hud('showResult','Hadiah Dragon',parts.join('  '),{ttl:2200,gid});
+  await sleep(1500);
+}
 async function crystalRoll(p,v,gid){
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },n=p.crystal+1;
   if(v!==n){
@@ -2169,6 +2218,7 @@ async function hitDragon(p,v){
    D.shk=0; D.mats.forEach(m=>m.color.setHex(0xFFFFFF));
    p.dhp=Math.max(0,p.dhp-dmg); renderChips(); hud('updatePlayer',p);
    if(p.dhp>0){ setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); return; }
+   DRG.defeated=true; settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
    sfx.dragonDeath();
    setMsg('Ender Dragon kalah!'); hud('showResult','Ender Dragon kalah!',p.name+' menang!',{ttl:2600,gid}); spawnConfetti(dragon.position);
    await tween(1.3,k=>{ D.dy=-k*3; dragon.scale.setScalar(1.3*(1-k*0.85)); });
@@ -2565,7 +2615,7 @@ async function playTurn(p,v,gid,bn){
     if(!canAttackDragon(p)){ nextTurn(); return; } /* guard Feature 5 */
     sfx.dragonIdle();
     await A(hitDragon(p,v));
-    if(p.dhp<=0){ await A(celebrate(p)); finishGame(p); return; }
+    if(p.dhp<=0){ await A(celebrate(p)); await A(dragonDefeatReward(p,gid)); finishGame(p); return; } /* Feature 6: efek menang -> hadiah -> layar menang */
     if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); } else nextTurn();
     return;
   }
@@ -2705,14 +2755,14 @@ function finishGame(p){
   $('win').dataset.state=lost?'lose':'win';
   $('winEyebrow').textContent=lost?'Level gagal':'Sampai di petak 100';
   $('winTitle').textContent=lost?'Kamu kalah':(mode==='cpu'&&!p.cpu)?'Kamu menang':p.name+' menang';
-  $('winText').textContent=p.cpu?'Komputer lebih beruntung kali ini. Coba lagi?':'Pionmu lebih dulu sampai di puncak. Mau main lagi?';
+  $('winText').textContent=(p.cpu?'Komputer lebih beruntung kali ini. Coba lagi?':'Pionmu lebih dulu sampai di puncak. Mau main lagi?')+(DRG.text&&!p.cpu?' '+DRG.text:'');
   setTimeout(()=>{ if(gameOver) $('win').hidden=false; },500);
 }
 function startGame(m,keys){
   mode=m; gameId++; busy=false; gameOver=false; hud('reset');
   try{ if(UT.GameplayAFK) UT.GameplayAFK.clearAll(); if(UT.GameplayReady) UT.GameplayReady.cancel(); }catch(e){} /* 4.1.15: bersihkan timer Ready/AFK saat (re)start */
   players.forEach(p=>scene.remove(p.pawn)); players=[]; clearConfetti();
-  applyPendingTheme(); resetSnakes(); resetDragon(); resetAwakening();
+  applyPendingTheme(); resetSnakes(); resetDragon(); resetAwakening(); resetDragonDefeat();
   let defs;
   keys=keys||(m==='cpu'?['steve','villager']:PLAYER_DEFS.slice(0,+m).map(d=>d.key));
   if(m==='cpu') keys=[keys[0]||'steve','villager']; /* 4.1.14.10: Computer selalu Villager, bukan Mob/skin acak */
