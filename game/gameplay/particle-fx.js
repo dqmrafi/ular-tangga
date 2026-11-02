@@ -5,7 +5,7 @@
    Classic script. Namespace: UT.ParticleFX (alias window.particleFX).
    API: burstAt(x, y, opts) · burstFromElement(el, opts) · clear() · configure({maxParticles, maxBurst}) — burst mengembalikan jumlah partikel yang dibuat.
    opts: count(12) · color | colors[] · size(8) · sizeJitter(.5) · distance(60) · distanceJitter(.5) · duration(600ms) · durationJitter(.3) · spread(360°) · angle(derajat arah tengah, 0=kanan)
-         · gravity(px turun di akhir) · scale(akhir, .2) · rotate(derajat maks) · shape('square'|'round'|'bar') · delay(ms, maks acak) */
+         · gravity(px turun di akhir) · scale(akhir, .2) · rotate(derajat maks) · shape('square'|'round'|'bar') · delay(ms, maks acak) · delayMin(ms, jeda tetap sebelum mulai, maks 1500; total jeda = delayMin + acak(0..delay)) */
 (function (win, doc) {
   'use strict';
   var UT = win.UT = win.UT || {};
@@ -55,7 +55,7 @@
       var dist = Math.max(0, num(o.distance, 60)), dj = num(o.distanceJitter, 0.5);
       var dur = Math.max(150, Math.min(1500, num(o.duration, 600))), duj = num(o.durationJitter, 0.3);
       var spread = Math.max(0, Math.min(360, num(o.spread, 360))), base = num(o.angle, 0);
-      var grav = num(o.gravity, 0), scl = num(o.scale, 0.2), rot = num(o.rotate, 0), delay = Math.max(0, num(o.delay, 0));
+      var grav = num(o.gravity, 0), scl = num(o.scale, 0.2), rot = num(o.rotate, 0), delay = Math.max(0, num(o.delay, 0)), dmin = Math.max(0, Math.min(1500, num(o.delayMin, 0)));
       var cls = o.shape === 'round' ? ' fx-round' : o.shape === 'bar' ? ' fx-bar' : '';
       var frag = doc.createDocumentFragment();
       for (var i = 0; i < n; i++) {
@@ -72,7 +72,7 @@
         s.setProperty('--fx-scale', String(scl));
         s.setProperty('--fx-rot', Math.round(rnd(-rot, rot)) + 'deg');
         s.setProperty('--fx-color', colors[i % colors.length]);
-        if (delay) s.setProperty('--fx-delay', Math.round(Math.random() * delay) + 'ms');
+        if (delay || dmin) s.setProperty('--fx-delay', Math.round(dmin + Math.random() * delay) + 'ms');
       }
       L.appendChild(frag); live += n;
       return n;

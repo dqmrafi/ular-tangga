@@ -650,6 +650,8 @@ if (typeof THREE === 'undefined') {
 <script src="gameplay/voxel-geom.js"></script>
 <script src="gameplay/fx.js"></script>
 <script src="gameplay/particle-fx.js"></script>
+<script src="gameplay/firework-fx.js"></script>
+<script src="gameplay/creeper-fx.js"></script>
 <script src="gameplay/skin-uv.js"></script>
 <script src="gameplay/feedback.js"></script>
 <script src="gameplay/afk.js"></script>
@@ -2787,6 +2789,17 @@ showDie(1,false);
 /* ---------- Konfeti ---------- */
 function spawnConfetti(pos){ if(FX) FX.spawnConfetti(pos); } /* visual: UT.GameplayFX */
 function clearConfetti(){ if(FX) FX.clearConfetti(); }
+/* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
+   Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
+let FW_GID=-1;
+function fireworkCelebrate(p){
+  try{
+    const FW=window.UT&&UT.FireworkFX; if(!FW||FW_GID===gameId) return; FW_GID=gameId;
+    const r=$('c').getBoundingClientRect(),v=p.pawn.position.clone(); v.y+=2.5; v.project(camera);
+    const cl=(n,a,b)=>Math.max(a,Math.min(b,n));
+    FW.burstAt(r.left+cl((v.x+1)/2,0.12,0.88)*r.width, r.top+cl((1-v.y)/2,0.12,0.88)*r.height);
+  }catch(e){}
+}
 
 /* ---------- Ender Dragon ---------- */
 function wingMesh(sg){
@@ -3214,7 +3227,7 @@ async function bite(p,from,to,gid){
   S.busy=false;
 }
 async function celebrate(p){
-  sfx.win(); spawnConfetti(p.pawn.position);
+  sfx.win(); spawnConfetti(p.pawn.position); fireworkCelebrate(p);
   for(let i=0;i<3;i++) await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.5);
 }
 async function playTurn(p,v,gid,bn){

@@ -19,6 +19,7 @@ Halaman UI memakai `assets/js/app.js` (map `SFX`), dan daftar preload di `loadin
 | `reward/` | `chest-open.ogg` / `chest-close.ogg` | peti di board | `chest` / `chestClose` |
 | | `power-reward.mp3` | hadiah power-up / hadiah Dragon | `rewardpower` |
 | `powerup/` | `sword-use.mp3` | *belum dipakai* (Pedang) | — |
+| `win/` | `Firework_launch.ogg` | Firework visual (`UT.FireworkFX`), 1x per event | `firework` |
 | `mob/` | `mob-punch.mp3` | mob menghantam (lapis pukulan) | `hit` |
 | | `player-hurt.mp3` | pemain kena hit (creeper, skeleton, melee) | `playerHurt` |
 | | `creeper-fuse.ogg` | creeper menyala | `creeper` |
