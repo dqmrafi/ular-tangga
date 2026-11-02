@@ -729,10 +729,10 @@ function mcBlock(n,themeKey){
   if(LADDERS[n]) return 0xE2BE3C;
   if(SNAKES[n]) return 0xD9577A;
   const r=Math.random();
-  if(n<=20) return r<0.28?0x8A5B33:0x5DA73A;
+  if(n<=20) return r<0.28?0x8A5B33:0x5A9E3C;
   if(n<=40) return r<0.25?0xD9C98A:0xE8D9A0;
   if(n<=60) return r<0.12?0xE8D9A0:(r<0.5?0x2F5FCC:0x3F76E4);
-  if(n<=80) return r<0.3?0x8E8E8E:(r<0.4?0x9A9490:0x5DA73A);
+  if(n<=80) return r<0.3?0x8E8E8E:(r<0.4?0x9A9490:0x5A9E3C);
   return r<0.1?0xE0561A:(r<0.25?0x5A4636:(r<0.6?0x8A2B2B:0x6E2222));
 }
 /*LOGIC-END*/
@@ -765,9 +765,9 @@ const FX=(window.UT&&UT.GameplayFX)||null; /* modul tak termuat -> efek visual d
 if(FX) FX.init(scene);
 const camera=new THREE.PerspectiveCamera(38,1,0.1,250);
 
-const hemi=new THREE.HemisphereLight(0xFFFFFF,0xB9D7A0,0.9);
+const hemi=new THREE.HemisphereLight(0xFFFFFF,0xB9D7A0,0.84);
 scene.add(hemi);
-const sun=new THREE.DirectionalLight(0xFFFFFF,0.7);
+const sun=new THREE.DirectionalLight(0xFFFFFF,0.64);
 sun.position.set(-9,24,14);
 sun.castShadow=true;
 sun.shadow.mapSize.set(coarse?1024:2048,coarse?1024:2048);
@@ -986,7 +986,7 @@ function cascadeHill(B,dir,u0,u1,v0,v1,stone,K){
   for(let l=0;l<3;l++){
     const du=fu(l)-bu(l),uc=(fu(l)+bu(l))/2;
     bx(uc,vc,(l+0.5)*0.5,du,0.5,wv(l),ljit(stone?0x7F7F7F:0x8A5B33,0.07));
-    bx(uc,vc,(l+1)*0.5+0.02,du-0.04,0.06,wv(l)-0.04,ljit(stone?0x6E8F5A:0x5DA73A,0.05),F);
+    bx(uc,vc,(l+1)*0.5+0.02,du-0.04,0.06,wv(l)-0.04,ljit(stone?0x6E8F5A:0x5A9E3C,0.05),F);
   }
   const ps=bu(2)+0.25,pu=(ps+fu(2))/2,pd=fu(2)-ps;
   bx(ps+pd*0.3,vc,1.6,pd*0.6,0.1,1.4,ljit(0x4FA0FF,0.05),F);
@@ -1492,7 +1492,7 @@ function addHill(B,x0,x1,z0,z1,n,stone){
   for(let l=0;l<n;l++){
     const i=l*0.55,w=x1-x0-2*i,d=z1-z0-2*i; if(w<=0.3||d<=0.3) break;
     addBox(B,(x0+x1)/2,(l+0.5)*0.5,(z0+z1)/2,w,0.5,d,jit(stone?0x7F7F7F:0x8A5B33,0.06));
-    addBox(B,(x0+x1)/2,(l+1)*0.5+0.02,(z0+z1)/2,w-0.04,0.06,d-0.04,jit(stone?0x6E8F5A:0x5DA73A,0.05),{edge:false});
+    addBox(B,(x0+x1)/2,(l+1)*0.5+0.02,(z0+z1)/2,w-0.04,0.06,d-0.04,jit(stone?0x6E8F5A:0x5A9E3C,0.05),{edge:false});
   }
 }
 function addAnimal(B,x,z,yaw,cow,cc,dd){
@@ -1521,10 +1521,10 @@ function lift(B,fn,h){
   for(let i=l0+1;i<B.lpos.length;i+=3) B.lpos[i]+=h;
 }
 function buildMcTerrain(TB,th){
-  const mc=th.key==='minecraft',grassy=mc||th.key==='rumput',G=mc?0x4E9A34:th.ground,W=mc?0x98643B:th.wall[0],S=mc?0x7A7A7A:th.deep[0],M=mc?0x8A8F86:th.deep[1];
+  const mc=th.key==='minecraft',grassy=mc||th.key==='rumput',G=mc?0x4A8F33:th.ground,W=mc?0x98643B:th.wall[0],S=mc?0x7A7A7A:th.deep[0],M=mc?0x8A8F86:th.deep[1];
   /* rumput: 3 nuansa hijau (gelap/utama/terang) dipilih deterministik per petak -> tidak satu warna rata & tidak neon.
      Pakai hash koordinat, BUKAN rnd(), supaya urutan acak dunia (pohon, dekorasi) tidak bergeser. */
-  const GRS=[0x4E9A34,0x5DA73A,0x66AC45],gh=(x,z,k)=>{ const v=Math.sin(x*12.9898+z*78.233+k*37.719)*43758.5453; return v-Math.floor(v); };
+  const GRS=[0x4A8F33,0x5A9E3C,0x62A545],gh=(x,z,k)=>{ const v=Math.sin(x*12.9898+z*78.233+k*37.719)*43758.5453; return v-Math.floor(v); };
   const gv=(x,z)=>{ const h=gh(x,z,0); return new THREE.Color(GRS[h<0.3?0:(h<0.75?1:2)]).offsetHSL(0,0,(gh(x,z,1)-0.5)*0.05); };
   const BM=UT.Gameplay.Biomes,PK=mc?BM.MC.PK:(BM.PK[th.key]||BM.FALLBACK.PK),R=mc?BM.MC.R:(BM.R[th.key]||BM.FALLBACK.R);
   for(let ix=-7.5;ix<=7.5;ix+=1) for(let iz=-6.5;iz<=6.5;iz+=1){
@@ -1945,8 +1945,8 @@ function applyLook(th){
   const top=night?mixHex(th.skyTop,'#060a22',0.9):th.skyTop,bot=night?mixHex(th.skyBot,'#1c2a5e',0.82):th.skyBot;
   rs.setProperty('--sky-top',top); rs.setProperty('--sky-bot',bot);
   rs.setProperty('--hud-bg',mixHex(th.wall[0],'#000000',night?0.86:0.78)); rs.setProperty('--hud-edge',mixHex(th.wall[0],'#ffffff',night?0.02:0.12)); rs.setProperty('--ttl',th.sw[0]);
-  hemi.color.setHex(night?0x8FA6FF:0xFFFFFF); hemi.intensity=night?0.5:0.9; hemi.groundColor.setHex(night?0x1A2340:th.hemi);
-  sun.color.setHex(night?0xA9BCFF:0xFFFFFF); sun.intensity=night?0.42:0.7;
+  hemi.color.setHex(night?0x8FA6FF:0xFFFFFF); hemi.intensity=night?0.5:0.84; hemi.groundColor.setHex(night?0x1A2340:th.hemi);
+  sun.color.setHex(night?0xA9BCFF:0xFFFFFF); sun.intensity=night?0.42:0.64;
   scene.fog=new THREE.Fog(new THREE.Color(bot),night?38:32,night?80:64);
   nightObjs.forEach(o=>{ skyDome.remove(o); if(o.geometry) o.geometry.dispose(); }); nightObjs=[]; skyStars=null;
   if(night){
@@ -2466,7 +2466,7 @@ function buildWorld(key){
       const bc=th.key==='minecraft'?mcBlock(n,th.key):tileBlock(n,t,th);
       for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,tileShade(bc,n,t,i,j,th.key),{edge:false});
       const cx=()=>t.x+(rnd()<0.5?-0.34:0.34),cz=()=>t.z+(rnd()<0.5?-0.34:0.34);
-      if(bc===0x5DA73A&&rnd()<0.6) addBox(TB,cx(),t.h+0.08,cz(),0.1,0.16,0.1,pick([0xF0453A,0xFFD23F,0xFF7EB6,0xFFFFFF,0x6AA8FF]),{edge:false});
+      if(bc===0x5A9E3C&&rnd()<0.6) addBox(TB,cx(),t.h+0.08,cz(),0.1,0.16,0.1,pick([0xF0453A,0xFFD23F,0xFF7EB6,0xFFFFFF,0x6AA8FF]),{edge:false});
       if(bc===0x8E8E8E) for(let k=0;k<3;k++) addBox(TB,cx(),t.h+0.04,cz(),0.12,0.08,0.12,pick([0x222222,0x4AEDD9,0xFFD23F,0xD8AF93]),{edge:false});
       if((bc===0x3F76E4||bc===0x2F5FCC)&&rnd()<0.3) addBox(TB,cx(),t.h+0.02,cz(),0.22,0.03,0.22,0x2E8B2E,{edge:false});
       if(bc===0x8A2B2B&&rnd()<0.3) addBox(TB,cx(),t.h+0.06,cz(),0.1,0.12,0.1,0xE0561A,{edge:false});
