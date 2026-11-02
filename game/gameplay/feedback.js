@@ -13,6 +13,7 @@
   var SILENT = (typeof Proxy === 'function') ? new Proxy({}, { get: function () { return function () {}; } }) : { rewardpower: function () {}, pop: function () {} };
   var sfx = SILENT, sleep = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); }, reduce = false;
   function $(id) { return doc.getElementById(id); }
+  function setIco(el, k, fb) { var C = UT.Gameplay && UT.Gameplay.Config, P = getPUN(); if (C && C.setPuIcon) return C.setPuIcon(el, k, fb); el.textContent = P[k] ? P[k][0] : (fb || ''); return el; }
   function getPUN() { var G = UT.Gameplay; return (G && G.Config && G.Config.PUN) || {}; }
 
   function init(o) {
@@ -39,9 +40,9 @@
      const c=$('puCard'),em=$('pcEmoji'),keys=Object.keys(PUN);
      $('pcWho').textContent=p.name+' membuka peti'; $('pcName').textContent='...'; $('pcDesc').textContent='';
      c.classList.remove('pop'); c.hidden=false;
-     if(!reduce) for(let i=0;i<9;i++){ em.textContent=PUN[keys[i%keys.length]][0]; await sleep(75); }
+     if(!reduce) for(let i=0;i<9;i++){ setIco(em,keys[i%keys.length]); await sleep(75); }
      sfx.rewardpower();
-     em.textContent=PUN[k][0]; $('pcName').textContent=PUN[k][1]; $('pcDesc').textContent=PUN[k][2]; c.classList.add('pop'); sfx.pop();
+     setIco(em,k); $('pcName').textContent=PUN[k][1]; $('pcDesc').textContent=PUN[k][2]; c.classList.add('pop'); sfx.pop();
      await sleep(reduce?900:1500); c.hidden=true;
   }
   function showAttackCard(attacker,defender,weapon,desc){
@@ -50,7 +51,7 @@
      $('pcWho').textContent=attacker+' → '+defender;
      $('pcName').textContent=PUN[weapon]?PUN[weapon][1]:weapon;
      $('pcDesc').textContent=desc;
-     em.textContent=PUN[weapon]?PUN[weapon][0]:'⚔️';
+     setIco(em,weapon,'⚔️');
      c.classList.remove('pop'); c.hidden=false; c.classList.add('pop'); sfx.pop();
      setTimeout(()=>c.hidden=true,1600);
   }

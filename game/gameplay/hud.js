@@ -62,7 +62,7 @@
       '.ut-ghud-p h4{margin:0;font-family:var(--font-display,"Baloo 2",sans-serif);font-size:20px;color:#ffe36a;text-transform:uppercase;overflow-wrap:anywhere}' +
       '.ut-ghud-p p{margin:4px 0 0;font-size:13px;font-weight:700;overflow-wrap:anywhere}' +
       '.feedback-stack{box-sizing:border-box;width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}' +
-      '.ut-ghud-pw{align-items:flex-start;padding:8px 14px}.ut-ghud-pw>i{font-size:26px}' +
+      '.ut-ghud-pw{align-items:flex-start;padding:8px 14px}.ut-ghud-pw>i{font-size:26px}.ut-ghud-pw>i .puimg{width:34px;height:34px;display:block;object-fit:contain}' +
       '.ut-ghud-pw .c{display:flex;flex-direction:column;gap:1px;min-width:0}' +
       '.ut-ghud-pw .w{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#ffe36a}' +
       '.ut-ghud-pw .t{font-size:14px}.ut-ghud-pw .e{font-size:12px;font-weight:700;color:#e0f2ff}' +
@@ -156,9 +156,10 @@
     var i = el('i', '', n); i.setAttribute('aria-hidden', 'true'); i.textContent = icon;
     el('span', '', n).textContent = String(text);
   }
-  function powerCard(n, icon, who, title, eff) {
+  function powerCard(n, icon, who, title, eff, key) {
     n.className += ' ut-ghud-pw';
     var i = el('i', '', n); i.setAttribute('aria-hidden', 'true'); i.textContent = icon;
+    var C = UT.Gameplay && UT.Gameplay.Config; if (key && C && C.PUIMG && C.PUIMG[key] && C.setPuIcon) C.setPuIcon(i, key, icon); /* gambar Power bila ada */
     var c = el('div', 'c', n);
     if (who) el('span', 'w', c).textContent = String(who);
     el('span', 't', c).textContent = title;
@@ -200,7 +201,7 @@
       /* Kartu Power: ikon + pemain + nama Power + efek, semua dari data yang dikirim gameplay (bukan Modal Chest #puCard). */
       var eff = o.desc ? String(o.desc) : '';
       eff = eff.charAt(0).toUpperCase() + eff.slice(1);
-      push('power', function (n) { powerCard(n, icon, who, 'Menggunakan ' + (name || key), eff); }, ttlOf(o, 2400));
+      push('power', function (n) { powerCard(n, icon, who, 'Menggunakan ' + (name || key), eff, key); }, ttlOf(o, 2400));
       return H;
     },
     showCombat: function (att, def, text, o) {

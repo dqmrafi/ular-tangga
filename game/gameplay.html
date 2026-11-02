@@ -188,6 +188,10 @@ body.playing .side{display:block}
 .pucard p{margin:0;font-size:13px}
 #pcWho{font-family:var(--font-display);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#d8ccb6}
 #pcEmoji{font-size:64px;line-height:1.15;margin:8px 0 4px}
+.puimg{display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;image-rendering:auto}
+#pcEmoji .puimg{width:84px;height:84px;margin:0 auto;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
+.pb .puimg{width:62%;height:auto;aspect-ratio:1;margin:0 auto;filter:drop-shadow(0 2px 0 rgba(0,0,0,.35))}
+#side .pb .puimg{width:calc(var(--slot)*.62)}
 #pcName{margin:0 0 4px;font-family:var(--font-display);font-size:20px;color:#ffd23f;text-transform:uppercase}
 .pucard.pop{animation:pcpop .35s ease-out}
 @keyframes pcin{from{opacity:0;transform:translate(-50%,-50%) scale(.7)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
@@ -3056,7 +3060,7 @@ function renderChips(){
   $('turnName').textContent=c?c.name:''; if(c) $('turnName').style.color=c.key==='ender'?'#c9a2ff':'#fff';
   Object.keys(PUN).forEach(k=>{
     const bt=document.createElement('button'); bt.type='button'; bt.className='pb'; bt.title=PUN[k][1]+': '+PUN[k][2];
-    bt.setAttribute('aria-label',PUN[k][1]+': '+PUN[k][2]); bt.textContent=PUN[k][0]; const lb=document.createElement('em'); lb.textContent=PUN[k][1].split(' ')[0]; bt.appendChild(lb);
+    bt.setAttribute('aria-label',PUN[k][1]+': '+PUN[k][2]); UT.Gameplay.Config.setPuIcon(bt,k); const lb=document.createElement('em'); lb.textContent=PUN[k][1].split(' ')[0]; bt.appendChild(lb);
     const n=document.createElement('b'); n.textContent=c?c.pu[k]:0; bt.appendChild(n);
     bt.disabled=!c||c.cpu||busy||gameOver||!c.pu[k]||(c.pos===100&&(k==='sword'||k==='apple'));
     bt.dataset.state=(!c||!c.pu[k])?'empty':(bt.disabled?'locked':'ready'); /* HUD: ready/locked/empty utk styling */

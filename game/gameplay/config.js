@@ -56,4 +56,19 @@
     potion: ['🧪', 'Ramuan', 'dadu berikutnya 4 sampai 6'],
     grass: ['🟩', 'Blok Rumput', 'tukar posisi dengan pemain terdepan']
   };
+  /* Gambar ikon Power (versi 192px dari data/power). Emoji di PUN tetap jadi cadangan bila gambar gagal dimuat. */
+  C.PUIMG = C.PUIMG || {
+    sword: 'data/power/sm/pedang.png', feather: 'data/power/sm/feather.png', tnt: 'data/power/sm/dinamit.png',
+    apple: 'data/power/sm/totem.png', potion: 'data/power/sm/ramuan.png', grass: 'data/power/sm/block.png'
+  };
+  /* Isi elemen dengan ikon Power: gambar bila ada, kalau tidak (atau gagal muat) emoji. */
+  C.setPuIcon = C.setPuIcon || function (el, key, fallback) {
+    var emoji = (C.PUN[key] && C.PUN[key][0]) || fallback || '', src = C.PUIMG[key];
+    el.textContent = '';
+    if (!src) { el.textContent = emoji; return el; }
+    var im = document.createElement('img');
+    im.src = src; im.alt = ''; im.draggable = false; im.className = 'puimg';
+    im.onerror = function () { el.textContent = emoji; };
+    el.appendChild(im); return el;
+  };
 })(window);
