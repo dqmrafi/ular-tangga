@@ -39,6 +39,8 @@
     '#readyScreen .rd-nm{max-width:100%;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}' +
     '#readyScreen .rd-btn{width:100%;min-height:44px;font-size:13px}' +
     '#readyScreen .rd-card.ok .rd-btn{background:#7ddc5a;color:#16300d}' +
+    /* tombol bukan pill: sudut kotak-membulat kecil seperti tombol modal lobby */
+    "#readyScreen .rd-btn{border-radius:10px;padding:8px 12px;line-height:1.1}" +
     '@media (min-width:560px){#readyScreen .rd-grid.n4{--cols:4}}' +
     /* 4.1.17C: landscape pendek -> semua kartu satu baris, elemen dikecilkan agar muat tanpa scroll */
     '@media (orientation:landscape) and (max-height:430px){#readyScreen .rd-box{padding:8px 10px 10px}#readyScreen h2{font-size:14px;margin:0}#readyScreen .rd-sub{margin:2px 0 4px;font-size:10px}' +
