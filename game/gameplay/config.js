@@ -58,8 +58,8 @@
   };
   /* Gambar ikon Power (versi 192px dari data/power). Emoji di PUN tetap jadi cadangan bila gambar gagal dimuat. */
   C.PUIMG = C.PUIMG || {
-    sword: 'data/power/sm/pedang.png', feather: 'data/power/sm/feather.png', tnt: 'data/power/sm/dinamit.png',
-    apple: 'data/power/sm/totem.png', potion: 'data/power/sm/ramuan.png', grass: 'data/power/sm/block.png'
+    sword: 'data/power/sm/pedang.webp', feather: 'data/power/sm/feather.webp', tnt: 'data/power/sm/dinamit.webp',
+    apple: 'data/power/sm/totem.webp', potion: 'data/power/sm/ramuan.webp', grass: 'data/power/sm/block.webp'
   };
   /* Isi elemen dengan ikon Power: gambar bila ada, kalau tidak (atau gagal muat) emoji. */
   C.setPuIcon = C.setPuIcon || function (el, key, fallback) {
