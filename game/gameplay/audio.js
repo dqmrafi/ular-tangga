@@ -48,6 +48,7 @@
     /* dice */   roll:'dice/dice-roll.mp3',
     /* board */  hop:'board/pawn-hop.mp3', ladder:'board/ladder-up.mp3', snakeBite:'board/snake-bite.mp3', block100:'board/block-100.mp3',
     /* win */    firework:'win/Firework_launch.ogg',
+    /* result */ defeat:'ui/game-lose.mp3',
     /* reward */ chestOpen:'reward/chest-open.ogg', chestClose:'reward/chest-close.ogg', powerReward:'reward/power-reward.mp3',
     /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.ogg', skeletonShoot:'mob/skeleton-shoot.ogg', endermanTp:'mob/enderman-teleport.ogg',
     /* dragon */ dragonIdle:'dragon/dragon-idle.ogg', dragonHurt:'dragon/dragon-hurt.ogg', dragonDeath:'dragon/dragon-death.ogg',
@@ -86,6 +87,7 @@
     chestClose(){ fileSfx('chestClose',0.6,function(){ beep(200,0.1,'square',0.05); }); },
     rewardpower(){ fileSfx('powerReward',0.6,function(){ beep(523,0.12,'square',0.05,0,784); }); },
     firework(){ fileSfx('firework',0.7); }, /* Stage 4.1.23.3: 1x per event Firework (dipanggil UT.FireworkFX); tanpa fallback sintetis: bila file gagal, hanya senyap */
+    defeat(){ return fileSfx('defeat',0.9); }, /* Stage 4.1.24.D.1: 1x saat hasil KALAH (CPU menang, finishGame). Tanpa fallback sintetis: bila file gagal, hanya senyap. Victory asset (result/victory.mp3) belum ada -> BLOCKED, tidak dipasang */
     win(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); },
 
     /* ---------- MOB DI BOARD ---------- */
