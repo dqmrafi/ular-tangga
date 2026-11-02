@@ -42,6 +42,14 @@ svg{display:block}
 .art{position:absolute;left:0;right:0;top:0;height:16.5rem;background:linear-gradient(var(--a1),var(--a2));border-radius:2.6rem 2.6rem 0 0}
 .art svg{width:100%;height:100%}
 .art{overflow:hidden}.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
+.mode.locked{cursor:not-allowed;animation:pop .45s both}
+.mode.locked .art img,.mode.locked .art svg{filter:grayscale(.85) brightness(.7)}
+.mode.locked .pn{filter:grayscale(.7) brightness(.8)}
+.mode.locked:hover{transform:none}
+.lk{position:absolute;left:0;right:0;top:0;height:16.5rem;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;background:rgba(10,20,60,.38);border-radius:2.6rem 2.6rem 0 0;pointer-events:none}
+.lk svg{width:5.6rem;height:5.6rem;filter:drop-shadow(0 .3rem 0 rgba(0,0,0,.35))}
+.lk b{font-size:2.6rem;line-height:1;letter-spacing:.12em;padding:.5rem 1.8rem;border-radius:1.6rem;background:linear-gradient(#ffe36a,#ffb62a);color:#8a4a0a;box-shadow:0 .25rem 0 #c96a0c,inset 0 .15rem .2rem rgba(255,255,255,.6)}
+.cta.off{background:linear-gradient(#9aa4b8,#6f788c);box-shadow:0 .35rem 0 #4a5266,inset 0 .2rem .2rem rgba(255,255,255,.35);text-shadow:none;cursor:not-allowed;pointer-events:none}
 .pn{position:absolute;left:0;right:0;bottom:0;top:15.6rem;display:flex;flex-direction:column;padding:2.3rem 1.5rem 1.5rem;background:linear-gradient(var(--p1),var(--p2));border-radius:2.2rem 2.2rem 0 0;box-shadow:inset 0 .25rem 0 rgba(255,255,255,.28)}
 .tag{position:absolute;left:1.3rem;top:14.6rem;z-index:2;padding:0 1.3rem;height:2.5rem;line-height:2.5rem;border-radius:1.3rem;font-size:1.2rem;white-space:nowrap;background:var(--tg);color:var(--tgc,#fff);box-shadow:inset 0 .15rem .2rem rgba(255,255,255,.45),0 0 0 .18rem rgba(255,255,255,.35),0 .2rem 0 rgba(0,0,0,.25)}
 .mode h3{margin:0;font-size:3.7rem;white-space:nowrap;line-height:1;letter-spacing:.02em;-webkit-text-stroke:.55rem var(--c3);paint-order:stroke fill;text-shadow:0 .3rem 0 var(--c3)}
@@ -124,8 +132,10 @@ const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID');
 // ---------- state: halaman ini TIDAK punya currency state sendiri. Currency & settings dari PlayerData.
 // modeScreen hanya menyimpan pilihan mode UI ('sel'); field legacy lain dipertahankan apa adanya.
 const PD=window.PlayerData;
+const LOCKED=new Set(['ranked','team','turnamen']);const isLocked=id=>LOCKED.has(id);
 let sel='classic';
 try{const s=JSON.parse(localStorage.getItem('modeScreen')||'null');if(s&&s.sel)sel=s.sel}catch(e){}
+if(isLocked(sel))sel='classic';
 const save=()=>{try{const r=(()=>{try{return JSON.parse(localStorage.getItem('modeScreen'))||{}}catch(e){return{}}})();r.sel=sel;localStorage.setItem('modeScreen',JSON.stringify(r))}catch(e){}};
 const SET=()=>PD.settings();
 const buzz=()=>{if(SET().vibration&&navigator.vibrate)navigator.vibrate(15)};
@@ -178,6 +188,7 @@ ${Array.from({length:9},(_,i)=>slab(i*30-8,150+(i%2)*5,16,12,'#5ccc3a','#7a5232'
 turnamen:()=>sc(`${glow(120,84,95,'#fff2a0')}${rays(120,90)}${grass(32,44,12)}${tree(32,34)}${grass(208,36,12)}${tree(208,26)}${cube(22,104,9,'#b04ad0')}${cube(218,100,9,'#d870e8')}
 ${trophy(54,12,3.3,1)}${slab(80,150,28,10,'#b04ad0')}${slab(164,152,28,10,'#d870e8')}${slab(122,158,34,12,'#9a3ac0')}${star(40,80,6,'#fff6b0')}${star(204,70,5,'#fff6b0')}${star(160,14,4)}`)};
 // ---------- icons
+const LOCK_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><rect x="4.5" y="10" width="15" height="11" rx="3" fill="#ffd24d" stroke="#c96a0c" stroke-width="1.2"/><circle cx="12" cy="15" r="1.7" fill="#8a4a0a"/></svg>';
 const I={play:'<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z" fill="#fff" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>',
 trophy:'<svg viewBox="0 0 24 24"><path d="M7 3h10v6a5 5 0 0 1-10 0zM7 5H3c0 4 2 6 4 6M17 5h4c0 4-2 6-4 6M12 14v4M8 21h8M9 18h6" fill="#fff" stroke="#fff" stroke-width="1.800" stroke-linejoin="round" stroke-linecap="round"/></svg>',
 people:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500" fill="#fff"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6z" fill="#fff"/><circle cx="17" cy="9" r="3" fill="#fff" opacity=".8"/><path d="M15 14c4-.5 7 1.500 7 6h-5c0-2.500-.8-4.500-2-6z" fill="#fff" opacity=".8"/></svg>',
@@ -199,14 +210,15 @@ const BARS=[
 {id:'event',ic:'cal',t:'Event Spesial',d:'Mode baru akan segera hadir!<br>Jangan lewatkan!',soon:1,w:1}];
 // ---------- render
 function renderModes(){$('#modes').innerHTML=MODES.map((m,i)=>{const c=m.c;
- return `<div class="mode ${m.id===sel?'sel':''}" data-id="${m.id}" tabindex="0" role="button" aria-pressed="${m.id===sel}" aria-label="${m.name}" style="--c1:${c[0]};--c2:${c[1]};--c3:${c[2]};--p1:${c[3]};--p2:${c[4]};--a1:${c[5]};--a2:${c[6]};--tg:${c[7]};--tgc:${m.tc||'#fff'};animation-delay:${i*70}ms">
- <div class="art"><img src="assets/Images/mode/${m.id}.jpg" alt="" draggable="false" decoding="async" data-id="${m.id}"></div><span class="tag">${m.tag}</span>
- <div class="pn"><h3>${m.name}</h3><p>${m.d}</p><button class="cta ${m.cta}" data-act="${m.id}">${I[m.ic]}${m.btn}</button></div></div>`}).join('');
- document.querySelectorAll('.art img').forEach(im=>im.addEventListener('error',()=>{const a=im.parentNode;if(a&&ART[im.dataset.id])a.innerHTML=ART[im.dataset.id]()}));
+ const lk=isLocked(m.id);
+ return `<div class="mode ${m.id===sel?'sel':''}${lk?' locked':''}" data-id="${m.id}" tabindex="0" role="button" aria-pressed="${m.id===sel}" aria-disabled="${lk}" aria-label="${m.name}${lk?' (segera hadir)':''}" style="--c1:${c[0]};--c2:${c[1]};--c3:${c[2]};--p1:${c[3]};--p2:${c[4]};--a1:${c[5]};--a2:${c[6]};--tg:${c[7]};--tgc:${m.tc||'#fff'};animation-delay:${i*70}ms">
+ <div class="art"><img src="assets/Images/mode/${m.id}.jpg" alt="" draggable="false" decoding="async" data-id="${m.id}">${lk?'<div class="lk">'+LOCK_SVG+'<b>SOON</b></div>':''}</div><span class="tag">${m.tag}</span>
+ <div class="pn"><h3>${m.name}</h3><p>${m.d}</p><button class="cta ${lk?'off':m.cta}" data-act="${m.id}"${lk?' disabled tabindex="-1"':''}>${lk?LOCK_SVG.replace('<svg','<svg style="width:2.3rem;height:2.3rem"'):I[m.ic]}${lk?'Soon':m.btn}</button></div></div>`}).join('');
+ document.querySelectorAll('.art img').forEach(im=>im.addEventListener('error',()=>{if(ART[im.dataset.id]){im.insertAdjacentHTML('afterend',ART[im.dataset.id]());im.remove()}}));
  document.querySelectorAll('.mode').forEach(el=>{
-  el.addEventListener('click',e=>{select(el.dataset.id);if(e.target.closest('.cta')){act(el.dataset.id);sparkle(e.target.closest('.cta'))}});
-  el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(el.dataset.id);act(el.dataset.id)}})})}
-function select(id){if(sel===id)return;sel=id;save();buzz();document.querySelectorAll('.mode').forEach(el=>{const on=el.dataset.id===id;el.classList.toggle('sel',on);el.setAttribute('aria-pressed',on)})}
+  el.addEventListener('click',e=>{if(isLocked(el.dataset.id)){toast('Segera hadir!');return}select(el.dataset.id);if(e.target.closest('.cta')){act(el.dataset.id);sparkle(e.target.closest('.cta'))}});
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(isLocked(el.dataset.id)){toast('Segera hadir!');return}select(el.dataset.id);act(el.dataset.id)}})})}
+function select(id){if(sel===id||isLocked(id))return;sel=id;save();buzz();document.querySelectorAll('.mode').forEach(el=>{const on=el.dataset.id===id;el.classList.toggle('sel',on);el.setAttribute('aria-pressed',on)})}
 function renderBars(){$('#bar').innerHTML=BARS.map(b=>`<button class="bb ${b.w?'w':''}" data-b="${b.id}">${I[b.ic]}<span class="tx"><b>${b.t}${b.soon?'<span class="soon">SEGERA</span>':''}</b><small>${b.d}</small></span>${b.w?I.bot:I.chev}</button>`).join('');
  document.querySelectorAll('.bb').forEach(el=>el.addEventListener('click',()=>bar(el.dataset.b)))}
 function money(){renderCurrency()}
