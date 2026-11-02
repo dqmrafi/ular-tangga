@@ -2527,14 +2527,14 @@ async function crystalRoll(p,v,gid){
   const c=ARENA&&ARENA.cv[n-1]; if(c){ c.flash=1; } sfx.crystalBreak();
   setMsg(p.name+' menghancurkan Crystal '+n+'! ('+p.crystal+'/4)'); fb('event','dragon','Crystal '+n+' hancur! '+p.crystal+'/4',{gid,ttl:1800});
   await S(sleep(900)); renderChips();
-  if(p.crystal>=4){ p.dragonReady=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.win(); renderChips(); await S(sleep(700)); }
+  if(p.crystal>=4){ p.dragonReady=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.crystalsCleared(); renderChips(); await S(sleep(700)); }
   return true;
 }
 async function awakenDragon(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,T=TILES[100],Dd=dragon.userData;
   AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer();
-  const pg={x:panGoal.x,z:panGoal.z}; let finished=false,qk=null,tw=null;
+  const pg={x:panGoal.x,z:panGoal.z}; let finished=false,qk=null,tw=null,ar=null;
   try{
     while(paused) await S(sleep(200)); /* pause dibuka sebelum sequence: tunggu dilanjutkan */
     setMsg('Block 100 aktif! Gunung di kiri papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); qk=sfx.quakeStart(); /* SFX existing (assets/sfx/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
@@ -2546,7 +2546,7 @@ async function awakenDragon(p,gid){
       setMsg('Retakan menjalar di gunung...'); await MW(1.1*F,k=>{ M.crack=k; });    /* retakan muncul bertahap, mulai bercahaya ungu */
       setMsg('Gunung runtuh!'); await MW(2.3*F,k=>{ M.collapse=k; M.dust=0.6*k; });  /* batu jatuh/bergulir + debu */
     }else await S(sleep(700*F));
-    setMsg('Dragon Arena terbuka...'); A.g.visible=true;
+    setMsg('Dragon Arena terbuka...'); A.g.visible=true; ar=sfx.arenaUp(); /* bangunan (arena) muncul setelah gempa */
     await S(Promise.all([tween(1.7*F,k=>{ A.rise=k; }),M?tween(1.4*F,k=>{ if(gid===gameId) M.dust=0.6+0.4*k; }):null])); /* arena naik dari bawah reruntuhan, debu menipis */
     sfx.quakeStop(qk); qk=null;
     await S(sleep(250*F));
@@ -2568,7 +2568,7 @@ async function awakenDragon(p,gid){
     await S(sleep(600*F));
     finished=true;
   }finally{
-    sfx.quakeStop(qk); sfx.towerStop(tw);
+    sfx.quakeStop(qk); sfx.towerStop(tw); sfx.arenaStop(ar);
     if(gid===gameId){ /* STALE (game baru) ditangani resetAwakening di startGame */
       if(!finished){ dragon.visible=true; dragon.position.x=ARENA_POS.x; dragon.position.z=ARENA_POS.z; Dd.dy=0.8+ARENA_TOWER_H+0.6-Dd.y0; Dd.shk=Math.atan2(T.x-ARENA_POS.x,T.z-ARENA_POS.z); dragon.scale.setScalar(1.3); } /* error tak terduga: jangan sampai game macet */
       panGoal.x=pg.x; panGoal.z=pg.z; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState(); /* gunung berakhir sebagai rubble (juga bila sequence terputus error) */

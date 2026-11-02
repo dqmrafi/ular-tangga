@@ -32,6 +32,8 @@ Halaman UI memakai `assets/js/app.js` (map `SFX`), dan daftar preload di `loadin
 | | `tower-rise.mp3` | tower naik | `towerRise` / `towerStop` |
 | | `crystal-appear.mp3` | End Crystal muncul | `crystalAppear` |
 | | `crystal-break.mp3` | crystal hancur | `crystalBreak` |
+| *(root `sfx/`)* | `dragon-areana-up-before-crystal.mp3` | Dragon Arena naik setelah gempa, sebelum tower/crystal (Awakening) | `arenaUp` / `arenaStop` |
+| *(root `sfx/`)* | `setalah-hancurkan-crsytal.mp3` | semua 4 Crystal hancur (READY); fallback = fanfare sintetis | `crystalsCleared` |
 | | `dragon-awakening.mp3` | *placeholder, file belum ada* (fallback sintetis) | `dragonAwakening` |
 
 Catatan: semua sfx file menghormati tombol mute dan punya fallback bunyi sintetis bila file gagal diputar.

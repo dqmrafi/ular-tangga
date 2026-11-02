@@ -51,7 +51,9 @@
     /* reward */ chestOpen:'reward/chest-open.ogg', chestClose:'reward/chest-close.ogg', powerReward:'reward/power-reward.mp3',
     /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.ogg', skeletonShoot:'mob/skeleton-shoot.ogg', endermanTp:'mob/enderman-teleport.ogg',
     /* dragon */ dragonIdle:'dragon/dragon-idle.ogg', dragonHurt:'dragon/dragon-hurt.ogg', dragonDeath:'dragon/dragon-death.ogg',
-               earthquake:'dragon/earthquake.mp3', tower:'dragon/tower-rise.mp3', crystalAppear:'dragon/crystal-appear.mp3', crystalBreak:'dragon/crystal-break.mp3'
+               earthquake:'dragon/earthquake.mp3', tower:'dragon/tower-rise.mp3', crystalAppear:'dragon/crystal-appear.mp3', crystalBreak:'dragon/crystal-break.mp3',
+               /* file ada di root sfx/ (nama apa adanya, termasuk ejaan 'areana'/'crsytal'): arena naik setelah gempa; semua 4 Crystal hancur */
+               arenaUp:'dragon-areana-up-before-crystal.mp3', crystalsDone:'setalah-hancurkan-crsytal.mp3'
   };
   const FILE_AWAKENING='dragon/dragon-awakening.mp3'; /* PLACEHOLDER: file belum ada -> fallback sintetis (retak + gema). Taruh file bernama ini untuk menggantinya. */
   /* Warm-up: file SFX dimuat lebih awal (tanpa diputar, tanpa butuh gesture) agar pemutaran pertama tidak menunggu fetch/decode. */
@@ -106,6 +108,9 @@
     towerStop(a){ fadeOut(a,600); },
     crystalAppear(){ return fileSfx('crystalAppear',0.7,function(){ beep(900,0.4,'sine',0.05,0,1400); }); },
     crystalBreak(){ fileSfx('crystalBreak',0.9,function(){ noise(0.25,0.1,0,2500); beep(900,0.22,'triangle',0.06,0,200); beep(1400,0.12,'square',0.03,0.04,500); }); },
+    arenaUp(){ return fileSfx('arenaUp',0.8); }, /* Awakening: Dragon Arena naik setelah gempa, sebelum tower/crystal. Tanpa fallback sintetis (senyap bila file gagal) */
+    arenaStop(a){ fadeOut(a,600); },
+    crystalsCleared(){ fileSfx('crystalsDone',0.9,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* semua 4 Crystal hancur (READY). Fallback = fanfare sintetis lama (sama dengan sfx.win) bila file gagal */
 
     /* ---------- READY SCREEN (acak urutan giliran) — sintetis ---------- */
     shuffleTick(){ beep(700+Math.random()*700,0.03,'square',0.03); },
