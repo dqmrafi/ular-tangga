@@ -612,6 +612,48 @@ body .pr img,body .sr img{border:2px solid #fff;box-shadow:0 0 0 3px var(--pc,#f
 /* chip posisi ikut berwarna pemain agar identitas warna terbaca sekilas */
 body #side .pr .pos{background:var(--pc,rgba(10,40,120,.6));box-shadow:inset 0 0 0 2px rgba(255,255,255,.85);text-shadow:0 1px 0 rgba(0,0,0,.45)}
 </style>
+<style id="gameplay-pixel">
+/* HUD gameplay: gaya pixel Minecraft mengikuti redesign-hud/gameplay.jpg (disamakan dengan Toko/Profil/Inventory).
+   HANYA tampilan: markup, id, class, JS, kanvas 3D, dan posisi layout tidak diubah. Dimuat paling akhir agar menimpa gaya glossy sebelumnya. */
+:root{--ol:#0b1838;--rb1:#3f7ce8;--rb2:#2a5bc8;--rb-hi:#74a4f7;--nv1:#2a4478;--nv2:#1b305f}
+/* tombol atas kanan (Kunci/Angle, kamera, suara, menu) */
+body #hud .btn.small{color:#fff;text-shadow:0 2px 0 var(--ol);background:linear-gradient(var(--rb1),var(--rb2));border:3px solid var(--ol);border-radius:7px;
+  box-shadow:inset 0 0 0 2px var(--rb-hi),inset 0 -3px 0 rgba(8,25,90,.45),0 3px 0 var(--ol)}
+body #hud .btn.small:active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 0 0 2px var(--rb-hi),inset 0 -3px 0 rgba(8,25,90,.45),0 1px 0 var(--ol)}
+body #hud #btnAngle{background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -3px 0 rgba(150,80,0,.4),0 3px 0 var(--ol);text-shadow:0 2px 0 #8a4a0a}
+body #hud .btn.small[aria-pressed=true]:not(#btnAngle){background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -3px 0 rgba(150,90,0,.5),0 3px 0 var(--ol);text-shadow:0 2px 0 #8a5a08}
+/* panel */
+body #side .pnl{border:3px solid var(--ol);border-radius:8px;background:linear-gradient(#3a76e0,#2a58c4);
+  box-shadow:inset 0 0 0 3px #5e90f0,0 4px 0 var(--ol),0 10px 16px rgba(10,30,90,.3)}
+body #side .pnl>h3{border:3px solid var(--ol);border-radius:5px;padding:2px 16px 3px;background:linear-gradient(var(--nv1),var(--nv2));
+  box-shadow:inset 0 0 0 2px var(--rb-hi),0 3px 0 var(--ol);text-shadow:0 2px 0 var(--ol)}
+body #side .pnl.tn>h3{background:color-mix(in srgb,var(--tnc,#2a4478) 70%,#000)}
+body #side .rcol .pnl.tn{border:3px solid var(--ol);border-radius:8px;box-shadow:inset 0 0 0 3px var(--rim),0 5px 0 var(--ol),0 12px 20px rgba(10,30,90,.3)}
+/* baris pemain */
+body #side .pr{border:3px solid var(--ol);border-radius:6px;background:linear-gradient(var(--nv1),var(--nv2));
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 3px 0 var(--ol)}
+body #side .pr.on{background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -3px 0 rgba(150,90,0,.5),0 3px 0 var(--ol);color:#fff;text-shadow:0 2px 0 #8a5a08}
+body #side .pr img{border-radius:3px}
+body #side .pr .pos{border-radius:4px;border:2px solid var(--ol);box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+body #side .pr.on .pos{background:rgba(120,70,5,.55)}
+/* power-up: panah + slot */
+body #side .pu-nav{border:3px solid var(--ol);border-radius:6px;background:linear-gradient(var(--rb1),var(--rb2));box-shadow:inset 0 0 0 2px var(--rb-hi),0 3px 0 var(--ol)}
+body #side #pus .pb{border:3px solid var(--ol);border-radius:6px;background:linear-gradient(var(--nv1),var(--nv2));box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 3px 0 var(--ol);margin-bottom:3px}
+body #side #pus .pb[data-state=ready]{background:linear-gradient(#3a6ac0,#2a4a94)}
+body #side #pus .pb:not(:disabled):hover{background:linear-gradient(#4a80dc,#2f58b0)}
+body #side #pus .pb b{border:2px solid var(--ol);border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+body #side #pus .pb[data-state=locked] b{color:#4a2a05;text-shadow:none}
+/* panel giliran: avatar, tombol Roll hijau, meter */
+body #side .tn-av img{border-radius:4px;background:#fff}
+body #side .tn #btnRoll{color:#fff;text-shadow:0 2px 0 #0d4a14;border:3px solid var(--ol);border-radius:7px;background:linear-gradient(#4fd24c,#259a2e);
+  box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 4px 0 var(--ol)}
+body #side .tn #btnRoll:not(:disabled){animation:hud-roll-px 1.8s ease-in-out infinite}
+body #side .tn #btnRoll:disabled{background:linear-gradient(#7d8da8,#58698a);text-shadow:0 2px 0 #2a3550;transform:none;box-shadow:inset 0 0 0 2px #a6b4cc,0 3px 0 var(--ol)}
+body #side .tn #btnRoll:not(:disabled):active{transform:translateY(3px);box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 1px 0 var(--ol);animation:none}
+@keyframes hud-roll-px{0%,100%{box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 4px 0 var(--ol),0 0 0 0 rgba(79,210,76,.55)}50%{box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 4px 0 var(--ol),0 0 0 8px rgba(79,210,76,0)}}
+@media(prefers-reduced-motion:reduce){body #side .tn #btnRoll:not(:disabled){animation:none}}
+.dm-bar{border-radius:4px;box-shadow:inset 0 2px 4px rgba(0,0,0,.35),0 0 0 3px var(--ol)}
+</style>
 <script src="gameplay/hud-scale.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
