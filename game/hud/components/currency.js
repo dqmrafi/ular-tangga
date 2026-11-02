@@ -62,16 +62,7 @@
   /* Ikon dibuat dari DOM API; bentuk & warna sama dengan ikon gem/coin yang sudah dipakai halaman (hasil audit). */
   function buildIcon(type) {
     var svg = svgEl('svg', { viewBox: '0 0 24 24', focusable: 'false', 'aria-hidden': 'true' });
-    if (type === 'coin') {
-      svg.appendChild(svgEl('circle', { cx: '12', cy: '12', r: '10', fill: '#ffc83a', stroke: '#c98a0c', 'stroke-width': '1.5' }));
-      svg.appendChild(svgEl('circle', { cx: '12', cy: '12', r: '7.5', fill: 'none', stroke: '#ffe27a', 'stroke-width': '1' }));
-      var t = svgEl('text', { x: '12', y: '17', 'font-size': '13', 'font-weight': '900', 'text-anchor': 'middle', fill: '#c98a0c' });
-      t.textContent = '$';
-      svg.appendChild(t);
-    } else {
-      svg.appendChild(svgEl('path', { d: 'M6 3h12l4 6-10 12L2 9z', fill: '#34d68b', stroke: '#0b8a55', 'stroke-width': '1.2', 'stroke-linejoin': 'round' }));
-      svg.appendChild(svgEl('path', { d: 'M2 9h20M9 3l-2 6 5 12 5-12-2-6', fill: 'none', stroke: '#c8fbe3', 'stroke-width': '.8' }));
-    }
+    svg.innerHTML = (type === 'coin') ? '<path d="M12 12V.24A11.76 11.76 0 0 0 .24 12z" fill="#ffd12b"/><path d="M12 12h11.76A11.76 11.76 0 0 0 12 .24z" fill="#ffb800"/><path d="M12 12v11.76A11.76 11.76 0 0 0 23.76 12z" fill="#ffd12b"/><path d="M12 12H.24A11.76 11.76 0 0 0 12 23.76z" fill="#ffb800"/><circle cx="12" cy="12" r="8.75" fill="#ff8a00"/><g fill="#ffb901"><circle cx="18.90" cy="12.00" r=".6"/><circle cx="16.88" cy="16.88" r=".6"/><circle cx="12.00" cy="18.90" r=".6"/><circle cx="7.12" cy="16.88" r=".6"/><circle cx="5.10" cy="12.00" r=".6"/><circle cx="7.12" cy="7.12" r=".6"/><circle cx="12.00" cy="5.10" r=".6"/><circle cx="16.88" cy="7.12" r=".6"/></g><path d="M12 7.2l3.9 4.8-3.9 4.8-3.9-4.8z" fill="#ffd12b" stroke="#ffd12b" stroke-width="1" stroke-linejoin="round"/>' : '<path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill="#62e178"/><path d="M12 2l8.66 5-3.72 2.15L12 6.3z" fill="#47d85f"/><path d="M20.66 7v10l-3.72-2.15v-5.7z" fill="#3dcb55"/><path d="M20.66 17L12 22v-4.3l4.94-2.85z" fill="#32a643"/><path d="M12 22l-8.66-5 3.72-2.15L12 17.7z" fill="#2a8d3a"/><path d="M3.34 17V7l3.72 2.15v5.7z" fill="#37b44c"/><path d="M12 6.3l4.94 2.85v5.7L12 17.7l-4.94-2.85v-5.7z" fill="#a7e6b1"/><path d="M12 6.3l4.94 2.85L12 12 7.06 9.15z" fill="#c4f2cc" opacity=".7"/>'; /* ikon baru: koin emas (4 kuadran + berlian) / emerald heksagon */
     return svg;
   }
 
