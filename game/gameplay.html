@@ -350,64 +350,69 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
 <section class="overlay lm-ov" id="pauseMenu" role="dialog" aria-modal="true" aria-labelledby="pmTitle" hidden>
   <div class="lm-box">
     <button class="lm-x" type="button" id="pmClose" aria-label="Lanjutkan">&#10005;</button>
-    <p class="lm-eyebrow" id="pmSub">Permainan dijeda</p>
-    <h2 id="pmTitle">Menu</h2>
-    <p class="lm-note" id="pmCpu" hidden>Komputer menunggu sampai kamu melanjutkan.</p>
-    <div class="lm-grid">
-      <button class="lm-mode" type="button" id="pmResume">Lanjutkan</button>
-      <div class="lm-row pm-time">
-        <button class="lm-tg" id="pmDay" type="button" aria-pressed="true">Siang</button>
-        <button class="lm-tg" id="pmNight" type="button" aria-pressed="false">Malam</button>
+    <div class="lm-body">
+      <p class="lm-eyebrow" id="pmSub">Permainan dijeda</p>
+      <h2 id="pmTitle">Menu</h2>
+      <p class="lm-note" id="pmCpu" hidden>Komputer menunggu sampai kamu melanjutkan.</p>
+      <div class="lm-grid">
+        <button class="lm-mode" type="button" id="pmResume">Lanjutkan</button>
+        <div class="lm-row pm-time">
+          <button class="lm-tg" id="pmDay" type="button" aria-pressed="true">Siang</button>
+          <button class="lm-tg" id="pmNight" type="button" aria-pressed="false">Malam</button>
+        </div>
+        <div class="lm-row pm-vol">
+          <span class="lm-lbl">Musik</span>
+          <input type="range" id="pmVol" min="0" max="100" value="60" aria-label="Volume musik">
+        </div>
+        <button class="lm-mode lm-red" type="button" id="pmExit">Keluar</button>
       </div>
-      <div class="lm-row pm-vol">
-        <span class="lm-lbl">Musik</span>
-        <input type="range" id="pmVol" min="0" max="100" value="60" aria-label="Volume musik">
-      </div>
-      <button class="lm-mode lm-red" type="button" id="pmExit">Keluar</button>
     </div>
   </div>
 </section>
 
 <section class="overlay lm-ov" id="exitConfirm" role="alertdialog" aria-modal="true" aria-labelledby="ecTitle" aria-describedby="ecText" hidden style="z-index:30">
   <div class="lm-box">
-    <h2 id="ecTitle">Keluar?</h2>
-    <p class="lm-note" id="ecText">Permainan yang sedang berjalan tidak akan disimpan. Kembali ke lobi?</p>
-    <div class="lm-grid lm-two">
-      <button class="lm-mode lm-blue" type="button" id="ecNo">Batal</button>
-      <button class="lm-mode lm-red" type="button" id="ecYes">Ya, keluar</button>
+    <div class="lm-body">
+      <h2 id="ecTitle">Keluar?</h2>
+      <p class="lm-note" id="ecText">Permainan yang sedang berjalan tidak akan disimpan. Kembali ke lobi?</p>
+      <div class="lm-grid lm-two">
+        <button class="lm-mode lm-blue" type="button" id="ecNo">Batal</button>
+        <button class="lm-mode lm-red" type="button" id="ecYes">Ya, keluar</button>
+      </div>
     </div>
   </div>
 </section>
 
 <style id="lobby-modal">
-/* Modal Menu/Jeda gameplay disamakan dengan modal lobby (lobby.html: .ov/.box). Satuan "rem lobby" = --mu. Hanya tampilan; id & JS tidak berubah. */
-.lm-ov{--mu:clamp(5.2px,min(1vw,1.85vh),9px);align-items:center;justify-content:center;padding:calc(8px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff}
-body #pauseMenu.lm-ov,body #exitConfirm.lm-ov{background:rgba(18,51,127,.4);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+/* Modal Menu/Jeda gameplay = modal pixel lobby (redesign-hud/modal.jpg; lihat assets/css/shared-ui.css). Satuan "rem lobby" = --mu. Hanya tampilan; id & JS tetap. */
+.lm-ov{--mu:clamp(5.2px,min(1vw,1.85vh),9px);align-items:center;justify-content:center;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff}
+body #pauseMenu.lm-ov,body #exitConfirm.lm-ov{background:rgba(11,24,56,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 .lm-ov:not([hidden]){animation:lmFade .25s both}
 .lm-ov:not([hidden]) .lm-box{animation:lmPop .3s cubic-bezier(.3,1.5,.5,1) both}
 @keyframes lmFade{from{opacity:0}}
 @keyframes lmPop{from{transform:scale(.85)}}
-.lm-box{position:relative;box-sizing:border-box;width:min(calc(var(--mu)*48),92vw);max-height:calc(100dvh - 16px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow:auto;margin:auto;text-align:center;font-size:calc(var(--mu)*2.4);background:linear-gradient(#7cc2ff,#4a9ae8);border-radius:calc(var(--mu)*2.4);padding:calc(var(--mu)*3) calc(var(--mu)*2.4) calc(var(--mu)*2.4);box-shadow:0 calc(var(--mu)*1) 0 var(--bd),0 calc(var(--mu)*2) calc(var(--mu)*3) rgba(0,0,0,.3)}
-.lm-box h2{margin:0 0 calc(var(--mu)*1.2);font-size:calc(var(--mu)*3.4);line-height:1.1;color:#fff;text-transform:none;letter-spacing:0;text-shadow:0 calc(var(--mu)*.2) 0 var(--bd)}
-.lm-eyebrow{margin:0 0 calc(var(--mu)*.2);font-size:calc(var(--mu)*1.8);line-height:1.2;color:#d7ecff;text-transform:none}
-.lm-note{margin:calc(var(--mu)*.4) 0 calc(var(--mu)*1);font-size:calc(var(--mu)*1.8);line-height:1.3;color:#eaf6ff}
+.lm-box{position:relative;box-sizing:border-box;width:min(calc(var(--mu)*48),90vw);margin:auto;text-align:center;font-size:calc(var(--mu)*2.4);border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*1);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 calc(var(--mu)*.25) #5e90f0,0 calc(var(--mu)*.5) 0 #0b1838,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+.lm-body{box-sizing:border-box;max-height:calc(100dvh - 40px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overflow-x:hidden;padding:calc(var(--mu)*2.6) calc(var(--mu)*2.4) calc(var(--mu)*2.4);border-radius:calc(var(--mu)*1)}
+.lm-box h2{margin:0 0 calc(var(--mu)*1.2);font-size:calc(var(--mu)*3.4);line-height:1.1;font-weight:800;color:#fff;text-transform:none;letter-spacing:0;text-shadow:0 calc(var(--mu)*.2) 0 #0b1838}
+.lm-eyebrow{margin:0 0 calc(var(--mu)*.2);font-size:calc(var(--mu)*1.8);line-height:1.2;color:#cfe3ff;text-transform:none;text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+.lm-note{margin:calc(var(--mu)*.4) 0 calc(var(--mu)*1);font-size:calc(var(--mu)*1.8);line-height:1.3;color:#eaf6ff;text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
 .lm-note[hidden]{display:none}
-.lm-x{position:absolute;right:calc(var(--mu)*.8);top:calc(var(--mu)*.8);width:calc(var(--mu)*4.6);height:calc(var(--mu)*4.6);min-width:32px;min-height:32px;border:0;border-radius:50%;background:#ee4a4a;color:#fff;box-shadow:0 calc(var(--mu)*.3) 0 #8e1d1d;font:inherit;font-size:calc(var(--mu)*2.4);line-height:1;cursor:pointer}
-.lm-grid{display:grid;gap:calc(var(--mu)*.8)}
+.lm-x{position:absolute;z-index:5;top:calc(var(--mu)*-1.8);right:calc(var(--mu)*-1.8);display:grid;place-items:center;width:calc(var(--mu)*4.6);height:calc(var(--mu)*4.6);min-width:34px;min-height:34px;padding:0;line-height:1;border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*.7);background:linear-gradient(#f06a5a,#d03a30);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ff9a8e,inset 0 calc(var(--mu)*-.3) 0 rgba(110,10,10,.45),0 calc(var(--mu)*.3) 0 #0b1838;color:#fff;font:inherit;font-size:calc(var(--mu)*2.4);cursor:pointer}
+.lm-grid{display:grid;gap:calc(var(--mu)*.9)}
 .lm-two{grid-template-columns:1fr 1fr}
-.lm-mode{width:100%;min-height:44px;margin:0;padding:calc(var(--mu)*1.2) calc(var(--mu)*1.6);border:0;border-radius:calc(var(--mu)*1.4);background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 calc(var(--mu)*.4) 0 #c96a0c;color:#fff;font:inherit;font-size:calc(var(--mu)*2.4);line-height:1.1;text-shadow:0 calc(var(--mu)*.2) 0 rgba(107,53,17,.7);cursor:pointer;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s}
-.lm-mode.lm-red{background:linear-gradient(#ff7a6a,#e8261c);box-shadow:0 calc(var(--mu)*.4) 0 #8e1d1d;text-shadow:0 calc(var(--mu)*.2) 0 #8e1d1d}
-.lm-mode.lm-blue{background:linear-gradient(#4aa8ff,#1f6fe0);box-shadow:0 calc(var(--mu)*.4) 0 var(--bd);text-shadow:0 calc(var(--mu)*.2) 0 var(--bd)}
-.lm-mode:hover{transform:scale(1.03);filter:brightness(1.08)}.lm-mode:active{transform:scale(.96)}
-.lm-row{display:flex;justify-content:space-between;align-items:center;gap:calc(var(--mu)*1);margin:0;padding:calc(var(--mu)*1) calc(var(--mu)*1.4);border-radius:calc(var(--mu)*1.4);background:rgba(18,51,127,.25)}
-.lm-lbl{flex:none;font-size:calc(var(--mu)*2.2)}
-.lm-tg{flex:1;min-width:0;min-height:40px;height:calc(var(--mu)*3.8);padding:0 calc(var(--mu)*1);border:0;border-radius:calc(var(--mu)*2);background:#7b8aa8;box-shadow:inset 0 calc(var(--mu)*.2) calc(var(--mu)*.4) rgba(0,0,0,.3);color:#fff;font:inherit;font-size:calc(var(--mu)*2);cursor:pointer}
-.lm-tg[aria-pressed=true]{background:var(--g,#3cc23c)}
+.lm-mode{width:100%;min-height:44px;margin:0;padding:calc(var(--mu)*1.1) calc(var(--mu)*1.6);border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*.9);background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ffe58a,inset 0 calc(var(--mu)*-.3) 0 rgba(150,80,0,.4),0 calc(var(--mu)*.3) 0 #0b1838;color:#fff;font:inherit;font-size:calc(var(--mu)*2.4);line-height:1.1;text-shadow:0 calc(var(--mu)*.15) 0 #8a5a08;cursor:pointer}
+.lm-mode.lm-red{background:linear-gradient(#f06a5a,#d03a30);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ff9a8e,inset 0 calc(var(--mu)*-.3) 0 rgba(110,10,10,.45),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.15) 0 #6e0a0a}
+.lm-mode.lm-blue{background:linear-gradient(#4f8cf0,#2a5bc8);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #74a4f7,inset 0 calc(var(--mu)*-.3) 0 rgba(8,25,90,.45),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+.lm-mode:active,.lm-tg:active{transform:translateY(calc(var(--mu)*.2))}
+.lm-row{display:flex;justify-content:space-between;align-items:center;gap:calc(var(--mu)*1);margin:0;padding:calc(var(--mu)*1) calc(var(--mu)*1.4);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*.7);background:linear-gradient(#24418a,#1d3470);box-shadow:inset 0 0 0 calc(var(--mu)*.12) rgba(120,160,235,.25)}
+.lm-lbl{flex:none;font-size:calc(var(--mu)*2.2);text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+.lm-tg{flex:1;min-width:0;min-height:40px;height:calc(var(--mu)*3.8);padding:0 calc(var(--mu)*1);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*.6);background:linear-gradient(#7b8aa8,#58698a);box-shadow:inset 0 calc(var(--mu)*.15) 0 rgba(255,255,255,.35),0 calc(var(--mu)*.2) 0 #0b1838;color:#fff;font:inherit;font-size:calc(var(--mu)*2);text-shadow:0 calc(var(--mu)*.12) 0 #0b1838;cursor:pointer}
+.lm-tg[aria-pressed=true]{background:linear-gradient(#3fd45a,#1fa83c);box-shadow:inset 0 calc(var(--mu)*.15) 0 rgba(255,255,255,.45),0 calc(var(--mu)*.2) 0 #0b1838}
 .lm-row input[type=range]{flex:1;min-width:0;height:28px;accent-color:#ffd23f}
-.lm-box button:focus-visible{outline:3px solid #fff;outline-offset:2px}
-/* landscape pendek (HP): dua kolom supaya tidak terpotong */
+.lm-box button:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a;outline-offset:calc(var(--mu)*.15)}
 @media (orientation:landscape) and (max-height:430px){
-  .lm-box{width:min(calc(var(--mu)*70),94vw);padding-top:calc(var(--mu)*2.2);padding-bottom:calc(var(--mu)*2)}
+  .lm-box{width:min(calc(var(--mu)*70),90vw)}
+  .lm-body{padding-top:calc(var(--mu)*2);padding-bottom:calc(var(--mu)*2)}
   .lm-box h2{margin-bottom:calc(var(--mu)*.6)}
   #pauseMenu .lm-grid{grid-template-columns:1fr 1fr}
   #pauseMenu .lm-mode{min-height:40px}
