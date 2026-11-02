@@ -183,6 +183,13 @@ html body .use{border:.3rem solid var(--ol);border-radius:.9rem;background:linea
 html body .use.own{background:linear-gradient(#4fd24c,#259a2e);box-shadow:inset 0 0 0 .15rem #8cf08a,inset 0 -.3rem 0 rgba(0,70,10,.45),0 .3rem 0 var(--ol);text-shadow:0 .15rem 0 #0d4a14}
 html body .use.no{background:linear-gradient(#7d8da8,#58698a);box-shadow:inset 0 0 0 .15rem #a6b4cc,0 .3rem 0 var(--ol)}
 html body .ck{border:.2rem solid #fff;box-shadow:0 0 0 .15rem var(--ol);border-radius:.5rem}
+
+/* Panel "Skin Terbaru" disembunyikan; panel info (COMMON + nama + deskripsi) menempati posisinya di bawah. */
+html body #rec{display:none}
+@media (min-aspect-ratio:1/1){
+  html body #info{left:1.7rem;width:40.7rem;top:auto;bottom:1.6rem;height:9.6rem}
+  html body #show{bottom:13rem}
+}
 html body #title{width:auto;min-width:25.8rem;padding-right:2.4rem}
 html body .use{width:auto;min-width:17.6rem;padding:0 2rem}
 @media (min-aspect-ratio:1/1){html body #grid{grid-auto-rows:15.4rem}}
