@@ -1046,6 +1046,14 @@ function makeCreature(kind,c1,c2,far){
     [-1,1].forEach(a=>o.wings.push(P(a*0.08,0.25,0,b=>addBox(b,a*0.01,-0.04,0,0.02,0.08,0.14,ljit(0xE2E2E2,0.05),F))));
     o.head=P(0,0.3,0.1,b=>{ addBox(b,0,0.04,0.03,0.09,0.1,0.09,ljit(c1||0xF4F4F4,0.04)); addBox(b,0,0.11,0.02,0.03,0.04,0.06,0xD22B2B,F); addBox(b,0,0.03,0.085,0.04,0.03,0.04,0xF0A020,F); addBox(b,0,-0.01,0.07,0.02,0.04,0.02,0xD22B2B,F); [-1,1].forEach(a=>addBox(b,a*0.047,0.06,0.05,0.015,0.025,0.025,0x151515,F)); });
     o.speed=0.55; o.rad=2;
+  }else if(kind==='fisher'){ /* villager memancing di tepi sungai kanan (di luar board): diam di tempat, joran + senar + pelampung */
+    [-1,1].forEach(a=>o.legs.push(P(a*0.07,0.26,0,b=>addBox(b,0,-0.13,0,0.12,0.26,0.12,ljit(0x6B4E32,0.06),F))));
+    P(0,0.46,0,b=>{ addBox(b,0,0,0,0.26,0.4,0.18,ljit(0x7A5A3A,0.05)); addBox(b,0,0.0,0.1,0.32,0.1,0.1,ljit(0x5E4328,0.05),F); });
+    o.head=P(0,0.66,0,b=>{ addBox(b,0,0.08,0,0.22,0.24,0.22,ljit(0xD9A77A,0.04)); addBox(b,0,0.04,0.14,0.06,0.12,0.06,0xC08A5F,F); [-1,1].forEach(a=>addBox(b,a*0.05,0.1,0.115,0.05,0.04,0.02,0x2E8B2E,F)); addBox(b,0,0.15,0.115,0.2,0.03,0.02,0x4A3A2A,F); });
+    const rod=P(0.14,0.5,0.15,b=>{ addBox(b,0,0,0.5,0.04,0.04,1.0,0x7A5530,F); addBox(b,0,-0.03,0.04,0.07,0.08,0.16,0x4A3322,F); }); rod.rotation.x=-0.6;
+    const line=P(0.14,0.56,1.24,b=>addBox(b,0,0,0,0.012,1.13,0.012,0xEEEEEE,F)); line.rotation.x=-0.478; /* tengah antara ujung joran (y1.06,z0.98) dan pelampung (y0.06,z1.5) */
+    o.bob=P(0.14,0.06,1.5,b=>{ addBox(b,0,0,0,0.08,0.08,0.08,0xE23B3B,F); addBox(b,0,0.06,0,0.08,0.05,0.08,0xFFFFFF,F); });
+    o.speed=0.3; o.graze=false; o.rad=0; /* rad 0 = tidak pernah berkeliling */
   }else{ /* villager */
     [-1,1].forEach(a=>o.legs.push(P(a*0.07,0.26,0,b=>addBox(b,0,-0.13,0,0.12,0.26,0.12,ljit(0x6B4E32,0.06),F))));
     P(0,0.46,0,b=>{ addBox(b,0,0,0,0.26,0.4,0.18,ljit(0x7A5A3A,0.05)); addBox(b,0,0.0,0.1,0.32,0.1,0.1,ljit(0x5E4328,0.05),F); addBox(b,0,0.12,0.1,0.08,0.1,0.1,ljit(0x5E4328,0.05),F); });
@@ -1103,6 +1111,7 @@ function updateRoam(dt,t){
       o.head.rotation.x+=(hp-o.head.rotation.x)*Math.min(1,dt*7);
       if(o.kind==='villager') o.head.rotation.y=o.state==='idle'?Math.sin(t*0.8+o.ph0)*0.5:0;
     }
+    if(o.bob){ o.bob.position.y=0.06+Math.sin(t*2.1+o.ph0)*0.012-Math.max(0,Math.sin(t*0.45+o.ph0*3)-0.93)*1.2; } /* pelampung naik-turun, sesekali tersentak */
     if(o.tail) o.tail.rotation.z=Math.sin(t*6+o.ph0)*0.35*(0.4+k);
     for(let w=0;w<o.wings.length;w++) o.wings[w].rotation.z=(w?1:-1)*(0.08+0.2*Math.max(0,Math.sin(t*12+o.ph0))*k);
     o.g.position.set(o.x,Math.abs(Math.sin(o.ph))*0.02*k,o.z); o.g.rotation.y=o.yaw;
@@ -1304,7 +1313,7 @@ function addMcEnv(DB){
   addHouseExtras(DB,-6.9,-3.6,0); addHouseExtras(DB,4.2,-6.3,0);
   addFarm(DB);
   [[-3.5,6.0,0.4,'sheep'],[-1,6.2,2,'pig'],[2.5,6.1,-0.8,'cow'],[6.6,-1.5,1.2,'chicken'],[-6.8,3.0,0.5,'sheep'],[-5.0,8.2,1,'pig'],[-7.6,7.6,2.2,'chicken'],[-9.6,5.2,0.3,'sheep'],[-2.5,8.6,3,'cow'],[-10.9,12.9,0.6,'chicken']].forEach(a=>{ if(!walkBlocked(a[0],a[1])||a[1]>5.4) queueAnimal(a[0],a[1],a[2],a[3]); });
-  queueAnimal(-6.9,-2.0,0.4,'villager'); queueAnimal(4.0,-4.9,1.0,'villager');
+  queueAnimal(-6.9,-2.0,0.4,'villager'); queueAnimal(5.85,2.2,Math.PI/2,'fisher'); /* villager kanan: di luar board, memancing di tepi sungai */
   for(let i=0;i<90;i++){
     const x=(rnd()*15)-7.5,z=(rnd()*13)-6.5; if(blocked(x,z)||Math.abs(x-7)<1) continue;
     addBox(DB,x,0.07,z,0.14,0.14,0.14,pick([0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6,0x6AA8FF,0xB066FF]),{edge:false});
