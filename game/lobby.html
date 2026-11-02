@@ -4,7 +4,7 @@
 <title>Lobby</title><style id="ut-vt">/* Transisi antar-halaman (cross-document View Transition): halaman lama tetap tampil sampai halaman baru siap, lalu crossfade singkat -> terasa seperti satu halaman. Browser tanpa dukungan mengabaikan aturan ini. */@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;animation-timing-function:ease-out}}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/base.css"><style>
-:root{--bd:#12337f;--g:#3cc23c}
+:root{--bd:#12337f;--g:#3cc23c;--sl1:#3f506b;--sl2:#26344c;--gold:#f4cd5c}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 html{font-size:min(1vw,1.85vh)}
 html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff;background:linear-gradient(#3d9bfd,#6fbdfc 50%,#bfe4ff 85%,#d8f0ff)}
@@ -15,71 +15,76 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','
 svg{display:block}
 button{font:inherit;color:inherit;border:0;cursor:pointer;padding:0;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s}
 button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transform:scale(.94)}button:focus-visible{outline:.3rem solid #fff}
-.pn{background:linear-gradient(#2b78ea,#1550c2);box-shadow:0 .35rem 0 #0b2468,0 .8rem 1.2rem rgba(10,30,90,.4),inset 0 .15rem .2rem rgba(255,255,255,.55),inset 0 0 0 .2rem rgba(140,205,255,.5)}
-.tx{text-shadow:0 .18rem 0 var(--bd),0 0 .5rem rgba(18,51,127,.5)}
-.dot{position:absolute;right:-.6rem;top:-.7rem;min-width:2.7rem;height:2.7rem;padding:0 .5rem;border-radius:1.4rem;display:grid;place-items:center;font-style:normal;font-size:1.6rem;line-height:1;background:radial-gradient(#ff7a6a,#e8261c);border:.2rem solid #fff;box-shadow:0 .1rem .3rem rgba(0,0,0,.4);pointer-events:none;z-index:2}
+/* panel batu-slate (gaya referensi lobby.jpg) */
+.pn{background:linear-gradient(var(--sl1),var(--sl2));border-radius:1rem;box-shadow:inset 0 0 0 .22rem #8696ad,inset 0 0 0 .4rem #172033,0 .35rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35)}
+.tx{text-shadow:0 .16rem 0 #0b1220,0 0 .4rem rgba(11,18,32,.5)}
+.dot{position:absolute;right:-.7rem;top:-.8rem;min-width:2.6rem;height:2.6rem;padding:0 .5rem;border-radius:1.4rem;display:grid;place-items:center;font-style:normal;font-size:1.5rem;line-height:1;background:radial-gradient(#ff7a6a,#e8261c);border:.2rem solid #fff;box-shadow:0 .1rem .3rem rgba(0,0,0,.4);pointer-events:none;z-index:2}
 .dot:empty{min-width:1.7rem;width:1.7rem;height:1.7rem;padding:0;right:-.3rem;top:-.4rem}
-/* profile */
-#prof{left:1.7rem;top:1.5rem;width:26rem;height:9rem;border-radius:1.7rem;cursor:pointer;background:linear-gradient(#1f5cc9,#0d3088)}
-#ava{position:absolute;left:1.3rem;top:1.3rem;width:6.4rem;height:6.4rem;border-radius:.9rem;border:.28rem solid #fff;overflow:hidden;background:linear-gradient(#8fd8ff,#3a9ae8);box-shadow:0 .2rem .4rem rgba(0,0,0,.35)}
-#ava svg{width:100%;height:100%}
-#nrow{position:absolute;left:9.2rem;top:.7rem;display:flex;align-items:center;gap:1rem}
-#pname{font-size:2.7rem;line-height:3.2rem}
-#flag{width:2.5rem;height:1.75rem;border-radius:.3rem;overflow:hidden;border:.1rem solid #fff;box-shadow:0 .1rem .3rem rgba(0,0,0,.3)}
-#crown{position:absolute;left:9.1rem;top:4.15rem;width:2.4rem;height:2.4rem}
-#lv{position:absolute;left:11.9rem;top:4.1rem;font-size:2rem;line-height:2.4rem}
-#xp{position:absolute;left:9.2rem;top:6.65rem;width:15.7rem;height:1.55rem;border-radius:1rem;background:#0a2160;box-shadow:inset 0 .15rem .25rem rgba(0,0,0,.45),0 0 0 .12rem rgba(150,215,255,.35);overflow:hidden}
-#xp i{display:block;height:100%;border-radius:1rem;background:linear-gradient(#7af0ff,#25bfe8);box-shadow:inset 0 .15rem .15rem rgba(255,255,255,.6)}
-#xp span{position:absolute;inset:0;display:grid;place-items:center;font-size:1.15rem;line-height:1;text-shadow:0 .1rem 0 rgba(10,33,96,.8)}
-/* currency */
-.sm{top:1.9rem;width:4.3rem;height:4.3rem;border-radius:1.3rem;display:grid;place-items:center}.sm svg{width:2.6rem;height:2.6rem}
-#mail{right:6.7rem}#gear{right:1.7rem}
-/* event carousel */
-#event{right:1rem;top:8.4rem;width:35rem;height:24.2rem;border-radius:1.9rem;cursor:pointer;overflow:hidden;text-align:left;transition:filter .15s;
- background:radial-gradient(circle at 78% 42%,rgba(150,100,255,.65),transparent 55%),radial-gradient(circle at 12% 100%,rgba(70,40,170,.8),transparent 60%),linear-gradient(135deg,#2a1470,#4a22ae 60%,#5f2cc8);
- box-shadow:0 0 0 .25rem #cfeaff,0 0 0 .55rem rgba(120,190,255,.45),0 .7rem 1.6rem rgba(5,20,80,.45),0 0 2rem rgba(140,100,255,.5)}
-#event:hover{filter:brightness(1.07)}
+/* ===== profil (kiri atas) ===== */
+#prof{left:2.6rem;top:2.5rem;width:29.7rem;height:8.9rem;cursor:pointer}
+#ava{position:absolute;left:0;top:0;width:9rem;height:9rem;border-radius:.8rem;background:linear-gradient(#4a88c8,#2e6aa6);box-shadow:inset 0 0 0 .7rem #8a909c,inset 0 0 0 .9rem #3a404c,0 .35rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);overflow:hidden;padding:.9rem;z-index:2}
+#ava svg{width:100%;height:100%;image-rendering:pixelated}
+#pbox{position:absolute;left:8.6rem;top:.5rem;width:21.1rem;height:8.1rem}
+#shield{position:absolute;left:9.6rem;top:-.7rem;width:4.9rem;height:5.9rem;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:.3rem}
+#shield svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 .2rem 0 #0b1220)}
+#shield b{position:relative;display:block;font-size:1.1rem;line-height:1.1rem;-webkit-text-stroke:.2rem #8a5a0a;paint-order:stroke fill}
+#shield strong{position:relative;display:block;font-size:2.6rem;line-height:2.5rem;-webkit-text-stroke:.28rem #8a5a0a;paint-order:stroke fill}
+#nrow{position:absolute;left:15.6rem;top:1.2rem;display:flex;align-items:center;gap:1rem;z-index:3}
+#pname{font-size:3.1rem;line-height:3.8rem}
+#flag{width:2.8rem;height:1.9rem;border-radius:.3rem;overflow:hidden;border:.1rem solid #fff;box-shadow:0 .1rem .3rem rgba(0,0,0,.3)}
+#xp{position:absolute;left:9.9rem;top:5.8rem;width:18.7rem;height:2.1rem;border-radius:.5rem;background:#0e1626;box-shadow:inset 0 .15rem .25rem rgba(0,0,0,.6),0 0 0 .14rem #56667e;overflow:hidden;z-index:3}
+#xp i{display:block;height:100%;background:linear-gradient(#8bec55,#2f9f23);box-shadow:inset 0 .15rem .15rem rgba(255,255,255,.5)}
+#xp em{position:absolute;left:.5rem;top:0;bottom:0;display:grid;place-items:center;font-style:normal;font-size:1.3rem;color:#d6ffb8;text-shadow:0 .1rem 0 #1c5a10}
+#xp span{position:absolute;inset:0;display:grid;place-items:center;font-size:1.35rem;line-height:1;text-shadow:0 .1rem 0 rgba(8,14,26,.9)}
+/* ===== mail & settings (kanan atas, bawah currency) ===== */
+.sq{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;line-height:1;white-space:nowrap}
+.sq>svg{width:3.7rem;height:3.7rem;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.35))}
+.sq>span{font-size:1.05rem;letter-spacing:0}
+.sm{top:9.4rem;width:6.5rem;height:6.9rem}
+#mail{right:9.7rem}#gear{right:2.6rem}
+/* ===== kolom kiri ===== */
+.lm{top:12.3rem;width:7rem;height:7rem}
+.lm>svg{width:4rem;height:4rem}.lm>span{font-size:1rem}
+#inv{left:2.8rem}#lead{left:10.2rem}
+.pnl{left:2.8rem;width:20.3rem;text-align:center;cursor:pointer;display:block}
+.pnl h3{margin:0;font-size:1.9rem;line-height:2.4rem;color:var(--gold);text-shadow:0 .15rem 0 #0b1220;letter-spacing:.04em}
+#misi{top:21.1rem;height:9.6rem;padding:.7rem 1.1rem 0}
+#misi .mb{margin-top:.3rem;height:5.2rem;border-radius:.6rem;background:rgba(10,16,28,.55);box-shadow:inset 0 .15rem .3rem rgba(0,0,0,.45);display:flex;align-items:center;justify-content:space-between;padding:0 .8rem 0 1.2rem;text-align:left;font-size:1.2rem;line-height:1.7rem;white-space:nowrap;gap:.4rem}
+#misi .mb>span{min-width:0}
+#misi .mb svg{width:3.6rem;height:3.6rem;flex:none;filter:drop-shadow(0 .15rem .15rem rgba(0,0,0,.4))}
+#event{top:31.7rem;height:10.1rem;padding:.6rem .7rem .7rem;overflow:hidden;border-radius:1rem}
+#event .eb{position:relative;margin-top:.3rem;height:6.8rem;border-radius:.6rem;overflow:hidden;background:#0e1626;box-shadow:inset 0 0 0 .15rem #0b1220}
 #evbg{position:absolute;inset:0;background:var(--bg,none) center/cover no-repeat}
-#evd{position:absolute;left:0;right:0;bottom:.5rem;display:flex;justify-content:center}
-.dt{width:2rem;height:2rem;display:grid;place-items:center;cursor:pointer}
-.dt::before{content:"";width:1rem;height:1rem;border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 .1rem .3rem rgba(0,0,0,.6);transition:all .25s}
-.dt.on::before{background:#ffd23a;width:1.5rem}
-#evn{position:absolute;right:.4rem;top:50%;translate:0 -50%;width:3.4rem;height:5rem;display:grid;place-items:center;cursor:pointer}
-#evn svg{width:1.9rem;height:3rem;filter:drop-shadow(0 .1rem .25rem rgba(0,0,0,.7))}
+#evd{position:absolute;left:0;right:0;bottom:.1rem;display:flex;justify-content:center}
+.dt{width:2rem;height:1.6rem;display:grid;place-items:center;cursor:pointer}
+.dt::before{content:"";width:.9rem;height:.9rem;border-radius:50%;background:rgba(255,255,255,.6);box-shadow:0 .1rem .3rem rgba(0,0,0,.6);transition:all .25s}
+.dt.on::before{background:#ffd23a;width:1.4rem}
+#evn{position:absolute;right:.2rem;top:50%;translate:0 -50%;width:3rem;height:4.4rem;display:grid;place-items:center;cursor:pointer}
+#evn svg{width:1.6rem;height:2.6rem;filter:drop-shadow(0 .1rem .25rem rgba(0,0,0,.7))}
 #event.one #evn,#event.one #evd{display:none}
 .box:has(.mimg){padding:.8rem;width:min(70rem,92vw)}
 .mimg{display:block;width:100%;max-height:80vh;object-fit:contain;border-radius:1.6rem}
-/* toko */
-#toko{right:1rem;top:34.2rem;width:35rem;height:7.8rem;border-radius:1.8rem;display:flex;align-items:center;gap:1.4rem;padding:0 1.6rem;text-align:left;
- background:linear-gradient(#ffb82e,#f58a12);box-shadow:0 .4rem 0 #a85a08,0 .9rem 1.3rem rgba(120,60,0,.35),inset 0 .2rem .3rem rgba(255,255,255,.65),inset 0 0 0 .2rem #ffd98a}
-#toko>svg.ct{width:5.6rem;height:5.6rem;flex:none;filter:drop-shadow(0 .2rem 0 #a85a08)}
-#toko .tt b{display:block;font-size:3.6rem;line-height:3.6rem;-webkit-text-stroke:.3rem #a85a08;paint-order:stroke fill;text-shadow:0 .25rem 0 #a85a08}
-#toko .tt small{display:block;font-size:1.35rem;line-height:1.6rem;font-weight:700;text-shadow:0 .12rem 0 #a85a08;white-space:nowrap}
-#toko>svg.ch2{position:absolute;right:1rem;top:-1.5rem;width:11.5rem;height:9.2rem;filter:drop-shadow(0 .4rem .3rem rgba(90,40,0,.4))}
-.nw{position:absolute;right:.7rem;top:-.9rem;background:linear-gradient(#ff5a4a,#d9261c);border:.18rem solid #fff;border-radius:1rem;padding:0 .9rem;font-size:1.4rem;line-height:2rem;box-shadow:0 .2rem .3rem rgba(0,0,0,.35);pointer-events:none}
-/* kartu teman / hadiah */
-.cd{top:43rem;height:9.1rem;border-radius:1.7rem;display:flex;align-items:center;gap:.8rem;padding:0 1.1rem;text-align:left}
-.cd>svg{width:5rem;height:5rem;flex:none;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.35))}
-.cd b{display:block;font-size:2.5rem;line-height:2.6rem}
-.cd small{display:flex;align-items:center;gap:.5rem;font-size:1.3rem;line-height:1.6rem;font-weight:700;white-space:nowrap;text-shadow:0 .1rem 0 rgba(10,30,90,.6)}
-#teman{right:19.8rem;width:16.1rem}
-#hadc{right:1rem;width:18.1rem;background:linear-gradient(#9a5cf0,#5d2cc4);box-shadow:0 .4rem 0 #30136e,0 .8rem 1.2rem rgba(30,10,90,.4),inset 0 .15rem .2rem rgba(255,255,255,.5),inset 0 0 0 .2rem rgba(210,180,255,.5)}
-.on-d{width:1.1rem;height:1.1rem;border-radius:50%;background:#3cd23c;box-shadow:0 0 .5rem #3cd23c;flex:none}
-/* menu kiri */
-.sq{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;border-radius:1.8rem;line-height:1;white-space:nowrap}
-.sq>svg{width:4.6rem;height:4.6rem;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.3))}
-.lm{left:1.7rem;width:8.8rem;height:8.1rem;font-size:1.4rem}
-.bm{top:43.2rem;width:8.8rem;height:8.9rem;font-size:2rem}.bm>svg{width:5rem;height:5rem}
-/* play */
-#play{left:44.5%;margin-left:-14.6rem;top:42.3rem;width:29.2rem;height:10rem;border-radius:5rem;display:flex;align-items:center;justify-content:center;gap:1.4rem;padding-right:3rem;background:linear-gradient(#ffe85e,#ffb81c 70%,#ffa514);box-shadow:0 .6rem 0 #b8700a,0 1rem 1.8rem rgba(120,60,0,.4),inset 0 .3rem .3rem rgba(255,255,255,.8),inset 0 0 0 .3rem #ffe9a0;animation:glow 2.4s ease-in-out infinite}
-@keyframes glow{50%{box-shadow:0 .6rem 0 #b8700a,0 0 2.8rem rgba(255,230,90,.95),inset 0 .3rem .3rem rgba(255,255,255,.8),inset 0 0 0 .3rem #ffe9a0}}
+/* ===== bawah kiri: toko / teman / hadiah ===== */
+#toko{left:2.8rem;top:44.2rem;width:13.8rem;height:9.9rem;border-radius:1.2rem;display:block;text-align:center;background:linear-gradient(#ffb82e,#f08a10);box-shadow:inset 0 0 0 .22rem #ffd98a,inset 0 0 0 .4rem #a85a08,0 .4rem 0 #7a3f06,0 .9rem 1.3rem rgba(120,60,0,.35)}
+#toko .ch2{position:absolute;left:50%;translate:-50% 0;top:-2.6rem;width:10.2rem;height:8.2rem;filter:drop-shadow(0 .4rem .3rem rgba(90,40,0,.4))}
+#toko b{position:absolute;left:0;right:0;bottom:.9rem;font-size:2.8rem;line-height:3rem;-webkit-text-stroke:.28rem #7a3f06;paint-order:stroke fill;text-shadow:0 .2rem 0 #7a3f06}
+.nw{position:absolute;right:-.9rem;top:-1.8rem;background:linear-gradient(#ff5a4a,#d9261c);border:.18rem solid #fff;border-radius:.7rem;padding:0 .8rem;font-size:1.4rem;line-height:2rem;box-shadow:0 .2rem .3rem rgba(0,0,0,.35);pointer-events:none;z-index:3}
+.cd{top:46.1rem;width:8.1rem;height:8rem;border-radius:1.2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem}
+.cd>svg{width:4.4rem;height:4.4rem;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.35))}
+.cd b{display:block;font-size:1.6rem;line-height:2rem}
+#teman{left:17.7rem}
+#hadc{left:26.7rem;background:linear-gradient(#9a5cf0,#5d2cc4);box-shadow:inset 0 0 0 .22rem #d2b4ff,inset 0 0 0 .4rem #30136e,0 .35rem 0 #1e0a4a,0 .8rem 1.2rem rgba(30,10,90,.4)}
+/* ===== MULAI (kanan bawah) ===== */
+#play{right:2.8rem;top:44.2rem;width:26.3rem;height:9.9rem;border-radius:1.2rem;display:flex;align-items:center;justify-content:center;gap:1rem;padding:0 1rem 0 1.2rem;background:linear-gradient(#63d65c,#2f9f2e 75%,#2a8f2a);box-shadow:inset 0 0 0 .22rem #a6f09a,inset 0 0 0 .4rem #1b6a1c,0 .45rem 0 #11481a,0 1rem 1.6rem rgba(10,60,20,.4);animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:inset 0 0 0 .22rem #a6f09a,inset 0 0 0 .4rem #1b6a1c,0 .45rem 0 #11481a,0 0 2.6rem rgba(140,255,120,.9)}}
 #play:hover,#play:active{animation:none}
-#play .gp{width:7.2rem;height:5.4rem;flex:none;filter:drop-shadow(0 .3rem .2rem rgba(120,60,0,.4))}
+#play .gp{width:6.6rem;height:5rem;flex:none;filter:drop-shadow(0 .3rem .2rem rgba(10,50,10,.5))}
 #pt{text-align:left;color:#fff}
-#pt b{display:block;font-size:4.7rem;line-height:4.4rem;-webkit-text-stroke:.35rem #c8610d;paint-order:stroke fill;text-shadow:0 .3rem 0 #c8610d}
-#pt small{display:block;font-size:1.8rem;line-height:2rem;margin-top:.1rem;white-space:nowrap;-webkit-text-stroke:.22rem #c8610d;paint-order:stroke fill;text-shadow:0 .15rem 0 #c8610d}
-.pa{position:absolute;top:50%;translate:0 -50%;width:3.6rem;height:5rem;display:grid;place-items:center;background:none}
-.pa svg{width:2.4rem;height:3.4rem;filter:drop-shadow(0 .15rem 0 #c8610d)}#pr{right:1.4rem}
+#pt b{display:block;font-size:4.3rem;line-height:4.4rem;color:#ffd62e;-webkit-text-stroke:.38rem #1b5a14;paint-order:stroke fill;text-shadow:0 .3rem 0 #1b5a14}
+#pt small{display:flex;align-items:center;font-size:2rem;line-height:2.4rem;margin-top:.2rem;white-space:nowrap;-webkit-text-stroke:.24rem #1b5a14;paint-order:stroke fill;text-shadow:0 .15rem 0 #1b5a14}
+#pm{max-width:14.5rem;overflow:hidden;text-overflow:ellipsis}
+#pr{display:inline-grid;place-items:center;width:3rem;height:3.4rem;margin-left:.2rem;cursor:pointer}
+#pr svg{width:1.7rem;height:2.4rem;filter:drop-shadow(0 .15rem 0 #1b5a14)}
 /* animasi masuk */
 #ui>:not(.ut-curbar){animation:in .55s cubic-bezier(.2,1.2,.4,1) backwards}
 @keyframes in{from{opacity:0;transform:translateY(1.4rem) scale(.96)}}
@@ -96,42 +101,50 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 #toast{position:fixed;left:50%;bottom:3rem;translate:-50% 2rem;background:var(--bd);padding:.8rem 2.4rem;border-radius:2rem;font-size:2.4rem;opacity:0;transition:opacity .3s,translate .35s cubic-bezier(.3,1.8,.5,1);z-index:99;pointer-events:none;white-space:nowrap}
 #toast.on{opacity:1;translate:-50% 0}
 @media(prefers-reduced-motion:reduce){#play,#ui>*{animation:none!important}}
-</style><style>:root{--curbar-right:11.8rem;--curbar-top:1.9rem;--cur-h:4.3rem;--cur-icon:4.8rem;--cur-plus:2.9rem;--cur-fs:2.3rem;--cur-minw:12.3rem}</style><link rel="stylesheet" href="assets/css/shared-ui.css"><style>@media (max-aspect-ratio:1/1){html body .ut-curbar{position:absolute;top:var(--curbar-top);right:var(--curbar-right);gap:var(--cur-gap,3.4rem)}}</style><script src="assets/js/landscape.js"></script></head>
+</style><style>:root{--curbar-right:2.6rem;--curbar-top:3.2rem;--cur-h:4.2rem;--cur-icon:5rem;--cur-plus:2.8rem;--cur-fs:2.4rem;--cur-minw:17.1rem;--cur-gap:1.2rem}</style><link rel="stylesheet" href="assets/css/shared-ui.css"><style>
+/* currency lobby: gaya slate + plus kotak (hanya lobby; shared-ui.css tidak diubah) */
+html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220}
+html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07a,#2cb02c);border:.2rem solid #145a14}
+@media (max-aspect-ratio:1/1){html body .ut-curbar{position:absolute;top:var(--curbar-top);right:var(--curbar-right);gap:var(--cur-gap,1.2rem)}}
+</style><script src="assets/js/landscape.js"></script></head>
 <body>
 <canvas id="gl"></canvas>
 <div id="ui">
- <div class="ab pn" id="prof" role="button" tabindex="0" data-act="prof">
+ <div class="ab" id="prof" role="button" tabindex="0" data-act="prof" aria-label="Profil">
+  <div id="pbox" class="pn"></div>
   <div id="ava"></div>
+  <div id="shield"><svg viewBox="0 0 50 60"><path d="M25 2 46 8v26c0 11-9 19-21 24C13 53 4 45 4 34V8z" fill="#f4b932" stroke="#8a5a0a" stroke-width="3" stroke-linejoin="round"/><path d="M25 7 41 12v22c0 8-7 14-16 18C16 48 9 42 9 34V12z" fill="#ffd24d"/><path d="M13 0l4 6 4-5 4 5 4-5 4 5 4-6v7H13z" fill="#ffd24d" stroke="#8a5a0a" stroke-width="2" stroke-linejoin="round"/></svg><b>Lv.</b><strong id="lvn">26</strong></div>
   <div id="nrow"><span id="pname" class="tx">FajarGG</span><div id="flag"><svg viewBox="0 0 3 2" width="100%" height="100%" preserveAspectRatio="none"><rect width="3" height="1" fill="#e8202a"/><rect y="1" width="3" height="1" fill="#fff"/></svg></div></div>
-  <svg id="crown" viewBox="0 0 24 24"><path d="M3 19 2 7l5 4 5-7 5 7 5-4-1 12z" fill="#ffd24d" stroke="#d98a10" stroke-width="1.2" stroke-linejoin="round"/><circle cx="12" cy="13" r="1.5" fill="#a86bff"/><rect x="3" y="19" width="18" height="2.5" rx="1" fill="#8a4ae0"/></svg>
-  <div id="lv" class="tx">Lv. 26</div>
-  <div id="xp"><i style="width:41.7%"></i><span>1.250 / 3.000 XP</span></div>
+  <div id="xp"><i style="width:41.7%"></i><em>XP</em><span>1.250 / 3.000 XP</span></div>
  </div>
 
  <div class="ut-curbar"><div class="ab cur" id="gem"><svg viewBox="0 0 24 24"><path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill="#62e178"/><path d="M12 2l8.66 5-3.72 2.15L12 6.3z" fill="#47d85f"/><path d="M20.66 7v10l-3.72-2.15v-5.7z" fill="#3dcb55"/><path d="M20.66 17L12 22v-4.3l4.94-2.85z" fill="#32a643"/><path d="M12 22l-8.66-5 3.72-2.15L12 17.7z" fill="#2a8d3a"/><path d="M3.34 17V7l3.72 2.15v5.7z" fill="#37b44c"/><path d="M12 6.3l4.94 2.85v5.7L12 17.7l-4.94-2.85v-5.7z" fill="#a7e6b1"/><path d="M12 6.3l4.94 2.85L12 12 7.06 9.15z" fill="#c4f2cc" opacity=".7"/></svg><span id="gemV"></span><button class="plus" data-act="buygem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><svg viewBox="0 0 24 24"><path d="M12 12V.24A11.76 11.76 0 0 0 .24 12z" fill="#ffd12b"/><path d="M12 12h11.76A11.76 11.76 0 0 0 12 .24z" fill="#ffb800"/><path d="M12 12v11.76A11.76 11.76 0 0 0 23.76 12z" fill="#ffd12b"/><path d="M12 12H.24A11.76 11.76 0 0 0 12 23.76z" fill="#ffb800"/><circle cx="12" cy="12" r="8.75" fill="#ff8a00"/><g fill="#ffb901"><circle cx="18.90" cy="12.00" r=".6"/><circle cx="16.88" cy="16.88" r=".6"/><circle cx="12.00" cy="18.90" r=".6"/><circle cx="7.12" cy="16.88" r=".6"/><circle cx="5.10" cy="12.00" r=".6"/><circle cx="7.12" cy="7.12" r=".6"/><circle cx="12.00" cy="5.10" r=".6"/><circle cx="16.88" cy="7.12" r=".6"/></g><path d="M12 7.2l3.9 4.8-3.9 4.8-3.9-4.8z" fill="#ffd12b" stroke="#ffd12b" stroke-width="1" stroke-linejoin="round"/></svg><span id="coinV"></span><button class="plus" data-act="buycoin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
- <button class="ab pn sm" id="mail" data-act="mail" aria-label="Pesan"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5" fill="#fff"/><path d="m3 7 9 7 9-7" fill="none" stroke="#3a8ff0" stroke-width="2" stroke-linejoin="round"/></svg><i class="dot"></i></button>
- <button class="ab pn sm" id="gear" data-act="gear" aria-label="Pengaturan"><svg viewBox="0 0 24 24"><path fill="#fff" d="M19.4 13c.1-.3.1-.7.1-1s0-.7-.1-1l2.1-1.6-2-3.5-2.5 1a7 7 0 0 0-1.700-1L15 3.200h-4L10.600 6a7 7 0 0 0-1.700 1l-2.500-1-2 3.500L6.600 11c-.1.300-.1.700-.1 1s0 .7.100 1l-2.100 1.600 2 3.500 2.500-1c.5.400 1.100.7 1.700 1l.4 2.800h4l.4-2.800c.6-.3 1.200-.6 1.700-1l2.500 1 2-3.500zM12 15.500a3.500 3.500 0 1 1 0-7 3.500 3.500 0 0 1 0 7Z"/></svg></button>
 
- <div class="ab" id="event" role="button" tabindex="0" data-act="event" aria-label="Event">
-  <div id="evbg"></div>
-  <div id="evd"></div>
-  <span id="evn" role="button" aria-label="Event berikutnya"><svg viewBox="0 0 14 24"><path d="m3 3 9 9-9 9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+ <button class="ab pn sq sm" id="mail" data-act="mail" aria-label="Pesan"><svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5" fill="#fff"/><path d="m3 7 9 7 9-7" fill="none" stroke="#3a8ff0" stroke-width="2" stroke-linejoin="round"/></svg><span class="tx">MAIL</span><i class="dot">1</i></button>
+ <button class="ab pn sq sm" id="gear" data-act="gear" aria-label="Pengaturan"><svg viewBox="0 0 24 24"><path fill="#cfd6e2" d="M19.4 13c.1-.3.1-.7.1-1s0-.7-.1-1l2.1-1.6-2-3.5-2.5 1a7 7 0 0 0-1.700-1L15 3.200h-4L10.600 6a7 7 0 0 0-1.700 1l-2.500-1-2 3.500L6.600 11c-.1.300-.1.700-.1 1s0 .7.100 1l-2.100 1.600 2 3.500 2.500-1c.5.400 1.100.7 1.700 1l.4 2.800h4l.4-2.800c.6-.3 1.200-.6 1.700-1l2.500 1 2-3.500zM12 15.500a3.500 3.500 0 1 1 0-7 3.500 3.500 0 0 1 0 7Z"/></svg><span class="tx">SETTINGS</span></button>
+
+ <button class="ab pn sq lm" id="inv" data-act="inv"><svg viewBox="0 0 48 48"><path d="M16 12c0-6 16-6 16 0" fill="none" stroke="#e08a10" stroke-width="4"/><rect x="2" y="22" width="6" height="14" rx="3" fill="#e69a18"/><rect x="40" y="22" width="6" height="14" rx="3" fill="#e69a18"/><rect x="8" y="10" width="32" height="34" rx="9" fill="#ffc83a" stroke="#d98a10" stroke-width="2"/><rect x="14" y="26" width="20" height="12" rx="4" fill="#ffdf6a" stroke="#d98a10" stroke-width="2"/><rect x="18" y="30" width="12" height="3" rx="1.5" fill="#d98a10"/></svg><span class="tx">Inventory</span></button>
+ <button class="ab pn sq lm" id="lead" data-act="lead"><svg viewBox="0 0 48 48"><path d="M12 6h24v14a12 12 0 0 1-24 0z" fill="#ffd24d" stroke="#d98a10" stroke-width="2"/><path d="M12 10H5c0 9 3 13 8 14M36 10h7c0 9-3 13-8 14" fill="none" stroke="#e8a010" stroke-width="3" stroke-linecap="round"/><rect x="21" y="30" width="6" height="8" fill="#e8a010"/><rect x="14" y="38" width="20" height="6" rx="2" fill="#ffc83a" stroke="#d98a10" stroke-width="2"/><path d="m24 11 2.500 5 5.500.8-4 3.900 1 5.500-5-2.600-5 2.600 1-5.500-4-3.900 5.500-.8z" fill="#fff4b0"/></svg><span class="tx">Leaderboard</span></button>
+
+ <div class="ab pn pnl" id="misi" role="button" tabindex="0" data-act="misi" aria-label="Misi">
+  <h3>MISI</h3>
+  <div class="mb"><span>Kalahkan 5 Goblins<br>(3/5)</span><svg viewBox="0 0 48 48"><circle cx="22" cy="26" r="17" fill="#fff"/><circle cx="22" cy="26" r="12" fill="#3a8ff0"/><circle cx="22" cy="26" r="7" fill="#fff"/><circle cx="22" cy="26" r="3" fill="#e8402c"/><path d="m22 26 18-18M34 6l.5 7.500L42 14" fill="none" stroke="#ffd24d" stroke-width="3.500" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+  <i class="dot">2</i>
  </div>
 
- <button class="ab" id="toko" data-act="toko" aria-label="Toko"><svg class="ct" viewBox="0 0 48 48"><path d="M3 7h7l6 24h24l4-17H13" fill="#fff" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><path d="M17 17h22M18 23h20M23 14v14M30 14v14" stroke="#f08a12" stroke-width="2"/><circle cx="19" cy="39" r="3.500" fill="#fff"/><circle cx="35" cy="39" r="3.500" fill="#fff"/></svg><span class="tt"><b>TOKO</b><small>Item baru telah hadir!</small></span><svg class="ch2" viewBox="0 0 120 92"><path d="M6 66l10-14 10 14-10 16z" fill="#34d68b" stroke="#0b8a55" stroke-width="2" stroke-linejoin="round"/><path d="M20 72l9-11 9 11-9 13z" fill="#7ddcff" stroke="#0b8a55" stroke-width="2" stroke-linejoin="round"/><rect x="28" y="26" width="62" height="22" rx="8" fill="#b57a40" stroke="#5a3a1a" stroke-width="2.5"/><rect x="28" y="44" width="62" height="38" rx="3" fill="#9a6a3a" stroke="#5a3a1a" stroke-width="2.5"/><rect x="36" y="26" width="9" height="56" fill="#a9b6c6" stroke="#5a3a1a" stroke-width="2"/><rect x="73" y="26" width="9" height="56" fill="#a9b6c6" stroke="#5a3a1a" stroke-width="2"/><rect x="53" y="40" width="13" height="16" rx="3" fill="#ffc83a" stroke="#8a5a0a" stroke-width="2"/><rect x="57.500" y="45" width="4" height="6" fill="#8a5a0a"/><g fill="#ffc83a" stroke="#c98a0c" stroke-width="2"><ellipse cx="102" cy="78" rx="14" ry="6"/><ellipse cx="102" cy="71" rx="14" ry="6"/><ellipse cx="102" cy="64" rx="14" ry="6"/><ellipse cx="97" cy="57" rx="11" ry="5"/></g></svg><span class="nw">BARU</span></button>
+ <div class="ab pn pnl one" id="event" role="button" tabindex="0" data-act="event" aria-label="Event">
+  <h3>EVENT</h3>
+  <div class="eb"><div id="evbg"></div><div id="evd"></div>
+   <span id="evn" role="button" aria-label="Event berikutnya"><svg viewBox="0 0 14 24"><path d="m3 3 9 9-9 9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div>
+ </div>
 
- <button class="ab pn cd" id="teman" data-act="teman"><svg viewBox="0 0 56 48"><rect x="4" y="4" width="22" height="20" rx="4" fill="#fff"/><rect x="0" y="27" width="30" height="19" rx="4" fill="#fff"/><rect x="31" y="12" width="22" height="20" rx="4" fill="#d6e8ff"/><rect x="27" y="35" width="29" height="11" rx="4" fill="#d6e8ff"/><rect x="9" y="12" width="4" height="5" fill="#2a4a8a"/><rect x="18" y="12" width="4" height="5" fill="#2a4a8a"/><rect x="36" y="20" width="4" height="5" fill="#4a6aaa"/><rect x="45" y="20" width="4" height="5" fill="#4a6aaa"/></svg><span><b class="tx">TEMAN</b><small><i class="on-d"></i>12 Online</small></span><i class="dot">3</i></button>
- <button class="ab cd" id="hadc" data-act="hadiah"><svg viewBox="0 0 48 48"><rect x="6" y="22" width="36" height="22" rx="3" fill="#ef3b3b"/><rect x="4" y="14" width="40" height="9" rx="3" fill="#ff5a4a"/><rect x="21" y="14" width="6" height="30" fill="#ffd24d"/><path d="M24 14C13 14 13 2 20 4c3 1 4 10 4 10Zm0 0c11 0 11-12 4-10-3 1-4 10-4 10Z" fill="#ffd24d" stroke="#e8a010" stroke-width="1.5"/></svg><span><b class="tx" style="--bd:#30136e">HADIAH</b><small>Klaim hadiahmu!</small></span><i class="dot">1</i></button>
-
- <button class="ab pn sq lm" style="top:14.4rem" data-act="inv"><svg viewBox="0 0 48 48"><path d="M16 12c0-6 16-6 16 0" fill="none" stroke="#e08a10" stroke-width="4"/><rect x="2" y="22" width="6" height="14" rx="3" fill="#e69a18"/><rect x="40" y="22" width="6" height="14" rx="3" fill="#e69a18"/><rect x="8" y="10" width="32" height="34" rx="9" fill="#ffc83a" stroke="#d98a10" stroke-width="2"/><rect x="14" y="26" width="20" height="12" rx="4" fill="#ffdf6a" stroke="#d98a10" stroke-width="2"/><rect x="18" y="30" width="12" height="3" rx="1.5" fill="#d98a10"/></svg><span class="tx">Inventory</span></button>
- <button class="ab pn sq lm" style="top:23.4rem" data-act="lead"><svg viewBox="0 0 48 48"><path d="M12 6h24v14a12 12 0 0 1-24 0z" fill="#ffd24d" stroke="#d98a10" stroke-width="2"/><path d="M12 10H5c0 9 3 13 8 14M36 10h7c0 9-3 13-8 14" fill="none" stroke="#e8a010" stroke-width="3" stroke-linecap="round"/><rect x="21" y="30" width="6" height="8" fill="#e8a010"/><rect x="14" y="38" width="20" height="6" rx="2" fill="#ffc83a" stroke="#d98a10" stroke-width="2"/><path d="m24 11 2.500 5 5.500.8-4 3.900 1 5.500-5-2.600-5 2.600 1-5.500-4-3.900 5.500-.8z" fill="#fff4b0"/></svg><span class="tx">Leaderboard</span></button>
-
- <button class="ab pn sq bm" style="left:2rem" data-act="misi"><svg viewBox="0 0 48 48"><circle cx="22" cy="26" r="17" fill="#fff"/><circle cx="22" cy="26" r="12" fill="#3a8ff0"/><circle cx="22" cy="26" r="7" fill="#fff"/><circle cx="22" cy="26" r="3" fill="#e8402c"/><path d="m22 26 18-18M34 6l.5 7.500L42 14" fill="none" stroke="#ffd24d" stroke-width="3.500" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="tx">Misi</span><i class="dot">2</i></button>
+ <button class="ab" id="toko" data-act="toko" aria-label="Toko"><svg class="ch2" viewBox="0 0 120 92"><path d="M6 66l10-14 10 14-10 16z" fill="#34d68b" stroke="#0b8a55" stroke-width="2" stroke-linejoin="round"/><path d="M20 72l9-11 9 11-9 13z" fill="#7ddcff" stroke="#0b8a55" stroke-width="2" stroke-linejoin="round"/><rect x="28" y="26" width="62" height="22" rx="8" fill="#b57a40" stroke="#5a3a1a" stroke-width="2.5"/><rect x="28" y="44" width="62" height="38" rx="3" fill="#9a6a3a" stroke="#5a3a1a" stroke-width="2.5"/><rect x="36" y="26" width="9" height="56" fill="#a9b6c6" stroke="#5a3a1a" stroke-width="2"/><rect x="73" y="26" width="9" height="56" fill="#a9b6c6" stroke="#5a3a1a" stroke-width="2"/><rect x="53" y="40" width="13" height="16" rx="3" fill="#ffc83a" stroke="#8a5a0a" stroke-width="2"/><rect x="57.500" y="45" width="4" height="6" fill="#8a5a0a"/><g fill="#ffc83a" stroke="#c98a0c" stroke-width="2"><ellipse cx="102" cy="78" rx="14" ry="6"/><ellipse cx="102" cy="71" rx="14" ry="6"/><ellipse cx="102" cy="64" rx="14" ry="6"/><ellipse cx="97" cy="57" rx="11" ry="5"/></g></svg><b>TOKO</b><span class="nw">BARU</span></button>
+ <button class="ab pn cd" id="teman" data-act="teman" aria-label="Teman"><svg viewBox="0 0 56 48"><rect x="4" y="4" width="22" height="20" rx="4" fill="#fff"/><rect x="0" y="27" width="30" height="19" rx="4" fill="#fff"/><rect x="31" y="12" width="22" height="20" rx="4" fill="#d6e8ff"/><rect x="27" y="35" width="29" height="11" rx="4" fill="#d6e8ff"/><rect x="9" y="12" width="4" height="5" fill="#2a4a8a"/><rect x="18" y="12" width="4" height="5" fill="#2a4a8a"/><rect x="36" y="20" width="4" height="5" fill="#4a6aaa"/><rect x="45" y="20" width="4" height="5" fill="#4a6aaa"/></svg><b class="tx">TEMAN</b><i class="dot">3</i></button>
+ <button class="ab pn cd" id="hadc" data-act="hadiah" aria-label="Hadiah"><svg viewBox="0 0 48 48"><rect x="6" y="22" width="36" height="22" rx="3" fill="#ef3b3b"/><rect x="4" y="14" width="40" height="9" rx="3" fill="#ff5a4a"/><rect x="21" y="14" width="6" height="30" fill="#ffd24d"/><path d="M24 14C13 14 13 2 20 4c3 1 4 10 4 10Zm0 0c11 0 11-12 4-10-3 1-4 10-4 10Z" fill="#ffd24d" stroke="#e8a010" stroke-width="1.5"/></svg><b class="tx" style="text-shadow:0 .16rem 0 #30136e">HADIAH</b><i class="dot">1</i></button>
 
  <button class="ab" id="play" aria-label="Mulai, pilih mode">
-  <svg class="gp" viewBox="0 0 64 48"><path d="M14 10h36c8 0 12 8 14 22 1 8-4 12-9 9-4-3-6-8-10-8H19c-4 0-6 5-10 8-5 3-10-1-9-9C2 18 6 10 14 10Z" fill="#fff" stroke="#9cc8ff" stroke-width="2"/><path d="M19 17v12M13 23h12" stroke="#2f7fe8" stroke-width="4.500" stroke-linecap="round"/><circle cx="44" cy="19" r="3" fill="#2f7fe8"/><circle cx="51" cy="25" r="3" fill="#2f7fe8"/><circle cx="37" cy="25" r="3" fill="#2f7fe8"/><circle cx="44" cy="31" r="3" fill="#2f7fe8"/></svg>
-  <span id="pt"><b>MULAI</b><small id="pm">Pilih Mode</small></span>
-  <span class="pa" id="pr" role="button" aria-label="Mode berikutnya"><svg viewBox="0 0 24 32"><path d="m7 4 11 12L7 28" fill="none" stroke="#fff" stroke-width="4.500" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  <svg class="gp" viewBox="0 0 64 48"><path d="M14 10h36c8 0 12 8 14 22 1 8-4 12-9 9-4-3-6-8-10-8H19c-4 0-6 5-10 8-5 3-10-1-9-9C2 18 6 10 14 10Z" fill="#9aa1ae" stroke="#4a5262" stroke-width="2"/><path d="M19 17v12M13 23h12" stroke="#2a303c" stroke-width="4.500" stroke-linecap="round"/><circle cx="44" cy="19" r="3" fill="#ffd23a"/><circle cx="51" cy="25" r="3" fill="#e8402c"/><circle cx="37" cy="25" r="3" fill="#3a8ff0"/><circle cx="44" cy="31" r="3" fill="#62d84a"/></svg>
+  <span id="pt"><b>MULAI!</b><small><span id="pm">Pilih Mode</span><span id="pr" role="button" aria-label="Mode berikutnya"><svg viewBox="0 0 24 32"><path d="m7 4 11 12L7 28" fill="none" stroke="#fff" stroke-width="4.500" stroke-linecap="round" stroke-linejoin="round"/></svg></span></small></span>
  </button>
 </div>
 
@@ -267,8 +280,8 @@ for(let i=0;i<7;i++){const g=new THREE.Group(),n=3+(rnd()*3|0);for(let k=0;k<n;k
 const hero=new THREE.Group();let chI=character(PAL,'idle'),chC=character(PAL,'cheer');chC.visible=false;hero.add(chI,chC);hero.position.set(.3,0,0);hero.rotation.y=-.3;scene.add(hero);
 hero3d={rebuild(){const p=AR.palette(PD.equippedId('skin'))||AR.palette('skin.steve');hero.remove(chI);hero.remove(chC);chI=character(p,'idle');chC=character(p,'cheer');chC.visible=false;hero.add(chI,chC)}};
 let cheer=0;
-cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;if(x>.33&&x<.57&&y>.19&&y<.69){cheer=1.6;chI.visible=false;chC.visible=true;buzz()}});
-function fit(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(w,h,false);cam.aspect=w/h;const a=w/h,base=36;cam.fov=a<16/9?2*Math.atan(Math.tan(base*Math.PI/360)*(16/9)/a)*180/Math.PI:base;const u=$('#ui').getBoundingClientRect(),d=w/2-(u.left+u.width*.445);cam.setViewOffset(w,h,Math.round(d),0,w,h);try{renderer.render(scene,cam)}catch(e){}/* setSize mengosongkan canvas; gambar ulang sekarang agar tidak ada frame kosong (kilatan putih) saat rotasi */}
+cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;if(x>.385&&x<.615&&y>.19&&y<.69){cheer=1.6;chI.visible=false;chC.visible=true;buzz()}});
+function fit(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(w,h,false);cam.aspect=w/h;const a=w/h,base=36;cam.fov=a<16/9?2*Math.atan(Math.tan(base*Math.PI/360)*(16/9)/a)*180/Math.PI:base;const u=$('#ui').getBoundingClientRect(),d=w/2-(u.left+u.width*.5);cam.setViewOffset(w,h,Math.round(d),0,w,h);try{renderer.render(scene,cam)}catch(e){}/* setSize mengosongkan canvas; gambar ulang sekarang agar tidak ada frame kosong (kilatan putih) saat rotasi */}
 addEventListener('resize',fit);fit();
 const clock=new THREE.Clock();
 function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Math.min(clock.getDelta(),.05);
