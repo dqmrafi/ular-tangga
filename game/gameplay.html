@@ -321,6 +321,7 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
     <div class="trow"><span id="turnName"></span><div class="die-scene" id="dieScene"><div class="die-tilt"><div class="die" id="die"></div></div></div></div>
     <div class="tn-meta" id="tnMeta"><span id="tnLv">Lv. 28</span><span class="on" id="tnSt">Online</span></div>
     <button class="btn big" id="btnRoll" type="button">Roll dadu</button>
+    <div class="dmeter" id="diceMeter" hidden aria-hidden="true"><div class="dm-bar"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><b class="dm-needle" id="dmNeedle"></b></div></div>
     <p class="msg" id="msg" aria-live="polite"></p>
   </div>
   <div id="scores" hidden></div>
@@ -504,7 +505,7 @@ body .pucard{min-width:clamp(250px,22vw,340px);padding:18px 30px 20px}
 /* Panel giliran (kanan bawah) — layout grid, tanpa elemen yang saling menimpa:
    kiri = avatar, nama, status | kanan = dadu | bawah = tombol Roll & pesan (lebar penuh). Tab "Giliran" tetap menempel di tepi atas panel. */
 #side{--tav:clamp(62px,5.2vw,80px)}
-body #side .rcol .pnl.tn{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"av die" "name die" "meta die" "btn btn" "msg msg";column-gap:8px;align-items:start;margin-top:22px;padding:18px 14px 12px}
+body #side .rcol .pnl.tn{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"av die" "name die" "meta die" "btn btn" "meter meter" "msg msg";column-gap:8px;align-items:start;margin-top:22px;padding:18px 14px 12px}
 body #side .tn-av{position:relative;grid-area:av;left:auto;top:auto;bottom:auto;width:var(--tav);margin:0 0 8px 2px}
 body #side .tn .trow{display:contents}
 body #side #turnName{grid-area:name;max-width:100%;min-width:0;align-self:center;font-size:clamp(20px,1.6vw,24px);line-height:1.1}
@@ -526,6 +527,17 @@ body #side .tn .msg{grid-area:msg;font-size:12px;min-height:0!important;margin-t
   #side .tn .msg,#side .tn .tn-meta{color:#fff;text-shadow:0 1px 0 var(--bd)}
 }
 </style>
+<style id="dice-meter">
+/* Special Dice: bar 6 segmen (1-6) di bawah tombol Roll. Jarum bolak-balik saat tombol ditahan; angka dadu = segmen tempat jarum berhenti. */
+body #side .tn .dmeter{grid-area:meter;margin-top:8px;width:100%}
+.dmeter[hidden]{display:none!important}
+.dm-bar{position:relative;display:grid;grid-template-columns:repeat(6,1fr);height:30px;border-radius:9px;overflow:hidden;background:rgba(0,0,0,.28);box-shadow:inset 0 2px 4px rgba(0,0,0,.35),0 0 0 2px rgba(255,255,255,.45)}
+.dm-bar i{display:flex;align-items:center;justify-content:center;font-style:normal;font:800 15px/1 "Baloo 2","Nunito",sans-serif;color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.45);border-left:2px solid rgba(255,255,255,.35);transition:background .08s}
+.dm-bar i:first-child{border-left:0}
+.dm-bar i.on{background:rgba(255,255,255,.38);color:#fff}
+.dm-needle{position:absolute;top:-2px;bottom:-2px;left:0;width:4px;margin-left:-2px;border-radius:3px;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.55),0 0 8px 2px rgba(255,255,255,.9);pointer-events:none;will-change:left}
+@media(max-width:699px) and (orientation:portrait){.dm-bar{height:26px}.dm-bar i{font-size:13px}}
+</style>
 <style id="landscape-compact">
 /* 4.1.17C: landscape pendek (HP): aturan "mobile" (max-width:699px) kini hanya untuk portrait; di sini layout landscape kompak
    (kolom pemain kiri, power kiri-bawah, panel giliran kanan-bawah, tombol atas kanan). Hanya presentasi; papan/kamera tidak diubah. */
@@ -545,7 +557,7 @@ body #side .tn .msg{grid-area:msg;font-size:12px;min-height:0!important;margin-t
   #side #pus{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:none;gap:4px;scrollbar-width:none}
   #side .pb{flex:0 0 44px;min-width:44px;width:44px;height:48px;font-size:20px}#side .pb em{display:none}
   #side .rcol{left:auto;right:max(8px,env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));top:auto;width:clamp(180px,32vw,240px)}
-  body #side .rcol .pnl.tn{margin-top:16px;padding:12px 10px 8px;grid-template-areas:"name die" "btn btn" "msg msg"}
+  body #side .rcol .pnl.tn{margin-top:16px;padding:12px 10px 8px;grid-template-areas:"name die" "btn btn" "meter meter" "msg msg"}
   body #side .tn-av,body #side .tn-meta{display:none}
   body #side #turnName{font-size:16px}
   body #side .tn .die-scene{zoom:.7;margin:0 2px 0 0}
@@ -1984,6 +1996,20 @@ function applyArenaState(){
   A.g.visible=fin; A.rise=fin?1:0; A.tower=fin?1:0; A.crystal=0; A.energy=0; A.burst=0; /* crystal tower diganti 4 End Crystal progression setelah awakening */
   A.cv.forEach(c=>{ c.want=0; c.s=0; c.flash=0; }); A.act=-1; if(fin) syncCrystals();
 }
+/* Bidak yang sudah mencapai target 100 berdiri di Dragon Arena, mengelilingi tower (bersama naga). */
+function arenaSlot(pi){ const o=SLOT[pi]; return new THREE.Vector3(ARENA_POS.x+o[0]*3.6,0.82,ARENA_POS.z+o[1]*3.6); }
+async function gatherArena(gid){
+  if(!AWK.done) return;
+  for(const pl of players){
+    if(pl.pos!==100||pl.inArena||!pl.pawn) continue;
+    pl.inArena=true;
+    const a=pl.pawn.position.clone(),b=arenaSlot(pl.idx),o=SLOT[pl.idx];
+    sfx.pop&&sfx.pop();
+    await tween(reduce?0.2:0.9,k=>{ pl.pawn.position.lerpVectors(a,b,k); pl.pawn.position.y+=Math.sin(k*Math.PI)*1.6; });
+    if(gid!==gameId) throw STALE;
+    pl.pawn.position.copy(b); pl.pawn.rotation.y=Math.atan2(-o[0],-o[1]);
+  }
+}
 function resetAwakening(){
   AWK.done=false; AWK.running=false; document.body.classList.remove('awk-lock');
   applyArenaState();
@@ -1992,10 +2018,13 @@ function resetAwakening(){
    p.crystal = jumlah crystal yang sudah dihancurkan pemain itu (0..4); p.ready = READY menyerang Dragon (setelah crystal 4).
    Crystal n hanya hancur bila pemain melempar angka n; selain itu tidak ada progress. Tidak menyentuh progress pemain lain.
    Tampilan 4 crystal di arena mengikuti pemain yang sedang giliran (pemain yang tidak di Block 100 = semua utuh). */
+function crystalSeq(p){ if(!p.cseq){ const a=[1,2,3,4]; for(let i=3;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } p.cseq=a; } return p.cseq; } /* urutan crystal acak per pemain; angka target = cseq[p.crystal] */
+function crystalTarget(p){ return crystalSeq(p)[Math.min(p.crystal,3)]; }
 function syncCrystals(){
   const A=ARENA; if(!A||!AWK.done) return;
   const p=players[cur],pr=(p&&p.pos===100)?p.crystal:0;
-  A.cv.forEach((c,i)=>{ c.want=(i>=pr)?1:0; }); A.act=(p&&p.pos===100&&pr<4)?pr:-1;
+  const sq=p?crystalSeq(p):[1,2,3,4],gone=sq.slice(0,pr);
+  A.cv.forEach((c,i)=>{ c.want=gone.indexOf(i+1)<0?1:0; }); A.act=(p&&p.pos===100&&pr<4)?sq[pr]-1:-1;
 }
 /* ---------- Dragon Feature 5: Dragon Attack ----------
    Hanya pemain yang sudah menyelesaikan Crystal 4 (p.ready) yang boleh menyerang. Angka serangan datang dari Special Dice (Feature 4);
@@ -2051,16 +2080,16 @@ async function dragonDefeatReward(p,gid){
   await sleep(1500);
 }
 async function crystalRoll(p,v,gid){
-  const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },n=p.crystal+1;
+  const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },n=crystalTarget(p);
   if(v!==n){
     setMsg(p.name+' melempar '+v+'. Crystal '+n+' butuh angka '+n+'. Tidak ada progress.'); fb('event','dragon','Crystal '+n+' butuh angka '+n+' (dapat '+v+')',{gid,ttl:1800}); sfx.bounce();
     await S(sleep(900)); return false;
   }
-  p.crystal=n; syncCrystals();
+  p.crystal++; syncCrystals();
   const c=ARENA&&ARENA.cv[n-1]; if(c){ c.flash=1; } sfx.crystalBreak();
-  setMsg(p.name+' menghancurkan Crystal '+n+'! ('+n+'/4)'); fb('event','dragon','Crystal '+n+' hancur! '+n+'/4',{gid,ttl:1800});
+  setMsg(p.name+' menghancurkan Crystal '+n+'! ('+p.crystal+'/4)'); fb('event','dragon','Crystal '+n+' hancur! '+p.crystal+'/4',{gid,ttl:1800});
   await S(sleep(900)); renderChips();
-  if(n===4){ p.ready=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.win(); renderChips(); await S(sleep(700)); }
+  if(p.crystal>=4){ p.ready=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.win(); renderChips(); await S(sleep(700)); }
   return true;
 }
 async function awakenDragon(p,gid){
@@ -2072,7 +2101,7 @@ async function awakenDragon(p,gid){
     while(paused) await S(sleep(200)); /* pause dibuka sebelum sequence: tunggu dilanjutkan */
     setMsg('Block 100 aktif! Gunung di kiri papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); sfx.dragonAwakening(); /* SFX existing (assets/sfx/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
     panGoal.x=pg.x-6; /* kamera menggeser ke Arena (kosmetik; dipulihkan di akhir) */
-    if(!A){ await S(sleep(700*F)); Dd.dy=0; dragon.visible=true; finished=true; return; }
+    if(!A){ await S(sleep(700*F)); Dd.dy=0; dragon.position.x=T.x; dragon.position.z=T.z; dragon.visible=true; finished=true; return; }
     const M=MOUNT,MW=(d,fn)=>S(tween(d,k=>{ if(gid===gameId) fn(k); })); /* tween lama tidak dibersihkan saat game baru: jangan tulis ke gunung milik game lain */
     if(M){
       await MW(1.3*F,k=>{ M.shake=k; });                                             /* getaran menguat */
@@ -2087,19 +2116,19 @@ async function awakenDragon(p,gid){
     await S(tween(1.4*F,k=>{ A.energy=k; })); /* energi spiral + beam menguat */
     setMsg('Energi Crystal membangunkan Dragon...');
     await S(tween(0.5*F,k=>{ A.burst=Math.sin(k*Math.PI)*0.8; }));
-    /* Dragon spawn dari crystal, tumbuh, lalu terbang ke posisi Block 100 */
+    /* Dragon spawn dari crystal, tumbuh, lalu bertengger di atas tower di Dragon Arena (tidak pindah ke Block 100) */
     const ax=A.g.position.x,az=A.g.position.z,ay=0.8+ARENA_TOWER_H+0.6,hd=Math.atan2(T.x-ax,T.z-az);
     dragon.visible=true; dragon.position.x=ax; dragon.position.z=az; Dd.dy=ay-Dd.y0; Dd.shk=hd; dragon.scale.setScalar(0.05);
     await S(tween(1.0*F,k=>{ dragon.scale.setScalar(0.05+1.25*k); }));
-    await S(tween(1.8*F,k=>{ dragon.position.x=ax+(T.x-ax)*k; dragon.position.z=az+(T.z-az)*k; Dd.dy=(ay-Dd.y0)*(1-k)+Math.sin(k*Math.PI)*1.0; Dd.shk=hd*(1-k); A.energy=1-0.65*k; }));
-    dragon.position.x=T.x; dragon.position.z=T.z; Dd.dy=0; Dd.shk=0; dragon.scale.setScalar(1.3);
+    await S(tween(1.2*F,k=>{ Dd.dy=ay-Dd.y0+Math.sin(k*Math.PI)*0.5; A.energy=1-0.65*k; }));
+    dragon.position.x=ax; dragon.position.z=az; Dd.dy=ay-Dd.y0; Dd.shk=hd; dragon.scale.setScalar(1.3);
     const e0=A.energy; await S(tween(0.8*F,k=>{ A.crystal=1-k; A.energy=e0*(1-k); }));
     A.cv.forEach(c=>{ c.want=1; c.flash=0.6; }); A.act=0; /* 4 End Crystal progression muncul; progress per player ditentukan saat giliran */
     await S(sleep(600*F));
     finished=true;
   }finally{
     if(gid===gameId){ /* STALE (game baru) ditangani resetAwakening di startGame */
-      if(!finished){ dragon.visible=true; dragon.position.x=T.x; dragon.position.z=T.z; Dd.dy=0; Dd.shk=0; dragon.scale.setScalar(1.3); } /* error tak terduga: jangan sampai game macet */
+      if(!finished){ dragon.visible=true; dragon.position.x=ARENA_POS.x; dragon.position.z=ARENA_POS.z; Dd.dy=0.8+ARENA_TOWER_H+0.6-Dd.y0; Dd.shk=Math.atan2(T.x-ARENA_POS.x,T.z-ARENA_POS.z); dragon.scale.setScalar(1.3); } /* error tak terduga: jangan sampai game macet */
       panGoal.x=pg.x; panGoal.z=pg.z; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState(); /* gunung berakhir sebagai rubble (juga bila sequence terputus error) */
     }
   }
@@ -2745,6 +2774,7 @@ async function playTurn(p,v,gid,bn){
   focus=p.pawn;
   if(p.pos===100){
     if(!AWK.done) await A(awakenDragon(p,gid)); /* jaga-jaga: naga tak boleh diserang sebelum Awakening */
+    await A(gatherArena(gid));
     if(!p.ready){ /* Feature 3: belum READY -> lawan End Crystal, bukan Dragon */
       await A(crystalRoll(p,v,gid));
       if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); } else nextTurn();
@@ -2767,7 +2797,7 @@ async function playTurn(p,v,gid,bn){
     await A(sleep(300)); await A(walk(p,100,fin)); p.pos=fin;
   }
   renderChips();
-  if(p.pos===100){ setMsg(p.name+' tiba di The End! Lempar dadu untuk melawan Ender Dragon.'); fb('event','dragon',p.name+' tiba di The End! Siap lawan Ender Dragon',{gid,ttl:2400}); sfx.hundred(); sfx.win(); await A(sleep(900)); await A(awakenDragon(p,gid)); nextTurn(); return; }
+  if(p.pos===100){ setMsg(p.name+' tiba di The End! Lempar dadu untuk melawan Ender Dragon.'); fb('event','dragon',p.name+' tiba di The End! Siap lawan Ender Dragon',{gid,ttl:2400}); sfx.hundred(); sfx.win(); await A(sleep(900)); await A(awakenDragon(p,gid)); await A(gatherArena(gid)); nextTurn(); return; }
   if(LADDERS[p.pos]){
     const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); sfx.naiktangga();
     await A(sleep(350)); await A(climb(p,p.pos,to)); p.pos=to; p.score+=10;
@@ -2819,25 +2849,40 @@ const DICE_HOLD_MS=170,DH={on:false,id:null,v:1,timer:0,gid:0};
 function specialDiceActive(p){ return !!(p&&!p.cpu&&p.pos===100&&AWK.done&&!gameOver); }
 function specialHint(p){
   if(!specialDiceActive(p)||AWK.running) return;
-  setMsg(p.ready?p.name+': tahan Roll, lepas untuk memilih angka serangan Dragon.':p.name+': tahan Roll, lepas saat angka = '+(p.crystal+1)+' untuk menghancurkan Crystal '+(p.crystal+1)+'.');
+  setMsg(p.ready?p.name+': tahan Roll, lepas untuk memilih angka serangan Dragon.':p.name+': tahan Roll, lepas saat jarum di angka '+crystalTarget(p)+' untuk menghancurkan Crystal '+crystalTarget(p)+'.');
 }
 function syncRollLabel(){
   const b=$('btnRoll'),sp=specialDiceActive(players[cur]); b.classList.toggle('special',sp); b.classList.toggle('holding',DH.on);
   b.textContent=DH.on?'Lepas untuk memilih':(sp?'Tahan & lepas':'Roll dadu');
+  dmShow(sp&&!AWK.running); if(sp&&!DH.on) dmDraw(0);
+}
+const DM_SWEEP_MS=850; /* waktu satu sapuan kiri -> kanan */
+function dmSeg(x){ return Math.max(1,Math.min(6,Math.floor(x*6)+1)); }
+function dmShow(on){ const m=$('diceMeter'); if(m) m.hidden=!on; }
+function dmDraw(x){
+  const n=$('dmNeedle'),m=$('diceMeter'); if(!n||!m) return;
+  n.style.left=(x*100)+'%';
+  const k=dmSeg(x); m.querySelectorAll('i').forEach((el,i)=>el.classList.toggle('on',i+1===k));
 }
 function holdStart(id){
   if(DH.on||busy||paused||gameOver||AWK.running||$('btnRoll').disabled||!specialDiceActive(players[cur])) return false;
-  DH.on=true; DH.id=id; DH.v=1; DH.gid=gameId; clearTurnTimer(); showDie(1,false); sfx.shuffleTick(); syncRollLabel();
-  DH.timer=setInterval(()=>{
+  DH.on=true; DH.id=id; DH.v=1; DH.gid=gameId; clearTurnTimer(); sfx.shuffleTick(); syncRollLabel();
+  dmShow(true); DH.t0=performance.now(); DH.x=0; dmDraw(0); showDie(1,false);
+  const step=now=>{
+    if(!DH.on) return;
     /* watchdog: bila kondisi berubah saat ditahan (game baru, jeda, tombol nonaktif, giliran lain) -> batal, tidak stuck */
-    if(!DH.on||DH.gid!==gameId||busy||paused||gameOver||AWK.running||$('btnRoll').disabled||!specialDiceActive(players[cur])){ holdEnd(false); return; }
-    DH.v=DH.v%6+1; showDie(DH.v,false); sfx.shuffleTick();
-  },DICE_HOLD_MS);
+    if(DH.gid!==gameId||busy||paused||gameOver||AWK.running||$('btnRoll').disabled||!specialDiceActive(players[cur])){ holdEnd(false); return; }
+    const ph=((now-DH.t0)/DM_SWEEP_MS)%2,x=ph<1?ph:2-ph; /* ping-pong 0..1..0 */
+    DH.x=x; dmDraw(x);
+    const v=dmSeg(x); if(v!==DH.v){ DH.v=v; showDie(v,false); sfx.shuffleTick(); }
+    DH.raf=requestAnimationFrame(step);
+  };
+  DH.raf=requestAnimationFrame(step);
   return true;
 }
 function holdEnd(select){
   if(!DH.on) return;
-  const v=DH.v,gid=DH.gid; DH.on=false; DH.id=null; clearInterval(DH.timer); DH.timer=0;
+  const v=DH.v,gid=DH.gid; DH.on=false; DH.id=null; cancelAnimationFrame(DH.raf); DH.raf=0; clearInterval(DH.timer); DH.timer=0;
   try{ $('btnRoll').releasePointerCapture&&DH.pc&&$('btnRoll').releasePointerCapture(DH.pc); }catch(e){} DH.pc=null;
   syncRollLabel();
   if(select&&gid===gameId&&!busy&&!paused&&!gameOver&&specialDiceActive(players[cur])){ ensureAudio(); doRoll({value:v}); }
