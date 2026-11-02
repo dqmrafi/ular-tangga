@@ -119,3 +119,11 @@ html body .ov .mb.no {
   text-shadow: 0 .12rem 0 rgba(30, 35, 50, .6);
 }
 html body .ov > .box > .x:focus-visible { outline: .3rem solid #f1d04a; outline-offset: .15rem; }
+
+/* Tombol Kembali (#back) seragam di semua halaman: satu ukuran, tidak mengikuti rem/ukuran per halaman. */
+:root { --bk: calc(min(1vw, 1.78vh) * 5); }
+html body #back {
+  width: var(--bk) !important; height: var(--bk) !important; padding: 0 !important;
+  border-radius: calc(var(--bk) * .28) !important; display: grid !important; place-items: center; flex: none;
+}
+html body #back svg { width: calc(var(--bk) * .56) !important; height: calc(var(--bk) * .56) !important; }
