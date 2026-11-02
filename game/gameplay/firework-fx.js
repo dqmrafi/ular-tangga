@@ -1,9 +1,10 @@
-/* Firework Visual Core (Stage 4.1.23.1) — satu burst kembang api voxel: CORE FLASH → MAIN RADIAL BURST → FADE.
-   Hanya memakai UT.ParticleFX.burstAt (engine 4.1.22): layer #fx-layer, batas partikel, cleanup animationend, dan guard reduced-motion semua milik engine.
-   Tidak membuat engine/layer/listener/timer sendiri; tanpa rAF/interval; hanya transform+opacity (lewat CSS engine). Fade = akhir animasi engine.
-   BELUM terhubung ke gameplay: tanpa SFX, tanpa trigger victory/reward, tanpa launch/trail, tanpa secondary burst (sub-stage berikutnya).
-   Classic script. Namespace: UT.FireworkFX. API: burstAt(x, y, opts) · burstFromElement(el, opts) — return jumlah partikel yang dibuat (0 bila tidak ada engine/reduced-motion).
-   opts: count (8–16, default 12) · colors[] · distance (default 64) */
+/* Firework Layering & Polish (Stage 4.1.23.2) — kembang api voxel berlapis:
+   LAUNCH → TRAIL → CORE FLASH → MAIN BURST → SECONDARY SPARK → FADE/CLEANUP.
+   Hanya memakai UT.ParticleFX.burstAt (engine 4.1.22): layer #fx-layer, batas partikel (20/burst, 60 visible), cleanup animationend, guard reduced-motion milik engine.
+   Urutan layer dijadwalkan lewat animation-delay CSS (opsi delayMin engine): TANPA timer, rAF, interval, listener, atau layer sendiri. Hanya transform+opacity.
+   BELUM terhubung ke gameplay: tanpa SFX, tanpa trigger victory/reward (sub-stage berikutnya). Variasi Math.random hanya untuk tampilan.
+   Classic script. Namespace: UT.FireworkFX. API: burstAt(x, y, opts) · burstFromElement(el, opts) — return jumlah partikel yang dibuat (0 bila tak ada engine/reduced-motion).
+   (x, y) = titik LEDAKAN; roket naik dari bawahnya. opts: count (8–16, default 12) · colors[] · distance (default 64) · rise (tinggi launch, default 90) */
 (function (win) {
   'use strict';
   var UT = win.UT = win.UT || {};
@@ -19,20 +20,40 @@
   ];
 
   function engine() { return UT.ParticleFX && typeof UT.ParticleFX.burstAt === 'function' ? UT.ParticleFX : null; }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
   function burstAt(x, y, o) {
     try {
       var E = engine(); if (!E) return 0;
       o = o || {};
-      var n = Math.max(8, Math.min(16, Math.floor(+o.count) || 12));
+      x = +x; y = +y;
+      var n = clamp(Math.floor(+o.count) || 12, 8, 16);
       var colors = (o.colors && o.colors.length) ? o.colors : PALETTES[Math.floor(Math.random() * PALETTES.length)];
-      var dist = Math.max(20, Math.min(140, +o.distance || 64));
-      /* 1) CORE FLASH: satu blok krem-terang besar, sangat singkat, membesar sambil memudar */
-      var made = E.burstAt(x, y, { count: 1, color: '#fff3a3', size: 18, sizeJitter: 0, distance: 0, duration: 180, durationJitter: 0, scale: 2, shape: 'square' });
-      /* 2) MAIN RADIAL BURST: blok kecil menyebar radial; arah/jarak/ukuran/durasi bervariasi (jitter engine); jeda acak kecil agar mulai tepat setelah flash */
+      var dist = clamp((+o.distance || 64) * (0.88 + Math.random() * 0.24), 20, 140); /* variasi skala antar firework */
+      var rise = clamp(+o.rise || 90, 40, 160);
+      var T = 280 + Math.floor(Math.random() * 50); /* durasi launch (ms) = waktu mulai flash & burst; variasi timing */
+      var made = 0;
+
+      /* 1) LAUNCH: satu blok roket naik lurus dari bawah titik ledak */
+      made += E.burstAt(x, y + rise, { count: 1, color: '#fff3a3', size: 6, sizeJitter: 0, angle: -90, spread: 0, distance: rise, distanceJitter: 0,
+        duration: T, durationJitter: 0, scale: 1, shape: 'square' });
+      /* 2) TRAIL: 3 blok kecil tertinggal di jalur naik, memudar lebih cepat dari roket */
+      made += E.burstAt(x, y + rise, { count: 3, color: 'rgba(255,212,81,.8)', size: 4, sizeJitter: 0.3, angle: -90, spread: 14, distance: rise * 0.55, distanceJitter: 0.5,
+        duration: T + 40, durationJitter: 0.2, scale: 0.3, shape: 'square', delay: 90 });
+      /* 3) CORE FLASH: inti terang + halo blok lebih besar & pudar; muncul tepat saat roket sampai */
+      made += E.burstAt(x, y, { count: 1, color: '#ffffff', size: 22, sizeJitter: 0, distance: 0, duration: 200, durationJitter: 0, scale: 2.2, shape: 'square', delayMin: T });
+      made += E.burstAt(x, y, { count: 1, color: 'rgba(255,243,163,.55)', size: 34, sizeJitter: 0, distance: 0, duration: 260, durationJitter: 0, scale: 2, shape: 'square', delayMin: T + 20 });
+      /* 4) MAIN BURST: blok chunky radial, jeda acak kecil; arah/jarak/ukuran/durasi bervariasi */
       made += E.burstAt(x, y, { count: n, colors: colors, size: 6, sizeJitter: 0.5, distance: dist, distanceJitter: 0.45, duration: 850, durationJitter: 0.3,
-        spread: 360, gravity: 24, scale: 0.15, rotate: 90, shape: 'square', delay: 50 });
-      return made; /* 3) FADE: opacity 1→0 di akhir keyframe engine; partikel dihapus engine saat animationend */
+        spread: 360, gravity: 24, scale: 0.15, rotate: 90, shape: 'square', delayMin: T + 20, delay: 50 });
+      /* 5) SECONDARY SPARK: 3 titik di tepi burst, masing-masing 2 percik mungil yang jatuh sambil berkelip */
+      var a0 = Math.random() * Math.PI * 2;
+      for (var i = 0; i < 3; i++) {
+        var a = a0 + i * 2.094 + (Math.random() - 0.5) * 0.6, r = dist * (0.65 + Math.random() * 0.2);
+        made += E.burstAt(x + Math.cos(a) * r, y + Math.sin(a) * r, { count: 2, colors: ['#ffffff', colors[i % colors.length]], size: 3, sizeJitter: 0.3,
+          distance: 18, distanceJitter: 0.5, duration: 520, durationJitter: 0.3, gravity: 30, scale: 0.1, shape: 'square', delayMin: T + 330, delay: 140 });
+      }
+      return made; /* 6) FADE/CLEANUP: opacity 1→0 di akhir keyframe engine; partikel dihapus engine saat animationend */
     } catch (e) { return 0; } /* FX tidak boleh menggagalkan gameplay */
   }
 
