@@ -3059,7 +3059,7 @@ async function usePU(k,cpu){
   const gid=gameId,L=players.filter(q=>q!==p&&q.pos>0&&q.pos<100).sort((a,b)=>b.pos-a.pos)[0];
   if(k==='tnt'&&!L){ if(cpu) return; fb('event','info','TNT belum punya target.'); return setMsg('TNT belum punya target.'); }
   if(k==='grass'&&(!L||L.pos<=p.pos)){ if(cpu) return; fb('event','info','Tidak ada pemain di depanmu.'); return setMsg('Tidak ada pemain di depanmu.'); }
-  busy=true; setRoll(false); clearTurnTimer(); p.pu[k]--; sfx.pop(); setMsg(p.name+' memakai '+PUN[k][1]+': '+PUN[k][2]+'.');
+  busy=true; setRoll(false); clearTurnTimer(); p.pu[k]--; sfx.power(k); setMsg(p.name+' memakai '+PUN[k][1]+': '+PUN[k][2]+'.');
   if(k==='sword') p.bonus=3; if(k==='feather') p.extra=true; if(k==='potion') p.p4=true; if(k==='totem') p.shield=true;
   puFx('pb:'+p.idx+':'+k,'pfx-'+k); if(k==='totem') puFx('pr:'+p.idx,'pfx-shield');
   renderChips();
