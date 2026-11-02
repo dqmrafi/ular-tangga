@@ -130,7 +130,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   const THREE = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
   const list = to === 'gameplay'
     ? ['gameplay.html', 'assets/js/game-integration.js', 'assets/sfx/ui/button-click.mp3', 'assets/sfx/ui/power-claim.mp3', 'assets/sfx/ui/game-lose.mp3', 'assets/sfx/ui/chest-reward.mp3', THREE]
-    : ['lobby.html', 'assets/css/shared-ui.css', 'assets/js/landscape.js', 'assets/js/boot-guard.js', 'shop.html', 'inventory.html', 'profile.html', 'promosi/placeholder.jpg', 'assets/js/item-art.js', 'assets/js/player-data.js', 'assets/sfx/ui/button-click.mp3', THREE];
+    : ['lobby.html', 'assets/css/shared-ui.css', 'assets/js/landscape.js', 'assets/js/boot-guard.js', 'shop.html', 'inventory.html', 'profile.html', 'promosi/placeholder.jpg', 'data/power/sm/pedang.webp', 'data/power/sm/feather.webp', 'data/power/sm/dinamit.webp', 'data/power/sm/totem.webp', 'data/power/sm/ramuan.webp', 'data/power/sm/block.webp', 'assets/js/item-art.js', 'assets/js/player-data.js', 'assets/sfx/ui/button-click.mp3', THREE];
   st.textContent = to === 'gameplay' ? 'Masuk ke Arena...' : 'Kembali ke Lobi...';
   UT_Preload.run(list, p => {
     out.textContent = p + '%'; fill.style.width = p + '%'; bar.setAttribute('aria-valuenow', p);

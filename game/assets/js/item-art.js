@@ -224,16 +224,17 @@
   }
 
   /* Stage 4.1.19: ikon Power = gambar dari data/power (path dari katalog: it.icon). SVG blok di bawah (powerupSvg) dipertahankan
-     sebagai cadangan: tampil dulu, disembunyikan hanya setelah gambar berhasil dimuat; bila gagal, SVG tetap terlihat.
+     sebagai cadangan: tersembunyi secara default (inline style, karena CSS halaman seperti svg{display:block} mengalahkan atribut display) dan baru ditampilkan bila gambar GAGAL dimuat (onerror), sehingga SVG lama tidak pernah
+     terlihat selama gambar masih dimuat.
      Tetap berupa <svg> agar CSS ukuran existing (.th svg, #art svg) tetap berlaku. */
   function powerup(itemId, label) {
     var it = C.byId(itemId); if (!it || it.kind !== 'powerup') return '';
     var fb = powerupSvg(itemId, label);
     if (!it.icon || !fb) return fb;
     return '<svg class="art-powerup" viewBox="0 0 64 64" role="img" aria-label="' + (label || it.name) + '">' +
-      fb.replace('<svg ', '<svg x="0" y="0" width="64" height="64" ') +
+      fb.replace('<svg ', '<svg x="0" y="0" width="64" height="64" style="display:none" ') +
       '<image x="0" y="0" width="64" height="64" preserveAspectRatio="xMidYMid meet" href="' + it.icon + '" ' +
-      'onload="this.previousElementSibling.setAttribute(\'display\',\'none\')"/></svg>';
+      'onerror="this.style.display=\'none\';this.previousElementSibling.style.display=\'\'"/></svg>';
   }
 
   /* Power-Up (Tahap 3.1): ikon blok sederhana per gameplay key — kini cadangan bila gambar data/power gagal dimuat. */
