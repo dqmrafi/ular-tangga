@@ -57,10 +57,13 @@
     grass: ['🟩', 'Blok Rumput', 'tukar posisi dengan pemain terdepan']
   };
   /* Gambar ikon Power (versi 192px dari data/power). Emoji di PUN tetap jadi cadangan bila gambar gagal dimuat. */
-  C.PUIMG = C.PUIMG || {
-    sword: 'data/power/sm/pedang.webp', feather: 'data/power/sm/feather.webp', tnt: 'data/power/sm/dinamit.webp',
-    apple: 'data/power/sm/totem.webp', potion: 'data/power/sm/ramuan.webp', grass: 'data/power/sm/block.webp'
-  };
+  /* Stage 4.1.19: path dibaca dari ItemCatalog (item-catalog.js, dimuat sebelum file ini) agar satu sumber data.
+     Bila katalog tidak ada, peta kosong -> setPuIcon otomatis memakai emoji cadangan. */
+  C.PUIMG = C.PUIMG || (function () {
+    var m = {}, IC = window.ItemCatalog;
+    try { if (IC && IC.items) IC.items.forEach(function (it) { if (it.kind === 'powerup' && it.icon) m[it.gameKey] = it.icon; }); } catch (e) {}
+    return m;
+  })();
   /* Isi elemen dengan ikon Power: gambar bila ada, kalau tidak (atau gagal muat) emoji. */
   C.setPuIcon = C.setPuIcon || function (el, key, fallback) {
     var emoji = (C.PUN[key] && C.PUN[key][0]) || fallback || '', src = C.PUIMG[key];

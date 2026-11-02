@@ -69,9 +69,15 @@
      — tanpa prefiks, agar tidak perlu bridge ID (lihat DATA_MIGRATION.md "Power-Up").
      price: null = EKONOMI BELUM DITENTUKAN — tidak dijual di shop, tidak boleh diarang.
      rarity 'common' = default netral untuk UI; gameplay sendiri tidak mengenal rarity power-up. */
+  /* Stage 4.1.19: SATU-SATUNYA sumber path ikon Power (versi 192px dari data/power). Dibaca oleh
+     gameplay (Config.PUIMG), Shop/Inventory/Profil (ItemArt.powerup). Key = ID Power existing (apple = visual Totem). */
+  var POWER_ICON = {
+    sword: 'data/power/sm/pedang.webp', feather: 'data/power/sm/feather.webp', tnt: 'data/power/sm/dinamit.webp',
+    apple: 'data/power/sm/totem.webp', potion: 'data/power/sm/ramuan.webp', grass: 'data/power/sm/block.webp'
+  };
   function powerup(gameKey, name, rarity, desc, extra) {
     return Object.assign({ id: gameKey, kind: 'powerup', gameKey: gameKey, name: name,
-      rarity: rarity, price: null, desc: desc, starter: false, stackable: true }, extra || {});
+      rarity: rarity, price: null, desc: desc, starter: false, stackable: true, icon: POWER_ICON[gameKey] || null }, extra || {});
   }
 
   var ITEMS = [
