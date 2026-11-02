@@ -184,6 +184,23 @@
 
   /* Totem Undying (viewBox 500x500: gold, mata emerald, sayap, glow). Id gradient unik per render agar aman bila tampil berkali-kali.
      Visual sementara sesuai spesifikasi; ganti isi TOTEM_BODY dengan SVG final dari user (cukup isi di dalam <svg>, viewBox tetap 500x500). */
+  function emeraldSvg(x,y,w,h){
+    const sx=w/140,sy=h/161,s=Math.min(sx,sy);
+    const dx=(w-140*s)/2,dy=(h-161*s)/2;
+    return '<g transform="translate('+(x+dx)+','+(y+dy)+') scale('+s+') translate(-18,-34)">' +
+      '<path d="M88 34 L158 74 L88 114 L18 74 Z" fill="#55E875"/>' +
+      '<path d="M88 34 L158 74 L88 74 Z" fill="#8BEFA0"/>' +
+      '<path d="M88 34 L88 74 L18 74 Z" fill="#42D960"/>' +
+      '<path d="M88 74 L158 74 L88 114 Z" fill="#A2F2B0"/>' +
+      '<path d="M88 74 L88 114 L18 74 Z" fill="#75DF8B"/>' +
+      '<path d="M18 74 L88 114 L88 195 L18 155 Z" fill="#36B94F"/>' +
+      '<path d="M18 74 L88 114 L88 160 L18 155 Z" fill="#3BC354"/>' +
+      '<path d="M158 74 L88 114 L88 195 L158 155 Z" fill="#31C653"/>' +
+      '<path d="M158 74 L88 114 L88 160 L158 155 Z" fill="#48D764"/>' +
+      '<path d="M18 155 L88 195 L88 160 L18 121 Z" fill="#279743"/>' +
+      '<path d="M158 155 L88 195 L88 160 L158 121 Z" fill="#269D43"/>' +
+      '</g>';
+  }
   var TOTEM_BODY =
     '<ellipse cx="250" cy="260" rx="190" ry="200" fill="url(#G_glow)"/>' +
     '<path d="M92 170 L20 120 L48 214 L28 290 L98 262 L128 300 L150 190 Z" fill="url(#G_gold)" stroke="#7a5a08" stroke-width="6" stroke-linejoin="round"/>' +
@@ -194,9 +211,9 @@
     '<rect x="334" y="190" width="40" height="128" rx="8" fill="url(#G_gold)" stroke="#7a5a08" stroke-width="6"/>' +
     '<rect x="166" y="190" width="168" height="150" rx="14" fill="url(#G_gold)" stroke="#7a5a08" stroke-width="6"/>' +
     '<rect x="170" y="52" width="160" height="150" rx="18" fill="url(#G_gold)" stroke="#7a5a08" stroke-width="6"/>' +
-    '<rect x="194" y="112" width="40" height="34" rx="6" fill="url(#G_em)" stroke="#0b4a30" stroke-width="5"/>' +
-    '<rect x="266" y="112" width="40" height="34" rx="6" fill="url(#G_em)" stroke="#0b4a30" stroke-width="5"/>' +
-    '<rect x="232" y="224" width="36" height="36" rx="6" fill="url(#G_em)" stroke="#0b4a30" stroke-width="5"/>';
+    emeraldSvg(194,112,40,34) +
+    emeraldSvg(266,112,40,34) +
+    emeraldSvg(232,224,36,36);
   function totem(label) {
     var id = 'tt-' + Math.random().toString(36).slice(2, 7), b = TOTEM_BODY.replace(/G_(glow|gold|em)/g, id + '-$1');
     var defs = '<defs>' +
