@@ -880,6 +880,7 @@ function clearFX(){
   PORTALS.forEach(P=>{ P.planes.forEach(m=>m.material.dispose()); P.halo.material.dispose(); P.sparks.forEach(S=>S.m.material.dispose()); }); PORTALS.length=0;
   FLIGHTS.forEach(L=>{ L.intensity=0; L.position.set(0,-50,0); });
   ROAM.length=0; ROAMQ.length=0; NOWALK.length=0; lseed=7771;
+  BEES.length=0; HOST.length=0; HOSTQ.length=0; ARROWS.length=0; RANCH.bees.length=0;
 }
 function addFlame(x,y,z,s,o){
   o=o||{};
@@ -1002,6 +1003,12 @@ function cascadeHill(B,dir,u0,u1,v0,v1,stone,K){
 
 /* ---------- makhluk berkeliling (domba, babi, sapi, ayam, penduduk) ---------- */
 const ROAM=[],ROAMQ=[],NOWALK=[];
+/* peternakan + mob liar: state (dibersihkan di clearFX) */
+const BEES=[],HOST=[],HOSTQ=[],ARROWS=[];
+const RANCH={x0:0.6,x1:4.4,z0:-12.2,z1:-8.8,bees:[]};   /* kandang di kaki gunung kanan (belakang-kanan board) */
+const HZ={x0:-6.2,x1:3.6,z0:8.8,z1:11.7};              /* zona jelajah mob jahat: bawah, di pinggir pohon */
+const GZ={x0:-6.4,x1:4.2,z0:6.9,z1:11.8};              /* zona patroli golem (mencakup zona mob jahat) */
+let MCFLAT=false;                                      /* true hanya untuk tema minecraft: ratakan tanah kandang & zona mob */
 function blockRect(cx,cz,hx,hz){ NOWALK.push([cx-hx,cx+hx,cz-hz,cz+hz]); }
 function walkBlocked(x,z){
   if(Math.abs(x)<5.9&&Math.abs(z)<5.9) return true;
@@ -1066,14 +1073,17 @@ function spawnRoamers(){
   ROAMQ.forEach(q=>{
     const far=Math.abs(q.x)>13||Math.abs(q.z)>12,o=makeCreature(q.kind,q.c1,q.c2,far);
     o.x=o.hx=q.x; o.z=o.hz=q.z; o.yaw=q.yaw||0; o.g.position.set(o.x,0,o.z); o.g.rotation.y=o.yaw;
+    if(q.pen){ o.pen=q.pen; o.rad=4; } /* hewan kandang: hanya berkeliling di dalam pagar */
     world.add(o.g); ROAM.push(o);
   });
   ROAMQ.length=0;
+  spawnLife();
 }
 function pickRoamTarget(o){
   for(let a=0;a<8;a++){
     const ang=lr()*6.283,d=0.7+lr()*1.8,nx=o.x+Math.sin(ang)*d,nz=o.z+Math.cos(ang)*d;
     if(Math.hypot(nx-o.hx,nz-o.hz)>o.rad) continue;
+    if(o.pen&&!(inPen(o.pen,nx,nz,0.3)&&inPen(o.pen,(nx+o.x)/2,(nz+o.z)/2,0.3))) continue;
     if(walkBlocked(nx,nz)||walkBlocked((nx+o.x)/2,(nz+o.z)/2)) continue;
     o.tx=nx; o.tz=nz; o.state='walk'; o.wt=0; o.eat=false; return;
   }
@@ -1091,7 +1101,7 @@ function updateRoam(dt,t){
         let da=Math.atan2(dx,dz)-o.yaw; da=Math.atan2(Math.sin(da),Math.cos(da)); o.yaw+=da*Math.min(1,dt*7);
         const sp=o.speed*Math.max(0,1-Math.abs(da)/1.2),st=Math.min(d,sp*dt);
         const nx=o.x+Math.sin(o.yaw)*st,nz=o.z+Math.cos(o.yaw)*st;
-        if(walkBlocked(nx,nz)&&!walkBlocked(o.x,o.z)){ o.state='idle'; o.t=0.4; }
+        if((walkBlocked(nx,nz)&&!walkBlocked(o.x,o.z))||(o.pen&&!inPen(o.pen,nx,nz,0.25))){ o.state='idle'; o.t=0.4; }
         else{ o.x=nx; o.z=nz; }
         o.cur+=(sp-o.cur)*Math.min(1,dt*6);
       }
@@ -1115,6 +1125,225 @@ function updateRoam(dt,t){
     if(o.tail) o.tail.rotation.z=Math.sin(t*6+o.ph0)*0.35*(0.4+k);
     for(let w=0;w<o.wings.length;w++) o.wings[w].rotation.z=(w?1:-1)*(0.08+0.2*Math.max(0,Math.sin(t*12+o.ph0))*k);
     o.g.position.set(o.x,Math.abs(Math.sin(o.ph))*0.02*k,o.z); o.g.rotation.y=o.yaw;
+  }
+}
+
+/* ===== PETERNAKAN (kandang di kaki gunung kanan) + MOB LIAR (golem vs zombie/skeleton/creeper/spider) ===== */
+function inPen(R,x,z,m){ m=m||0; return x>R.x0+m&&x<R.x1-m&&z>R.z0+m&&z<R.z1-m; }
+const inR=(R,x,z)=>x>R.x0&&x<R.x1&&z>R.z0&&z<R.z1;
+function queuePen(x,z,yaw,kind,c1,c2){ ROAMQ.push({x,z,yaw,kind,c1,c2,pen:RANCH}); }
+function addRanch(DB){
+  const R=RANCH,F={edge:false},cx=(R.x0+R.x1)/2,cz=(R.z0+R.z1)/2,W=ljit;
+  /* tanah kandang + jerami */
+  addBox(DB,cx,0.02,cz,R.x1-R.x0,0.04,R.z1-R.z0,W(0x7C6A3A,0.08),F);
+  for(let i=0;i<9;i++) addBox(DB,R.x0+0.4+lr()*(R.x1-R.x0-0.8),0.05,R.z0+0.4+lr()*(R.z1-R.z0-0.8),0.3+lr()*0.3,0.03,0.25+lr()*0.25,W(0xD9B44A,0.1),F);
+  /* pagar: pintu di sisi selatan (menghadap board), 2 tiang pintu lebih tinggi + obor */
+  const nx=5,nz=4,sx=(R.x1-R.x0)/nx,sz=(R.z1-R.z0)/nz;
+  const post=(px,pz,h)=>{ h=h||0.48; addBox(DB,px,h/2,pz,0.09,h,0.09,W(0x8A5B33,0.06),F); };
+  const railX=(x,z,w)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,w,0.04,0.04,W(0x7A4E2A,0.06),F));
+  const railZ=(x,z,d)=>[0.2,0.36].forEach(y=>addBox(DB,x,y,z,0.04,0.04,d,W(0x7A4E2A,0.06),F));
+  for(let i=0;i<=nx;i++){ const x=R.x0+i*sx; [R.z0,R.z1].forEach(z=>{ const gate=(z===R.z1&&(i===2||i===3)); post(x,z,gate?0.7:0.48); if(i<nx&&!(z===R.z1&&i===2)) railX(x+sx/2,z,sx); }); }
+  for(let k=1;k<nz;k++){ const z=R.z0+k*sz; [R.x0,R.x1].forEach(x=>post(x,z)); }
+  for(let k=0;k<nz;k++){ const z=R.z0+k*sz+sz/2; [R.x0,R.x1].forEach(x=>railZ(x,z,sz)); }
+  addTorch(DB,R.x0+2*sx-0.28,0,R.z1+0.12); addTorch(DB,R.x0+3*sx+0.28,0,R.z1+0.12);
+  /* palung minum + 2 jerami bale */
+  addBox(DB,3.5,0.12,-9.7,1.0,0.16,0.26,W(0x7A4E2A,0.06)); addBox(DB,3.5,0.17,-9.7,0.88,0.05,0.16,0x4FA0FF,F); blockRect(3.5,-9.7,0.62,0.3);
+  [[1.0,-9.5],[1.0,-10.2]].forEach(q=>{ addBox(DB,q[0],0.17,q[1],0.5,0.34,0.6,W(0xD9B44A,0.08)); addBox(DB,q[0],0.17,q[1],0.52,0.05,0.62,0x8A6A22,F); }); blockRect(1.0,-9.85,0.4,0.75);
+  /* pohon: 2 di dalam kandang (pojok belakang) + 1 di luar */
+  addOak(DB,1.3,-11.4,0.7); blockRect(1.3,-11.4,0.5,0.5);
+  addOak(DB,3.7,-11.5,0.75); blockRect(3.7,-11.5,0.5,0.5);
+  addOak(DB,-0.8,-10.9,0.9);
+  /* sarang lebah: di batang pohon & di tiang luar pagar */
+  const hive=(x,y,z)=>{ addBox(DB,x,y,z,0.28,0.28,0.28,W(0xE2B24A,0.05)); addBox(DB,x,y-0.07,z,0.3,0.05,0.3,0x8A5B1E,F); addBox(DB,x,y+0.07,z,0.3,0.05,0.3,0x8A5B1E,F); addBox(DB,x,y-0.04,z+0.145,0.1,0.06,0.02,0x2A1A0A,F); };
+  hive(1.58,0.78,-11.4);
+  addBox(DB,0.0,0.3,-9.4,0.08,0.6,0.08,W(0x6B4423,0.05),F); hive(0.0,0.74,-9.4);
+  /* bunga di sekitar sarang */
+  for(let i=0;i<12;i++){ const x=-1.7+lr()*1.5,z=-12.2+lr()*3.4; addBox(DB,x,0.09,z,0.1,0.18,0.1,[0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6][Math.floor(lr()*4)],F); }
+  RANCH.bees.push({cx:0.0,cy:0.9,cz:-9.4,r:0.5},{cx:0.0,cy:0.85,cz:-9.4,r:0.7},{cx:1.58,cy:0.95,cz:-11.4,r:0.5},{cx:1.58,cy:1.2,cz:-11.4,r:0.7},{cx:-0.9,cy:0.4,cz:-10.6,r:0.9},{cx:-1.0,cy:0.55,cz:-11.2,r:0.8});
+  /* hewan di dalam kandang */
+  [[1.8,-10.4,0.5,'cow'],[2.7,-10.9,2.2,'cow'],[2.4,-9.6,1.1,'pig'],[3.9,-10.2,3.0,'pig'],[1.6,-9.1,0.2,'sheep'],[2.5,-9.9,4.0,'sheep'],[3.6,-9.2,5.2,'sheep'],[2.2,-10.9,0.9,'chicken'],[1.3,-10.6,3.3,'chicken'],[2.5,-11.3,1.6,'chicken']]
+    .forEach(a=>queuePen(a[0],a[1],a[2],a[3]));
+  /* mob liar di bawah board, di pinggir pohon (1 golem saja) */
+  [['golem',-1.8,7.8],['zombie',-4.6,9.8],['zombie',-0.8,10.8],['skeleton',-2.6,9.4],['skeleton',1.8,10.2],['creeper',0.6,9.2],['spider',-5.0,11.0],['spider',2.8,11.0]]
+    .forEach(q=>HOSTQ.push({kind:q[0],x:q[1],z:q[2]}));
+}
+/* ---- model voxel mob liar ---- */
+function makeHostile(kind){
+  const g=new THREE.Group(),F={edge:false},W=ljit;
+  const o={g,kind,legs:[],arms:[],head:null,x:0,z:0,y:0,vy:0,yaw:0,ph:Math.random()*6,mode:'idle',t:0.5+Math.random()*2,wt:0,cur:0,tx:0,tz:0,hp:3,max:3,sp:0.34,reach:0.6,dmg:1,cd:0.5,swing:0,hitT:-1,tgt:null,life:'alive',tm:0,hurt:0,sight:2.2,wz:HZ,foes:[],blocked:false,resp:7};
+  const P=(px,py,pz,fn)=>mkPart(g,px,py,pz,fn,false);
+  const face=(b,y,z,w,c)=>[-1,1].forEach(a=>addBox(b,a*w,y,z,0.05,0.05,0.02,c,F));
+  if(kind==='zombie'){
+    [-1,1].forEach(a=>o.legs.push(P(a*0.07,0.3,0,b=>addBox(b,0,-0.15,0,0.12,0.3,0.12,W(0x3B3F9E,0.06),F))));
+    P(0,0.6,0,b=>addBox(b,0,0,0,0.26,0.3,0.14,W(0x1CA8B8,0.05)));
+    [-1,1].forEach(a=>o.arms.push(P(a*0.19,0.72,0,b=>addBox(b,0,0,0.12,0.1,0.1,0.28,W(0x5E9E4A,0.05),F))));
+    o.head=P(0,0.88,0,b=>{ addBox(b,0,0,0,0.24,0.24,0.24,W(0x5E9E4A,0.04)); face(b,0.03,0.125,0.06,0x1A1A1A); addBox(b,0,-0.06,0.125,0.1,0.03,0.02,0x1D3D18,F); });
+    o.max=o.hp=6; o.sp=0.34; o.reach=0.6; o.sight=1.2; o.foes=['skeleton','golem'];
+  }else if(kind==='skeleton'){
+    [-1,1].forEach(a=>o.legs.push(P(a*0.06,0.3,0,b=>addBox(b,0,-0.15,0,0.06,0.3,0.06,0xDADADA,F))));
+    P(0,0.6,0,b=>{ addBox(b,0,0,0,0.2,0.3,0.1,0xBEBEBE); [-0.07,0,0.07].forEach(y=>addBox(b,0,y,0.055,0.16,0.03,0.02,0x1A1A1A,F)); });
+    [-1,1].forEach(a=>o.arms.push(P(a*0.15,0.72,0,b=>{ addBox(b,0,0,0.12,0.05,0.05,0.26,0xDADADA,F); if(a<0) addBox(b,-0.02,0,0.22,0.03,0.4,0.03,0x5A3A1E,F); })));
+    o.head=P(0,0.87,0,b=>{ addBox(b,0,0,0,0.22,0.22,0.22,0xDADADA); face(b,0.02,0.115,0.05,0x1A1A1A); addBox(b,0,-0.06,0.115,0.1,0.03,0.02,0x1A1A1A,F); });
+    o.max=o.hp=4; o.sp=0.38; o.reach=1.9; o.sight=1.5; o.foes=['zombie','golem'];
+  }else if(kind==='creeper'){
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(q=>o.legs.push(P(q[0]*0.06,0.15,q[1]*0.07,b=>addBox(b,0,-0.075,0,0.09,0.15,0.09,W(0x2F7F2E,0.06),F))));
+    P(0,0.32,0,b=>addBox(b,0,0,0,0.2,0.34,0.13,W(0x4DB84A,0.06)));
+    o.head=P(0,0.62,0,b=>{ addBox(b,0,0,0,0.24,0.24,0.24,W(0x4DB84A,0.05)); face(b,0.03,0.125,0.05,0x101010); addBox(b,0,-0.03,0.125,0.06,0.08,0.02,0x101010,F); addBox(b,0,-0.08,0.125,0.1,0.04,0.02,0x101010,F); });
+    o.max=o.hp=3; o.sp=0.32; o.sight=0;
+  }else if(kind==='spider'){
+    P(0,0.16,-0.17,b=>addBox(b,0,0.02,0,0.26,0.2,0.3,W(0x2A2024,0.06)));
+    P(0,0.15,0.02,b=>addBox(b,0,0,0,0.18,0.14,0.14,W(0x3A2E32,0.05),F));
+    o.head=P(0,0.17,0.15,b=>{ addBox(b,0,0,0,0.16,0.14,0.14,W(0x2A2024,0.05)); [-1,1].forEach(a=>{ addBox(b,a*0.04,0.03,0.075,0.04,0.04,0.02,0xE02020,F); addBox(b,a*0.065,0.0,0.075,0.025,0.025,0.02,0xE02020,F); }); });
+    [-1,1].forEach(s=>[-0.13,-0.04,0.05,0.14].forEach((z,i)=>o.legs.push(P(s*0.08,0.16,z,b=>{ addBox(b,s*0.15,0.02,0,0.3,0.04,0.04,0x3A2E32,F); addBox(b,s*0.3,-0.06,0,0.04,0.2,0.04,0x2A2024,F); }))));
+    o.max=o.hp=3; o.sp=0.6; o.sight=0;
+  }else{ /* golem besi */
+    const st=0xC9C9C2,dk=0x9A9A92,vn=0x5E8A3E;
+    [-1,1].forEach(a=>o.legs.push(P(a*0.13,0.4,0,b=>addBox(b,0,-0.2,0,0.17,0.4,0.17,W(dk,0.05),F))));
+    P(0,0.55,0,b=>addBox(b,0,0,0,0.3,0.14,0.2,W(dk,0.05)));
+    P(0,0.88,0,b=>{ addBox(b,0,0,0,0.52,0.5,0.3,W(st,0.05)); addBox(b,0.12,-0.04,0.155,0.14,0.2,0.02,vn,F); addBox(b,-0.16,0.12,0.155,0.1,0.1,0.02,vn,F); });
+    [-1,1].forEach(a=>o.arms.push(P(a*0.36,1.08,0,b=>{ addBox(b,0,-0.3,0,0.13,0.62,0.14,W(st,0.05)); addBox(b,0,-0.58,0,0.14,0.1,0.15,vn,F); })));
+    o.head=P(0,1.3,0.04,b=>{ addBox(b,0,0,0,0.26,0.26,0.24,W(st,0.04)); addBox(b,0,-0.04,0.14,0.06,0.12,0.06,0x8A5B3A,F); face(b,0.04,0.125,0.07,0xE8C33A); });
+    o.max=o.hp=14; o.sp=0.3; o.reach=0.95; o.dmg=2; o.sight=1.3; o.wz=GZ; o.foes=['zombie','skeleton','creeper','spider']; o.cd=1.0;
+  }
+  return o;
+}
+function spawnLife(){
+  HOSTQ.forEach(q=>{
+    const o=makeHostile(q.kind); o.x=q.x; o.z=q.z; o.yaw=Math.random()*6.28; o.g.position.set(o.x,0,o.z); o.g.rotation.y=o.yaw;
+    world.add(o.g); HOST.push(o);
+  });
+  HOSTQ.length=0;
+  RANCH.bees.forEach(c=>{
+    const g=new THREE.Group(),F={edge:false},wings=[];
+    mkPart(g,0,0,0,b=>{ addBox(b,0,0,0,0.07,0.06,0.1,0xF2C21B,F); addBox(b,0,0,-0.02,0.072,0.062,0.025,0x222222,F); addBox(b,0,0,0.03,0.072,0.062,0.025,0x222222,F); addBox(b,0,0,0.055,0.04,0.04,0.02,0x222222,F); },true);
+    [-1,1].forEach(a=>wings.push(mkPart(g,a*0.03,0.04,0,b=>addBox(b,a*0.03,0,0,0.06,0.01,0.05,0xDFF3FF,F),true)));
+    const bee={g,wings,c,a:Math.random()*6.28,w:(0.8+Math.random()*0.7)*(Math.random()<0.5?-1:1),ph:Math.random()*6};
+    world.add(g); BEES.push(bee);
+  });
+}
+/* ---- perilaku ---- */
+const ARW_GEO=new THREE.BoxGeometry(0.03,0.03,0.3),ARW_MAT=new THREE.MeshLambertMaterial({color:0x6B4B2A});
+function shootArrow(o,T){
+  const m=new THREE.Mesh(ARW_GEO,ARW_MAT),sx=o.x+Math.sin(o.yaw)*0.25,sz=o.z+Math.cos(o.yaw)*0.25,d=Math.hypot(T.x-sx,T.z-sz);
+  m.position.set(sx,0.6,sz); m.rotation.y=Math.atan2(T.x-sx,T.z-sz); world.add(m);
+  ARROWS.push({m,sx,sz,tx:T.x,tz:T.z,t:0,T:Math.max(0.15,d/4.5),from:o,tgt:T});
+}
+function hurtMob(T,amt,from){
+  if(T.life!=='alive') return;
+  T.hp-=amt; T.hurt=0.4;
+  const dx=T.x-from.x,dz=T.z-from.z,l=Math.hypot(dx,dz)||1,kb=from.kind==='golem'?0.5:0.2,nx=T.x+dx/l*kb,nz=T.z+dz/l*kb;
+  if(inR(GZ,nx,nz)&&!walkBlocked(nx,nz)){ T.x=nx; T.z=nz; }
+  if(from.kind==='golem') T.vy=3.2; /* golem melempar lawannya ke atas */
+  sparkle(new THREE.Vector3(T.x,T.y+0.5,T.z));
+  if(T.hp<=0){ T.life='dying'; T.tm=0.8; T.resp=(T.kind==='golem'?12:9)+Math.random()*6; T.tgt=null; T.hitT=-1; }
+  else if(!T.tgt&&T.foes.includes(from.kind)) T.tgt=from; /* balas menyerang */
+}
+function respawnMob(o){
+  const R=o.wz;
+  for(let i=0;i<20;i++){
+    const x=R.x0+0.4+Math.random()*(R.x1-R.x0-0.8),z=R.z0+0.4+Math.random()*(R.z1-R.z0-0.8);
+    if(walkBlocked(x,z)) continue;
+    let far=true; for(let j=0;j<HOST.length;j++){ const q=HOST[j]; if(q!==o&&q.life==='alive'&&Math.hypot(q.x-x,q.z-z)<1.0) far=false; }
+    if(!far&&i<18) continue;
+    o.x=x; o.z=z; break;
+  }
+  o.hp=o.max; o.life='spawn'; o.tm=0.4; o.tgt=null; o.cd=1; o.y=0; o.vy=0; o.hurt=0; o.mode='idle'; o.t=1;
+  o.g.visible=true; o.g.rotation.z=0; o.g.scale.setScalar(0.01); sparkle(new THREE.Vector3(o.x,0.5,o.z));
+}
+function stepMob(o,tx,tz,sp,dt){
+  const dx=tx-o.x,dz=tz-o.z,d=Math.hypot(dx,dz); o.blocked=false;
+  let da=Math.atan2(dx,dz)-o.yaw; da=Math.atan2(Math.sin(da),Math.cos(da)); o.yaw+=da*Math.min(1,dt*8);
+  const v=sp*Math.max(0,1-Math.abs(da)/1.2),st=Math.min(d,v*dt),nx=o.x+Math.sin(o.yaw)*st,nz=o.z+Math.cos(o.yaw)*st;
+  if(inR(GZ,nx,nz)&&!walkBlocked(nx,nz)){ o.x=nx; o.z=nz; o.cur+=(v-o.cur)*Math.min(1,dt*6); }
+  else{ o.cur*=0.85; o.blocked=true; }
+  return d;
+}
+function pickWander(o){
+  const R=o.wz;
+  if(!inR(R,o.x,o.z)){ o.tx=Math.min(R.x1-0.4,Math.max(R.x0+0.4,o.x)); o.tz=Math.min(R.z1-0.4,Math.max(R.z0+0.4,o.z)); o.mode='walk'; o.wt=0; return; }
+  for(let a=0;a<10;a++){
+    const nx=o.x+(Math.random()-0.5)*4,nz=o.z+(Math.random()-0.5)*3;
+    if(!inR(R,nx,nz)||walkBlocked(nx,nz)||walkBlocked((nx+o.x)/2,(nz+o.z)/2)) continue;
+    o.tx=nx; o.tz=nz; o.mode='walk'; o.wt=0; return;
+  }
+  o.t=1+Math.random()*2;
+}
+function updateLife(dt,t){
+  if(reduce) return;
+  /* lebah: terbang melingkar di sekitar sarang/bunga */
+  for(let i=0;i<BEES.length;i++){
+    const b=BEES[i],c=b.c; b.a+=dt*b.w;
+    const x=c.cx+Math.cos(b.a)*c.r,z=c.cz+Math.sin(b.a)*c.r*0.8,y=c.cy+0.12*Math.sin(b.a*2.3+b.ph);
+    const vx=-Math.sin(b.a)*b.w,vz=Math.cos(b.a)*0.8*b.w;
+    b.g.position.set(x,y,z); b.g.rotation.y=Math.atan2(vx,vz);
+    const fl=0.6*Math.sin(t*70+b.ph); b.wings[0].rotation.z=fl; b.wings[1].rotation.z=-fl;
+  }
+  /* panah skeleton */
+  for(let i=ARROWS.length-1;i>=0;i--){
+    const a=ARROWS[i]; a.t+=dt; const k=Math.min(1,a.t/a.T);
+    a.m.position.set(a.sx+(a.tx-a.sx)*k,0.6+Math.sin(k*Math.PI)*0.12-k*0.1,a.sz+(a.tz-a.sz)*k);
+    if(k>=1){ if(a.tgt.life==='alive'&&Math.hypot(a.tgt.x-a.tx,a.tgt.z-a.tz)<0.55) hurtMob(a.tgt,1,a.from); world.remove(a.m); ARROWS.splice(i,1); }
+  }
+  for(let i=0;i<HOST.length;i++){
+    const o=HOST[i];
+    if(o.life==='dying'){
+      o.tm-=dt; const k=Math.max(0,o.tm/0.8); o.g.rotation.z=(1-k)*1.45; o.g.position.y=o.y*k;
+      if(o.tm<=0){ o.life='gone'; o.g.visible=false; o.tm=o.resp; }
+      continue;
+    }
+    if(o.life==='gone'){ o.tm-=dt; if(o.tm<=0) respawnMob(o); continue; }
+    if(o.life==='spawn'){
+      o.tm-=dt; o.g.scale.setScalar(Math.max(0.01,1-Math.max(0,o.tm)/0.4)); o.g.position.set(o.x,0,o.z); o.g.rotation.y=o.yaw;
+      if(o.tm<=0){ o.life='alive'; o.g.scale.setScalar(1); }
+      continue;
+    }
+    o.cd=Math.max(0,o.cd-dt); o.hurt=Math.max(0,o.hurt-dt); o.swing=Math.max(0,o.swing-dt);
+    /* cari lawan */
+    if(o.tgt&&(o.tgt.life!=='alive'||Math.hypot(o.tgt.x-o.x,o.tgt.z-o.z)>Math.max(o.sight,2.4)*1.7)) o.tgt=null;
+    if(!o.tgt&&o.foes.length){
+      let bd=o.sight;
+      for(let j=0;j<HOST.length;j++){ const f=HOST[j]; if(f===o||f.life!=='alive'||o.foes.indexOf(f.kind)<0) continue; const d=Math.hypot(f.x-o.x,f.z-o.z); if(d<bd){ bd=d; o.tgt=f; } }
+    }
+    if(o.tgt){
+      const T=o.tgt,dx=T.x-o.x,dz=T.z-o.z,d=Math.hypot(dx,dz);
+      if(d>o.reach*0.85) stepMob(o,T.x,T.z,o.sp*1.3,dt);
+      else{ let da=Math.atan2(dx,dz)-o.yaw; da=Math.atan2(Math.sin(da),Math.cos(da)); o.yaw+=da*Math.min(1,dt*9); o.cur*=0.8; }
+      if(o.blocked){ o.tgt=null; o.mode='idle'; o.t=0.5; }
+      else if(d<=o.reach&&o.cd<=0&&o.swing<=0){ o.cd=o.kind==='golem'?1.5:1.1; o.swing=0.5; o.hitT=o.kind==='golem'?0.28:0.2; }
+    }else if(o.mode==='walk'){
+      o.wt+=dt; const d=stepMob(o,o.tx,o.tz,o.sp,dt);
+      if(d<0.06||o.wt>12||o.blocked){ o.mode='idle'; o.t=(o.kind==='golem'?4:1.5)+Math.random()*(o.kind==='golem'?6:4); }
+    }else{
+      o.cur+=(0-o.cur)*Math.min(1,dt*6); o.t-=dt; if(o.t<=0) pickWander(o);
+    }
+    if(o.hitT>=0){
+      o.hitT-=dt;
+      if(o.hitT<0){ const T=o.tgt; if(T&&T.life==='alive'){ if(o.kind==='skeleton') shootArrow(o,T); else if(Math.hypot(T.x-o.x,T.z-o.z)<=o.reach*1.4) hurtMob(T,o.dmg,o); } }
+    }
+    /* fisika loncat (dilempar golem) */
+    if(o.y>0||o.vy>0){ o.vy-=14*dt; o.y+=o.vy*dt; if(o.y<=0){ o.y=0; o.vy=0; } }
+    /* animasi */
+    const k=Math.min(1,o.cur/o.sp);
+    o.ph+=dt*(3+o.cur*(o.kind==='spider'?30:14));
+    const sw=Math.sin(o.ph)*0.6*k,L=o.legs;
+    if(o.kind==='spider'){ for(let q=0;q<L.length;q++) L[q].rotation.y=Math.sin(o.ph+(q%2?Math.PI:0)+q*0.9)*0.4*k; }
+    else if(L.length===4){ L[0].rotation.x=sw; L[3].rotation.x=sw; L[1].rotation.x=-sw; L[2].rotation.x=-sw; }
+    else if(L.length===2){ L[0].rotation.x=sw; L[1].rotation.x=-sw; }
+    const p=o.swing>0?1-o.swing/0.5:0;
+    if(o.kind==='golem'){
+      const a=o.swing>0?(p<0.55?-2.4*(p/0.55):-2.4*Math.max(0,1-(p-0.55)/0.2)):0;
+      o.arms[0].rotation.x=o.swing>0?a:-sw*0.8; o.arms[1].rotation.x=o.swing>0?a:sw*0.8;
+    }else if(o.kind==='zombie'){
+      const a=o.swing>0?-(0.2+0.9*Math.sin(p*Math.PI)):-0.05+0.06*Math.sin(t*2+o.ph);
+      o.arms[0].rotation.x=a; o.arms[1].rotation.x=a;
+    }else if(o.kind==='skeleton'){
+      const a=o.swing>0?-0.5*Math.sin(p*Math.PI):0; o.arms[0].rotation.x=a; o.arms[1].rotation.x=a;
+    }
+    if(o.head) o.head.rotation.x+=(((o.kind==='creeper'||o.kind==='spider')?0:0.05*Math.sin(o.ph*2)*k)-o.head.rotation.x)*Math.min(1,dt*7);
+    const jx=o.hurt>0?Math.sin(t*60)*0.03:0,bob=Math.abs(Math.sin(o.ph))*0.015*k;
+    let sc=1; if(o.kind==='creeper'&&o.hurt>0) sc=1+0.1*Math.abs(Math.sin(t*20));
+    o.g.scale.setScalar(sc);
+    o.g.position.set(o.x+jx,o.y+bob,o.z); o.g.rotation.y=o.yaw; o.g.rotation.z=0;
   }
 }
 
@@ -1215,6 +1444,10 @@ function addAnimal(B,x,z,yaw,cow,cc,dd){
 }
 function addBamboo(B,x,z){ for(let i=0;i<5;i++){ const h=1.2+rnd()*1.4,bx=x+(rnd()-0.5)*0.7,bz=z+(rnd()-0.5)*0.7; for(let y=0;y<h;y+=0.3) addBox(B,bx,y+0.15,bz,0.09,0.3,0.09,jit(0x6FBF3A,0.08),{edge:false}); } }
 function mcH(x,z){
+  if(MCFLAT){
+    if(x>0&&x<4&&z<-7&&z>-13) return 0;      /* tanah datar untuk kandang di kaki gunung kanan */
+    if(x>-8&&x<4&&z>6&&z<13) return 0;       /* strip datar di bawah board untuk mob liar */
+  }
   if(x>4.8&&x<9.8&&z>-13) return 0; /* koridor sungai kanan sampai hulu (gunung mundur ke belakang) */
   if(x>-16.6&&x<-7.4&&z>-4.6&&z<4.6) return 0; /* gunung + sungai kiri di dekat hutan */
   const d=Math.max(Math.abs(x)-8,Math.abs(z)-7); if(d<=0) return 0;
@@ -1294,10 +1527,7 @@ function addMcFar(DB){
     lift(DB,()=>addOak(DB,x,z,s),hAt(x,z)); n++;
   }
   [[-13,-10],[12,-12],[16,10],[-15,9],[22,-4]].forEach(q=>{ lift(DB,()=>addMcHouse(DB,q[0],q[1]),hAt(q[0],q[1])); addHouseExtras(DB,q[0],q[1],hAt(q[0],q[1])); });
-  for(let i=0,k=0;i<300&&k<10;i++){
-    const x=(rnd()-0.5)*50,z=(rnd()-0.5)*44;
-    if(Math.abs(x)<9&&Math.abs(z)<8||hAt(x,z)>0||(x>4.8&&x<9.2&&z>-13)||(x>-17&&x<-7.5&&z>-4&&z<4)) continue; queueAnimal(x,z,rnd()*6.28,['sheep','cow','pig','sheep','chicken','cow','pig','sheep','pig','cow'][k%10]); k++;
-  }
+  /* hewan ternak tidak lagi berkeliaran bebas: semuanya tinggal di kandang (lihat addRanch) */
 }
 function addMcEnv(DB){
   addMcFar(DB);
@@ -1312,12 +1542,13 @@ function addMcEnv(DB){
   blockRect(PAD.x,PAD.z,1.3,1.3); blockRect(0.2,-6.4,1.3,1.0);
   addHouseExtras(DB,-6.9,-3.6,0); addHouseExtras(DB,4.2,-6.3,0);
   addFarm(DB);
-  [[-3.5,6.0,0.4,'sheep'],[-1,6.2,2,'pig'],[2.5,6.1,-0.8,'cow'],[6.6,-1.5,1.2,'chicken'],[-6.8,3.0,0.5,'sheep'],[-5.0,8.2,1,'pig'],[-7.6,7.6,2.2,'chicken'],[-9.6,5.2,0.3,'sheep'],[-2.5,8.6,3,'cow'],[-10.9,12.9,0.6,'chicken']].forEach(a=>{ if(!walkBlocked(a[0],a[1])||a[1]>5.4) queueAnimal(a[0],a[1],a[2],a[3]); });
+  /* hewan dekat board dihapus -> pindah ke kandang (addRanch) */
   queueAnimal(-6.9,-2.0,0.4,'villager'); queueAnimal(5.85,2.2,Math.PI/2,'fisher'); /* villager kanan: di luar board, memancing di tepi sungai */
   for(let i=0;i<90;i++){
     const x=(rnd()*15)-7.5,z=(rnd()*13)-6.5; if(blocked(x,z)||Math.abs(x-7)<1) continue;
     addBox(DB,x,0.07,z,0.14,0.14,0.14,pick([0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6,0x6AA8FF,0xB066FF]),{edge:false});
   }
+  addRanch(DB); /* kandang ternak + pohon + lebah (di kaki gunung kanan) & mob liar di bawah */
 }
 function tileColor(n,t,th){
   if(n===100) return th.goalTile;
@@ -2174,6 +2405,7 @@ function buildWorld(key){
       if(bc===0x8A2B2B&&rnd()<0.3) addBox(TB,cx(),t.h+0.06,cz(),0.1,0.12,0.1,0xE0561A,{edge:false});
     }
   }
+  MCFLAT=(th.decor==='mc');
   buildMcTerrain(TB,th);
   if(true){
     [[0,5.25,11.5,0.5],[0,-5.25,11.5,0.5],[5.25,0,0.5,10]].concat([[-5.25,0,0.5,10]]).forEach(f=>addBox(TB,f[0],0.1,f[1],f[2],0.7,f[3],jit(th.key==='minecraft'?0x6B4424:th.wall[1],0.08)));
@@ -3099,7 +3331,7 @@ function frame(now){
   if(focus) watch.push(focus.position);
   players.forEach(p=>watch.push(p.pawn.position));
   updateMobs(dt,now/1000);
-  updateFX(dt,now/1000); updateRoam(dt,now/1000);
+  updateFX(dt,now/1000); updateRoam(dt,now/1000); updateLife(dt,now/1000);
   updateFades(dt,watch);
   renderer.render(scene,camera);
 }
