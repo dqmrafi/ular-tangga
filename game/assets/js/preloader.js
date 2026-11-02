@@ -4,7 +4,9 @@ window.UT_Preload = (function () {
   var IMG = /\.(png|jpe?g|webp|gif|svg)(\?|$)/i;
   function one(url) {
     return new Promise(function (res) {
-      var done = function () { res(); };
+      var fin = false, tm;
+      var done = function () { if (fin) return; fin = true; clearTimeout(tm); res(); };
+      tm = setTimeout(done, 12000); /* aset macet tidak menahan loading selamanya */
       try {
         if (IMG.test(url)) {
           var im = new Image(); im.onload = im.onerror = done; im.src = url; return;
