@@ -3226,8 +3226,13 @@ async function bite(p,from,to,gid){
   p.pawn.scale.setScalar(1);
   S.busy=false;
 }
+/* Stage 4.1.24.D.1: sumber kebenaran hasil KALAH = mode vs Computer dan pemenang adalah Computer (sama dengan 'lost' di finishGame). */
+function isPlayerDefeat(p){ return mode==='cpu'&&!!p&&!!p.cpu; }
 async function celebrate(p){
-  sfx.win(); spawnConfetti(p.pawn.position); fireworkCelebrate(p);
+  const defeat=isPlayerDefeat(p); /* CPU menang = pemain kalah: tanpa fanfare/firework kemenangan pemain; suara kalah diputar di finishGame */
+  if(!defeat) sfx.win();
+  spawnConfetti(p.pawn.position);
+  if(!defeat) fireworkCelebrate(p);
   for(let i=0;i<3;i++) await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.5);
 }
 async function playTurn(p,v,gid,bn){
@@ -3392,10 +3397,12 @@ async function doRoll(opt){
     if(e!==STALE){ console.error(e); busy=false; setRoll(!players[cur].cpu); startTurnTimer(); }
   }
 }
+let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
 function finishGame(p){
   gameOver=true; clearTurnTimer(); p.score+=50; renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(p.name+' mengalahkan Ender Dragon!'); setRoll(false);
-  const lost=(mode==='cpu'&&p.cpu);
+  const lost=isPlayerDefeat(p);
+  if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
   $('win').dataset.state=lost?'lose':'win';
   $('winEyebrow').textContent=lost?'Level gagal':'Sampai di petak 100';
   $('winTitle').textContent=lost?'Kamu kalah':(mode==='cpu'&&!p.cpu)?'Kamu menang':p.name+' menang';
