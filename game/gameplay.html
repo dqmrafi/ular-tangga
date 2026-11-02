@@ -521,9 +521,9 @@ body #side .tn .msg{grid-area:msg;font-size:12px;min-height:0!important;margin-t
    tanpa dukungan color-mix, panel tetap biru seperti sebelumnya. */
 @supports (color:color-mix(in srgb,red,blue)){
   #side .rcol .pnl.tn{--tnc:#3b7ddd;--rim:color-mix(in srgb,var(--tnc) 55%,#fff);--bd:color-mix(in srgb,var(--tnc) 42%,#000);
-    background:linear-gradient(color-mix(in srgb,var(--tnc) 86%,#fff),color-mix(in srgb,var(--tnc) 86%,#000));
+    background:var(--tnc);
     box-shadow:0 6px 0 var(--bd),0 14px 24px rgba(18,51,127,.35),inset 0 2px 3px rgba(255,255,255,.5),inset 0 0 0 3px var(--rim)}
-  #side .tn>h3{background:linear-gradient(color-mix(in srgb,var(--tnc) 80%,#fff),color-mix(in srgb,var(--tnc) 72%,#000))}
+  #side .tn>h3{background:color-mix(in srgb,var(--tnc) 78%,#000)}
   #side .tn .msg,#side .tn .tn-meta{color:#fff;text-shadow:0 1px 0 var(--bd)}
 }
 </style>
@@ -2263,7 +2263,7 @@ function makePawn(d){
   return g;
 }
 /* Outline bidak yang sedang main: salinan mesh bidak yang diperlebar di ruang layar (lebar tetap relatif tinggi layar), digambar di kedalaman pusat bidak
-   (digeser sedikit ke belakang) agar tetap terlihat dari atas/LOCK dan tidak tertutup tile. Dua lapis: putih (luar) + warna kursi (dalam). */
+   (digeser sedikit ke belakang) agar tetap terlihat dari atas/LOCK dan tidak tertutup tile. Satu lapis: warna kursi (tanpa putih). */
 function olMaterial(col,th,c){
   const m=new THREE.MeshBasicMaterial({color:col,side:THREE.DoubleSide,depthWrite:false,fog:false});
   m.onBeforeCompile=sh=>{
@@ -2291,7 +2291,7 @@ function pawnOutline(g,on,hex){
   const cw=g.localToWorld(new THREE.Vector3(0,0.45,0));
   T.forEach(m=>{
     const c=m.worldToLocal(cw.clone());
-    [[0xFFFFFF,0.0105,1],[hex,0.0062,2]].forEach(a=>{
+    [[hex,0.0085,1]].forEach(a=>{
       const h=new THREE.Mesh(m.geometry,olMaterial(a[0],a[1],c)); h.userData.ol=true; h.renderOrder=a[2]; h.frustumCulled=false;
       m.add(h); g.userData.olList.push(h);
     });
