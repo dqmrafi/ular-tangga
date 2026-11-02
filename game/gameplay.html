@@ -732,6 +732,19 @@ body #side .tn>h3{font-weight:800}
   body #side .rcol .pnl.tn{grid-template-rows:auto auto auto auto}
 }
 </style>
+<style id="hud-turn-gloss">
+/* Panel giliran (kanan bawah): warna panel = warna pemain aktif (--tnc diisi renderChips), tampilan glossy dua-nada seperti tombol MULAI/SHOP di lobby. */
+@supports (color:color-mix(in srgb,red,blue)){
+  body #side .rcol .pnl.tn{--tnc:#2a78d6;--g1:color-mix(in srgb,var(--tnc) 62%,#fff);--g2:color-mix(in srgb,var(--tnc) 88%,#fff);--g3:color-mix(in srgb,var(--tnc) 78%,#000);--gr:color-mix(in srgb,var(--tnc) 40%,#fff);--go:color-mix(in srgb,var(--tnc) 28%,#0b1220);
+    border:0;border-radius:12px;
+    background:linear-gradient(var(--g1) 0%,var(--g2) 55%,var(--g3) 56%,var(--g3) 100%);
+    box-shadow:inset 0 0 0 2px var(--gr),inset 0 0 0 4px var(--go),0 5px 0 var(--go),0 12px 18px rgba(10,30,90,.35);
+    transition:background .35s,box-shadow .35s}
+  body #side .rcol .pnl.tn>h3{background:linear-gradient(color-mix(in srgb,var(--tnc) 70%,#fff),color-mix(in srgb,var(--tnc) 70%,#000) 56%);border:0;border-radius:6px;box-shadow:inset 0 0 0 2px var(--gr),inset 0 0 0 3px var(--go),0 3px 0 var(--go)}
+  body #side .rcol .pnl.tn .msg{background:linear-gradient(color-mix(in srgb,var(--tnc) 45%,#000),color-mix(in srgb,var(--tnc) 30%,#000));border-color:var(--go);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tnc) 50%,#fff)}
+  body #side .rcol .pnl.tn #turnName{text-shadow:0 2px 0 var(--go)}
+}
+</style>
 <script src="gameplay/hud-scale.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -3222,7 +3235,7 @@ function renderChips(){
     r.appendChild(im2); r.appendChild(n2); r.appendChild(sv); sc.appendChild(r);
   });
   const c=players[cur];
-  $('turnName').textContent=c?c.name:''; { const tb=document.querySelector('#side .tn>h3'); if(tb&&c) tb.textContent=c.name; } if(c) $('turnName').style.color=c.key==='ender'?'#c9a2ff':'#fff';
+  $('turnName').textContent=c?c.name:''; { const tn_=document.querySelector('#side .tn'),tb=tn_&&tn_.querySelector('h3'); if(tb&&c) tb.textContent=c.name; if(tn_&&c&&c.css) tn_.style.setProperty('--tnc',c.css); } if(c) $('turnName').style.color=c.key==='ender'?'#c9a2ff':'#fff';
   Object.keys(PUN).forEach(k=>{
     const bt=document.createElement('button'); bt.type='button'; bt.className='pb'; bt.title=PUN[k][1]+': '+PUN[k][2];
     bt.setAttribute('aria-label',PUN[k][1]+': '+PUN[k][2]); UT.Gameplay.Config.setPuIcon(bt,k); const lb=document.createElement('em'); lb.textContent=PUN[k][1].split(' ')[0]; bt.appendChild(lb);
