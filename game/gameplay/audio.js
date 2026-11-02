@@ -47,6 +47,7 @@
   const FILE={
     /* dice */   roll:'dice/dice-roll.mp3',
     /* board */  hop:'board/pawn-hop.mp3', ladder:'board/ladder-up.mp3', snakeBite:'board/snake-bite.mp3', block100:'board/block-100.mp3',
+    /* win */    firework:'win/Firework_launch.ogg',
     /* reward */ chestOpen:'reward/chest-open.ogg', chestClose:'reward/chest-close.ogg', powerReward:'reward/power-reward.mp3',
     /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.ogg', skeletonShoot:'mob/skeleton-shoot.ogg', endermanTp:'mob/enderman-teleport.ogg',
     /* dragon */ dragonIdle:'dragon/dragon-idle.ogg', dragonHurt:'dragon/dragon-hurt.ogg', dragonDeath:'dragon/dragon-death.ogg',
@@ -82,6 +83,7 @@
     chest(){ fileSfx('chestOpen',0.7,function(){ beep(300,0.12,'triangle',0.08,0,900); }); },
     chestClose(){ fileSfx('chestClose',0.6,function(){ beep(200,0.1,'square',0.05); }); },
     rewardpower(){ fileSfx('powerReward',0.6,function(){ beep(523,0.12,'square',0.05,0,784); }); },
+    firework(){ fileSfx('firework',0.7); }, /* Stage 4.1.23.3: 1x per event Firework (dipanggil UT.FireworkFX); tanpa fallback sintetis: bila file gagal, hanya senyap */
     win(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); },
 
     /* ---------- MOB DI BOARD ---------- */
