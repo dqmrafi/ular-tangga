@@ -2018,13 +2018,11 @@ function resetAwakening(){
    p.crystal = jumlah crystal yang sudah dihancurkan pemain itu (0..4); p.ready = READY menyerang Dragon (setelah crystal 4).
    Crystal n hanya hancur bila pemain melempar angka n; selain itu tidak ada progress. Tidak menyentuh progress pemain lain.
    Tampilan 4 crystal di arena mengikuti pemain yang sedang giliran (pemain yang tidak di Block 100 = semua utuh). */
-function crystalSeq(p){ if(!p.cseq){ const a=[1,2,3,4]; for(let i=3;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } p.cseq=a; } return p.cseq; } /* urutan crystal acak per pemain; angka target = cseq[p.crystal] */
-function crystalTarget(p){ return crystalSeq(p)[Math.min(p.crystal,3)]; }
+function crystalDone(p){ if(!p.cdone) p.cdone=[false,false,false,false]; return p.cdone; } /* crystal n hancur bila pemain melempar n; urutan bebas */
 function syncCrystals(){
   const A=ARENA; if(!A||!AWK.done) return;
-  const p=players[cur],pr=(p&&p.pos===100)?p.crystal:0;
-  const sq=p?crystalSeq(p):[1,2,3,4],gone=sq.slice(0,pr);
-  A.cv.forEach((c,i)=>{ c.want=gone.indexOf(i+1)<0?1:0; }); A.act=(p&&p.pos===100&&pr<4)?sq[pr]-1:-1;
+  const p=players[cur],d=(p&&p.pos===100)?crystalDone(p):[false,false,false,false];
+  A.cv.forEach((c,i)=>{ c.want=d[i]?0:1; }); A.act=-1; /* tanpa target: semua crystal yang masih utuh setara */
 }
 /* ---------- Dragon Feature 5: Dragon Attack ----------
    Hanya pemain yang sudah menyelesaikan Crystal 4 (p.ready) yang boleh menyerang. Angka serangan datang dari Special Dice (Feature 4);
@@ -2080,12 +2078,13 @@ async function dragonDefeatReward(p,gid){
   await sleep(1500);
 }
 async function crystalRoll(p,v,gid){
-  const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },n=crystalTarget(p);
-  if(v!==n){
-    setMsg(p.name+' melempar '+v+'. Crystal '+n+' butuh angka '+n+'. Tidak ada progress.'); fb('event','dragon','Crystal '+n+' butuh angka '+n+' (dapat '+v+')',{gid,ttl:1800}); sfx.bounce();
+  const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },n=v,d=crystalDone(p);
+  if(n>4||d[n-1]){
+    const why=n>4?'Tidak ada Crystal '+n+'.':'Crystal '+n+' sudah hancur.';
+    setMsg(p.name+' melempar '+v+'. '+why+' Tidak ada progress.'); fb('event','dragon',why+' (dapat '+v+')',{gid,ttl:1800}); sfx.bounce();
     await S(sleep(900)); return false;
   }
-  p.crystal++; syncCrystals();
+  d[n-1]=true; p.crystal++; syncCrystals();
   const c=ARENA&&ARENA.cv[n-1]; if(c){ c.flash=1; } sfx.crystalBreak();
   setMsg(p.name+' menghancurkan Crystal '+n+'! ('+p.crystal+'/4)'); fb('event','dragon','Crystal '+n+' hancur! '+p.crystal+'/4',{gid,ttl:1800});
   await S(sleep(900)); renderChips();
@@ -2849,7 +2848,7 @@ const DICE_HOLD_MS=170,DH={on:false,id:null,v:1,timer:0,gid:0};
 function specialDiceActive(p){ return !!(p&&!p.cpu&&p.pos===100&&AWK.done&&!gameOver); }
 function specialHint(p){
   if(!specialDiceActive(p)||AWK.running) return;
-  setMsg(p.ready?p.name+': tahan Roll, lepas untuk memilih angka serangan Dragon.':p.name+': tahan Roll, lepas saat jarum di angka '+crystalTarget(p)+' untuk menghancurkan Crystal '+crystalTarget(p)+'.');
+  setMsg(p.ready?p.name+': tahan Roll, lepas untuk memilih angka serangan Dragon.':p.name+': tahan Roll, lepas di angka 1-4 untuk menghancurkan Crystal bernomor sama.');
 }
 function syncRollLabel(){
   const b=$('btnRoll'),sp=specialDiceActive(players[cur]); b.classList.toggle('special',sp); b.classList.toggle('holding',DH.on);
