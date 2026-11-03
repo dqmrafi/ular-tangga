@@ -62,7 +62,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 </style>
 <style id="hero-dice">
 /* Dadu besar berputar di tengah (pengganti pulau melayang). Ukuran lewat --sz; semua bagian dadu mengikuti. */
-.hero-dice{--sz:min(22vw,22vh,170px);position:absolute;z-index:3;left:50%;top:43%;width:var(--sz);height:var(--sz);transform:translate(-50%,-50%)}
+.hero-dice{--sz:56px;position:relative;width:var(--sz);height:var(--sz);margin:0 auto 26px}
 .hero-dice .bob{position:absolute;inset:0;perspective:1000px;animation:diceBob 5s ease-in-out infinite;filter:drop-shadow(0 24px 22px rgba(8,35,74,.28))}
 @keyframes diceBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4%)}}
 .hero-dice .dice{position:absolute;inset:0;transform-style:preserve-3d;animation:diceSpin 8s linear infinite}
@@ -81,8 +81,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 @keyframes diceShadow{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(.86);opacity:.6}}
 .hero-dice .spark{position:absolute;color:#edffb0;font-size:calc(var(--sz)*.1);animation:twinkle 2.4s ease-in-out infinite}
 .hero-dice .sp1{left:-14%;top:4%}.hero-dice .sp2{right:-16%;top:30%;animation-delay:.8s}
-@media(max-width:700px){.hero-dice{--sz:min(36vw,170px);top:42%}}
-@media (min-aspect-ratio:1/1){.hero-dice{--sz:min(24cqh,170px);top:44%}}
+@media (min-aspect-ratio:1/1){.hero-dice{--sz:44px;margin-bottom:20px}}
 @media(prefers-reduced-motion:reduce){.hero-dice .dice{animation:none;transform:rotateX(-26deg) rotateY(-30deg)}}
 </style>
 <style id="progress-small">
@@ -98,13 +97,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 <body>
 
 <main class="splash" aria-label="Layar memuat Ular Tangga Blok">
-  <!-- dadu besar berputar (pengganti pulau melayang) -->
-  <div class="hero-dice" aria-hidden="true">
-    <span class="spark sp1">✦</span><span class="spark sp2">✧</span>
-    <div class="bob"><div class="dice"><div class="face f1"><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i></div><div class="face f2"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f3"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f4"><i></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f5"><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f6"><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i></div></div><div class="shadow"></div></div>
-  </div>
-
   <section class="bottom-ui">
+    <!-- dadu berputar kecil di atas bar -->
+    <div class="hero-dice" aria-hidden="true">
+      <span class="spark sp1">✦</span><span class="spark sp2">✧</span>
+      <div class="bob"><div class="dice"><div class="face f1"><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i></div><div class="face f2"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f3"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f4"><i></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f5"><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f6"><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i></div></div><div class="shadow"></div></div>
+    </div>
+
     <div class="loading-track"><div class="loading-fill" id="fill"></div></div>
     <div class="load-meta"><span>MENYIAPKAN DUNIA</span><span id="percent">0%</span></div>
   </section>
