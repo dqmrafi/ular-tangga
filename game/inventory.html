@@ -24,6 +24,7 @@ svg{display:block}
 #cats{left:1.6rem;top:7.9rem;width:13.2rem;display:flex;flex-direction:column;gap:.55rem}
 .cat{height:4.8rem;border-radius:1.6rem;display:flex;align-items:center;gap:1.1rem;padding:0 1.3rem;font-size:2rem;text-shadow:0 .15rem 0 var(--bd);border:.25rem solid transparent}
 .cat svg{width:3rem;height:3rem}
+.cat .ci{width:3rem;height:3rem;flex:none}
 .cat.on{border-color:#ffe36a;background:linear-gradient(#ffd24d,#f4a81f);box-shadow:0 .4rem 0 #b9740c,0 0 1.8rem #ffd24d;transform:scale(1.06);text-shadow:0 .2rem 0 #a35f08}
 #show{left:15.5rem;top:7.5rem;width:24rem;height:31rem}
 #show canvas{width:100%;height:100%;display:block}
@@ -98,7 +99,7 @@ html{font-size:2.5vw}
 #bot{order:5;width:auto!important;height:auto!important}
 #gwrap,#grid{height:auto}#grid{grid-template-columns:repeat(2,1fr);grid-template-rows:none;grid-auto-rows:22rem}
 }
-</style><style>:root{--curbar-right:7.6rem;--curbar-top:1.8rem;}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=title2">
+</style><style>:root{--curbar-right:7.6rem;--curbar-top:1.8rem;}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1">
 
 <style id="inventory-fluid-layout">
 /* LANDSCAPE: stage dasar 100rem x 56.25rem menempel di kiri-atas. Panel kanan (#bot) sekarang
@@ -210,7 +211,7 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 <div id="top">
  <button class="ab blue" id="back" aria-label="Kembali"><svg viewBox="0 0 24 24"><path d="M20 12H5m6-7-7 7 7 7" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
  <div class="ab blue" id="title"><img class="ic" src="assets/Images/icon/inventory.webp" alt="" draggable="false" decoding="async">Inventory</div>
- <div class="ut-curbar"><div class="ab cur" id="gem"><svg viewBox="0 0 24 24"><path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill="#62e178"/><path d="M12 2l8.66 5-3.72 2.15L12 6.3z" fill="#47d85f"/><path d="M20.66 7v10l-3.72-2.15v-5.7z" fill="#3dcb55"/><path d="M20.66 17L12 22v-4.3l4.94-2.85z" fill="#32a643"/><path d="M12 22l-8.66-5 3.72-2.15L12 17.7z" fill="#2a8d3a"/><path d="M3.34 17V7l3.72 2.15v5.7z" fill="#37b44c"/><path d="M12 6.3l4.94 2.85v5.7L12 17.7l-4.94-2.85v-5.7z" fill="#a7e6b1"/><path d="M12 6.3l4.94 2.85L12 12 7.06 9.15z" fill="#c4f2cc" opacity=".7"/></svg><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><svg viewBox="0 0 24 24"><path d="M12 12V.24A11.76 11.76 0 0 0 .24 12z" fill="#ffd12b"/><path d="M12 12h11.76A11.76 11.76 0 0 0 12 .24z" fill="#ffb800"/><path d="M12 12v11.76A11.76 11.76 0 0 0 23.76 12z" fill="#ffd12b"/><path d="M12 12H.24A11.76 11.76 0 0 0 12 23.76z" fill="#ffb800"/><circle cx="12" cy="12" r="8.75" fill="#ff8a00"/><g fill="#ffb901"><circle cx="18.90" cy="12.00" r=".6"/><circle cx="16.88" cy="16.88" r=".6"/><circle cx="12.00" cy="18.90" r=".6"/><circle cx="7.12" cy="16.88" r=".6"/><circle cx="5.10" cy="12.00" r=".6"/><circle cx="7.12" cy="7.12" r=".6"/><circle cx="12.00" cy="5.10" r=".6"/><circle cx="16.88" cy="7.12" r=".6"/></g><path d="M12 7.2l3.9 4.8-3.9 4.8-3.9-4.8z" fill="#ffd12b" stroke="#ffd12b" stroke-width="1" stroke-linejoin="round"/></svg><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
+ <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
  <button class="ab blue" id="gear" aria-label="Pengaturan"><img class="ic" src="assets/Images/icon/gear.webp" alt="" draggable="false" decoding="async"></button>
 </div>
 <nav class="ab" id="cats" aria-label="Kategori"></nav>
@@ -240,6 +241,7 @@ const KINDS=['skin','dice','theme','powerup'];
 const CI={};KINDS.forEach(k=>CI[k]=IC.items.filter(i=>i.kind===k));
 const SOON={effect:'Efek',emote:'Emote'}; /* kategori mock lama tanpa item canonical */
 const CATS=[['skin','Skin','M8 3 2 6l2 5 3-1v11h10V10l3 1 2-5-6-3c-.5 1.700-2 2.600-4 2.600S8.500 4.700 8 3Z'],['dice','Dadu','M4 4h16v16H4zM8 8h.1M16 8h.1M12 12h.1M8 16h.1M16 16h.1'],['powerup','Power','M13 2 4 14h6l-1 8 9-12h-6l1-8z'],['effect','Efek','M12 2l2.500 7.500L22 12l-7.500 2.500L12 22l-2.500-7.500L2 12l7.500-2.500z'],['emote','Emote','M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM8 10h.1M16 10h.1M7 15c2 3 8 3 10 0']];
+const catImg=k=>'<img class="ci" src="assets/Images/icon/'+({skin:'skin',dice:'dadu',powerup:'power',effect:'efek',emote:'emote'}[k]||'skin')+'.webp" alt="" draggable="false">';
 const icon=p=>`<svg viewBox="0 0 24 24"><path d="${p}" fill="#fff" stroke="#fff" stroke-width="1.800" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
 const DM='<svg viewBox="0 0 24 24"><path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill="#62e178"/><path d="M12 2l8.66 5-3.72 2.15L12 6.3z" fill="#47d85f"/><path d="M20.66 7v10l-3.72-2.15v-5.7z" fill="#3dcb55"/><path d="M20.66 17L12 22v-4.3l4.94-2.85z" fill="#32a643"/><path d="M12 22l-8.66-5 3.72-2.15L12 17.7z" fill="#2a8d3a"/><path d="M3.34 17V7l3.72 2.15v5.7z" fill="#37b44c"/><path d="M12 6.3l4.94 2.85v5.7L12 17.7l-4.94-2.85v-5.7z" fill="#a7e6b1"/><path d="M12 6.3l4.94 2.85L12 12 7.06 9.15z" fill="#c4f2cc" opacity=".7"/></svg>';
 const CM='<svg viewBox="0 0 24 24"><path d="M12 12V.24A11.76 11.76 0 0 0 .24 12z" fill="#ffd12b"/><path d="M12 12h11.76A11.76 11.76 0 0 0 12 .24z" fill="#ffb800"/><path d="M12 12v11.76A11.76 11.76 0 0 0 23.76 12z" fill="#ffd12b"/><path d="M12 12H.24A11.76 11.76 0 0 0 12 23.76z" fill="#ffb800"/><circle cx="12" cy="12" r="8.75" fill="#ff8a00"/><g fill="#ffb901"><circle cx="18.90" cy="12.00" r=".6"/><circle cx="16.88" cy="16.88" r=".6"/><circle cx="12.00" cy="18.90" r=".6"/><circle cx="7.12" cy="16.88" r=".6"/><circle cx="5.10" cy="12.00" r=".6"/><circle cx="7.12" cy="7.12" r=".6"/><circle cx="12.00" cy="5.10" r=".6"/><circle cx="16.88" cy="7.12" r=".6"/></g><path d="M12 7.2l3.9 4.8-3.9 4.8-3.9-4.8z" fill="#ffd12b" stroke="#ffd12b" stroke-width="1" stroke-linejoin="round"/></svg>';
@@ -268,7 +270,7 @@ const CK='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="
 const RB={common:['#4ad04a','#2a9a2a'],rare:['#4aa8ff','#2a78e0'],epic:['#b45cf0','#7a2ad0'],legendary:['#ffb02e','#e07a10']},POSES=['idle','wave','dance','victory','laugh'];
 let off=0,pose='idle';
 const bg=r=>`linear-gradient(${RB[r][0]},${RB[r][1]})`,badge=r=>`<span class="badge" style="background:${bg(r)}">${RN[r]}</span>`;
-function renderCats(){$('#cats').innerHTML=CATS.map(c=>`<button class="blue cat ${c[0]===cat?'on':''}" data-c="${c[0]}" aria-label="${c[1]}">${icon(c[2])}${c[1]}</button>`).join('');
+function renderCats(){$('#cats').innerHTML=CATS.map(c=>`<button class="blue cat ${c[0]===cat?'on':''}" data-c="${c[0]}" aria-label="${c[1]}">${catImg(c[0])}${c[1]}</button>`).join('');
  $('#rlt').textContent=CATS.find(c=>c[0]===cat)[1]+' Terbaru';
  document.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{playSound('click');setCat(b.dataset.c)}))}
 function setCat(c){cat=c;const l=ownedList(c);sel=l?(l.find(o=>o.equipped)||l[0]||{}).item||null:null;off=0;pose='idle';renderCats();renderGrid();renderInfo();renderRecent();buildModels();playSound('select')}

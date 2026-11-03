@@ -35,6 +35,14 @@ html body .ut-curbar .cur > span[id$="I"] {
   filter: drop-shadow(0 .3rem .3rem rgba(0, 0, 0, .35));
 }
 html body .ut-curbar .cur > span[id$="I"] svg { width: 100%; height: 100%; display: block; }
+/* icon gambar (assets/Images/icon/*.webp) */
+.ci { display: block; object-fit: contain; pointer-events: none; -webkit-user-drag: none; user-select: none; }
+html body .ut-curbar .cur > img.ci {
+  position: absolute; left: -.5rem; top: 50%; translate: 0 -50%;
+  width: var(--cur-icon, 5.2rem); height: var(--cur-icon, 5.2rem);
+  filter: drop-shadow(0 .3rem .3rem rgba(0, 0, 0, .35));
+}
+html body .ut-curbar .cur > span[id$="I"] img.ci { width: 100%; height: 100%; }
 html body .ut-curbar .plus {
   position: relative; z-index: 2; flex: none;
   width: var(--cur-plus, 3.2rem); height: var(--cur-plus, 3.2rem); padding: 0; border-radius: 50%;
