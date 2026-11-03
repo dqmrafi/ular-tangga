@@ -356,17 +356,12 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
       <p class="lm-eyebrow" id="pmSub">Permainan dijeda</p>
       <h2 id="pmTitle">Menu</h2>
       <p class="lm-note" id="pmCpu" hidden>Komputer menunggu sampai kamu melanjutkan.</p>
-      <div class="lm-grid">
-        <button class="lm-mode" type="button" id="pmResume">Lanjutkan</button>
-        <div class="lm-row pm-time">
-          <button class="lm-tg" id="pmDay" type="button" aria-pressed="true">Siang</button>
-          <button class="lm-tg" id="pmNight" type="button" aria-pressed="false">Malam</button>
-        </div>
-        <div class="lm-row pm-vol">
-          <span class="lm-lbl">Musik</span>
-          <input type="range" id="pmVol" min="0" max="100" value="60" aria-label="Volume musik">
-        </div>
-        <button class="lm-mode lm-red" type="button" id="pmExit">Keluar</button>
+      <div class="lm-grid lm-pm">
+        <button class="lm-mode lm-resume" type="button" id="pmResume"><svg class="lm-ic lm-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="#a8590b" stroke-width="1.6" stroke-linejoin="round"/></svg><span>Lanjutkan</span></button>
+        <div class="lm-srow"><svg class="lm-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17V5l11-2v12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="6.5" cy="17.5" r="3" fill="currentColor"/><circle cx="17.5" cy="15.5" r="3" fill="currentColor"/></svg><span class="lm-lbl">Musik</span><input type="range" id="pmVol" min="0" max="100" value="60" aria-label="Volume musik"><svg class="lm-ic lm-end" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+        <div class="lm-srow lm-sfx"><svg class="lm-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span class="lm-lbl">Suara</span><input type="range" id="pmSfx" min="0" max="100" value="100" aria-label="Volume suara efek"><svg class="lm-ic lm-end" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div>
+        <button class="lm-mode lm-red lm-exit" type="button" id="pmExit"><svg class="lm-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h5v16h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.5 12h10M9.5 8l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Keluar</span></button>
+        <div class="lm-modewrap"><span class="lm-chip">Suasana</span><button class="lm-mode lm-grey" type="button" id="pmMode" aria-pressed="false"><span class="lm-ic" id="pmModeIco" aria-hidden="true"></span><span id="pmModeTxt">Siang</span></button></div>
       </div>
     </div>
   </div>
@@ -761,6 +756,46 @@ body #win.lm-ov{background:rgba(11,24,56,.32);backdrop-filter:none;-webkit-backd
   #win .lm-box{width:min(calc(var(--mu)*66),90vw)}
   #win .lm-body{padding-top:calc(var(--mu)*5.2);padding-bottom:calc(var(--mu)*2)}
   #win .res-ico{width:56px;height:56px}
+}
+</style>
+<style id="pause-ref">
+/* Menu jeda: tombol & layout mengikuti referensi (Lanjutkan emas glossy + ikon play, baris Musik/Suara dengan slider, Keluar merah, tombol Suasana siang/malam). Panel tetap gaya pixel lobby. */
+#pauseMenu .lm-box{width:min(calc(var(--mu)*58),92vw)}
+#pauseMenu .lm-grid{grid-template-columns:1fr 1fr;gap:calc(var(--mu)*1)}
+#pauseMenu .lm-ic{flex:none;width:calc(var(--mu)*2.8);height:calc(var(--mu)*2.8);min-width:20px;min-height:20px;display:inline-grid;place-items:center;color:#fff;filter:drop-shadow(0 calc(var(--mu)*.2) 0 rgba(0,0,0,.35))}
+#pauseMenu .lm-ic svg{width:100%;height:100%;display:block}
+/* tombol glossy */
+#pauseMenu .lm-mode{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:calc(var(--mu)*1.2);min-height:calc(var(--mu)*6);border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*1.6)}
+#pauseMenu .lm-mode::before{content:"";position:absolute;left:4%;right:4%;top:6%;height:44%;border-radius:calc(var(--mu)*1.2) calc(var(--mu)*1.2) calc(var(--mu)*2) calc(var(--mu)*2);background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.08));pointer-events:none}
+#pauseMenu .lm-mode>*{position:relative}
+#pauseMenu .lm-resume{grid-column:1/-1;min-height:calc(var(--mu)*7.4);font-size:calc(var(--mu)*3);background:linear-gradient(#ffe36e,#ffc21c 50%,#f7a50c 52%,#ffb81c);box-shadow:inset 0 calc(var(--mu)*.3) 0 rgba(255,255,255,.55),inset 0 calc(var(--mu)*-.4) 0 rgba(160,85,0,.35),0 calc(var(--mu)*.4) 0 #0b1838;text-shadow:0 calc(var(--mu)*.25) 0 #a8590b,0 0 calc(var(--mu)*.4) #a8590b}
+#pauseMenu .lm-resume .lm-play{width:calc(var(--mu)*3.6);height:calc(var(--mu)*3.6)}
+#pauseMenu .lm-exit{background:linear-gradient(#ff7a68,#ea3027 50%,#d81f1a 52%,#e8302a);box-shadow:inset 0 calc(var(--mu)*.3) 0 rgba(255,255,255,.45),inset 0 calc(var(--mu)*-.4) 0 rgba(110,10,10,.4),0 calc(var(--mu)*.4) 0 #0b1838;text-shadow:0 calc(var(--mu)*.25) 0 #7a0e0a}
+#pauseMenu .lm-grey{width:100%;background:linear-gradient(#a3add0,#6d79a4 50%,#5a668f 52%,#66719b);box-shadow:inset 0 calc(var(--mu)*.3) 0 rgba(255,255,255,.45),inset 0 calc(var(--mu)*-.4) 0 rgba(25,35,80,.4),0 calc(var(--mu)*.4) 0 #0b1838;text-shadow:0 calc(var(--mu)*.25) 0 #26305a}
+#pauseMenu .lm-grey[aria-pressed=true]{background:linear-gradient(#8a85d8,#5a50b8 50%,#4a3fa6 52%,#5548b0);text-shadow:0 calc(var(--mu)*.25) 0 #231a63}
+#pauseMenu .lm-exit,#pauseMenu .lm-modewrap{margin-top:calc(var(--mu)*.6)}
+#pauseMenu .lm-modewrap{position:relative;display:flex}
+#pauseMenu .lm-modewrap .lm-mode{min-height:calc(var(--mu)*6)}
+#pauseMenu .lm-chip{position:absolute;z-index:3;top:0;left:50%;translate:-50% -55%;padding:calc(var(--mu)*.1) calc(var(--mu)*1.4) calc(var(--mu)*.3);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*1);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 calc(var(--mu)*.12) #74a4f7;color:#fff;font-size:max(10px,calc(var(--mu)*1.6));line-height:1.2;text-shadow:0 calc(var(--mu)*.15) 0 #0b1838;white-space:nowrap;pointer-events:none}
+/* baris slider */
+#pauseMenu .lm-srow{grid-column:1/-1;display:flex;align-items:center;gap:calc(var(--mu)*1.2);padding:calc(var(--mu)*.9) calc(var(--mu)*1.6);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*1.6);background:linear-gradient(#24418a,#1d3470);box-shadow:inset 0 0 0 calc(var(--mu)*.12) rgba(120,160,235,.25)}
+#pauseMenu .lm-srow .lm-lbl{flex:none;min-width:calc(var(--mu)*7);text-align:left;font-size:calc(var(--mu)*2.1)}
+#pauseMenu .lm-srow input[type=range]{--c:#ffc21c;--p:60%;flex:1;min-width:0;height:max(26px,calc(var(--mu)*3));margin:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}
+#pauseMenu .lm-sfx input[type=range]{--c:#5ee03a;--p:100%}
+#pauseMenu .lm-srow input[type=range]::-webkit-slider-runnable-track{height:max(10px,calc(var(--mu)*1.5));border-radius:99px;background:linear-gradient(90deg,var(--c) var(--p),#0c1c4c var(--p));box-shadow:inset 0 2px 0 rgba(0,0,0,.35)}
+#pauseMenu .lm-srow input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:max(22px,calc(var(--mu)*3));height:max(22px,calc(var(--mu)*3));margin-top:calc((max(10px,var(--mu)*1.5) - max(22px,var(--mu)*3))/2);border-radius:50%;border:2px solid #fff;background:radial-gradient(circle at 35% 30%,#fff7c8,var(--c) 62%);box-shadow:0 2px 0 rgba(0,0,0,.4)}
+#pauseMenu .lm-srow input[type=range]::-moz-range-track{height:max(10px,calc(var(--mu)*1.5));border-radius:99px;background:#0c1c4c}
+#pauseMenu .lm-srow input[type=range]::-moz-range-progress{height:max(10px,calc(var(--mu)*1.5));border-radius:99px;background:var(--c)}
+#pauseMenu .lm-srow input[type=range]::-moz-range-thumb{width:max(22px,calc(var(--mu)*3));height:max(22px,calc(var(--mu)*3));border-radius:50%;border:2px solid #fff;background:var(--c)}
+/* landscape pendek (HP): Musik & Suara berdampingan, ikon ujung disembunyikan */
+@media (orientation:landscape) and (max-height:430px){
+  #pauseMenu .lm-box{width:min(calc(var(--mu)*84),92vw)}
+  #pauseMenu .lm-srow{grid-column:auto;padding:calc(var(--mu)*.8) calc(var(--mu)*1.2);gap:calc(var(--mu)*1)}
+  #pauseMenu .lm-srow .lm-end{display:none}
+  #pauseMenu .lm-srow .lm-lbl{min-width:0;font-size:calc(var(--mu)*1.9)}
+  #pauseMenu .lm-resume{min-height:calc(var(--mu)*6.4)}
+  #pauseMenu .lm-grid{gap:calc(var(--mu)*.8)}
+  #pauseMenu .lm-mode{min-height:42px}
 }
 </style>
 <script src="gameplay/hud-scale.js"></script>
@@ -3623,14 +3658,22 @@ $('btnTheme').addEventListener('click',()=>{
   chooseTheme(THEMES[(i+1)%THEMES.length].key);
 });
 $('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 2a10 10 0 0 1 0 20"/></svg>Suara: '+t; $('btnSnd').classList.toggle('muted',muted); });
+function paintRange(el){ if(el) el.style.setProperty('--p',el.value+'%'); }
+let sfxVol=100; try{ const sv=parseInt(localStorage.getItem('ut-sfxvol'),10); if(!isNaN(sv)) sfxVol=Math.max(0,Math.min(100,sv)); }catch(e){}
+function setSfxVol(v){ sfxVol=Math.max(0,Math.min(100,v)); try{ localStorage.setItem('ut-sfxvol',String(sfxVol)); }catch(e){} try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(sfxVol/100); }catch(e){} }
+setSfxVol(sfxVol);
 function syncMusicUI(){
-  const v=$('pmVol'); if(v) v.value=musicVol;
+  const v=$('pmVol'); if(v){ v.value=musicVol; paintRange(v); }
+  const f=$('pmSfx'); if(f){ f.value=sfxVol; paintRange(f); }
 }
-$('pmVol')&&$('pmVol').addEventListener('input',e=>{ setMusicVol(+e.target.value); });
-$('pmDay').addEventListener('click',()=>{ setNight(false); syncPauseNight(); setMusicOn(true); });
-$('pmNight').addEventListener('click',()=>{ setNight(true); syncPauseNight(); setMusicOn(true); });
+$('pmVol')&&$('pmVol').addEventListener('input',e=>{ setMusicVol(+e.target.value); paintRange(e.target); });
+$('pmSfx')&&$('pmSfx').addEventListener('input',e=>{ setSfxVol(+e.target.value); paintRange(e.target); });
+$('pmSfx')&&$('pmSfx').addEventListener('change',()=>{ ensureAudio(); try{ if(GA) GA.play('pop'); }catch(e){} });
+const ICO_SUN='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+const ICO_MOON='<svg viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg>';
+$('pmMode').addEventListener('click',()=>{ setNight(!night); syncPauseNight(); setMusicOn(true); });
 /* ---------- Menu jeda: lanjutkan, siang/malam, keluar (dengan konfirmasi) ---------- */
-function syncPauseNight(){ $('pmDay').setAttribute('aria-pressed',String(!night)); $('pmNight').setAttribute('aria-pressed',String(night)); }
+function syncPauseNight(){ $('pmMode').setAttribute('aria-pressed',String(night)); $('pmModeTxt').textContent=night?'Malam':'Siang'; $('pmModeIco').innerHTML=night?ICO_MOON:ICO_SUN; }
 function openPause(){
   if(paused||AWK.running) return; paused=true; clearTurnTimer();
   $('pmCpu').hidden=mode!=='cpu'; syncPauseNight(); syncMusicUI();

@@ -12,7 +12,7 @@
   var UT = win.UT = win.UT || {};
   if (UT.GameplayAudio) return;
 
-  let actx=null,muted=false;
+  let actx=null,muted=false,sfxV=1; /* sfxV: volume SFX 0..1 dari slider Suara di menu jeda */
   function ensureAudio(){
     try{
       if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)();
@@ -20,22 +20,22 @@
     }catch(e){}
   }
   function beep(f,d,type,vol,when,to){
-    if(muted||!actx) return;
+    if(muted||sfxV<=0||!actx) return;
     try{
       const t=actx.currentTime+(when||0),o=actx.createOscillator(),g=actx.createGain();
       o.type=type||'square'; o.frequency.setValueAtTime(f,t);
       if(to) o.frequency.exponentialRampToValueAtTime(to,t+d);
-      g.gain.setValueAtTime(vol||0.05,t); g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+      g.gain.setValueAtTime((vol||0.05)*sfxV,t); g.gain.exponentialRampToValueAtTime(0.0001,t+d);
       o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+d+0.03);
     }catch(e){}
   }
   function noise(d,vol,when,freq){
-    if(muted||!actx) return;
+    if(muted||sfxV<=0||!actx) return;
     try{
       const n=Math.floor(actx.sampleRate*d),buf=actx.createBuffer(1,n,actx.sampleRate),ch=buf.getChannelData(0);
       for(let i=0;i<n;i++) ch[i]=(Math.random()*2-1)*(1-i/n);
       const src=actx.createBufferSource(),f=actx.createBiquadFilter(),g=actx.createGain();
-      src.buffer=buf; f.type='highpass'; f.frequency.value=freq||3000; g.gain.value=vol||0.08;
+      src.buffer=buf; f.type='highpass'; f.frequency.value=freq||3000; g.gain.value=(vol||0.08)*sfxV;
       src.connect(f); f.connect(g); g.connect(actx.destination); src.start(actx.currentTime+(when||0));
     }catch(e){}
   }
@@ -62,7 +62,7 @@
   var warm=[];
   function preload(){ if(warm.length) return; Object.keys(FILE).forEach(function(k){ try{ var a=new Audio(); a.preload='auto'; a.src=SFX_DIR+FILE[k]; warm.push(a); }catch(e){} }); }
   /* Putar file SFX. fb = fallback sintetis bila file gagal/diblok. Mengembalikan elemen Audio (bisa di-fade/stop) atau null. Hormati tombol mute. */
-  function fileSfx(key,vol,fb){ if(muted) return null; try{ const a=new Audio(SFX_DIR+(FILE[key]||key)); a.volume=vol; a.play().catch(fb||function(){}); return a; }catch(e){ if(fb) fb(); return null; } }
+  function fileSfx(key,vol,fb){ if(muted||sfxV<=0) return null; try{ const a=new Audio(SFX_DIR+(FILE[key]||key)); a.volume=Math.min(1,vol*sfxV); a.play().catch(fb||function(){}); return a; }catch(e){ if(fb) fb(); return null; } }
   function fadeOut(a,ms){ if(!a) return; try{ const v0=a.volume,t0=Date.now(),id=setInterval(function(){ const k=Math.min(1,(Date.now()-t0)/ms); a.volume=v0*(1-k); if(k>=1){ clearInterval(id); a.pause(); } },50); }catch(e){} }
   const ladderBeeps=()=>[392,494,587,784].forEach((f,i)=>beep(f,0.14,'square',0.05,i*0.11));
 
@@ -133,6 +133,7 @@
     preload: preload,
     play: function (name) { try { if (typeof sfx[name] === 'function') sfx[name](); } catch (e) {} },
     setMuted: function (v) { muted = !!v; },
+    setSfxVolume: function (v) { v = +v; sfxV = isNaN(v) ? 1 : Math.max(0, Math.min(1, v)); },
     setReady: function (v) { ready = !!v; },
     sfx: sfx
   };
