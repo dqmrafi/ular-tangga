@@ -907,8 +907,32 @@ function playMusic(){
 function stopMusic(){
   if(!bgMusic) return; try{ bgMusic.pause(); }catch(e){}
 }
-function setMusicVol(v){ musicVol=Math.max(0,Math.min(100,v)); try{ localStorage.setItem('ut-musicvol',String(musicVol)); }catch(e){} if(bgMusic) bgMusic.volume=musicVol/100; }
-function setMusicOn(v){ musicOn=!!v; try{ localStorage.setItem('ut-musicon',musicOn?'1':'0'); }catch(e){} if(musicOn) playMusic(); else stopMusic(); }
+function setMusicVol(v){ musicVol=Math.max(0,Math.min(100,v)); try{ localStorage.setItem('ut-musicvol',String(musicVol)); }catch(e){} if(bgMusic) bgMusic.volume=musicVol/100; if(DM.active&&DM.a&&!DM.a.paused) DM.a.volume=musicVol/100; }
+function setMusicOn(v){ musicOn=!!v; try{ localStorage.setItem('ut-musicon',musicOn?'1':'0'); }catch(e){} if(musicOn){ if(DM.active) dragonMusicStart(); else playMusic(); } else { stopMusic(); dragonMusicHalt(); } }
+/* ---------- Musik Naga (muncul-naga.mp3): mulai saat pemain pertama masuk Block 100, loop + fade in/out, berhenti saat naga kalah / game selesai / game baru ---------- */
+const DM={a:null,active:false,raf:0,fadeIn:2000,fadeOut:2500};
+function dmTarget(){ return Math.max(0,Math.min(1,musicVol/100)); }
+function dmFade(to,ms,done){
+  cancelAnimationFrame(DM.raf); const a=DM.a; if(!a){ if(done) done(); return; }
+  const from=a.volume,t0=performance.now();
+  (function step(t){ const k=Math.min(1,(t-t0)/Math.max(1,ms)); try{ a.volume=Math.max(0,Math.min(1,from+(to-from)*k)); }catch(e){}
+    if(k<1) DM.raf=requestAnimationFrame(step); else if(done) done(); })(t0);
+}
+function dragonMusicStart(){
+  DM.active=true; if(!musicOn) return;
+  try{
+    if(!DM.a){ DM.a=new Audio('assets/music/muncul-naga.mp3'); DM.a.loop=true; DM.a.preload='auto'; }
+    stopMusic();                                   /* BGM biasa dijeda selama pertarungan naga */
+    DM.a.volume=0; const r=DM.a.play(); if(r&&r.catch) r.catch(()=>{});
+    dmFade(dmTarget(),DM.fadeIn);
+  }catch(e){}
+}
+function dragonMusicHalt(){ cancelAnimationFrame(DM.raf); if(DM.a){ try{ DM.a.pause(); DM.a.currentTime=0; }catch(e){} } }
+function dragonMusicStop(instant){
+  if(!DM.active&&!(DM.a&&!DM.a.paused)) return; DM.active=false;
+  if(instant||!DM.a){ dragonMusicHalt(); return; }
+  dmFade(0,DM.fadeOut,()=>{ dragonMusicHalt(); playMusic(); }); /* BGM biasa lanjut setelah fade out */
+}
 
 /* ---------- Aturan papan ---------- */
 const ROW_H=0.8;
@@ -2836,7 +2860,7 @@ async function crystalRoll(p,v,gid){
 async function awakenDragon(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,T=TILES[100],Dd=dragon.userData;
-  AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer();
+  AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer(); dragonMusicStart();
   const pg={x:panGoal.x,z:panGoal.z}; let finished=false,qk=null,tw=null,ar=null;
   try{
     while(paused) await S(sleep(200)); /* pause dibuka sebelum sequence: tunggu dilanjutkan */
@@ -3141,7 +3165,7 @@ async function hitDragon(p,v){
    D.shk=0; D.mats.forEach(m=>m.color.setHex(0xFFFFFF));
    p.dhp=Math.max(0,p.dhp-dmg); renderChips(); hud('updatePlayer',p);
    if(p.dhp>0){ setMsg('Naga '+p.name+' tersisa '+p.dhp+'/100.'); return; }
-   DRG.defeated=true; settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
+   DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* Feature 6: naga kalah -> tutup serangan lanjutan + simpan status & hadiah 1x (sinkron, sebelum animasi) */
    sfx.dragonDeath();
    setMsg('Ender Dragon kalah!'); hud('showResult','Ender Dragon kalah!',p.name+' menang!',{ttl:2600,gid}); spawnConfetti(dragon.position);
    await tween(1.3,k=>{ D.dy=-k*3; dragon.scale.setScalar(1.3*(1-k*0.85)); });
@@ -3729,6 +3753,7 @@ function holdEnd(select){
   b.addEventListener('pointerup',up); b.addEventListener('pointercancel',cancel); b.addEventListener('lostpointercapture',cancel);
   window.addEventListener('pointerup',up,true); window.addEventListener('pointercancel',cancel,true); /* fallback bila capture gagal (lepas di luar tombol) */
   window.addEventListener('blur',()=>holdEnd(false)); document.addEventListener('visibilitychange',()=>{ if(document.hidden) holdEnd(false); });
+window.addEventListener('pagehide',()=>dragonMusicStop(true));
   b.addEventListener('contextmenu',e=>{ if(specialDiceActive(players[cur])) e.preventDefault(); });
   /* keyboard (aksesibilitas): Space/Enter tahan = putar, lepas = pilih */
   b.addEventListener('keydown',e=>{ if((e.key===' '||e.key==='Enter')&&specialDiceActive(players[cur])){ e.preventDefault(); if(!e.repeat&&holdStart('kbd')) DH.id='kbd'; } });
@@ -3775,7 +3800,7 @@ function startGame(m,keys){
   mode=m; gameId++; busy=false; gameOver=false; hud('reset');
   try{ if(UT.GameplayAFK) UT.GameplayAFK.clearAll(); if(UT.GameplayReady) UT.GameplayReady.cancel(); }catch(e){} /* 4.1.15: bersihkan timer Ready/AFK saat (re)start */
   players.forEach(p=>scene.remove(p.pawn)); players=[]; clearConfetti();
-  applyPendingTheme(); resetSnakes(); resetDragon(); resetAwakening(); resetDragonDefeat();
+  applyPendingTheme(); resetSnakes(); resetDragon(); resetAwakening(); resetDragonDefeat(); dragonMusicStop(true);
   let defs;
   keys=keys||(m==='cpu'?['steve','villager']:PLAYER_DEFS.slice(0,+m).map(d=>d.key));
   if(m==='cpu') keys=[keys[0]||'steve','villager']; /* 4.1.14.10: Computer selalu Villager, bukan Mob/skin acak */
