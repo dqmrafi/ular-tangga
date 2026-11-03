@@ -158,6 +158,7 @@
       g.position.y = b; g.rotation.z = Math.sin(t * .6) * .012;
       shadow.position.y = base - b; shadow.scale.setScalar(1 - b * .35); shadow.material.opacity = (opts.shadow == null ? .38 : opts.shadow) * (1 - b * .8);
     };
+    if (opts.scale) g.scale.setScalar(opts.scale);
     return g;
   }
 
