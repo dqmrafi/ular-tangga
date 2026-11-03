@@ -1475,7 +1475,7 @@ function addRanch(DB){
   for(let i=0;i<14;i++){ const x=10.6+lr()*8.4,z=2.0+lr()*0.7; if(x>13.4&&x<17.0) continue; addBox(DB,x,0.09,z,0.1,0.18,0.1,[0xF0453A,0xFFD23F,0xFFFFFF,0xFF7EB6][Math.floor(lr()*4)],F); }
   },RB);
   TORCH.forEach(t=>addTorch(DB,t[0],t[1],t[2])); RANCH.bees.forEach(b=>{ b.cy+=RB; });
-  /* mob liar di bawah board, di pinggir pohon (1 golem saja) */
+  /* mob liar di bawah board, di pinggir pohon (1 golem saja). Mob jahat hanya muncul malam: lihat syncHostNight */
   [['golem',-1.8,7.8],['zombie',-4.6,9.8],['zombie',-0.8,10.8],['skeleton',-2.6,9.4],['skeleton',1.8,10.2],['creeper',0.6,9.2],['spider',-5.0,11.0],['spider',2.8,11.0]]
     .forEach(q=>HOSTQ.push({kind:q[0],x:q[1],z:q[2]}));
 }
@@ -1525,6 +1525,7 @@ function spawnLife(){
     world.add(o.g); HOST.push(o);
   });
   HOSTQ.length=0;
+  syncHostNight();
   RANCH.bees.forEach(c=>{
     const g=new THREE.Group(),F={edge:false},wings=[];
     mkPart(g,0,0,0,b=>{ addBox(b,0,0,0,0.07,0.06,0.1,0xF2C21B,F); addBox(b,0,0,-0.02,0.072,0.062,0.025,0x222222,F); addBox(b,0,0,0.03,0.072,0.062,0.025,0x222222,F); addBox(b,0,0,0.055,0.04,0.04,0.02,0x222222,F); },true);
@@ -1562,6 +1563,23 @@ function respawnMob(o){
   o.hp=o.max; o.life='spawn'; o.tm=0.4; o.tgt=null; o.cd=1; o.y=0; o.vy=0; o.hurt=0; o.mode='idle'; o.t=1;
   o.g.visible=true; o.g.rotation.z=0; o.g.scale.setScalar(0.01); sparkle(new THREE.Vector3(o.x,0.5,o.z));
 }
+/* Mob jahat (zombie/skeleton/creeper/spider) hanya ada saat MALAM. Siang: disembunyikan & dinonaktifkan (life='day'), panah dibuang.
+   Malam: muncul lagi lewat respawnMob (efek spawn, HP penuh). Golem (ramah) tetap ada. Dipanggil dari applyLook (ganti siang/malam) dan spawnLife (dunia baru). */
+const NIGHT_MOBS={zombie:1,skeleton:1,creeper:1,spider:1};
+function syncHostNight(){
+  for(let i=0;i<HOST.length;i++){
+    const o=HOST[i]; if(!NIGHT_MOBS[o.kind]) continue;
+    if(night){
+      if(o.life==='day'){
+        respawnMob(o);
+        if(reduce){ o.life='alive'; o.tm=0; o.g.scale.setScalar(1); o.g.position.set(o.x,0,o.z); o.g.rotation.y=o.yaw; } /* gerak dikurangi: updateLife tidak jalan, langsung tampil penuh */
+      }
+    }else if(o.life!=='day'){
+      o.life='day'; o.tgt=null; o.mode='idle'; o.hurt=0; o.g.visible=false; o.g.rotation.z=0;
+    }
+  }
+  if(!night&&ARROWS.length){ ARROWS.forEach(a=>world.remove(a.m)); ARROWS.length=0; }
+}
 function stepMob(o,tx,tz,sp,dt){
   const dx=tx-o.x,dz=tz-o.z,d=Math.hypot(dx,dz); o.blocked=false;
   let da=Math.atan2(dx,dz)-o.yaw; da=Math.atan2(Math.sin(da),Math.cos(da)); o.yaw+=da*Math.min(1,dt*8);
@@ -1598,6 +1616,7 @@ function updateLife(dt,t){
   }
   for(let i=0;i<HOST.length;i++){
     const o=HOST[i];
+    if(o.life==='day') continue;
     if(o.life==='dying'){
       o.tm-=dt; const k=Math.max(0,o.tm/0.8); o.g.rotation.z=(1-k)*1.45; o.g.position.y=o.y*k;
       if(o.tm<=0){ o.life='gone'; o.g.visible=false; o.tm=o.resp; }
@@ -2319,7 +2338,7 @@ function applyLook(th){
     moon.lookAt(0,0,0);
     skyDome.add(st); skyDome.add(moon); nightObjs.push(st,moon);
   }
-  applyNightFX();
+  applyNightFX(); syncHostNight();
   document.body.classList.toggle('night',night); updateNightUI();
 }
 function addSkeleton(B,x,z,h){
