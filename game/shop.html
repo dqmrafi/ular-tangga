@@ -4,7 +4,10 @@
 <script src="assets/js/boot-guard.js"></script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Toko</title><style id="ut-vt">/* Transisi antar-halaman (cross-document View Transition): halaman lama tetap tampil sampai halaman baru siap, lalu crossfade singkat -> terasa seperti satu halaman. Browser tanpa dukungan mengabaikan aturan ini. */@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;animation-timing-function:ease-out}}</style>
+<title>Toko</title><style id="ut-vt">/* Transisi antar-halaman (cross-document View Transition): halaman lama tetap tampil sampai halaman baru siap, lalu crossfade singkat -> terasa seperti satu halaman. Browser tanpa dukungan mengabaikan aturan ini. */@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;animation-timing-function:ease-out}}#back>.ci{width:3.4rem;height:3.4rem;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
+.flip{transform:scaleX(-1)}
+.arr .ci{width:2.6rem;height:2.6rem;display:block;object-fit:contain;pointer-events:none}
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css">
 <style>
 :root{
@@ -353,7 +356,7 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
   <!-- Top Header Bar -->
   <header id="top-bar">
     <div class="header-left">
-      <button class="blue" id="back" aria-label="Kembali"><svg viewBox="0 0 24 24"><path d="M20 12H5m6-7-7 7 7 7" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="blue" id="back" aria-label="Kembali"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
       <div class="blue" id="title"><img class="ic" src="assets/Images/icon/lobby/shop.webp" alt="" draggable="false" decoding="async">Toko</div>
     </div>
 
@@ -378,8 +381,8 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
         <canvas id="gl"></canvas>
         <div id="art"></div>
         <div class="arr-wrap">
-          <button class="blue arr" id="prev" aria-label="Sebelumnya"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-          <button class="blue arr" id="next" aria-label="Berikutnya"><svg viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          <button class="blue arr" id="prev" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
+          <button class="blue arr" id="next" aria-label="Berikutnya"><img class="ci flip" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
         </div>
       </div>
 
