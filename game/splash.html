@@ -62,15 +62,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 </style>
 <style id="hero-dice">
 /* Dadu besar berputar di tengah (pengganti pulau melayang). Ukuran lewat --sz; semua bagian dadu mengikuti. */
-.hero-dice{--sz:min(34vw,34vh,290px);position:absolute;z-index:3;left:50%;top:43%;width:var(--sz);height:var(--sz);transform:translate(-50%,-50%)}
+.hero-dice{--sz:min(22vw,22vh,170px);position:absolute;z-index:3;left:50%;top:43%;width:var(--sz);height:var(--sz);transform:translate(-50%,-50%)}
 .hero-dice .bob{position:absolute;inset:0;perspective:1000px;animation:diceBob 5s ease-in-out infinite;filter:drop-shadow(0 24px 22px rgba(8,35,74,.28))}
 @keyframes diceBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4%)}}
 .hero-dice .dice{position:absolute;inset:0;transform-style:preserve-3d;animation:diceSpin 8s linear infinite}
 @keyframes diceSpin{0%{transform:rotateX(-26deg) rotateY(-30deg) rotateZ(0)}100%{transform:rotateX(-26deg) rotateY(330deg) rotateZ(0)}}
-.hero-dice .face{position:absolute;inset:0;border:calc(var(--sz)*.035) solid #193b55;border-radius:calc(var(--sz)*.17);background:linear-gradient(145deg,#fff,#d6e8ff);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:calc(var(--sz)*.13);box-shadow:inset 0 0 calc(var(--sz)*.12) rgba(31,75,110,.2);backface-visibility:hidden}
-.hero-dice .face i{width:calc(var(--sz)*.16);height:calc(var(--sz)*.16);border-radius:50%;background:#12324e;place-self:center;box-shadow:inset 0 calc(var(--sz)*.015) 0 rgba(255,255,255,.18)}
+.hero-dice .face{position:absolute;inset:0;border:calc(var(--sz)*.06) solid #1b2a3b;border-radius:0;background:#fff;display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:calc(var(--sz)*.12);box-shadow:inset 0 calc(var(--sz)*.06) 0 rgba(255,255,255,.28),inset 0 calc(var(--sz)*-.06) 0 rgba(0,0,0,.18);backface-visibility:hidden}
+.hero-dice .face i{width:calc(var(--sz)*.17);height:calc(var(--sz)*.17);border-radius:0;background:#1b2a3b;place-self:center}
 .hero-dice .face i.o{visibility:hidden}
-.hero-dice .f1 i:nth-child(5){background:#f04d61}
+.hero-dice .f1 i:nth-child(5){background:#1b2a3b}
 .hero-dice .f1{transform:translateZ(calc(var(--sz)/2))}
 .hero-dice .f6{transform:rotateY(180deg) translateZ(calc(var(--sz)/2))}
 .hero-dice .f2{transform:rotateY(90deg) translateZ(calc(var(--sz)/2))}
@@ -81,8 +81,8 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 @keyframes diceShadow{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(.86);opacity:.6}}
 .hero-dice .spark{position:absolute;color:#edffb0;font-size:calc(var(--sz)*.1);animation:twinkle 2.4s ease-in-out infinite}
 .hero-dice .sp1{left:-14%;top:4%}.hero-dice .sp2{right:-16%;top:30%;animation-delay:.8s}
-@media(max-width:700px){.hero-dice{--sz:min(56vw,300px);top:42%}}
-@media (min-aspect-ratio:1/1){.hero-dice{--sz:min(34cqh,290px);top:44%}}
+@media(max-width:700px){.hero-dice{--sz:min(36vw,170px);top:42%}}
+@media (min-aspect-ratio:1/1){.hero-dice{--sz:min(24cqh,170px);top:44%}}
 @media(prefers-reduced-motion:reduce){.hero-dice .dice{animation:none;transform:rotateX(-26deg) rotateY(-30deg)}}
 </style>
 <style id="progress-small">
