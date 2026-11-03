@@ -3762,7 +3762,7 @@ function beginTurn(extra){
   if(FBK) FBK.setCurrentMarker(players,cur);
   players.forEach((q,i)=>pawnOutline(q.pawn,i===cur&&!gameOver,q.hex));
   focus=p.pawn; renderChips(); syncCrystals(); syncRollLabel();
-  hud('showTurn',p,{extra:!!extra});
+  if(extra) hud('showTurn',p,{extra:true}); /* toast "Giliran X" dihapus (sudah ada penanda giliran di panel Pemain); "Giliran tambahan!" tetap karena tidak ada penanda lain */
   if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Lempar dadu.'));
   else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll dadu.':'Giliran '+p.name+'. Tekan Lempar dadu.'));
   specialHint(p); setRoll(!p.cpu); startTurnTimer();
