@@ -291,7 +291,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   const dest = /^[a-z0-9_-]+\.html(\?[^#]*)?$/i.test(nx) && !/^(splash|loading)\.html/i.test(nx) ? nx : 'lobby.html';
   ASSETS.unshift(dest.split('?')[0]);
   try { window.PlayerData && PlayerData.snapshot(); } catch (e) {} /* jalankan migrasi/muat state sekali sebelum halaman tampil */
-  UT_Preload.run(ASSETS, p => { out.textContent = p + '%'; fill.style.width = p + '%'; }).then(() => {
+  UT_Preload.runAuto(ASSETS, p => { out.textContent = p + '%'; fill.style.width = p + '%'; }).then(() => {
     try { sessionStorage.setItem('ut:booted', '1'); } catch (e) {}
     setTimeout(() => location.replace(dest), 350);
   });
