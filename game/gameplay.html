@@ -3240,8 +3240,8 @@ async function teleport(p,to){
 }
 
 /* ---------- Kamera dan input ---------- */
-/* Titik pandang dasar = PUSAT papan di permukaan petak (tengah 4 petak 45,46,55,56). Dulu y=2.8 (melayang) membuat titik tengah layar jatuh ke ~petak 75/76/85/86 saat kamera miring. */
-const CAM_BASE={x:0,y:0.4,z:0};
+/* Titik pandang dasar = PUSAT papan di permukaan petak (tengah 4 petak 45,46,36,35). Dulu y=2.8 (melayang) membuat titik tengah layar jatuh ke ~petak 75/76/85/86 saat kamera miring. */
+const CAM_BASE={x:0,y:0.4,z:1};
 const cam={yaw:0.5,pitch:0.55,zoom:1},goal={yaw:0.5,pitch:0.55,zoom:1},camTarget=new THREE.Vector3(0,CAM_BASE.y,CAM_BASE.z);
 let baseDist=22,isTopDown=false;
 var camRefit=null; /* 4.2.2: diisi setelah state kamera ada; dipanggil onResize agar framing LOCK responsif */
