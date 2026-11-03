@@ -133,6 +133,18 @@ body.playing .side{display:block}
   .die-scene.hop{animation:none}
   .chip,.btn{transition:none}
 }
+
+/* Efek hit Warden/mob berat: tiupan + gelombang kejut 2D (CSS saja) */
+#hitFx{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+#hitFx .hf-wave{position:absolute;width:24px;height:24px;border-radius:50%;border:5px solid rgba(255,255,255,.9);transform:translate(-50%,-50%);animation:hfWave .6s ease-out forwards}
+#hitFx .hf-wind{position:absolute;height:3px;width:140px;border-radius:3px;background:linear-gradient(90deg,transparent,#fff,transparent);animation:hfWind .55s ease-out forwards}
+#hitFx .hf-flash{position:absolute;inset:0;background:radial-gradient(transparent 40%,rgba(255,40,40,.45));animation:hfFlash .45s ease-out forwards}
+@keyframes hfWave{to{width:300px;height:300px;opacity:0;border-width:1px}}
+@keyframes hfWind{from{transform:translateX(60px);opacity:1}to{transform:translateX(-200px);opacity:0}}
+@keyframes hfFlash{to{opacity:0}}
+body.hf-shake{animation:hfShake .35s}
+@keyframes hfShake{25%{transform:translate(-6px,3px)}50%{transform:translate(6px,-3px)}75%{transform:translate(-4px,2px)}}
+@media (prefers-reduced-motion:reduce){#hitFx .hf-wave,#hitFx .hf-wind,body.hf-shake{animation:none}}
 </style>
 
 <style>
@@ -3677,6 +3689,55 @@ async function celebrate(p){
   if(!defeat) fireworkCelebrate(p);
   for(let i=0;i<3;i++) await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.5);
 }
+/* Efek mob di petak p.pos. Dipakai playTurn (setelah dadu) DAN setelah Chest 'Kejutan' memindahkan pemain. */
+/* Efek hit 2D di posisi pion: gelombang + garis angin + flash merah + guncangan layar */
+function hitBlastFx(p){
+  if(reduce) return;
+  try{
+    let L=document.getElementById('hitFx'); if(!L){ L=document.createElement('div'); L.id='hitFx'; document.body.appendChild(L); }
+    const r=$('c').getBoundingClientRect(),v=p.pawn.position.clone(); v.y+=0.6; v.project(camera);
+    const x=r.left+(v.x*0.5+0.5)*r.width,y=r.top+(-v.y*0.5+0.5)*r.height;
+    const add=(cls,st)=>{ const e=document.createElement('div'); e.className=cls; Object.assign(e.style,st||{}); L.appendChild(e); setTimeout(()=>e.remove(),800); };
+    add('hf-wave',{left:x+'px',top:y+'px'});
+    [-26,-8,10,28].forEach((d,i)=>add('hf-wind',{left:(x-20+i*6)+'px',top:(y+d)+'px',animationDelay:(i*40)+'ms'}));
+    add('hf-flash');
+    document.body.classList.add('hf-shake'); setTimeout(()=>document.body.classList.remove('hf-shake'),360);
+  }catch(e){ console.error(e); }
+}
+async function resolveMobAt(p,gid){
+  const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
+  const k=mobOn(p.pos,themeKey); mobReact(p.pos);
+  if(k==='creeper'){
+    setMsg('Creeper meledak! '+p.name+' terlempar mundur 2 blok.'); fb('event','mob','Creeper! Meledak, mundur 2 blok',{gid});
+    sfx.creeper();
+    await A(sleep(300)); sfx.playerHurt(); await A(explode(p));
+    const to=Math.max(1,p.pos-2); await A(walk(p,p.pos,to)); p.pos=to;
+  }else if(k==='ender'){
+    let to; do{ to=p.pos+Math.floor(Math.random()*21)-10; }while(to<1||to>98||to===p.pos);
+    setMsg('Enderman! '+p.name+' teleport '+(to>p.pos?'maju':'mundur')+' ke '+to+'.'); fb('event','mob','Enderman! Teleport ke '+to,{gid});
+    sfx.enderman();
+    await A(sleep(300)); await A(teleport(p,to)); p.pos=to;
+  }else if(k==='villager'){
+    const to=Math.min(99,p.pos+5); setMsg('Villager membantu! '+p.name+' maju 5 blok ke '+to+'.'); fb('event','mob','Villager membantu! Maju 5 blok',{gid}); sfx.pop(); p.score+=5;
+    await A(sleep(500)); await A(walk(p,p.pos,to)); p.pos=to;
+}else if(k==='skeleton'){
+    setMsg('Skeleton menembak! '+p.name+' terpental mundur 1 blok.'); fb('event','mob','Skeleton! Terpental mundur 1 blok',{gid});
+    sfx.skeltonSh();
+    const to=Math.max(1,p.pos-1); await A(sleep(400)); sfx.playerHurt(); await A(fly(p,to,0.45,0.9)); p.pos=to;
+  }else{
+    const bk=MOBBACK[k],to=Math.max(1,p.pos-bk);
+    setMsg(MOBNAME[k]+' menghantam! '+p.name+' terpental mundur '+bk+' blok ke '+to+'.'); fb('event','mob',MOBNAME[k]+'! Mundur '+bk+' blok',{gid});
+    showAttackCard(MOBNAME[k],p.name,'hit',MOBNAME[k]+' menghantam '+p.name+' dan mundur '+bk+' blok.');
+    sfx.hit(); sfx.playerHurt(); hitBlastFx(p);
+    await A(sleep(450)); await A(fly(p,to,bk>3?0.8:0.45,bk>3?2.4:0.9)); p.pos=to;
+  }
+}
+async function resolveAfterChestMove(p,gid){
+  const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
+  const k=mobOn(p.pos,themeKey); if(!k) return;
+  if(p.shield&&k!=='villager'){ p.shield=false; puFx('pr:'+p.idx,'pfx-hit'); renderChips(); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900)); return; }
+  await A(resolveMobAt(p,gid));
+}
 async function playTurn(p,v,gid,bn){
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
   focus=p.pawn;
@@ -3717,33 +3778,9 @@ async function playTurn(p,v,gid,bn){
     else{ setMsg('Dicaplok ular! '+p.name+' turun dari '+p.pos+' ke '+to+'.'); fb('event','snake','Kena Ular! Turun ke '+to,{gid}); sfx.naiktangga(); await A(sleep(350)); await A(bite(p,p.pos,to,gid)); }
     p.pos=to;
   }else if(mobOn(p.pos,themeKey)){
-    const k=mobOn(p.pos,themeKey); mobReact(p.pos);
-    if(k==='creeper'){
-      setMsg('Creeper meledak! '+p.name+' terlempar mundur 2 blok.'); fb('event','mob','Creeper! Meledak, mundur 2 blok',{gid});
-      sfx.creeper();
-      await A(sleep(300)); sfx.playerHurt(); await A(explode(p));
-      const to=Math.max(1,p.pos-2); await A(walk(p,p.pos,to)); p.pos=to;
-    }else if(k==='ender'){
-      let to; do{ to=p.pos+Math.floor(Math.random()*21)-10; }while(to<1||to>98||to===p.pos);
-      setMsg('Enderman! '+p.name+' teleport '+(to>p.pos?'maju':'mundur')+' ke '+to+'.'); fb('event','mob','Enderman! Teleport ke '+to,{gid});
-      sfx.enderman();
-      await A(sleep(300)); await A(teleport(p,to)); p.pos=to;
-    }else if(k==='villager'){
-      const to=Math.min(99,p.pos+5); setMsg('Villager membantu! '+p.name+' maju 5 blok ke '+to+'.'); fb('event','mob','Villager membantu! Maju 5 blok',{gid}); sfx.pop(); p.score+=5;
-      await A(sleep(500)); await A(walk(p,p.pos,to)); p.pos=to;
-}else if(k==='skeleton'){
-      setMsg('Skeleton menembak! '+p.name+' terpental mundur 1 blok.'); fb('event','mob','Skeleton! Terpental mundur 1 blok',{gid});
-      sfx.skeltonSh();
-      const to=Math.max(1,p.pos-1); await A(sleep(400)); sfx.playerHurt(); await A(fly(p,to,0.45,0.9)); p.pos=to;
-    }else{
-      const bk=MOBBACK[k],to=Math.max(1,p.pos-bk);
-      setMsg(MOBNAME[k]+' menghantam! '+p.name+' terpental mundur '+bk+' blok ke '+to+'.'); fb('event','mob',MOBNAME[k]+'! Mundur '+bk+' blok',{gid});
-      showAttackCard(MOBNAME[k],p.name,'hit',MOBNAME[k]+' menghantam '+p.name+' dan mundur '+bk+' blok.');
-      sfx.hit(); sfx.playerHurt();
-      await A(sleep(450)); await A(fly(p,to,bk>3?0.8:0.45,bk>3?2.4:0.9)); p.pos=to;
-    }
+    await A(resolveMobAt(p,gid));
   }
-  if(CHESTS.has(p.pos)) await A(giveChest(p,chestToken(p)));
+  if(CHESTS.has(p.pos)){ const pre=p.pos; await A(giveChest(p,chestToken(p))); if(p.pos!==pre) await A(resolveAfterChestMove(p,gid)); }
   renderChips();
   await A(faceCamera(p.pawn));
   if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); }
