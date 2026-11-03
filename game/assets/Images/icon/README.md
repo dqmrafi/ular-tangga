@@ -30,6 +30,10 @@ Catatan:
 | Suara (`#btnSnd`) | `audio/sound` / `audio/mute` (ganti saat diklik) |
 | Menu (`#btnMenu`) | `ui/menu` |
 | Layar menang: mahkota | `lobby/leader` |
+| Panel Giliran (kanan bawah): mahkota di judul | `lobby/leader` (CSS `#side .tn>h3::before`) |
+| Baris pemain yang sedang giliran (kiri atas): mahkota | `lobby/leader` (CSS `#side .pr.on::after`) |
+| Judul panel Power-up (kiri atas) | `items/power` (CSS `#side .pu>h3::before`) |
+| Tombol Roll dadu | `items/dadu` (CSS `#side .tn #btnRoll::before`) |
 | Menu jeda: Lanjutkan | `ui/play` |
 | Menu jeda: slider Musik | `audio/music` + `audio/sound` |
 | Menu jeda: slider Suara efek | `audio/sfx` + `audio/sound` |
