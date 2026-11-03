@@ -417,6 +417,31 @@ body #pauseMenu.lm-ov,body #exitConfirm.lm-ov{background:rgba(11,24,56,.45);back
 @media (prefers-reduced-motion:reduce){.lm-ov:not([hidden]),.lm-ov:not([hidden]) .lm-box{animation:none}}
 </style>
 
+<style id="ready-pixel">
+/* Layar Ready/Shuffle ("Siap main?") = modal pixel (sama dengan Menu/Jeda & lobby; redesign-hud/modal.jpg).
+   HANYA tampilan. gameplay/ready.js (logika, DOM, id) tidak berubah; ukuran kartu/avatar tetap dari ready.js. */
+body #readyScreen{--mu:clamp(5.2px,min(1vw,1.85vh),9px);background:rgba(11,24,56,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif}
+body #readyScreen .rd-box{border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*1);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 calc(var(--mu)*.25) #5e90f0,0 calc(var(--mu)*.5) 0 #0b1838,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+body #readyScreen h2{color:#fff;text-transform:none;letter-spacing:0;font-weight:800;text-shadow:0 calc(var(--mu)*.2) 0 #0b1838}
+body #readyScreen .rd-sub{color:#eaf6ff;opacity:1;text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+body #readyScreen .rd-time{background:linear-gradient(#24418a,#1d3470);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*.7);color:#ffd23f;box-shadow:inset 0 0 0 calc(var(--mu)*.12) rgba(120,160,235,.25);text-shadow:0 calc(var(--mu)*.15) 0 #0b1838}
+body #readyScreen .rd-time.low{color:#ff8a7a}
+body #readyScreen .rd-card{background:linear-gradient(#24418a,#1d3470);border:calc(var(--mu)*.25) solid #0b1838;border-radius:calc(var(--mu)*.7);box-shadow:inset 0 0 0 calc(var(--mu)*.12) rgba(120,160,235,.25)}
+body #readyScreen .rd-card.lock{border-color:#f1d04a}
+body #readyScreen .rd-ord{background:#0e1b3d;border:calc(var(--mu)*.25) dashed #5e90f0;border-radius:calc(var(--mu)*.5);color:#ffd23f;text-shadow:0 calc(var(--mu)*.12) 0 #0b1838}
+body #readyScreen .rd-ord.set{border-style:solid;border-color:#f1d04a}
+body #readyScreen .rd-ord.scr{color:#8fd3ff;border-style:solid;border-color:#4aa8ff}
+body #readyScreen .rd-ord.first{box-shadow:0 0 0 calc(var(--mu)*.2) #f1d04a,0 0 calc(var(--mu)*1.2) #f1d04a}
+body #readyScreen .rd-av{background:#0e1b3d;border-width:calc(var(--mu)*.3);border-color:var(--pc,#0b1838)}
+body #readyScreen .rd-st{color:#ffb0a8;text-shadow:0 calc(var(--mu)*.12) 0 #0b1838}
+body #readyScreen .rd-card.ok .rd-st{color:#7af07a}
+body #readyScreen .rd-nm{text-shadow:0 calc(var(--mu)*.12) 0 #0b1838}
+body #readyScreen .rd-btn{border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*.9);background:linear-gradient(#ffcf47,#f09a1c);color:#fff;font-weight:800;box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ffe58a,inset 0 calc(var(--mu)*-.3) 0 rgba(150,80,0,.4),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.15) 0 #8a5a08}
+body #readyScreen .rd-card.ok .rd-btn{background:linear-gradient(#4fd24c,#259a2e);color:#fff;box-shadow:inset 0 0 0 calc(var(--mu)*.15) #8cf08a,inset 0 calc(var(--mu)*-.3) 0 rgba(0,70,10,.45),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.15) 0 #0d4a14}
+body #readyScreen .rd-btn:active:not(:disabled){transform:translateY(calc(var(--mu)*.2))}
+body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a;outline-offset:calc(var(--mu)*.15)}
+</style>
+
 <style id="hud-upgrade">
 /* ===== HUD UPGRADE v2 (mengikuti referensi) — CSS scoped ke #side; canvas/scene 3D tidak disentuh =====
    Sistem: panel biru glossy, pill header navy bertumpuk di tepi atas panel, outline terang 3px, tombol utama emas. */
