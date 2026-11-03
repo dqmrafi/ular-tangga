@@ -210,18 +210,30 @@ html body .tg{border-radius:.6rem;border:.2rem solid var(--ol)}
 html body .pack,html body .mb{border-radius:.9rem;border:.3rem solid var(--ol);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ol)}
 html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2))}
 </style>
+<style id="profile-icons">
+/* icon gambar (assets/Images/icon/<grup>/*.webp) menggantikan svg inline */
+#back>.ic{width:3rem;height:3rem;display:block;object-fit:contain;flex:none;pointer-events:none;-webkit-user-drag:none;user-select:none}
+.ci.lt{filter:brightness(1.7)}
+.hd .ci{width:2rem;height:2rem;flex:none}.hd.big .ci{width:2.4rem;height:2.4rem}
+.st2 .ci{width:1.8rem;height:1.8rem;flex:none}
+.ti .ci{width:2.2rem;height:2.2rem}
+.ib .ci{width:2.1rem;height:2.1rem}.ib.sm .ci{width:2rem;height:2rem}
+.chg .ci{width:2.6rem;height:2.6rem;flex:none}
+.st>i .ci{width:100%;height:100%}
+.st b .ci{width:2.4rem;height:2.4rem;flex:none}
+</style>
 <script src="assets/js/landscape.js"></script></head>
 <body>
 <div id="sky"></div>
 <div id="ui">
 <div id="top">
- <button class="ab blue" id="back" aria-label="Kembali"><svg viewBox="0 0 24 24"><path d="M20 12H5m6-7-7 7 7 7" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
- <div class="ab blue" id="title"><img class="ic" src="assets/Images/icon/kontak.webp" alt="" draggable="false" decoding="async">Profil</div>
- <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
- <button class="ab blue" id="gear" aria-label="Pengaturan"><img class="ic" src="assets/Images/icon/gear.webp" alt="" draggable="false" decoding="async"></button>
+ <button class="ab blue" id="back" aria-label="Kembali"><img class="ic" src="assets/Images/icon/ui/back.webp" alt="" draggable="false" decoding="async"></button>
+ <div class="ab blue" id="title"><img class="ic" src="assets/Images/icon/mode/kontak.webp" alt="" draggable="false" decoding="async">Profil</div>
+ <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-buy="gem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-buy="coin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>
+ <button class="ab blue" id="gear" aria-label="Pengaturan"><img class="ic" src="assets/Images/icon/ui/gear.webp" alt="" draggable="false" decoding="async"></button>
 </div>
 <div class="ab" id="show"><canvas id="gl"></canvas><div id="art"></div></div>
-<div class="ab" id="sbs"><button class="blue" id="b0" aria-label="Simpan foto"></button><button class="blue" id="b1" aria-label="Ganti pose"></button><button class="blue" id="b3" aria-label="Putar 360"><img class="ci" src="assets/Images/icon/360.webp" alt="" draggable="false" decoding="async"></button></div>
+<div class="ab" id="sbs"><button class="blue" id="b0" aria-label="Simpan foto"></button><button class="blue" id="b1" aria-label="Ganti pose"></button><button class="blue" id="b3" aria-label="Putar 360"><img class="ci" src="assets/Images/icon/profile/360.webp" alt="" draggable="false" decoding="async"></button></div>
 <section class="ab pn" id="pc"></section>
 <section class="ab pn" id="ai"></section>
 <section class="ab pn" id="pg"></section>
@@ -260,7 +272,7 @@ function thumb(it){return AR.face(it.id);}
 // ---- profile UI
 const ic=(p,c='#fff')=>`<svg viewBox="0 0 24 24"><path fill-rule="evenodd" d="${p}" fill="${c}"/></svg>`;
 const sv=s=>`<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">${s}</svg>`;
-const RI=n=>'<img class="ci" src="assets/Images/icon/'+n+'.webp" alt="" draggable="false">';
+const RI=(n,c)=>'<img class="ci'+(c?' '+c:'')+'" src="assets/Images/icon/'+n+'.webp" alt="" draggable="false">';
 const G='M19.400 13c.1-.3.1-.7.1-1s0-.7-.1-1l2.100-1.600-2-3.500-2.500 1a7 7 0 0 0-1.700-1L15 3.200h-4L10.600 6a7 7 0 0 0-1.700 1l-2.500-1-2 3.500L6.600 11c-.1.300-.1.700-.1 1s0 .7.100 1l-2.100 1.600 2 3.500 2.500-1c.5.400 1.100.7 1.700 1l.4 2.800h4l.4-2.800c.6-.3 1.200-.6 1.700-1l2.500 1 2-3.500zM12 15.500a3.500 3.500 0 1 1 0-7 3.500 3.500 0 0 1 0 7Z';/* path gear SVG disimpan di sini; tombol #gear kini memakai gear.webp */
 const P={user:'M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.4 0-8 2.2-8 5v2h16v-2c0-2.8-3.6-5-8-5Z',
 trophy:'M7 3h10v6a5 5 0 0 1-10 0V3ZM7 5H3v2a4 4 0 0 0 4 4V9.500A2 2 0 0 1 5 7.500V7h2V5Zm10 0h4v2a4 4 0 0 1-4 4V9.500a2 2 0 0 0 2-2V7h-2V5ZM11 14h2v3h-2zM7 20h10v2H7z',
@@ -274,7 +286,7 @@ pad:'M7 6h10a5 5 0 0 1 5 5v3a3 3 0 0 1-5.500 1.700L15.500 14h-7l-1 1.700A3 3 0 0
 shirt:'M8 3 2 6l2 5 3-1v11h10V10l3 1 2-5-6-3c-.5 1.700-2 2.600-4 2.600S8.500 4.700 8 3Z',
 dice:'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2ZM8 6.500a1.500 1.500 0 1 0 0 3 1.500 1.500 0 0 0 0-3ZM16 14.500a1.500 1.500 0 1 0 0 3 1.500 1.500 0 0 0 0-3ZM12 10.500a1.500 1.500 0 1 0 0 3 1.500 1.500 0 0 0 0-3ZM8 14.500a1.500 1.500 0 1 0 0 3 1.500 1.500 0 0 0 0-3ZM16 6.500a1.500 1.500 0 1 0 0 3 1.500 1.500 0 0 0 0-3Z'};
 const CH=sv('<path d="m9 5 7 7-7 7"/>'),GLOBE=sv('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>');
-const hx=(a,b,p)=>`<svg viewBox="0 0 48 54"><path d="M24 2l20 11.500v25L24 50 4 38.500v-25z" fill="${b}" stroke="#fff" stroke-width="2.500" stroke-linejoin="round"/><path d="M24 7l15.500 9v21L24 46 8.500 37V16z" fill="${a}"/><svg x="13" y="14" width="22" height="22" viewBox="0 0 24 24"><path fill-rule="evenodd" d="${p}" fill="#fff" stroke="${b}" stroke-width="1.200" stroke-linejoin="round"/></svg></svg>`;
+const hx=(a,b,p)=>`<svg viewBox="0 0 48 54"><path d="M24 2l20 11.500v25L24 50 4 38.500v-25z" fill="${b}" stroke="#fff" stroke-width="2.500" stroke-linejoin="round"/><path d="M24 7l15.500 9v21L24 46 8.500 37V16z" fill="${a}"/><image href="assets/Images/icon/${p}.webp" x="12" y="13" width="24" height="24"/></svg>`;
 const NAV=[['prof','Profil',P.user],['stat','Statistik',P.trophy],['ach','Pencapaian',P.star],['hist','Riwayat',P.cal],['set','Pengaturan',G]];
 const pcn=()=>MOCK.play?Math.floor(MOCK.win/MOCK.play*100):0;
 function render(){
@@ -282,25 +294,25 @@ function render(){
  bar=`<div class="bar"><i style="width:${MOCK.xp/MOCK.xpMax*100}%"></i><span>${fmt(MOCK.xp)} / ${fmt(MOCK.xpMax)}</span></div>`,
  av=(i,c)=>`<div class="av ${c}">${thumb(i)}</div>`,
  bd=r=>`<span class="bd" style="background:linear-gradient(${RB[r][0]},${RB[r][1]})">${RN[r]}</span>`,
- A=[['Skin',12,P.crown,'#ffd24d','#c98a0c'],['Dadu',8,P.dice,'#4aa8ff','#1d5fc8'],['Misi',15,P.star,'#ff6a4a','#d0302a'],['Event',5,P.crown,'#b45cf0','#7a2ad0']];
- $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${ic(P.pen)}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><div class="onl"><u></u>Online</div>`;
- $('#ai').innerHTML=`<div class="hd big">${ic(P.user)}Informasi Akun</div>
-<div class="in rw"><div class="r"><i class="ti">${ic(P.user)}</i><span>Nama</span><b>${esc(pname())}</b><button class="ib" data-a="name" aria-label="Ubah nama">${ic(P.pen)}</button></div>
-<div class="r"><i class="ti">${ic(G)}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${ic(P.copy)}</button></div>
-<div class="r"><i class="ti">${ic(P.cal)}</i><span>Tanggal Bergabung</span><b>${esc(MOCK.joined)}</b><i class="ib">${ic(P.cal)}</i></div></div>
-<div class="in pr"><div class="st2">${ic(P.star)}Prestasi</div><div class="ac">${A.map(a=>`<button class="ach" data-a="ach"><div>${hx(a[3],a[4],a[2])}</div><b>${a[1]}</b><span>${a[0]}</span></button>`).join('')}</div></div>
-<div class="in tp"><div class="st2">${ic(P.shirt)}Tampilan Profil</div><div class="tl">${ownedSkins().slice(0,6).map(i=>`<button class="av tile ${i===sel?'sel':''}" data-a="pick" data-id="${i.id}" aria-label="${i.name}">${thumb(i)}${i.id===eq.id?`<em>${sv('<path d="m5 12 5 5 9-10"/>')}</em>`:''}</button>`).join('')}</div><button class="chg" data-a="chg">${ic(P.shirt)}Ubah Skin</button></div>`;
- $('#pg').innerHTML=`<div class="hd">${ic(P.user)}Progress</div>
-<div class="in lvc"><div class="hx">${hx('#ffd24d','#c98a0c',P.crown)}</div><div class="lc"><b>Lv. ${MOCK.lvl}</b>${bar}</div></div>
-<button class="in st" data-a="win"><i>${ic(P.trophy,'#ffd24d')}</i><div><small>Rasio Kemenangan</small><b>${pcn()}%</b></div><em>${MOCK.win} / ${MOCK.play}</em>${CH}</button>
-<button class="in st" data-a="play"><i>${ic(P.pad)}</i><div><small>Total Main</small><b>${MOCK.play}</b></div>${CH}</button>
-<button class="in st" data-a="rank"><i>${GLOBE}</i><div><small>Peringkat Global</small><b>#${MOCK.rank} ${ic(P.crown,'#ffd24d')}</b></div>${CH}</button>
+ A=[['Skin',12,'lobby/leader','#ffd24d','#c98a0c'],['Dadu',8,'items/dadu','#4aa8ff','#1d5fc8'],['Misi',15,'ui/start','#ff6a4a','#d0302a'],['Event',5,'mode/modekhsusus','#b45cf0','#7a2ad0']];
+ $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><div class="onl"><u></u>Online</div>`;
+ $('#ai').innerHTML=`<div class="hd big">${RI('mode/kontak')}Informasi Akun</div>
+<div class="in rw"><div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Nama</span><b>${esc(pname())}</b><button class="ib" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button></div>
+<div class="r"><i class="ti">${RI('ui/gear')}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>
+<div class="r"><i class="ti">${RI('mode/calndar')}</i><span>Tanggal Bergabung</span><b>${esc(MOCK.joined)}</b><i class="ib">${RI('mode/calndar')}</i></div></div>
+<div class="in pr"><div class="st2">${RI('ui/start')}Prestasi</div><div class="ac">${A.map(a=>`<button class="ach" data-a="ach"><div>${hx(a[3],a[4],a[2])}</div><b>${a[1]}</b><span>${a[0]}</span></button>`).join('')}</div></div>
+<div class="in tp"><div class="st2">${RI('items/skin')}Tampilan Profil</div><div class="tl">${ownedSkins().slice(0,6).map(i=>`<button class="av tile ${i===sel?'sel':''}" data-a="pick" data-id="${i.id}" aria-label="${i.name}">${thumb(i)}${i.id===eq.id?`<em>${sv('<path d="m5 12 5 5 9-10"/>')}</em>`:''}</button>`).join('')}</div><button class="chg" data-a="chg">${RI('items/skin')}Ubah Skin</button></div>`;
+ $('#pg').innerHTML=`<div class="hd">${RI('mode/kontak')}Progress</div>
+<div class="in lvc"><div class="hx">${hx('#ffd24d','#c98a0c','lobby/leader')}</div><div class="lc"><b>Lv. ${MOCK.lvl}</b>${bar}</div></div>
+<button class="in st" data-a="win"><i>${RI('lobby/trophy')}</i><div><small>Rasio Kemenangan</small><b>${pcn()}%</b></div><em>${MOCK.win} / ${MOCK.play}</em>${CH}</button>
+<button class="in st" data-a="play"><i>${RI('mode/console')}</i><div><small>Total Main</small><b>${MOCK.play}</b></div>${CH}</button>
+<button class="in st" data-a="rank"><i>${RI('profile/globe')}</i><div><small>Peringkat Global</small><b>#${MOCK.rank} ${RI('lobby/leader')}</b></div>${CH}</button>
 <div class="in qt">Terus bermain, terus berkembang!&rdquo;</div>`}
 function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
 function renderInfo(){renderCurrency()}
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
 function init(){
- $('#b0').innerHTML=RI('camera');$('#b1').innerHTML=RI('refresh');render();renderInfo()}
+ $('#b0').innerHTML=RI('profile/camera');$('#b1').innerHTML=RI('ui/refresh');render();renderInfo()}
 const rows=(t,a)=>openModal(`<h2>${t}</h2>`+a.map(r=>`<div class="row"><span>${r[0]}</span><b>${r[1]}</b></div>`).join(''));
 const DT={win:()=>rows('Rasio Kemenangan',[['Menang',MOCK.win],['Kalah',MOCK.play-MOCK.win],['Rasio',pcn()+'%']]),
  play:()=>rows('Total Main',[['Pertandingan',MOCK.play],['Misi selesai',15],['Event diikuti',5]]),
