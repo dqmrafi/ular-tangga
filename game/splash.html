@@ -219,7 +219,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
       <span class="spark sp1">✦</span><span class="spark sp2">✧</span>
       <div class="dice"><div class="face f1"><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i></div><div class="face f2"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f3"><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i></div><div class="face f4"><i></i><i class="o"></i><i></i><i class="o"></i><i class="o"></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f5"><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i><i class="o"></i><i></i></div><div class="face f6"><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i><i></i><i class="o"></i><i></i></div></div>
     </div>
-    <div class="status">Sedang Memuat...</div>
     <div class="loading-track"><div class="loading-fill" id="fill"></div></div>
     <div class="load-meta"><span>MENYIAPKAN DUNIA</span><span id="percent">0%</span></div>
   </section>
@@ -262,7 +261,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   });
 
   /* ---------- preload data & aset, lalu masuk ke lobby ---------- */
-  const out = document.getElementById('percent'), fill = document.getElementById('fill'), st = document.querySelector('.status');
+  const out = document.getElementById('percent'), fill = document.getElementById('fill');
   const ASSETS=[
     'assets/css/base.css','assets/css/shared-ui.css','assets/js/landscape.js','assets/js/boot-guard.js','assets/js/item-catalog.js','assets/js/item-art.js','assets/js/player-data.js','assets/js/app.js','assets/js/game-integration.js','hud/ui-core.js','hud/components/button.css','hud/components/button.js',
     'assets/sfx/ui/button-click.mp3','assets/sfx/ui/chest-reward.mp3','assets/sfx/ui/game-lose.mp3','assets/sfx/ui/power-claim.mp3',
@@ -278,7 +277,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
   ASSETS.unshift(dest.split('?')[0]);
   try { window.PlayerData && PlayerData.snapshot(); } catch (e) {} /* jalankan migrasi/muat state sekali sebelum halaman tampil */
   UT_Preload.run(ASSETS, p => { out.textContent = p + '%'; fill.style.width = p + '%'; }).then(() => {
-    st.textContent = 'Siap Bertualang!';
     try { sessionStorage.setItem('ut:booted', '1'); } catch (e) {}
     setTimeout(() => location.replace(dest), 350);
   });
