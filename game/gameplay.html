@@ -1566,20 +1566,65 @@ function respawnMob(o){
 /* Mob jahat (zombie/skeleton/creeper/spider) hanya ada saat MALAM. Siang: disembunyikan & dinonaktifkan (life='day'), panah dibuang.
    Malam: muncul lagi lewat respawnMob (efek spawn, HP penuh). Golem (ramah) tetap ada. Dipanggil dari applyLook (ganti siang/malam) dan spawnLife (dunia baru). */
 const NIGHT_MOBS={zombie:1,skeleton:1,creeper:1,spider:1};
+const SPAWN_GAP=[8,15];           /* jeda antar mob muncul saat malam (detik) */
+const BURN_DELAY=20;              /* mob mulai terbakar acak 0-20 dtk setelah siang */
+const BURN_DUR=[10,18];           /* lama terbakar sampai hilang (detik) */
+function restoreBurn(o){
+  if(o.bm){ o.bm.forEach(e=>{ e.mesh.material=e.orig; if(e.mat.dispose) e.mat.dispose(); }); o.bm=null; }
+  o.burn=false; o.burnIn=-1;
+}
+function hostEnter(o){
+  restoreBurn(o); respawnMob(o);
+  if(reduce){ o.life='alive'; o.tm=0; o.g.scale.setScalar(1); o.g.position.set(o.x,0,o.z); o.g.rotation.y=o.yaw; } /* gerak dikurangi: updateLife tidak jalan, langsung tampil penuh */
+}
+function hostToDay(o){
+  restoreBurn(o); o.life='day'; o.tgt=null; o.mode='idle'; o.hurt=0; o.spawnIn=0; o.g.visible=false; o.g.rotation.z=0; o.g.scale.setScalar(1);
+}
 function syncHostNight(){
+  let gap=1;
   for(let i=0;i<HOST.length;i++){
     const o=HOST[i]; if(!NIGHT_MOBS[o.kind]) continue;
     if(night){
       if(o.life==='day'){
-        respawnMob(o);
-        if(reduce){ o.life='alive'; o.tm=0; o.g.scale.setScalar(1); o.g.position.set(o.x,0,o.z); o.g.rotation.y=o.yaw; } /* gerak dikurangi: updateLife tidak jalan, langsung tampil penuh */
-      }
-    }else if(o.life!=='day'){
-      o.life='day'; o.tgt=null; o.mode='idle'; o.hurt=0; o.g.visible=false; o.g.rotation.z=0;
+        if(reduce) hostEnter(o);
+        else{ o.spawnIn=gap; gap+=SPAWN_GAP[0]+Math.random()*(SPAWN_GAP[1]-SPAWN_GAP[0]); } /* muncul satu per satu */
+      }else restoreBurn(o); /* malam kembali sebelum terbakar habis: batal terbakar */
+    }else{
+      o.spawnIn=0;
+      if(o.life==='day') continue;
+      if(reduce||o.life==='gone'||o.life==='dying') hostToDay(o);
+      else if(!o.burn&&!(o.burnIn>=0)){ o.burnIn=Math.random()*BURN_DELAY; o.burnTot=BURN_DUR[0]+Math.random()*(BURN_DUR[1]-BURN_DUR[0]); }
     }
   }
   if(!night&&ARROWS.length){ ARROWS.forEach(a=>world.remove(a.m)); ARROWS.length=0; }
 }
+/* siang: mob terbakar pelan-pelan (kedip api, makin gosong, mengecil) lalu hilang; malam: muncul satu per satu */
+function updateNightMobs(dt,t){
+  for(let i=0;i<HOST.length;i++){
+    const o=HOST[i]; if(!NIGHT_MOBS[o.kind]) continue;
+    if(night){
+      if(o.life==='day'&&o.spawnIn>0){ o.spawnIn-=dt; if(o.spawnIn<=0) hostEnter(o); }
+      continue;
+    }
+    if(o.life==='gone'||o.life==='dying'&&o.tm<=0){ hostToDay(o); continue; }
+    if(o.life==='day') continue;
+    if(!o.burn&&o.burnIn>=0){
+      o.burnIn-=dt;
+      if(o.burnIn<=0){
+        o.burn=true; o.burnLeft=o.burnTot||12; o.bm=[]; o.fxT=0;
+        o.g.traverse(m=>{ if(m.isMesh&&m.material&&!Array.isArray(m.material)&&m.material.emissive){ const c=m.material.clone(); o.bm.push({mesh:m,orig:m.material,mat:c}); m.material=c; } });
+      }
+    }
+    if(!o.burn) continue;
+    o.burnLeft-=dt;
+    const k=Math.max(0,o.burnLeft/(o.burnTot||12)),fl=Math.sin(t*28+o.ph)>0;
+    if(o.bm) o.bm.forEach(e=>{ e.mat.emissive.setHex(fl?0xFF5A00:0x7A1A00); e.mat.color.lerp(CHAR,Math.min(1,dt*0.35)); });
+    if(o.life==='alive') o.g.scale.setScalar(0.7+0.3*k);
+    o.fxT-=dt; if(o.fxT<=0){ o.fxT=0.3; sparkle(new THREE.Vector3(o.x+(Math.random()-0.5)*0.2,o.y+0.3+Math.random()*0.5,o.z+(Math.random()-0.5)*0.2)); }
+    if(o.burnLeft<=0){ sparkle(new THREE.Vector3(o.x,0.5,o.z)); hostToDay(o); }
+  }
+}
+const CHAR=new THREE.Color(0x1a1008);
 function stepMob(o,tx,tz,sp,dt){
   const dx=tx-o.x,dz=tz-o.z,d=Math.hypot(dx,dz); o.blocked=false;
   let da=Math.atan2(dx,dz)-o.yaw; da=Math.atan2(Math.sin(da),Math.cos(da)); o.yaw+=da*Math.min(1,dt*8);
@@ -1614,6 +1659,7 @@ function updateLife(dt,t){
     a.m.position.set(a.sx+(a.tx-a.sx)*k,0.6+Math.sin(k*Math.PI)*0.12-k*0.1,a.sz+(a.tz-a.sz)*k);
     if(k>=1){ if(a.tgt.life==='alive'&&Math.hypot(a.tgt.x-a.tx,a.tgt.z-a.tz)<0.55) hurtMob(a.tgt,1,a.from); world.remove(a.m); ARROWS.splice(i,1); }
   }
+  updateNightMobs(dt,t);
   for(let i=0;i<HOST.length;i++){
     const o=HOST[i];
     if(o.life==='day') continue;
@@ -2292,6 +2338,9 @@ const fontReady=(document.fonts&&document.fonts.load)
   :Promise.resolve();
 
 let night=false,nightObjs=[],torchMeshes=[],skyStars=null;
+const PHASE_SEC=12*60;                         /* mode auto: tiap fase siang/malam 12 menit */
+let autoDN=false,phaseT=0;
+try{ autoDN=localStorage.getItem('ut-auto')==='1'; }catch(e){}
 const skyDome=new THREE.Group(); scene.add(skyDome); /* ikut posisi kamera, jadi bintang/bulan selalu 'tak terhingga jauh' */
 try{ night=localStorage.getItem('ut-malam')==='1'; }catch(e){}
 const mixHex=(a,b,k)=>'#'+new THREE.Color(a).lerp(new THREE.Color(b),k).getHexString();
@@ -2312,7 +2361,7 @@ function tileBlock(n,t,th){
   const r=rnd(); return r<0.22?th.wall[0]:(r<0.6?th.tileB:th.tileA);
 }
 function updateNightUI(){
-  $('btnNight').textContent='Mode: '+(night?'Malam':'Siang');
+  $('btnNight').textContent='Mode: '+(autoDN?'Auto · ':'')+(night?'Malam':'Siang');
   if($('nDay')) $('nDay').setAttribute('aria-pressed',String(!night));
   if($('nNight')) $('nNight').setAttribute('aria-pressed',String(night));
 }
@@ -3758,8 +3807,15 @@ function chooseTheme(key){
   pendingTheme=null; buildWorld(key);
 }
 let lastSkins=null;
-function setNight(v){ night=v; try{ localStorage.setItem('ut-malam',v?'1':'0'); }catch(e){} applyLook(theme); }
-$('btnNight').addEventListener('click',()=>setNight(!night));
+function setNight(v){ night=v; phaseT=0; try{ localStorage.setItem('ut-malam',v?'1':'0'); }catch(e){} applyLook(theme); }
+function setAuto(v){ autoDN=v; phaseT=0; try{ localStorage.setItem('ut-auto',v?'1':'0'); }catch(e){} }
+function cycleMode(){ /* Siang -> Malam -> Auto -> Siang */
+  if(autoDN){ setAuto(false); setNight(false); }
+  else if(night){ setAuto(true); setNight(night); }
+  else setNight(true);
+}
+function tickAuto(dt){ if(!autoDN||paused||gameOver) return; phaseT+=dt; if(phaseT>=PHASE_SEC) setNight(!night); }
+$('btnNight').addEventListener('click',()=>{ cycleMode(); });
 const DICE=[{key:'klasik',name:'Klasik',bg:'#ffffff',pip:'#1b2a3b',edge:'#1b2a3b'},{key:'tnt',name:'TNT',bg:'#d63a2a',pip:'#ffffff',edge:'#4a0d07'},{key:'rumput',name:'Rumput',bg:'#5fae3e',pip:'#1f4a12',edge:'#2c5a1c'},{key:'diamond',name:'Diamond',bg:'#4aedd9',pip:'#0b4f4a',edge:'#0b4f4a'},{key:'emas',name:'Emas',bg:'#ffd23f',pip:'#6b4a00',edge:'#6b4a00'},{key:'obsidian',name:'Obsidian',bg:'#2a1747',pip:'#d3b4ff',edge:'#0d0618'}];
 let diceKey='klasik'; try{ diceKey=localStorage.getItem('ut-dadu')||'klasik'; }catch(e){}
 function applyDice(k){
@@ -3798,9 +3854,9 @@ $('pmSfx')&&$('pmSfx').addEventListener('input',e=>{ setSfxVol(+e.target.value);
 $('pmSfx')&&$('pmSfx').addEventListener('change',()=>{ ensureAudio(); try{ if(GA) GA.play('pop'); }catch(e){} });
 const ICO_SUN='<img src="assets/Images/icon/ui/day.webp" alt="" draggable="false">';
 const ICO_MOON='<img src="assets/Images/icon/ui/night.webp" alt="" draggable="false">';
-$('pmMode').addEventListener('click',()=>{ setNight(!night); syncPauseNight(); setMusicOn(true); });
+$('pmMode').addEventListener('click',()=>{ cycleMode(); syncPauseNight(); setMusicOn(true); });
 /* ---------- Menu jeda: lanjutkan, siang/malam, keluar (dengan konfirmasi) ---------- */
-function syncPauseNight(){ $('pmMode').setAttribute('aria-pressed',String(night)); $('pmModeTxt').textContent=night?'Malam':'Siang'; $('pmModeIco').innerHTML=night?ICO_MOON:ICO_SUN; }
+function syncPauseNight(){ $('pmMode').setAttribute('aria-pressed',String(night)); $('pmModeTxt').textContent=autoDN?('Auto · '+(night?'Malam':'Siang')):(night?'Malam':'Siang'); $('pmModeIco').innerHTML=night?ICO_MOON:ICO_SUN; }
 function openPause(){
   if(paused||AWK.running) return; paused=true; clearTurnTimer();
   $('pmCpu').hidden=mode!=='cpu'; syncPauseNight(); syncMusicUI();
@@ -3883,7 +3939,7 @@ function frame(now){
   if(focus) watch.push(focus.position);
   players.forEach(p=>watch.push(p.pawn.position));
   updateMobs(dt,now/1000);
-  updateFX(dt,now/1000); updateRoam(dt,now/1000); updateLife(dt,now/1000);
+  updateFX(dt,now/1000); updateRoam(dt,now/1000); updateLife(dt,now/1000); tickAuto(dt);
   updateFades(dt,watch);
   renderer.render(scene,camera);
 }
