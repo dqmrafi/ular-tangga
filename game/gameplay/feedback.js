@@ -4,7 +4,7 @@
    showPUCard tetap didaftarkan gameplay sebagai presenter Feedback.reward. Kapan feedback ditampilkan (urutan aksi) tetap ditentukan gameplay.html.
    Dependensi diberikan lewat init({sfx, sleep, reduce}); data Power dibaca dari UT.Gameplay.Config.PUN (sumber yang sama dengan gameplay).
    Classic script. Namespace: UT.GameplayFeedback.
-   API: init(deps) · setCurrentMarker(players, cur) · hideMarker(player) · updateTurnMarkers(players, now, dt) · showPUCard(p, k) · showAttackCard(attacker, defender, weapon, desc, {silent}) — silent:true = tanpa sfx.pop (pemanggil memutar suara sendiri) */
+   API: init(deps) · setCurrentMarker(players, cur) · hideMarker(player) · updateTurnMarkers(players, now, dt) · showPUCard(p, k) · showAttackCard(attacker, defender, weapon, desc, {silent}) — silent:true = tanpa sfx.pop (pemanggil memutar suara sendiri) · showChestRewardCard(who, text) / hideChestRewardCard() — card reward Chest compact (tanpa sfx) */
 (function (win, doc) {
   'use strict';
   var UT = win.UT = win.UT || {};
@@ -39,7 +39,7 @@
      const PUN=getPUN();
      const c=$('puCard'),em=$('pcEmoji'),keys=Object.keys(PUN);
      $('pcWho').textContent=p.name+' membuka peti'; $('pcName').textContent='...'; $('pcDesc').textContent='';
-     c.classList.remove('pop'); c.hidden=false;
+     c.classList.remove('pop','chest'); c.hidden=false;
      if(!reduce) for(let i=0;i<9;i++){ setIco(em,keys[i%keys.length]); await sleep(75); }
      sfx.rewardpower();
      setIco(em,k); $('pcName').textContent=PUN[k][1]; $('pcDesc').textContent=PUN[k][2]; c.classList.add('pop'); sfx.pop();
@@ -53,9 +53,18 @@
      $('pcName').textContent=PUN[weapon]?PUN[weapon][1]:weapon;
      $('pcDesc').textContent=desc;
      setIco(em,weapon,'⚔️');
-     c.classList.remove('pop'); c.hidden=false; c.classList.add('pop'); if(!(o&&o.silent)) sfx.pop();
+     c.classList.remove('pop','chest'); c.hidden=false; c.classList.add('pop'); if(!(o&&o.silent)) sfx.pop();
      clearTimeout(atkTimer); atkTimer=setTimeout(()=>c.hidden=true,1600); /* timer lama dibatalkan: card baru tidak ikut tertutup timer card sebelumnya */
   }
+  /* Kartu reward Chest (compact, tengah layar): reuse #puCard + kelas 'chest'. Tidak ada SFX di sini: pemanggil (giveChest) memutar SFX Chest/Reward 1x. Ditutup lewat hideChestRewardCard. */
+  function showChestRewardCard(who,text){
+     const c=$('puCard'),em=$('pcEmoji');
+     clearTimeout(atkTimer);
+     $('pcWho').textContent=who+' membuka peti'; $('pcName').textContent=text; $('pcDesc').textContent='';
+     em.textContent='🎁';
+     c.classList.remove('pop'); c.classList.add('chest'); c.hidden=false; c.classList.add('pop');
+  }
+  function hideChestRewardCard(){ const c=$('puCard'); if(!c||!c.classList.contains('chest')) return; c.hidden=true; c.classList.remove('chest','pop'); }
 
-  UT.GameplayFeedback = { init: init, setCurrentMarker: setCurrentMarker, hideMarker: hideMarker, updateTurnMarkers: updateTurnMarkers, showPUCard: showPUCard, showAttackCard: showAttackCard };
+  UT.GameplayFeedback = { init: init, setCurrentMarker: setCurrentMarker, hideMarker: hideMarker, updateTurnMarkers: updateTurnMarkers, showPUCard: showPUCard, showAttackCard: showAttackCard, showChestRewardCard: showChestRewardCard, hideChestRewardCard: hideChestRewardCard };
 })(window, document);

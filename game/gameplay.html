@@ -597,6 +597,10 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
 /* --- Kartu hadiah / power-up --- */
 body .pucard{min-width:clamp(250px,22vw,340px);padding:18px 30px 20px}
 #pcName{font-size:clamp(22px,2vw,30px)}
+body .pucard.chest{min-width:220px;max-width:min(300px,86vw);padding:10px 18px 12px}
+body .pucard.chest #pcEmoji{font-size:40px;margin:4px 0 2px}
+body .pucard.chest #pcName{font-size:clamp(18px,1.6vw,24px);margin:0;overflow-wrap:anywhere}
+body .pucard.chest #pcDesc:empty{display:none}
 
 /* --- Layout desktop: area aman 14px --- */
 @media(min-width:700px){
@@ -3659,11 +3663,13 @@ async function giveChest(p,tok){
      await sleep(reduce?200:550); if(gid!==gameId) return {status:'stale'};
      const rw=resolveChestReward(); CHEST_LC.rewards++; /* reward tepat 1x per lifecycle */
      const res=await applyChestReward(p,rw,gid); if(gid!==gameId) return {status:'stale'};
-     setMsg(p.name+' membuka peti: '+res.text+'.'); fb('event','chest','Chest: '+res.text);
-     await sleep(reduce?300:900); if(gid!==gameId) return {status:'stale'}; /* Chest tetap OPEN selama proses */
+     setMsg(p.name+' membuka peti: '+res.text+'.');
+     if(FBK){ FBK.showChestRewardCard(p.name,res.text); sfx.rewardpower(); } else fb('event','chest','Chest: '+res.text); /* compact reward card + SFX reward 1x per reward */
+     await sleep(reduce?600:1200); if(gid!==gameId) return {status:'stale'}; /* Chest tetap OPEN selama card tampil */
+     if(FBK) FBK.hideChestRewardCard();
      sfx.chestClose(); closeChest(n); await sleep(reduce?150:350); /* CLOSE */
      return {status:'accepted',reward:rw.id};
-   }finally{ closeChest(n); CHEST_LC.active=false; }
+   }finally{ if(FBK) FBK.hideChestRewardCard(); closeChest(n); CHEST_LC.active=false; }
 }
 try{ fb('setRewardPresenter',showPUCard); }catch(e){ console.error(e); }
 /* Presentasi visual feedback = UT.GameplayFeedback (gameplay/feedback.js). Routing teks/HUD tetap UT.Gameplay.Feedback (fb(...)); kapan kartu tampil tetap ditentukan di sini. */
