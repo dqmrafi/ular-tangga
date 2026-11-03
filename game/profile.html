@@ -2,7 +2,7 @@
 <html lang="id" class="stage16"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Profil</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft"></script><style>
 :root{--bd:#12337f;--y1:#ffd24d;--y2:#ff9a1f;--g:#3cc23c;--r0:#6f8aa8;--r1:#2f8cf0;--r2:#9a4ae0;--r3:#f0b030}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 html{font-size:min(1vw,1.78vh)}
@@ -247,6 +247,7 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'profile'});</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="assets/js/floating-island.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID'),esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -381,11 +382,7 @@ function diceTex(c,p){const cv=document.createElement('canvas');cv.width=cv.heig
 function model(c,it){let g;
  if(c==='skin')g=character(AR.palette(it.id)||{hood:'#00a8a8',hair:'#4a2e13',pants:'#3b4fd8'},pose);
  return g}
-function island(){const g=new THREE.Group(),cells=[];for(let y=0;y>-4;y--){const r=y===0?3.2:y===-1?3:Math.max(1,3.2+y*.8);for(let x=-3;x<=3;x++)for(let z=-3;z<=3;z++)if(Math.hypot(x,z)<=r+(((x*7+z*13+y*5)%3)*.15)-.2)cells.push([x,y,z])}
- const m=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({roughness:.8}),cells.length),m4=new THREE.Matrix4(),col=new THREE.Color();
- cells.forEach((c,i)=>{m4.setPosition(c[0],c[1]-.5,c[2]);m.setMatrixAt(i,m4);m.setColorAt(i,col.setHex(c[1]===0?((c[0]+c[2])&1?0x58b83c:0x4fae36):c[1]===-1?0x8a5a3a:(c[0]*c[2]%3===0?0x7a7a80:0x754b30)))});m.castShadow=m.receiveShadow=true;g.add(m);
- for(let i=0;i<7;i++){const a=i*2.3;bx(.2,.5+.3*(i%2),.2,M(0x3fa83a),Math.cos(a)*2.4,.25,Math.sin(a)*2.4,g)}bx(.25,.25,.25,M(0xffffff),-1.8,.4,1.5,g);bx(.9,.25,.9,M(0x9a9aa0),2,.12,1.9,g);
- const glow=new THREE.Mesh(new THREE.RingGeometry(3.4,4.3,40),new THREE.MeshBasicMaterial({color:0xbfeaff,transparent:true,opacity:.6,side:THREE.DoubleSide}));glow.rotation.x=-Math.PI/2;glow.position.y=-3.6;g.add(glow);return g}
+function island(){return UT.FloatingIsland.create(THREE,{seed:5,bob:0,scale:.92})} /* komponen bersama: assets/js/floating-island.js */
 let ok=true;const rigs=[];
 function rig(cv,withIsland,cy,dist,fov){if(!ok)return null;try{const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});r.shadowMap.enabled=true;r.shadowMap.type=THREE.PCFSoftShadowMap;
  const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(fov,1,.1,100);scene.add(new THREE.AmbientLight(0xffffff,.6),new THREE.HemisphereLight(0xcfeaff,0x6a9a50,.6));
