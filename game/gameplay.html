@@ -787,15 +787,15 @@ body #win.lm-ov{background:rgba(11,24,56,.32);backdrop-filter:none;-webkit-backd
 #pauseMenu .lm-srow input[type=range]::-moz-range-track{height:max(10px,calc(var(--mu)*1.5));border-radius:99px;background:#0c1c4c}
 #pauseMenu .lm-srow input[type=range]::-moz-range-progress{height:max(10px,calc(var(--mu)*1.5));border-radius:99px;background:var(--c)}
 #pauseMenu .lm-srow input[type=range]::-moz-range-thumb{width:max(22px,calc(var(--mu)*3));height:max(22px,calc(var(--mu)*3));border-radius:50%;border:2px solid #fff;background:var(--c)}
-/* landscape pendek (HP): Musik & Suara berdampingan, ikon ujung disembunyikan */
+/* landscape pendek (HP): modal rasio 4:3, susunan bertumpuk seperti portrait */
 @media (orientation:landscape) and (max-height:430px){
-  #pauseMenu .lm-box{width:min(calc(var(--mu)*84),92vw)}
-  #pauseMenu .lm-srow{grid-column:auto;padding:calc(var(--mu)*.8) calc(var(--mu)*1.2);gap:calc(var(--mu)*1)}
-  #pauseMenu .lm-srow .lm-end{display:none}
-  #pauseMenu .lm-srow .lm-lbl{min-width:0;font-size:calc(var(--mu)*1.9)}
+  #pauseMenu .lm-box{box-sizing:border-box;display:flex;aspect-ratio:4/3;width:min(calc((100dvh - 56px)*4/3),90vw)}
+  #pauseMenu .lm-body{display:flex;flex-direction:column;justify-content:center;width:100%;padding-top:calc(var(--mu)*1.6);padding-bottom:calc(var(--mu)*1.8)}
+  #pauseMenu .lm-srow{padding:calc(var(--mu)*.8) calc(var(--mu)*1.4)}
+  #pauseMenu .lm-srow .lm-lbl{min-width:calc(var(--mu)*6.5);font-size:calc(var(--mu)*2)}
   #pauseMenu .lm-resume{min-height:calc(var(--mu)*6.4)}
   #pauseMenu .lm-grid{gap:calc(var(--mu)*.8)}
-  #pauseMenu .lm-mode{min-height:42px}
+  #pauseMenu .lm-mode{min-height:40px}
 }
 </style>
 <script src="gameplay/hud-scale.js"></script>
