@@ -55,13 +55,15 @@
      Power = 0% (Power hanya dari Shop/Inventory). Tidak ada entri power di sini. */
   C.CHEST_POOL = C.CHEST_POOL || [
     { id: 'empty',   w: 150 },  /* 15%  */
-    { id: 'maju',    w: 180 },  /* 18%  maju 1-3 langkah */
+    { id: 'maju',    w: 130 },  /* 13%  maju 1-3 langkah */
     { id: 'mundur',  w: 50 },   /* 5%   mundur 1-3 langkah */
     { id: 'odd',     w: 120 },  /* 12%  */
     { id: 'even',    w: 120 },  /* 12%  */
     { id: 'lucky',   w: 60 },   /* 6%   label tampil: "Pasti 6" (dadu berikutnya 6) */
-    { id: 'addroll', w: 140 },  /* 14%  */
-    { id: 'bonus',   w: 180 }   /* 18%  Bonus Langkah: dadu berikutnya +2 */
+    { id: 'addroll', w: 100 },  /* 10%  */
+    { id: 'bonus',   w: 130 },  /* 13%  Bonus Langkah: dadu berikutnya +2 */
+    { id: 'tangga',  w: 70 },   /* 7%   Lucky: meluncur ke tangga terdekat di depan (lalu naik) */
+    { id: 'ular',    w: 70 }    /* 7%   Unlucky: meluncur ke ular terdekat di depan (lalu turun) */
   ]; /* Semua reward Chest hanya berdampak ke pemain pembuka (tanpa interaksi antar pemain). Coin/XP/Emerald dihapus. */
   C.CHEST_AMOUNT = C.CHEST_AMOUNT || { coins: 5, xp: 10, gems: 1 };
   C.CHEST_MOVE = C.CHEST_MOVE || [1, 2, 3]; /* kandidat langkah untuk reward maju / mundur */

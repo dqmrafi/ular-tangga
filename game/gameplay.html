@@ -3469,6 +3469,14 @@ async function applyChestReward(p,rw,gid){
       if(mv!==0){ await walk(p,p.pos,to); if(gid!==gameId) return {text:''}; p.pos=to; renderChips(); }
       return {text:mv===0?'Tidak bergerak':(mv>0?'Maju ':'Mundur ')+Math.abs(mv)+' langkah'};
     }
+    case 'tangga': case 'ular':{
+      const src=rw.id==='tangga'?LADDERS:SNAKES,ahead=Object.keys(src).map(Number).filter(n=>n>p.pos).sort((a,b)=>a-b);
+      if(!ahead.length) return {text:rw.id==='tangga'?'Lucky! Tapi tidak ada tangga di depanmu':'Unlucky! Tapi tidak ada ular di depanmu'};
+      const to=ahead[0]; sfx.pop();
+      await teleport(p,to); if(gid!==gameId) return {text:''};
+      p.pos=to; renderChips();
+      return {text:rw.id==='tangga'?'Lucky! Meluncur ke Tangga di petak '+to:'Unlucky! Meluncur ke Ular di petak '+to};
+    }
     case 'bonus': p.bonus=2; renderChips(); return {text:'Bonus Langkah! Dadu berikutnya +2'};
     case 'odd': chestFlag(p,'odd'); return {text:'Dadu Ganjil Berikutnya (1/3/5)'};
     case 'even': chestFlag(p,'even'); return {text:'Dadu Genap Berikutnya (2/4/6)'};
