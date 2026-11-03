@@ -60,9 +60,9 @@ dialog#trailer::backdrop{background:rgba(10,30,100,.8);backdrop-filter:blur(6px)
 .tr-screen iframe,.tr-screen video{width:100%;height:100%;border:0;background:#000}
 .tr-soon h3{font-family:'Lilita One',sans-serif;font-weight:400;font-size:clamp(24px,4vw,36px);margin:14px 0 6px}
 .tr-soon p{margin:0;color:#e3f1ff;font-size:15px}
-.img-bg{background-image:url("../image/hero-bg.jpg");background-size:cover;background-position:center top;background-color:#4aa0f0}
-.img-hero{background-image:url("../image/hero-art.jpg");background-repeat:no-repeat}
-.img-banner{background-image:url("../image/banner.jpg");background-repeat:no-repeat}
+.img-bg{background-image:url("../image/hero-bg.webp");background-size:cover;background-position:center top;background-color:#4aa0f0}
+.img-hero{background-image:url("../image/hero-art.webp");background-repeat:no-repeat}
+.img-banner{background-image:url("../image/banner.webp");background-repeat:no-repeat}
 .hero{position:relative;isolation:isolate;overflow:hidden;color:#fff;padding-bottom:90px}
 .hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:200px;background:linear-gradient(180deg,rgba(18,51,127,0),#12337f);z-index:-1;pointer-events:none}
 .hero-in{position:relative;max-width:1280px;margin:0 auto;padding:0 var(--px);display:flex;flex-direction:column}
@@ -155,10 +155,10 @@ a.gcard:hover{transform:translateY(-4px);box-shadow:0 14px 26px rgba(18,51,127,.
 .cbtn{width:100%;justify-content:center}
 .ctxt{flex-basis:60%}
 }
-.art-landing{background-image:url("../image/banner-utama-landing.jpg")}
+.art-landing{background-image:url("../image/banner-utama-landing.webp")}
 .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 28px}
 .chips span{padding:8px 14px;border-radius:999px;background:rgba(255,210,77,.14);border:1px solid rgba(255,210,77,.45);color:#ffe9a0;font-weight:700;font-size:14px}
-.bigfoot{position:relative;isolation:isolate;overflow:hidden;background:#06103a url("../image/banner-promosi.jpg") center/cover no-repeat}
+.bigfoot{position:relative;isolation:isolate;overflow:hidden;background:#06103a url("../image/banner-promosi.webp") center/cover no-repeat}
 .bigfoot::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(6,16,48,.92) 0,rgba(6,16,48,.78) 38%,rgba(6,16,48,.05) 75%),linear-gradient(180deg,rgba(6,16,48,0) 55%,rgba(6,16,48,.9) 100%)}
 .bf-top{max-width:1280px;margin:0 auto;padding:110px var(--px) 90px;min-height:560px;display:flex;align-items:center}
 .bf-in{max-width:560px}

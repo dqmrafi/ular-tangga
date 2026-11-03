@@ -1,6 +1,6 @@
 /* Ular Tangga Blok — halaman peringkat (leaderboard) */
 body{background:#12337f}
-.lb-hero{position:relative;isolation:isolate;overflow:hidden;color:#fff;padding-bottom:150px;background:#06103a url("../image/banner-leaderboard.jpg") center 15%/cover no-repeat}
+.lb-hero{position:relative;isolation:isolate;overflow:hidden;color:#fff;padding-bottom:150px;background:#06103a url("../image/banner-leaderboard.webp") center 15%/cover no-repeat}
 .lb-hero::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(6,16,48,.5) 0,rgba(6,16,48,0) 22%),linear-gradient(90deg,rgba(6,16,48,.9) 0,rgba(6,16,48,.68) 38%,rgba(6,16,48,.05) 72%),linear-gradient(180deg,rgba(18,51,127,0) 55%,#12337f 100%)}
 .lb-in{position:relative;max-width:1280px;margin:0 auto;padding:0 var(--px)}
 .lb-head{padding:34px 0 0;max-width:600px}

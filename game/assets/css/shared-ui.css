@@ -88,7 +88,7 @@ html:not(.ut-ready) body { visibility: hidden; animation: ut-reveal 0s 1.5s forw
   }
 }
 
-/* ---------- Modal pixel (redesign-hud/modal.jpg) ----------
+/* ---------- Modal pixel (redesign-hud/modal.webp) ----------
    HANYA tampilan. Markup, id, class, dan JS modal tidak berubah. Dipakai semua halaman yang memuat shared-ui.css. */
 html body .ov { background: rgba(11, 24, 56, .45); backdrop-filter: blur(3px); }
 html body .ov > .box {

@@ -384,7 +384,7 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
 </section>
 
 <style id="lobby-modal">
-/* Modal Menu/Jeda gameplay = modal pixel lobby (redesign-hud/modal.jpg; lihat assets/css/shared-ui.css). Satuan "rem lobby" = --mu. Hanya tampilan; id & JS tetap. */
+/* Modal Menu/Jeda gameplay = modal pixel lobby (redesign-hud/modal.webp; lihat assets/css/shared-ui.css). Satuan "rem lobby" = --mu. Hanya tampilan; id & JS tetap. */
 .lm-ov{--mu:clamp(5.2px,min(1vw,1.85vh),9px);align-items:center;justify-content:center;padding:calc(10px + env(safe-area-inset-top,0px)) max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif;font-weight:800;color:#fff}
 body #pauseMenu.lm-ov,body #exitConfirm.lm-ov{background:rgba(11,24,56,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 .lm-ov:not([hidden]){animation:lmFade .25s both}
@@ -421,7 +421,7 @@ body #pauseMenu.lm-ov,body #exitConfirm.lm-ov{background:rgba(11,24,56,.45);back
 </style>
 
 <style id="ready-pixel">
-/* Layar Ready/Shuffle ("Siap main?") = modal pixel (sama dengan Menu/Jeda & lobby; redesign-hud/modal.jpg).
+/* Layar Ready/Shuffle ("Siap main?") = modal pixel (sama dengan Menu/Jeda & lobby; redesign-hud/modal.webp).
    HANYA tampilan. gameplay/ready.js (logika, DOM, id) tidak berubah; ukuran kartu/avatar tetap dari ready.js. */
 body #readyScreen{--mu:clamp(5.2px,min(1vw,1.85vh),9px);background:rgba(11,24,56,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);font-family:'Baloo 2','Fredoka','Nunito',system-ui,sans-serif}
 body #readyScreen .rd-box{border:calc(var(--mu)*.3) solid #0b1838;border-radius:calc(var(--mu)*1);background:linear-gradient(#3a76e0,#2a58c4);box-shadow:inset 0 0 0 calc(var(--mu)*.25) #5e90f0,0 calc(var(--mu)*.5) 0 #0b1838,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
@@ -674,7 +674,7 @@ body .pr img,body .sr img{border:2px solid #fff;box-shadow:0 0 0 3px var(--pc,#f
 body #side .pr .pos{background:var(--pc,rgba(10,40,120,.6));box-shadow:inset 0 0 0 2px rgba(255,255,255,.85);text-shadow:0 1px 0 rgba(0,0,0,.45)}
 </style>
 <style id="gameplay-pixel">
-/* HUD gameplay: gaya pixel Minecraft mengikuti redesign-hud/gameplay.jpg (disamakan dengan Toko/Profil/Inventory).
+/* HUD gameplay: gaya pixel Minecraft mengikuti redesign-hud/gameplay.webp (disamakan dengan Toko/Profil/Inventory).
    HANYA tampilan: markup, id, class, JS, kanvas 3D, dan posisi layout tidak diubah. Dimuat paling akhir agar menimpa gaya glossy sebelumnya. */
 :root{--ol:#0b1838;--rb1:#3f7ce8;--rb2:#2a5bc8;--rb-hi:#74a4f7;--nv1:#2a4478;--nv2:#1b305f}
 /* tombol atas kanan (Kunci/Angle, kamera, suara, menu) */

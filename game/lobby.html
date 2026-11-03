@@ -15,7 +15,7 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','
 svg{display:block}
 button{font:inherit;color:inherit;border:0;cursor:pointer;padding:0;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s}
 button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transform:scale(.94)}button:focus-visible{outline:.3rem solid #fff}
-/* panel batu-slate (gaya referensi lobby.jpg) */
+/* panel batu-slate (gaya referensi redesign-hud/lobby.webp) */
 .pn{background:linear-gradient(var(--sl1),var(--sl2));border-radius:1rem;box-shadow:inset 0 0 0 .22rem #8696ad,inset 0 0 0 .4rem #172033,0 .35rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35)}
 .tx{text-shadow:0 .16rem 0 #0b1220,0 0 .4rem rgba(11,18,32,.5)}
 .dot{position:absolute;right:-.7rem;top:-.8rem;min-width:2.6rem;height:2.6rem;padding:0 .5rem;border-radius:1.4rem;display:grid;place-items:center;font-style:normal;font-size:1.5rem;line-height:1;background:radial-gradient(#ff7a6a,#e8261c);border:.2rem solid #fff;box-shadow:0 .1rem .3rem rgba(0,0,0,.4);pointer-events:none;z-index:2}
@@ -193,7 +193,7 @@ $('#play').addEventListener('click',()=>{buzz();location.href='mode.html'});
    url   = (opsional) kalau diisi, klik langsung pindah halaman, bukan modal */
 const EVENTS=[
  {img:'promosi/placeholder.webp',modal:'promosi/placeholder.webp'}
- /* tambah event: ,{img:'promosi/event2.jpg',modal:'promosi/event2_detail.jpg'} */
+ /* tambah event: ,{img:'promosi/event2.webp',modal:'promosi/event2_detail.webp'} */
 ];
 let si=0;const ev=$('#event'),dts=$('#evd');
 ev.classList.toggle('one',EVENTS.length<2);
