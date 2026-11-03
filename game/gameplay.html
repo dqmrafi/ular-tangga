@@ -2036,7 +2036,7 @@ function addMcEnv(DB){
   /* sisi kiri: bukan sungai/gunung lagi, diganti pertanian kedua (lahan datar, lihat mcH) */
   blockRect(-11.6,-0.2,3.2,3.5); /* area kiri board = gunung batu penutup Dragon Arena (Feature 2; dulu farm) — dekorasi/hewan tidak masuk */
   cascadeHill(DB,'s',-11.4,-8.5,5.2,8.8,false,2); /* tinggi 2x */
-  for(let z=-8.0;z<=6.0;z+=1) addBox(DB,7+0.5*Math.sin(z*0.7),-0.04,z,1.6,0.16,1,jit(0x3F76E4,0.06),{edge:false}); /* menutup -8.5..6.5; terrain mulai 6.5 */
+  for(let z=-8.0;z<=6.0;z+=1){ addBox(DB,7+0.5*Math.sin(z*0.7),-0.04,z,1.6,0.16,1,jit(0x3F76E4,0.06),{edge:false}); waterDetail(DB,7+0.5*Math.sin(z*0.7),z,0.04,1.6,1,Math.round(z*4)+100,4,3); } /* menutup -8.5..6.5; terrain mulai 6.5 */
   const blocked=(x,z)=>(Math.abs(x)<5.4&&Math.abs(z)<5.4)||(Math.abs(x-PAD.x)<1.4&&Math.abs(z-PAD.z)<1.4)||(x>5.3&&z<-4.5)||(x>6&&x<8.1&&z>-9)||(z<-5.5&&x>-6.4&&x<2)||(Math.abs(x+6.9)<1.2&&Math.abs(z+3.6)<1.2)||(Math.abs(x-4.2)<1.2&&Math.abs(z+6.3)<1.2);
   item(-6.9,-3.6,1.6,1.3,b=>addMcHouse(b,-6.9,-3.6)); item(4.2,-6.3,1.6,1.3,b=>addMcHouse(b,4.2,-6.3));
   item(0.2,-6.4,2.3,1.4,b=>addPortal(b,0.2,-6.4));
@@ -2585,15 +2585,74 @@ function updatePortal(dt,now){
 const AWK={done:false,running:false};
 var ARENA=null,MOUNT=null;
 const ARENA_POS={x:-11.6,z:-0.2},ARENA_SIZE={w:5.2,d:5.6},ARENA_TOWER_H=3.3;
+/* ---------- Tekstur voxel dekoratif (arena, tower bedrock, kayu papan, air) ----------
+   Deterministik (hash lokal) dan TIDAK memakai rnd(): urutan acak dunia (pohon/hewan/rumah) tidak bergeser. Hanya menambah kotak kecil di atas geometri lama. */
+function hrn(a,b,c,d){ let h=Math.imul(a|0,374761393)^Math.imul(b|0,668265263)^Math.imul(c|0,-1640531527)^Math.imul(d|0,1274126177); h=Math.imul(h^(h>>>13),1274126177); h^=h>>>16; return (h>>>0)/4294967296; }
+function palAt(pal,r){ return pal[Math.min(pal.length-1,Math.floor(r*pal.length))]; }
+function vcol(hex,seed,a,b,amt){ const c=new THREE.Color(hex); c.offsetHSL(0,0,(hrn(a,b,seed,91)-0.5)*amt); return c; }
+/* kotak besar dipecah jadi voxel kecil, hanya lapisan permukaan (hemat); tiap voxel warna beda dari palet */
+function voxShell(B,cx,cy,cz,w,h,d,u,pal,seed,o){
+  const nx=Math.max(1,Math.round(w/u)),ny=Math.max(1,Math.round(h/u)),nz=Math.max(1,Math.round(d/u)),sx=w/nx,sy=h/ny,sz=d/nz;
+  for(let i=0;i<nx;i++) for(let j=0;j<ny;j++) for(let k=0;k<nz;k++){
+    if(i>0&&i<nx-1&&j>0&&j<ny-1&&k>0&&k<nz-1) continue;
+    addBox(B,cx-w/2+sx*(i+0.5),cy-h/2+sy*(j+0.5),cz-d/2+sz*(k+0.5),sx,sy,sz,vcol(palAt(pal,hrn(i,j*7+k,seed,3)),seed,i+k*13,j,0.035),o);
+  }
+}
+/* Bedrock: abu-abu gelap, bintik hitam & abu terang, tidak satu warna */
+const BEDROCK=[0x1B1B1B,0x1B1B1B,0x262626,0x262626,0x303030,0x3B3B3B,0x3B3B3B,0x4A4A4A,0x585858,0x0D0D0D,0x0D0D0D,0x6A6A6A];
+/* Papan kayu: lembar papan acak panjang, serat, paku, dan garis sambungan di sisi luar. alongX = sumbu panjang strip */
+function woodTop(B,cx,cz,w,d,topY,base,seed){
+  const E={edge:false},alongX=w>=d,L=alongX?w:d,N=alongX?d:w,rows=Math.max(1,Math.round(N/0.125)),rw=N/rows;
+  const sh=(dl,a,b)=>vcol(base,seed,a,b,0.0).offsetHSL(0,0,dl);
+  for(let r=0;r<rows;r++){
+    let pos=-L/2-hrn(r,seed,5,1)*0.7,si=0;
+    while(pos<L/2){
+      const len=0.6+hrn(r,si,seed,2)*0.9,a=Math.max(pos,-L/2),b=Math.min(pos+len,L/2);
+      if(b-a>0.06){
+        const sl=b-a,mid=(a+b)/2,lc=-N/2+rw*(r+0.5),dl=(hrn(r,si,seed,3)-0.5)*0.17+((r+si)%2?0.02:-0.02);
+        const px=alongX?cx+mid:cx+lc,pz=alongX?cz+lc:cz+mid;
+        addBox(B,px,topY+0.0125,pz,alongX?sl-0.02:rw-0.02,0.025,alongX?rw-0.02:sl-0.02,sh(dl,si,r),E);
+        for(let g=0;g<2;g++){ const off=(hrn(r,si,seed,10+g)-0.5)*rw*0.55,gl=sl*(0.5+hrn(r,si,seed,20+g)*0.4);
+          addBox(B,alongX?px+(hrn(r,si,seed,30+g)-0.5)*(sl-gl):px+off,topY+0.027,alongX?pz+off:pz+(hrn(r,si,seed,30+g)-0.5)*(sl-gl),alongX?gl:0.014,0.006,alongX?0.014:gl,sh(dl-0.09,si,r+g),E); }
+        [-1,1].forEach(e=>{ if(sl>0.3) addBox(B,alongX?px+e*(sl/2-0.07):px,topY+0.028,alongX?pz:pz+e*(sl/2-0.07),0.04,0.008,0.04,0x2B2B2B,E); });
+      }
+      pos+=len; si++;
+    }
+  }
+  /* sambungan papan vertikal di dua sisi panjang */
+  const half=N/2+0.006;
+  for(let t=-L/2+0.35;t<L/2-0.1;t+=0.62+hrn(Math.round(t*10),seed,6,1)*0.2) [-1,1].forEach(sd=>{
+    addBox(B,alongX?cx+t:cx+sd*half,topY-0.34,alongX?cz+sd*half:cz+t,alongX?0.016:0.012,0.62,alongX?0.012:0.016,sh(-0.14,Math.round(t*10),sd),E);
+  });
+}
+/* riak air: sel kecil beda biru + garis terang/gelap */
+const WATERPAL=[0x2D6BD8,0x3A7BE6,0x4789EE,0x2A62C6,0x3470DC,0x5596F2];
+function waterDetail(B,cx,cz,y,w,d,seed,nx,nz){
+  const E={edge:false},sx=w/nx,sz=d/nz;
+  for(let i=0;i<nx;i++) for(let j=0;j<nz;j++)
+    addBox(B,cx-w/2+sx*(i+0.5),y+0.006,cz-d/2+sz*(j+0.5),sx*0.98,0.012,sz*0.98,vcol(palAt(WATERPAL,hrn(i,j,seed,4)),seed,i,j,0.04),E);
+  const n=2+Math.floor(hrn(seed,1,2,3)*3);
+  for(let k=0;k<n;k++){
+    const rx=cx+(hrn(k,seed,5,6)-0.5)*(w-0.5),rz=cz+(hrn(k,seed,7,8)-0.5)*(d-0.12),l=0.22+hrn(k,seed,9,1)*0.3;
+    addBox(B,rx,y+0.016,rz,l,0.01,0.045,k%3===0?0xDDEFFF:(k%3===1?0xA9D2FF:0x8FC2FA),E);
+    if(k%2===0) addBox(B,rx+0.1,y+0.016,rz+0.1,0.14,0.01,0.04,0x1F4FA8,E);
+  }
+}
 const CRYSTAL_N=6; /* jumlah End Crystal progression (angka dadu 1..6): 4 di sudut arena + 2 di tengah sisi kiri/kanan */
 function buildArena(){
   const g=new THREE.Group(); g.position.set(ARENA_POS.x,-1,ARENA_POS.z); g.visible=false;
   const B=makeBatch(),W=ARENA_SIZE.w,D=ARENA_SIZE.d,E={edge:false};
-  addBox(B,0,0,0,W,1.6,D,0x1A1426); /* slab: y -0.8..0.8 (puncak 0.8 saat naik penuh) */
+  voxShell(B,0,0,0,W,1.6,D,0.4,[0x1A1426,0x221A30,0x2B2140,0x15101F,0x302548,0x120C1B],11,E); /* slab (obsidian bertekstur): y -0.8..0.8 (puncak 0.8 saat naik penuh) */
   const nx=8,nz=9,cw=W/nx,cd=D/nz;
+  /* Lantai: tepi = end stone kusam (bukan putih/krem terang, nyaman di mata), tengah = obsidian ungu gelap; tiap petak dipecah 3x3 sub-kotak dengan warna beda */
+  const RINGPAL=[0xA9A277,0x9B9469,0x8F885F,0xB4AD82,0x857E58,0xA2996C],INPAL=[0x15101F,0x1C1428,0x241A36,0x120C1B,0x2D2046,0x1A1228];
   for(let i=0;i<nx;i++) for(let j=0;j<nz;j++){
-    const ring=(i===0||j===0||i===nx-1||j===nz-1),c=ring?((i+j)%2?0xE3E0A8:0xD2CF95):((i+j)%2?0x15101F:0x1F1730);
-    addBox(B,-W/2+cw*(i+0.5),0.78,-D/2+cd*(j+0.5),cw,0.04,cd,c,E);
+    const ring=(i===0||j===0||i===nx-1||j===nz-1),pal=ring?RINGPAL:INPAL,sw=cw/3,sd=cd/3;
+    for(let a=0;a<3;a++) for(let b=0;b<3;b++){
+      let hx=palAt(pal,hrn(i*3+a,j*3+b,21,5));
+      if(!ring&&hrn(i*3+a,j*3+b,22,6)>0.93) hx=0x4B2A7A; /* urat ungu langka */
+      addBox(B,-W/2+cw*i+sw*(a+0.5),0.78,-D/2+cd*j+sd*(b+0.5),sw*0.985,0.04,sd*0.985,vcol(hx,23,i*3+a,j*3+b,0.045),E);
+    }
   }
   [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(q=>{ const x=q[0]*(W/2-0.2),z=q[1]*(D/2-0.2); addBox(B,x,1.15,z,0.4,0.7,0.4,0x14101C); addBox(B,x,1.55,z,0.28,0.1,0.28,0xE040FF,E); });
   for(let i=0;i<nx;i+=2){ [-1,1].forEach(sz=>addBox(B,-W/2+cw*(i+0.5),1.0,sz*(D/2-0.1),cw*0.9,0.4,0.2,0x1A1426)); }
@@ -2601,9 +2660,8 @@ function buildArena(){
   g.add(buildBatch(B));
   /* tower (naik dari bawah platform) */
   const tw=new THREE.Group(),TB=makeBatch();
-  addBox(TB,0,0.25,0,1.3,0.5,1.3,0x14101C); addBox(TB,0,1.7,0,0.9,2.4,0.9,0x1B1430);
-  [0.9,1.7,2.5].forEach(y=>addBox(TB,0,y,0,0.98,0.1,0.98,0x3A1F6B,E));
-  addBox(TB,0,3.15,0,1.15,0.3,1.15,0x14101C);
+  /* tower BEDROCK: voxel kecil, palet abu-hitam bertekstur (bukan satu warna); kaki lebar, batang, kepala lebar */
+  voxShell(TB,0,0.25,0,1.3,0.5,1.3,0.13,BEDROCK,31,E); voxShell(TB,0,1.7,0,0.9,2.4,0.9,0.12,BEDROCK,32,E); voxShell(TB,0,3.15,0,1.15,0.3,1.15,0.115,BEDROCK,33,E);
   [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(q=>addBox(TB,q[0]*0.5,3.38,q[1]*0.5,0.16,0.16,0.16,0xE040FF,E));
   tw.add(buildBatch(TB)); tw.position.y=-2.8; g.add(tw);
   /* End Crystal di atas tower */
@@ -2933,13 +2991,14 @@ function buildWorld(key){
       if(bc===0x5A9E3C&&rnd()<0.6) addBox(TB,cx(),t.h+0.08,cz(),0.1,0.16,0.1,pick([0xF0453A,0xFFD23F,0xFF7EB6,0xFFFFFF,0x6AA8FF]),{edge:false});
       if(bc===0x8E8E8E) for(let k=0;k<3;k++) addBox(TB,cx(),t.h+0.04,cz(),0.12,0.08,0.12,pick([0x222222,0x4AEDD9,0xFFD23F,0xD8AF93]),{edge:false});
       if((bc===0x3F76E4||bc===0x2F5FCC)&&rnd()<0.3) addBox(TB,cx(),t.h+0.02,cz(),0.22,0.03,0.22,0x2E8B2E,{edge:false});
+      if(bc===0x3F76E4||bc===0x2F5FCC) waterDetail(TB,t.x,t.z,t.h,0.94,0.94,n+200,3,3); /* riak air detail */
       if(bc===0x8A2B2B&&rnd()<0.3) addBox(TB,cx(),t.h+0.06,cz(),0.1,0.12,0.1,0xE0561A,{edge:false});
     }
   }
   MCFLAT=(th.decor==='mc');
   buildMcTerrain(TB,th);
   if(true){
-    [[0,5.25,11.5,0.5],[0,-5.25,11.5,0.5],[5.25,0,0.5,10]].concat([[-5.25,0,0.5,10]]).forEach(f=>addBox(TB,f[0],0.1,f[1],f[2],0.7,f[3],jit(th.key==='minecraft'?0x6B4424:th.wall[1],0.08)));
+    [[0,5.25,11.5,0.5],[0,-5.25,11.5,0.5],[5.25,0,0.5,10]].concat([[-5.25,0,0.5,10]]).forEach((f,fi)=>{ const wb=th.key==='minecraft'?0x6B4424:th.wall[1]; addBox(TB,f[0],0.1,f[1],f[2],0.7,f[3],jit(wb,0.08)); woodTop(TB,f[0],f[1],f[2],f[3],0.45,wb,41+fi); });
     [[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]].forEach(q=>{ addBox(TB,q[0],0.75,q[1],0.1,0.5,0.1,0x4E3118); addBox(TB,q[0],1.03,q[1],0.18,0.06,0.18,0x2E2E2E); });
   }
   // area mulai
