@@ -133,11 +133,11 @@
 
     /* ---- Power-Up (Tahap 3.1) ----
        Metadata & efek = hasil audit gameplay.html (PUN + usePU), TIDAK diarang:
-       sword  -> p.bonus=3 (langkah berikutnya +3)      feather -> p.extra=true (giliran tambahan)
+       sword  -> serang musuh +/-1 petak, mundur 3 (tanpa p.bonus)      feather -> p.extra=true (giliran tambahan)
        tnt    -> pemain terdepan mundur 6 (teleport)    totem   -> p.shield=true (kebal 1 ular/mob; dulu ID 'apple', effect TIDAK berubah)
        potion -> p.p4=true (dadu berikutnya 4-6)        grass   -> tukar posisi dgn pemain terdepan
        Pemakaian & pengurangan quantity tetap di gameplay (p.pu); integrasi PlayerData menyusul. */
-    powerup('sword',   'Pedang',     'common', 'Langkah berikutnya +3.'),
+    powerup('sword',   'Pedang',     'common', 'Serang musuh di petak sebelah, ia mundur 3.'),
     powerup('feather', 'Bulu',       'common', 'Giliran tambahan sekali lempar.'),
     powerup('tnt',     'TNT',        'common', 'Pemain terdepan mundur 6 petak.'),
     powerup('totem',   'Totem',      'common', 'Kebal dari 1 ular atau mob jahat.'),

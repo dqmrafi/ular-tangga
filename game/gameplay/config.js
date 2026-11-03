@@ -18,7 +18,7 @@
      DRAGON_REWARD  {coins, gems}            nominal hadiah mengalahkan Ender Dragon (dipakai PlayerData.grant)
      CHEST_POOL     [{id, w}]                bobot Reward Pool Chest (w = persen x 10, total 1000 = 100%)
      CHEST_AMOUNT   {coins, xp, gems}        nominal reward Chest (dipakai PlayerData.grant)
-     CHEST_SURPRISE [langkah]                kandidat langkah Surprise
+     CHEST_MOVE     [langkah]                kandidat langkah reward maju / mundur
      PUN            {powerKey: [emoji, nama, deskripsi]} metadata power-up
    Catatan: ukuran papan (10 x 10 = 100) belum ada sebagai konfigurasi di source (masih literal di
    logic), jadi sengaja tidak dibuat di sini agar tidak ada nilai ganda. */
@@ -54,21 +54,23 @@
   /* Chest Feature 2: Reward Pool. Persentase x10 supaya 0.5% dan 7.5% jadi bilangan bulat; total WAJIB 1000.
      Power = 0% (Power hanya dari Shop/Inventory). Tidak ada entri power di sini. */
   C.CHEST_POOL = C.CHEST_POOL || [
-    { id: 'empty',    w: 100 },  /* 10%  */
-    { id: 'coin',     w: 220 },  /* 22%  */
-    { id: 'xp',       w: 130 },  /* 13%  */
-    { id: 'surprise', w: 100 },  /* 10%  */
-    { id: 'odd',      w: 150 },  /* 15%  */
-    { id: 'even',     w: 150 },  /* 15%  */
-    { id: 'lucky',    w: 70 },   /* 7%   */
-    { id: 'gems',     w: 5 },    /* 0.5% (Emerald = gems existing) */
-    { id: 'addroll',  w: 75 }    /* 7.5% */
-  ];
+    { id: 'empty',   w: 140 },  /* 14%  */
+    { id: 'maju',    w: 120 },  /* 12%  maju 1-3 langkah */
+    { id: 'mundur',  w: 50 },   /* 5%   mundur 1-3 langkah */
+    { id: 'tukar',   w: 90 },   /* 9%   tukar posisi dgn pemain di petak sebelah (+/-1) */
+    { id: 'odd',     w: 100 },  /* 10%  */
+    { id: 'even',    w: 100 },  /* 10%  */
+    { id: 'lucky',   w: 60 },   /* 6%   label tampil: "Pasti 6" (dadu berikutnya 6) */
+    { id: 'addroll', w: 120 },  /* 12%  */
+    { id: 'bonus',   w: 100 },  /* 10%  Bonus Langkah: dadu berikutnya +2 */
+    { id: 'serang',  w: 70 },   /* 7%   Serang Terdepan: pemain terdepan (di depanmu) mundur 2 */
+    { id: 'lawan',   w: 50 }    /* 5%   Semua Lawan Mundur 1 */
+  ]; /* coin, xp & emerald dihapus dari pool Chest; 'Kejutan' dipecah jadi maju / mundur / tukar */
   C.CHEST_AMOUNT = C.CHEST_AMOUNT || { coins: 5, xp: 10, gems: 1 };
-  C.CHEST_SURPRISE = C.CHEST_SURPRISE || [-3, -2, -1, 1, 2, 3];
+  C.CHEST_MOVE = C.CHEST_MOVE || [1, 2, 3]; /* kandidat langkah untuk reward maju / mundur */
 
   C.PUN = C.PUN || {
-    sword: ['🗡️', 'Pedang', 'langkah berikutnya +3'],
+    sword: ['🗡️', 'Pedang', 'serang musuh di petak sebelah: mundur 3'],
     feather: ['🪶', 'Bulu', 'giliran tambahan'],
     tnt: ['🧨', 'TNT', 'pemain terdepan mundur 6'],
     totem: ['🗿', 'Totem', 'kebal dari 1 ular atau mob jahat'],
