@@ -140,7 +140,7 @@
     powerup('sword',   'Pedang',     'common', 'Serang musuh di petak sebelah, ia mundur 3.'),
     powerup('feather', 'Bulu',       'common', 'Giliran tambahan sekali lempar.'),
     powerup('tnt',     'TNT',        'common', 'Pemain terdepan mundur 6 petak.'),
-    powerup('totem',   'Totem',      'common', 'Kebal dari 1 ular atau mob jahat.'),
+    powerup('totem',   'Totem',      'common', 'Saat kena ular, mob jahat, Pedang, TNT, atau Rumput, kamu bisa memilih memakai Totem untuk menahannya.'),
     powerup('potion',  'Ramuan',     'common', 'Dadu berikutnya selalu 4 sampai 6.'),
     powerup('grass',   'Blok Rumput','common', 'Tukar posisi dengan pemain terdepan.')
   ];

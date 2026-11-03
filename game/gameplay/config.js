@@ -72,7 +72,7 @@
     sword: ['🗡️', 'Pedang', 'serang musuh di petak sebelah: mundur 3'],
     feather: ['🪶', 'Bulu', 'giliran tambahan'],
     tnt: ['🧨', 'TNT', 'pemain terdepan mundur 6'],
-    totem: ['🗿', 'Totem', 'kebal dari 1 ular atau mob jahat'],
+    totem: ['🗿', 'Totem', 'pilih pakai saat kena ular, mob jahat, Pedang, TNT, atau Rumput'],
     potion: ['🧪', 'Ramuan', 'dadu berikutnya 4 sampai 6'],
     grass: ['🟩', 'Blok Rumput', 'tukar posisi dengan pemain terdepan']
   };

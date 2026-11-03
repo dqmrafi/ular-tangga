@@ -145,6 +145,20 @@ body.playing .side{display:block}
 body.hf-shake{animation:hfShake .35s}
 @keyframes hfShake{25%{transform:translate(-6px,3px)}50%{transform:translate(6px,-3px)}75%{transform:translate(-4px,2px)}}
 @media (prefers-reduced-motion:reduce){#hitFx .hf-wave,#hitFx .hf-wind,body.hf-shake{animation:none}}
+
+/* Modal Totem: pilih pakai / tidak saat kena ular atau mob jahat */
+.tm-ov{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:16px}
+.tm-box{width:min(340px,92vw);text-align:center;padding:18px 20px 16px;background:var(--hud-bg,#2a211b);border:4px solid #0f0b08;box-shadow:inset 0 0 0 3px #ffd23f,0 8px 0 rgba(0,0,0,.5);border-radius:10px;color:#f1e8d6;animation:pcin .22s ease-out}
+.tm-ic{font-size:44px;line-height:1}
+.tm-box h4{margin:6px 0 4px;font-size:20px}
+.tm-box .tm-d{margin:0 0 12px;font-size:14px}
+.tm-bt{display:flex;gap:10px}
+.tm-bt button{flex:1;min-height:46px;border:0;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer;color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.45)}
+.tm-bt .tm-y{background:#2fa84f}
+.tm-bt .tm-n{background:#c0392b}
+.tm-bt button:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.45)}
+.tm-box .tm-t{display:block;margin-top:10px;opacity:.7;font-size:12px}
+@media(prefers-reduced-motion:reduce){.tm-box{animation:none}}
 </style>
 
 <style>
@@ -3510,6 +3524,7 @@ function showAttackCard(attacker,defender,weapon,desc){ if(FBK) FBK.showAttackCa
 /* CPU hanya memilih Power yang valid (aturan sama dengan usePU): punya stok, bukan Pedang/Totem di fase Dragon, TNT wajib punya target. */
 function cpuPUValid(p,k){
   if(!p||!p.pu[k]) return false;
+  if(k==='totem') return false; /* Totem diputuskan saat kena ular/mob (askTotem) */
   if(p.pos===100&&(k==='sword'||k==='totem')) return false;
   if(k==='tnt') return players.some(q=>q!==p&&q.pos>0&&q.pos<100);
   if(k==='sword') return players.some(q=>q!==p&&q.pos>0&&q.pos<100&&Math.abs(q.pos-p.pos)===1); /* Pedang: musuh di petak sebelah */
@@ -3520,6 +3535,7 @@ async function usePU(k,cpu){
   if(!p||busy||gameOver||AWK.running||!p.pu[k]||(p.cpu&&!cpu)) return;
   /* Fase Dragon = p.pos===100 (kondisi existing di playTurn). Pedang/Totem (id 'totem') hanya relevan untuk gerak papan: tolak SEBELUM konsumsi, Power tidak berkurang. CPU: tolak diam-diam (CPU sudah memfilter Power valid sebelum usePU, 4.1.8). */
   if(p.pos===100&&(k==='sword'||k==='totem')){ if(!cpu){ const m=PUN[k][1]+' tidak dapat digunakan saat melawan Ender Dragon.'; fb('short',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]})||hud('showPower',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]}); } return; }
+  if(k==='totem'){ if(!cpu){ const m='Totem aktif otomatis: kamu akan ditanya pakai atau tidak saat kena ular, mob jahat, Pedang, TNT, atau Rumput.'; fb('event','info',m); setMsg(m); } return; } /* Totem = keputusan saat kena (askTotem), bukan aktivasi di depan */
   const gid=gameId,L=players.filter(q=>q!==p&&q.pos>0&&q.pos<100).sort((a,b)=>b.pos-a.pos)[0];
   const SW=k==='sword'?players.filter(q=>q!==p&&q.pos>0&&q.pos<100&&Math.abs(q.pos-p.pos)===1).sort((a,b)=>b.pos-a.pos)[0]:null; /* Pedang: musuh tepat 1 petak di atas/bawah (utamakan yang di depan) */
   if(k==='sword'&&!SW){ if(cpu) return; fb('event','info','Pedang butuh musuh di petak sebelah.'); return setMsg('Pedang butuh musuh di petak sebelah (1 petak di atas atau bawah).'); }
@@ -3529,13 +3545,14 @@ async function usePU(k,cpu){
   if(k==='feather') p.extra=true; if(k==='potion') p.p4=true; if(k==='totem') p.shield=true;
   puFx('pb:'+p.idx+':'+k,'pfx-'+k); if(k==='totem') puFx('pr:'+p.idx,'pfx-shield');
   renderChips();
-  const oldL=L?L.pos:0,oldS=SW?SW.pos:0; /* posisi sebelum efek, untuk feedback target (TNT/Grass) */
+  const oldL=L?L.pos:0,oldS=SW?SW.pos:0; let blocked=false; /* blocked = korban menahan serangan dengan Totem */ /* posisi sebelum efek, untuk feedback target (TNT/Grass) */
   try{
-    if(k==='sword'){ await sleep(reduce?100:250); const to=Math.max(1,SW.pos-3); hitBlastFx(SW); sfx.playerHurt(); await fly(SW,to,0.45,1.1); SW.pos=to; renderChips(); } /* suara pedang sudah diputar oleh sfx.power('sword') */
-    if(k==='tnt'){ const to=Math.max(1,L.pos-6); await teleport(L,to); L.pos=to; }
-    if(k==='grass'){ const a=p.pos,b=L.pos; await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; }
+    if(k==='sword'){ await sleep(reduce?100:250); if(await askTotem(SW,gid,'Pedang '+p.name)) blocked=true; else { const to=Math.max(1,SW.pos-3); hitBlastFx(SW); sfx.playerHurt(); await fly(SW,to,0.45,1.1); SW.pos=to; renderChips(); } } /* suara pedang sudah diputar oleh sfx.power('sword') */
+    if(k==='tnt'){ if(await askTotem(L,gid,'TNT '+p.name)) blocked=true; else { const to=Math.max(1,L.pos-6); await teleport(L,to); L.pos=to; } }
+    if(k==='grass'){ if(await askTotem(L,gid,'Rumput '+p.name)) blocked=true; else { const a=p.pos,b=L.pos; await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; } }
   }catch(e){ console.error(e); }
   if(gid!==gameId) return;
+  if(blocked){ const vv=k==='sword'?SW:L; puFx('pr:'+vv.idx,'pfx-shield'); sfx.pop(); renderChips(); }
   /* Power = feedback singkat (banner HUD), BUKAN kartu/modal hadiah Chest (#puCard). Urutan: pakai → terapkan efek → feedback → lanjut.
      Self-power → Feedback.short. Power bertarget (TNT/Grass) → Feedback.event: pelaku → target → efek → hasil aktual. */
   if(k==='tnt'||k==='grass'||k==='sword'){
@@ -3543,7 +3560,7 @@ async function usePU(k,cpu){
     if(k==='tnt'){ const d=oldL-L.pos; t=p.name+' → TNT → '+L.name+(d>0?' mundur '+d+' petak':' tidak bergerak')+' ('+oldL+' → '+L.pos+')'; }
     else if(k==='sword'){ const d=oldS-SW.pos; t=p.name+' → Pedang → '+SW.name+(d>0?' mundur '+d+' petak':' tidak bergerak')+' ('+oldS+' → '+SW.pos+')'; }
     else t=p.name+' bertukar posisi dengan '+L.name+' — '+p.name+' '+p.pos+', '+L.name+' '+L.pos;
-    e=k==='sword'?SW.name+(oldS-SW.pos>0?' mundur '+(oldS-SW.pos)+' petak':' tidak bergerak'):k==='tnt'?L.name+(oldL-L.pos>0?' mundur '+(oldL-L.pos)+' petak':' tidak bergerak'):'Bertukar posisi dengan '+L.name; setMsg(t); { const po={gid,icon:PUN[k][0],desc:e}; fb('short',k,PUN[k][1],p.name,po)||hud('showPower',k,PUN[k][1],p.name,po); }
+    e=k==='sword'?SW.name+(oldS-SW.pos>0?' mundur '+(oldS-SW.pos)+' petak':' tidak bergerak'):k==='tnt'?L.name+(oldL-L.pos>0?' mundur '+(oldL-L.pos)+' petak':' tidak bergerak'):'Bertukar posisi dengan '+L.name; if(blocked){ const vv=k==='sword'?SW:L; t=vv.name+' menahan '+PUN[k][1]+' '+p.name+' dengan Totem'; e=vv.name+' menahan serangan dengan Totem'; } setMsg(t); { const po={gid,icon:PUN[k][0],desc:e}; fb('short',k,PUN[k][1],p.name,po)||hud('showPower',k,PUN[k][1],p.name,po); }
   }else{ const po={gid,icon:PUN[k][0],desc:PUN[k][2]}; fb('short',k,PUN[k][1],p.name,po)||hud('showPower',k,PUN[k][1],p.name,po); }
   busy=false; if(!p.cpu) setRoll(true); focus=p.pawn; renderChips(); startTurnTimer(); /* setelah Power, hitung ulang 15 dtk */
 }
@@ -3746,13 +3763,40 @@ async function resolveMobAt(p,gid){
     await A(sleep(450)); await A(fly(p,to,bk>3?0.8:0.45,bk>3?2.4:0.9)); p.pos=to;
   }
 }
+/* Totem = pilihan strategi: saat kena ULAR / MOB JAHAT, pemain manusia ditanya pakai atau tidak (CPU otomatis pakai bila punya). Shield lama (p.shield) tetap dihormati. */
+function totemModal(p,what,gid){
+  return new Promise(res=>{
+    const ov=document.createElement('div'); ov.className='tm-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+    ov.innerHTML='<div class="tm-box"><div class="tm-ic">\ud83d\uddff</div><h4>Pakai Totem?</h4><p class="tm-d"></p><div class="tm-bt"><button type="button" class="tm-y"></button><button type="button" class="tm-n">Tidak</button></div><small class="tm-t"></small></div>';
+    ov.querySelector('.tm-d').textContent=p.name+' kena '+what+'! Totem bisa menahannya (sisa '+p.pu.totem+').';
+    ov.querySelector('.tm-y').textContent='Pakai Totem';
+    const tt=ov.querySelector('.tm-t'); let left=12;
+    const upd=()=>{ tt.textContent='Otomatis dipakai dalam '+left+' detik'; };
+    const done=v=>{ clearInterval(iv); ov.remove(); res(v); };
+    const iv=setInterval(()=>{ if(gid!==gameId){ done(false); return; } left--; if(left<=0) done(true); else upd(); },1000);
+    ov.querySelector('.tm-y').addEventListener('click',()=>{ ensureAudio(); done(true); });
+    ov.querySelector('.tm-n').addEventListener('click',()=>done(false));
+    upd(); document.body.appendChild(ov);
+    try{ ov.querySelector('.tm-y').focus(); }catch(e){}
+  });
+}
+async function askTotem(p,gid,what){
+  if(p.shield){ p.shield=false; return true; }
+  if(!p.pu||!(p.pu.totem>0)) return false;
+  if(p.cpu){ p.pu.totem--; return true; }
+  setMsg(p.name+' kena '+what+'. Pakai Totem?');
+  const use=await totemModal(p,what,gid);
+  if(gid!==gameId) throw STALE;
+  if(use) p.pu.totem--; else setMsg(p.name+' memilih tidak memakai Totem.');
+  return use;
+}
 /* Efek petak tujuan: tangga / shield / ular / mob. Dipakai setelah dadu DAN setelah Chest 'Kejutan' memindahkan pion. */
 async function resolveTileAt(p,gid){
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
   if(LADDERS[p.pos]){
     const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); sfx.naiktangga();
     await A(sleep(350)); await A(climb(p,p.pos,to)); p.pos=to; p.score+=10;
-  }else if(p.shield&&(SNAKES[p.pos]||(mobOn(p.pos,themeKey)&&mobOn(p.pos,themeKey)!=='villager'))){
+  }else if((SNAKES[p.pos]||(mobOn(p.pos,themeKey)&&mobOn(p.pos,themeKey)!=='villager'))&&await askTotem(p,gid,SNAKES[p.pos]?'Ular':MOBNAME[mobOn(p.pos,themeKey)])){
     p.shield=false; puFx('pr:'+p.idx,'pfx-hit'); renderChips(); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900));
   }else if(SNAKES[p.pos]){
     const to=SNAKES[p.pos];
