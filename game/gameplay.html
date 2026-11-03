@@ -3149,7 +3149,7 @@ function resetCam(P){
   goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=0; panGoal.z=0;
   camHold.x=0; camHold.y=2.8; camHold.z=-0.2;
 }
-const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/ui/lock.webp" alt="" draggable="false">',ICON_OPEN='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.7-1.5"/></svg>',ICON_CAM='<img class="hi sm" src="assets/Images/icon/profile/camera.webp" alt="" draggable="false">';
+const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/ui/lock.webp" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/ui/unlock.webp" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/profile/camera.webp" alt="" draggable="false">';
 function camUI(){
   const a=$('btnAngle'); if(!a) return;
   a.innerHTML=camCfg.angle?ICON_OPEN+'ANGLE':ICON_LOCK+'LOCK'; a.setAttribute('aria-pressed',String(camCfg.angle));

@@ -5,7 +5,7 @@ Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/Images/icon/<
 | Folder | Isi | Dipakai di |
 |---|---|---|
 | `currency/` | coin, coinadd, emerald, emeraldadd | bar mata uang semua halaman |
-| `ui/` | back, gear, menu, refresh, copy, edit, lock, play, start, exit, focus, day, night | tombol umum (kembali, pengaturan, salin, edit, kunci, play, bintang); Gameplay: menu, keluar, ikuti bidak (`focus`), reset kamera (`refresh`), suasana siang/malam (`day`/`night`) |
+| `ui/` | back, gear, menu, refresh, copy, edit, lock, unlock, play, start, exit, focus, day, night | tombol umum (kembali, pengaturan, salin, edit, kunci, play, bintang); Gameplay: menu, keluar, ikuti bidak (`focus`), reset kamera (`refresh`), suasana siang/malam (`day`/`night`) |
 | `audio/` | sound, mute, music, sfx | Gameplay: tombol suara (`sound`/`mute`), menu jeda (volume musik `music`, suara efek `sfx`) |
 | `items/` | skin, dadu, power, efek, emote | tab kategori Shop & Inventory, Profil; Gameplay: banner event (`dadu`, `power`) |
 | `lobby/` | shop, inventory, invenotry, dailyreward, gift, misi, mail, hand, trophy, leader | menu Lobby, Leaderboard, Friendship, Profil; Gameplay: mahkota layar menang (`leader`), banner chest (`invenotry`) |
@@ -27,6 +27,7 @@ Catatan:
 | Reset kamera (`#btnCam`) | `ui/refresh` |
 | Preset kamera (`#btnPreset`) | `profile/camera` |
 | Kunci kamera (`#btnAngle`, mode LOCK) | `ui/lock` |
+| Kamera bebas (`#btnAngle`, mode ANGLE) | `ui/unlock` |
 | Suara (`#btnSnd`) | `audio/sound` / `audio/mute` (ganti saat diklik) |
 | Menu (`#btnMenu`) | `ui/menu` |
 | Layar menang: mahkota | `lobby/leader` |
@@ -44,5 +45,5 @@ Catatan:
 | Banner power (pesan teks) | `items/power` |
 | Tombol Power-up | `data/power/sm/*.webp` (via `item-catalog.js`) |
 
-Masih SVG/emoji karena belum ada aset: gembok terbuka (mode ANGLE), layar kalah, tombol tutup (X), dan banner tangga/ular/mob/naga/perisai/pantul/info.
+Masih SVG/emoji karena belum ada aset: layar kalah, tombol tutup (X), dan banner tangga/ular/mob/naga/perisai/pantul/info.
 
