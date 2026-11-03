@@ -3240,7 +3240,9 @@ async function teleport(p,to){
 }
 
 /* ---------- Kamera dan input ---------- */
-const cam={yaw:0.5,pitch:0.55,zoom:1},goal={yaw:0.5,pitch:0.55,zoom:1},camTarget=new THREE.Vector3(0,2.8,-0.2);
+/* Titik pandang dasar = PUSAT papan di permukaan petak (tengah 4 petak 45,46,55,56). Dulu y=2.8 (melayang) membuat titik tengah layar jatuh ke ~petak 75/76/85/86 saat kamera miring. */
+const CAM_BASE={x:0,y:0.4,z:0};
+const cam={yaw:0.5,pitch:0.55,zoom:1},goal={yaw:0.5,pitch:0.55,zoom:1},camTarget=new THREE.Vector3(0,CAM_BASE.y,CAM_BASE.z);
 let baseDist=22,isTopDown=false;
 var camRefit=null; /* 4.2.2: diisi setelah state kamera ada; dipanggil onResize agar framing LOCK responsif */
 const pan={x:0,z:0},panGoal={x:0,z:0},PAN_MAX=16;
@@ -3268,7 +3270,7 @@ const CAM_PRESETS={
   top:{yaw:0,pitch:Math.PI/2-0.05,zoom:1.0,top:true} /* Top Angle = aturan POV Atas lama (87 derajat, titik pandang di tengah papan), sedikit lebih jauh (zoom 0.88 -> 1.0) */
 };
 const CAM_ORDER=['free','front','back','left','right','iso','top'],CAM_NAMES={free:'Free',front:'Front',back:'Back',left:'Left',right:'Right',iso:'Iso',top:'Top'};
-const camCfg={angle:false,preset:'free',follow:true},camHold={x:0,y:2.8,z:-0.2};
+const camCfg={angle:false,preset:'free',follow:true},camHold={x:CAM_BASE.x,y:CAM_BASE.y,z:CAM_BASE.z};
 /* Stage 4.2.2 (Camera Part 2): ANGLE OFF = LOCK (top-down 90 derajat, papan utuh di tengah, input kamera mati). Memakai ulang cam/goal/pan/resetCam; tanpa engine kedua. */
 const camLocked=()=>!camCfg.angle;
 const camFollowing=()=>camCfg.angle&&camCfg.follow;
@@ -3293,7 +3295,7 @@ function resetCam(P){
   const k=Math.round(cam.yaw/(Math.PI*2)); cam.yaw-=k*Math.PI*2;
   goal.yaw=P.yaw+Math.PI*2*Math.round((cam.yaw-P.yaw)/(Math.PI*2)); /* putar lewat jalur terpendek */
   goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=0; panGoal.z=0;
-  camHold.x=0; camHold.y=2.8; camHold.z=-0.2;
+  camHold.x=CAM_BASE.x; camHold.y=CAM_BASE.y; camHold.z=CAM_BASE.z;
 }
 const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/ui/lock.webp" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/ui/unlock.webp" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/profile/camera.webp" alt="" draggable="false">';
 function camUI(){
@@ -3971,7 +3973,7 @@ function frame(now){
   }
   const m=1-Math.exp(-dt*10);
   cam.yaw+=(goal.yaw-cam.yaw)*m; cam.pitch+=(goal.pitch-cam.pitch)*m; cam.zoom+=(goal.zoom-cam.zoom)*m;
-  let tx=0,ty=2.8,tz=-0.2;
+  let tx=CAM_BASE.x,ty=CAM_BASE.y,tz=CAM_BASE.z;
   if(camLocked()){
     tx=lockCenter.x; ty=LOCK_BOX.y; tz=lockCenter.z; /* LOCK: tetap di tengah papan, tidak ikut bidak/giliran/animasi */
   }else if(isTopDown){
@@ -3979,7 +3981,7 @@ function frame(now){
   }else if(!camFollowing()){
     tx=camHold.x; ty=camHold.y; tz=camHold.z; /* ANGLE ON + FOLLOW OFF: kamera diam, tidak ikut giliran/bidak */
   }else if(focus){
-    tx+=focus.position.x*0.35; tz+=focus.position.z*0.35; ty+=(focus.position.y-3.2)*0.45;
+    tx+=focus.position.x*0.35; tz+=focus.position.z*0.35; ty+=(focus.position.y-CAM_BASE.y)*0.45;
   }
   pan.x+=(panGoal.x-pan.x)*m; pan.z+=(panGoal.z-pan.z)*m;
   tx+=pan.x; tz+=pan.z;
