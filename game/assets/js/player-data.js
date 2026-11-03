@@ -15,6 +15,7 @@
   var MIGRATION_VERSION = 1;   /* playerDataMigrationVersion — naikkan bila ada langkah migrasi baru */
   var START_COINS = 1000;      /* saldo awal SEKALI saat data dibuat; tidak ada koin gratis berulang */
   var START_GEMS = 0;
+  var START_XP = 0;            /* Chest Feature 2: XP minimal (hanya angka tersimpan; tanpa level/progression) */
   var DEFAULT_SETTINGS = { music: true, sound: true, vibration: true, graphics: 'high' };
   var DEFAULT_PROFILE = { name: 'FajarGG' };
 
@@ -69,7 +70,7 @@
   function freshState() {
     var now = Date.now(), seq = 0, inv = {};
     C.starters().forEach(function (it) { inv[it.id] = { qty: 1, acquiredAt: now, seq: seq++ }; });
-    var st = { schema: SCHEMA, migration: 0, createdAt: now, coins: START_COINS, gems: START_GEMS, nextSeq: seq,
+    var st = { schema: SCHEMA, migration: 0, createdAt: now, coins: START_COINS, gems: START_GEMS, xp: START_XP, nextSeq: seq,
                inventory: inv, equipped: clone(C.defaultEquipped),
                settings: clone(DEFAULT_SETTINGS), profile: clone(DEFAULT_PROFILE) };
     migrateLegacyEquip(st); /* pilihan dadu/tema lama (ut-dadu, ut-tema2) dulu gratis — pertahankan */
@@ -96,6 +97,7 @@
       createdAt: isFinite(o.createdAt) ? +o.createdAt : now,
       coins: (isFinite(o.coins) && o.coins >= 0) ? Math.floor(o.coins) : 0,
       gems: (isFinite(o.gems) && o.gems >= 0) ? Math.floor(o.gems) : START_GEMS,
+      xp: (isFinite(o.xp) && o.xp >= 0) ? Math.floor(o.xp) : START_XP, /* save lama tanpa xp -> 0 */
       nextSeq: 0, inventory: {}, equipped: {},
       settings: normSettings(o.settings),
       profile: normProfile(o.profile)
@@ -240,6 +242,7 @@
     snapshot: function () { return load(); },
     coins: function () { return load().coins; },
     gems: function () { return load().gems; },
+    xp: function () { return load().xp; },
     settings: function () { return clone(load().settings); },
     profile: function () { return clone(load().profile); },
     owns: function (id) { return !!load().inventory[id]; },
@@ -306,7 +309,7 @@
       return { ok: true, coins: st.coins, gems: st.gems };
     },
 
-    /* Hadiah/reward atomik (daily reward, event): {coins, gems, item, duplicateCoins, duplicateGems, reason}.
+    /* Hadiah/reward atomik (daily reward, event): {coins, gems, xp, item, duplicateCoins, duplicateGems, reason}.
        Item non-stackable yang sudah dimiliki -> tidak diduplikasi; beri kompensasi duplicateCoins/duplicateGems. */
     grant: function (o) {
       o = o || {};
@@ -329,9 +332,10 @@
       }
       st.coins += Math.max(0, Math.floor(+o.coins || 0));
       st.gems += Math.max(0, Math.floor(+o.gems || 0));
+      st.xp += Math.max(0, Math.floor(+o.xp || 0));
       if (!write(st)) return { ok: false, reason: 'gagal-simpan' };
       notify(o.reason || 'reward');
-      return { ok: true, duplicate: duplicate, compensation: compensation, coins: st.coins, gems: st.gems };
+      return { ok: true, duplicate: duplicate, compensation: compensation, coins: st.coins, gems: st.gems, xp: st.xp };
     },
 
     /* Pengaturan (bagian dari player state): whitelist field, satu penulisan. */

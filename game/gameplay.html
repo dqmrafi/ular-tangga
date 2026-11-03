@@ -3256,10 +3256,57 @@ function faceURL(k){
 }
 const PUN=UT.Gameplay.Config.PUN;
 function startPU(){ const o={sword:0,feather:0,tnt:0,totem:0,potion:0,grass:0},ks=Object.keys(o).sort(()=>Math.random()-0.5); o[ks[0]]=1; o[ks[1]]=1; return o; }
-/* Chest = event/reward container. Power BUKAN reward Chest (Power = item Shop/Inventory). Reward sementara: +5 skor (reward non-Power yang sudah ada).
-   Guard: 1 landing = 1 trigger/opening/reward/closing. Trigger kedua (saat lifecycle berjalan, atau token landing sama) -> ditolak. */
+/* Chest = event/reward container. Power BUKAN reward Chest (Power = item Shop/Inventory; bobot Power di pool = 0).
+   Guard: 1 landing = 1 trigger/opening/reward/closing. Trigger kedua (saat lifecycle berjalan, atau token landing sama) -> ditolak.
+   Chest Feature 2: Reward Pool (data: UT.Gameplay.Config.CHEST_POOL). resolveChestReward() -> applyChestReward(), dipanggil 1x di fase OPEN. */
 const CHEST_LC={active:false,seq:0,done:new Set(),rewards:0};
 function chestToken(p){ return 'L'+gameId+':'+p.idx+':'+p.pos+':'+(++CHEST_LC.seq); }
+/* CHEST-REWARD:BEGIN */
+const CHEST_CFG=UT.Gameplay.Config;
+function chestPoolTotal(){ return (CHEST_CFG.CHEST_POOL||[]).reduce((a,r)=>a+r.w,0); }
+/* Weighted random. Total harus 1000 (=100%); bila pool rusak -> 'empty' (aman, tidak pernah reward lain/Power). rnd bisa disuntik utk test. */
+function resolveChestReward(rnd){
+  const pool=CHEST_CFG.CHEST_POOL||[],total=chestPoolTotal();
+  if(total!==1000){ console.error('CHEST_POOL total '+total+' != 1000'); return {id:'empty'}; }
+  let x=Math.floor((rnd||Math.random)()*total);
+  for(const r of pool){ if(x<r.w) return {id:r.id}; x-=r.w; }
+  return {id:'empty'};
+}
+/* Dadu Chest: hanya mengubah NILAI roll berikutnya. Satu roll -> semua flag Chest (lucky/odd/even) direset. Lucky > Odd/Even (flag Chest bersifat eksklusif, lihat applyChestReward). */
+function chestDiceForce(p){
+  let v=0;
+  if(p.lucky) v=6;
+  else if(p.odd) v=[1,3,5][Math.floor(Math.random()*3)];
+  else if(p.even) v=[2,4,6][Math.floor(Math.random()*3)];
+  p.lucky=p.odd=p.even=false;
+  return v;
+}
+function chestFlag(p,k){ p.lucky=p.odd=p.even=false; p[k]=true; } /* reward terbaru menggantikan flag dadu Chest sebelumnya */
+/* Terapkan reward -> {text}. Currency/XP hanya untuk pemain manusia (CPU tidak mendapat currency). Surprise hanya memindahkan pion (tanpa memicu event petak tujuan). */
+async function applyChestReward(p,rw,gid){
+  const PD=window.PlayerData,AMT=CHEST_CFG.CHEST_AMOUNT,SUR=CHEST_CFG.CHEST_SURPRISE;
+  const grant=(o,label)=>{
+    if(p.cpu) return label+' (CPU: tanpa currency)';
+    let r=null; try{ r=PD&&PD.grant(Object.assign({reason:'chest'},o)); }catch(e){ console.error(e); }
+    return (r&&r.ok)?label:label+' (gagal disimpan)';
+  };
+  switch(rw.id){
+    case 'coin': return {text:grant({coins:AMT.coins},'+'+AMT.coins+' Coin')};
+    case 'xp': return {text:grant({xp:AMT.xp},'+'+AMT.xp+' XP')};
+    case 'gems': return {text:grant({gems:AMT.gems},'+'+AMT.gems+' Emerald')};
+    case 'surprise':{
+      const d=SUR[Math.floor(Math.random()*SUR.length)],to=Math.max(1,Math.min(99,p.pos+d)),mv=to-p.pos;
+      if(mv!==0){ await walk(p,p.pos,to); if(gid!==gameId) return {text:''}; p.pos=to; renderChips(); }
+      return {text:mv===0?'Kejutan! Tidak bergerak':'Kejutan! '+(mv>0?'Maju ':'Mundur ')+Math.abs(mv)+' langkah'};
+    }
+    case 'odd': chestFlag(p,'odd'); return {text:'Dadu Ganjil Berikutnya (1/3/5)'};
+    case 'even': chestFlag(p,'even'); return {text:'Dadu Genap Berikutnya (2/4/6)'};
+    case 'lucky': chestFlag(p,'lucky'); return {text:'Lucky! Dadu berikutnya 6'};
+    case 'addroll': p.extra=true; return {text:'Add Roll! Roll tambahan'};
+    default: return {text:'Kosong'}; /* empty: tidak ada perubahan state */
+  }
+}
+/* CHEST-REWARD:END */
 async function giveChest(p,tok){
    tok=tok||chestToken(p);
    if(CHEST_LC.active||CHEST_LC.done.has(tok)) return {status:'rejected'};
@@ -3267,11 +3314,12 @@ async function giveChest(p,tok){
    try{
      openChest(n); sfx.chest(); /* OPEN: lid membuka + glow + sparkle + SFX open */
      await sleep(reduce?200:550); if(gid!==gameId) return {status:'stale'};
-     p.score+=5; CHEST_LC.rewards++; /* reward tepat 1x */
-     setMsg(p.name+' membuka peti: +5 skor.'); fb('event','chest','Chest ditemukan! +5 skor');
+     const rw=resolveChestReward(); CHEST_LC.rewards++; /* reward tepat 1x per lifecycle */
+     const res=await applyChestReward(p,rw,gid); if(gid!==gameId) return {status:'stale'};
+     setMsg(p.name+' membuka peti: '+res.text+'.'); fb('event','chest','Chest: '+res.text);
      await sleep(reduce?300:900); if(gid!==gameId) return {status:'stale'}; /* Chest tetap OPEN selama proses */
      sfx.chestClose(); closeChest(n); await sleep(reduce?150:350); /* CLOSE */
-     return {status:'accepted'};
+     return {status:'accepted',reward:rw.id};
    }finally{ closeChest(n); CHEST_LC.active=false; }
 }
 try{ fb('setRewardPresenter',showPUCard); }catch(e){ console.error(e); }
@@ -3615,7 +3663,7 @@ async function doRoll(opt){
   busy=true; setRoll(false); clearTurnTimer();
   const gid=gameId,p=players[cur];let v=1+Math.floor(Math.random()*6);
   if(opt&&Number.isInteger(opt.value)&&opt.value>=1&&opt.value<=6&&specialDiceActive(p)) v=opt.value; /* Special Dice: angka dipilih lewat tahan-lepas (hanya di Block 100) */
-  else if(p.p4){ v=4+Math.floor(Math.random()*3); p.p4=false; }
+  else{ const cv=chestDiceForce(p); if(cv) v=cv; else if(p.p4){ v=4+Math.floor(Math.random()*3); p.p4=false; } } /* flag dadu Chest (1 roll) didahulukan; p4 (Potion) tidak berubah */
   const rs=sfx.roll(); showDie(v,!reduce);
   try{
     await sleep(reduce?250:1150); sfx.rollStop(rs); if(gid!==gameId) return;
@@ -3656,7 +3704,7 @@ function startGame(m,keys){
   defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
   defs.forEach((d,i)=>{
     const pawn=makePawn(d); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
-    players.push({idx:i,name:d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:100,crystal:0,dragonReady:false,pawn,score:0,bonus:0,extra:false,p4:false,shield:false,pu:startPU()});
+    players.push({idx:i,name:d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:100,crystal:0,dragonReady:false,pawn,score:0,bonus:0,extra:false,p4:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
   });
   cur=0; resetCam();
   $('win').hidden=true;

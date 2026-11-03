@@ -16,6 +16,9 @@
      MOB_NAME       {mob: nama tampil}
      DMG            damage per angka dadu ke Ender Dragon
      DRAGON_REWARD  {coins, gems}            nominal hadiah mengalahkan Ender Dragon (dipakai PlayerData.grant)
+     CHEST_POOL     [{id, w}]                bobot Reward Pool Chest (w = persen x 10, total 1000 = 100%)
+     CHEST_AMOUNT   {coins, xp, gems}        nominal reward Chest (dipakai PlayerData.grant)
+     CHEST_SURPRISE [langkah]                kandidat langkah Surprise
      PUN            {powerKey: [emoji, nama, deskripsi]} metadata power-up
    Catatan: ukuran papan (10 x 10 = 100) belum ada sebagai konfigurasi di source (masih literal di
    logic), jadi sengaja tidak dibuat di sini agar tidak ada nilai ganda. */
@@ -47,6 +50,22 @@
   /* Dragon Feature 6: hadiah mengalahkan Ender Dragon. Hanya NOMINAL; diberikan lewat PlayerData.grant existing
      (bukan currency/reward system baru). Diberikan 1x per game ke pemain manusia yang menang. */
   C.DRAGON_REWARD = C.DRAGON_REWARD || { coins: 500, gems: 10 };
+
+  /* Chest Feature 2: Reward Pool. Persentase x10 supaya 0.5% dan 7.5% jadi bilangan bulat; total WAJIB 1000.
+     Power = 0% (Power hanya dari Shop/Inventory). Tidak ada entri power di sini. */
+  C.CHEST_POOL = C.CHEST_POOL || [
+    { id: 'empty',    w: 100 },  /* 10%  */
+    { id: 'coin',     w: 220 },  /* 22%  */
+    { id: 'xp',       w: 130 },  /* 13%  */
+    { id: 'surprise', w: 100 },  /* 10%  */
+    { id: 'odd',      w: 150 },  /* 15%  */
+    { id: 'even',     w: 150 },  /* 15%  */
+    { id: 'lucky',    w: 70 },   /* 7%   */
+    { id: 'gems',     w: 5 },    /* 0.5% (Emerald = gems existing) */
+    { id: 'addroll',  w: 75 }    /* 7.5% */
+  ];
+  C.CHEST_AMOUNT = C.CHEST_AMOUNT || { coins: 5, xp: 10, gems: 1 };
+  C.CHEST_SURPRISE = C.CHEST_SURPRISE || [-3, -2, -1, 1, 2, 3];
 
   C.PUN = C.PUN || {
     sword: ['🗡️', 'Pedang', 'langkah berikutnya +3'],
