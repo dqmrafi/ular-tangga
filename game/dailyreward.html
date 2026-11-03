@@ -24,6 +24,7 @@ button:hover{transform:scale(1.04);filter:brightness(1.08)}button:active{transfo
 #title{left:12.6rem;top:3.4rem;width:48rem;white-space:nowrap;height:8.4rem;border-radius:4.2rem;padding:0 2rem 0 10.8rem;display:flex;flex-direction:column;justify-content:center;rotate:-2deg;background:linear-gradient(#3a78e6,#1a47b0);box-shadow:0 .5rem 0 var(--bd),0 1rem 1.6rem rgba(18,51,127,.4),inset 0 .2rem .3rem rgba(255,255,255,.45)}
 #tgift{position:absolute;left:1.4rem;top:-2.2rem;width:9.6rem;height:9.6rem;filter:drop-shadow(0 .4rem 0 rgba(18,51,127,.45))}
 #tgift svg{width:100%;height:100%}
+#tgift .ic{width:100%;height:100%;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 #tspk{position:absolute;right:-3.6rem;top:-2.6rem;width:5.2rem;height:5.2rem}
 #title h1{margin:0;font-size:4.3rem;line-height:1;font-style:italic;text-shadow:0 .3rem 0 var(--bd)}
 #title h1 span{color:#ffd84a}
@@ -301,7 +302,7 @@ dice:'<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4.50
 skin:(h,hr)=>`<svg viewBox="0 0 40 40"><rect x="9" y="28" width="22" height="12" rx="2" fill="${h}"/><rect x="10" y="8" width="20" height="20" fill="#f0b98d"/><rect x="8" y="4" width="24" height="9" fill="${hr}"/><rect x="14" y="17" width="3.500" height="4.500" fill="#222"/><rect x="23" y="17" width="3.500" height="4.500" fill="#222"/><rect x="17" y="23" width="6" height="2" fill="#c0473a"/></svg>`,
 ck:'<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 gift:'<svg viewBox="0 0 24 24"><path d="M4 11h16v10H4z" fill="#f5a623" stroke="#b86a0a" stroke-width=".8"/><path d="M3 8h18v4H3z" fill="#ffd24d" stroke="#b86a0a" stroke-width=".8"/><path d="M10.500 8h3v13h-3z" fill="#e8372c"/><path d="M12 8C8 8 7 3 10 3.600c1.600.5 2 4.400 2 4.400Zm0 0c4 0 5-5 2-4.400-1.600.5-2 4.400-2 4.400Z" fill="#ff5a3c" stroke="#b01e14" stroke-width=".8"/></svg>'};
-$('#tgift').innerHTML=I.gift;$('#gemI').innerHTML=I.gem;$('#coinI').innerHTML=I.coin;
+$('#tgift').innerHTML='<img class="ic" src="assets/Images/icon/gift.webp" alt="" draggable="false" decoding="async">';$('#gemI').innerHTML=I.gem;$('#coinI').innerHTML=I.coin;
 // ---------- data (reward table memakai ID canonical dari ItemCatalog; lihat DATA_MIGRATION.md)
 const PD=window.PlayerData,IC=window.ItemCatalog;
 const R=[
