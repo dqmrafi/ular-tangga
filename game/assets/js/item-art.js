@@ -253,7 +253,7 @@
       s += rect(29, 8, 6, 8, '#8a5a2b') + rect(35, 4, 6, 4, '#ffb02e');
     } else if (k === 'totem') {
       return totem(label || it.name); /* fallback SVG Totem (dipakai hanya bila data/power/sm/totem.webp gagal dimuat) */
-    } else if (k === 'potion') {
+    } else if (k === 'potion_odd' || k === 'potion_even') {
       s += rect(26, 4, 12, 6, '#8a5a2b') + rect(24, 10, 16, 8, '#b9c9e4');
       s += rect(14, 18, 36, 38, '#dff3ff') + rect(14, 36, 36, 20, '#c04fd0') + rect(18, 40, 8, 6, '#e08ae8');
       s += rect(14, 18, 36, 4, '#f2fbff');
