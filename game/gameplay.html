@@ -148,8 +148,10 @@ body.hf-shake{animation:hfShake .35s}
 
 /* Modal Totem: pilih pakai / tidak saat kena ular atau mob jahat */
 .tm-ov{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.55);padding:16px}
-.tm-box{width:min(340px,92vw);text-align:center;padding:18px 20px 16px;background:var(--hud-bg,#2a211b);border:4px solid #0f0b08;box-shadow:inset 0 0 0 3px #ffd23f,0 8px 0 rgba(0,0,0,.5);border-radius:10px;color:#f1e8d6;animation:pcin .22s ease-out}
-.tm-ic{font-size:44px;line-height:1}
+.tm-box{width:min(340px,92vw);text-align:center;padding:18px 20px 16px;background:var(--hud-bg,#2a211b);border:4px solid #0f0b08;box-shadow:inset 0 0 0 3px #ffd23f,0 8px 0 rgba(0,0,0,.5);border-radius:10px;color:#f1e8d6;transform-origin:center center;animation:tmin .22s ease-out}
+@keyframes tmin{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+.tm-ic{font-size:44px;line-height:1;display:flex;justify-content:center}
+.tm-ic .puimg{width:84px;height:84px;object-fit:contain;filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
 .tm-box h4{margin:6px 0 4px;font-size:20px}
 .tm-box .tm-d{margin:0 0 12px;font-size:14px}
 .tm-bt{display:flex;gap:10px}
@@ -3636,16 +3638,17 @@ async function applyChestReward(p,rw,gid){
     case 'gems': return {text:grant({gems:AMT.gems},'+'+AMT.gems+' Emerald')};
     case 'maju': case 'mundur':{
       const d=MOVES[Math.floor(Math.random()*MOVES.length)]*(rw.id==='mundur'?-1:1),to=Math.max(1,Math.min(99,p.pos+d)),mv=to-p.pos;
-      if(mv!==0){ await walk(p,p.pos,to); if(gid!==gameId) return {text:''}; p.pos=to; renderChips(); }
-      return {text:mv===0?'Tidak bergerak':(mv>0?'Maju ':'Mundur ')+Math.abs(mv)+' langkah'};
+      /* gerak DITUNDA: giveChest menjalankannya setelah card tertutup & peti menutup */
+      const from=p.pos;
+      return {text:mv===0?'Tidak bergerak':(mv>0?'Maju ':'Mundur ')+Math.abs(mv)+' langkah',
+        after:mv===0?null:async()=>{ await walk(p,from,to); if(gid!==gameId) return; p.pos=to; renderChips(); }};
     }
     case 'tangga': case 'ular':{
       const src=rw.id==='tangga'?LADDERS:SNAKES,ahead=Object.keys(src).map(Number).filter(n=>n>p.pos).sort((a,b)=>a-b);
       if(!ahead.length) return {text:rw.id==='tangga'?'Lucky! Tapi tidak ada tangga di depanmu':'Unlucky! Tapi tidak ada ular di depanmu'};
-      const to=ahead[0]; sfx.pop();
-      await teleport(p,to); if(gid!==gameId) return {text:''};
-      p.pos=to; renderChips();
-      return {text:rw.id==='tangga'?'Lucky! Meluncur ke Tangga di petak '+to:'Unlucky! Meluncur ke Ular di petak '+to};
+      const to=ahead[0];
+      return {text:rw.id==='tangga'?'Lucky! Meluncur ke Tangga di petak '+to:'Unlucky! Meluncur ke Ular di petak '+to,
+        after:async()=>{ sfx.pop(); await teleport(p,to); if(gid!==gameId) return; p.pos=to; renderChips(); }};
     }
     case 'bonus': p.bonus=2; renderChips(); return {text:'Bonus Langkah! Dadu berikutnya +2'};
     case 'lucky': chestFlag(p,'lucky'); return {text:'Pasti 6! Dadu berikutnya 6'};
@@ -3668,6 +3671,8 @@ async function giveChest(p,tok){
      await sleep(reduce?600:1200); if(gid!==gameId) return {status:'stale'}; /* Chest tetap OPEN selama card tampil */
      if(FBK) FBK.hideChestRewardCard();
      sfx.chestClose(); closeChest(n); await sleep(reduce?150:350); /* CLOSE */
+     if(gid!==gameId) return {status:'stale'};
+     if(res.after){ await res.after(); if(gid!==gameId) return {status:'stale'}; } /* urutan: peti buka -> card -> card tutup -> peti tutup -> pion jalan */
      return {status:'accepted',reward:rw.id};
    }finally{ if(FBK) FBK.hideChestRewardCard(); closeChest(n); CHEST_LC.active=false; }
 }
@@ -3928,9 +3933,10 @@ async function resolveMobAt(p,gid){
 function totemModal(p,what,gid){
   return new Promise(res=>{
     const ov=document.createElement('div'); ov.className='tm-ov'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
-    ov.innerHTML='<div class="tm-box"><div class="tm-ic">\ud83d\uddff</div><h4>Pakai Totem?</h4><p class="tm-d"></p><div class="tm-bt"><button type="button" class="tm-y"></button><button type="button" class="tm-n">Tidak</button></div><small class="tm-t"></small></div>';
+    ov.innerHTML='<div class="tm-box"><div class="tm-ic"></div><h4>Pakai Totem?</h4><p class="tm-d"></p><div class="tm-bt"><button type="button" class="tm-y"></button><button type="button" class="tm-n">Tidak</button></div><small class="tm-t"></small></div>';
     ov.querySelector('.tm-d').textContent=p.name+' kena '+what+'! Totem bisa menahannya (sisa '+p.pu.totem+').';
     ov.querySelector('.tm-y').textContent='Pakai Totem';
+    try{ UT.Gameplay.Config.setPuIcon(ov.querySelector('.tm-ic'),'totem'); }catch(e){}
     const tt=ov.querySelector('.tm-t'); let left=12;
     const upd=()=>{ tt.textContent='Otomatis dipakai dalam '+left+' detik'; };
     const done=v=>{ clearInterval(iv); ov.remove(); res(v); };
