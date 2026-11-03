@@ -4,8 +4,8 @@ Dipakai preloader (assets/js/preloader.js) agar bar loading dihitung dari byte y
 Jalankan lagi tiap menambah/mengganti aset (musik, gambar, sfx):  python3 tools/gen-preload-manifest.py"""
 import os, json
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-INC_DIRS = ['assets', 'data', 'gameplay', 'hud']
-EXT = {'.png', '.webp', '.jpg', '.jpeg', '.gif', '.svg', '.mp3', '.ogg', '.wav', '.js', '.css', '.woff', '.woff2'}
+INC_DIRS = ['assets', 'data', 'gameplay', 'hud', 'promosi']
+EXT = {'.png', '.webp', '.jpg', '.jpeg', '.gif', '.svg', '.mp3', '.ogg', '.wav', '.js', '.css', '.woff', '.woff2', '.webm'}
 SKIP_PARTS = {'old', 'doc', 'referensi', 'node_modules'}
 out = {}
 for d in INC_DIRS:

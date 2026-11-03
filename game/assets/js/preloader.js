@@ -2,10 +2,12 @@
    Progres NYATA dihitung dari BYTE yang benar-benar terunduh (stream fetch), bukan dari jumlah file atau timer:
      UT_Preload.run(urls, onProgress, minMs, sizes) -> Promise     (sizes = {url: perkiraan byte}, opsional)
      UT_Preload.runAuto(extraUrls, onProgress)       -> Promise     (memuat assets/preload-manifest.json + extraUrls)
-   Kegagalan/aset macet tidak memblokir (timeout 20 dtk per file). Bila semua sudah ada di cache, loading memang cepat: itu nyata.
+   Kegagalan/aset macet tidak memblokir: timeout 20 dtk dihitung dari byte terakhir yang masuk (file besar di koneksi lambat tidak terpotong), gagal jaringan dicoba ulang 1x.
+   Urutan: URL tambahan (halaman tujuan, library) dulu, lalu aset kecil -> besar (musik terakhir). onProgress(persen, jenis) — jenis = 'kode'|'gambar'|'audio'|'data' dari file yang terakhir mulai diunduh. Bila semua sudah ada di cache, loading memang cepat: itu nyata.
    Daftar aset dibuat oleh tools/gen-preload-manifest.py (jalankan ulang setelah menambah musik/gambar/sfx). */
 window.UT_Preload = (function () {
-  var CONC = 6, DEF_SIZE = 30000, EXT_SIZE = 80000, TIMEOUT = 20000;
+  var CONC = 6, DEF_SIZE = 30000, EXT_SIZE = 80000, TIMEOUT = 20000, RETRY = 1;
+  function kindOf(u) { var e = (u.split('?')[0].match(/\.([a-z0-9]+)$/i) || [])[1]; e = (e || '').toLowerCase(); if (/^(mp3|ogg|wav|webm|m4a)$/.test(e)) return 'audio'; if (/^(png|webp|jpe?g|gif|svg)$/.test(e)) return 'gambar'; if (/^(js|css|html|woff2?)$/.test(e)) return 'kode'; return 'data'; }
   function isExt(u) { return /^https?:\/\//i.test(u) && u.indexOf(location.origin) !== 0; }
 
   function run(urls, onProgress, minMs, sizes) {
@@ -15,27 +17,36 @@ window.UT_Preload = (function () {
     var N = list.length, exp = [], got = [], doneN = 0, next = 0, t0 = performance.now(), shown = 0;
     list.forEach(function (u, i) { exp[i] = sizes[u] || (isExt(u) ? EXT_SIZE : DEF_SIZE); got[i] = 0; });
 
+    var curKind = 'kode';
     function load(i) {
       return new Promise(function (res) {
-        var fin = false, tm;
+        var fin = false, tm, u = list[i];
+        curKind = kindOf(u);
         function done() { if (fin) return; fin = true; clearTimeout(tm); got[i] = exp[i]; doneN++; res(); }
-        tm = setTimeout(done, TIMEOUT);
-        var u = list[i];
-        try {
-          fetch(u, isExt(u) ? { mode: 'no-cors' } : {}).then(function (r) {
-            if (isExt(u) || !r.body || !r.body.getReader) return r.arrayBuffer();
-            var cl = parseInt(r.headers.get('content-length'), 10);
-            if (cl > 0) exp[i] = cl; /* ukuran asli dari server menggantikan perkiraan */
-            var rd = r.body.getReader();
-            return (function pump() {
-              return rd.read().then(function (c) {
-                if (c.done) return;
-                got[i] = Math.min(exp[i], got[i] + c.value.length);
-                return pump();
-              });
-            })();
-          }).then(done, done);
-        } catch (e) { done(); }
+        function arm() { clearTimeout(tm); tm = setTimeout(done, TIMEOUT); } /* timeout = tanpa byte baru selama TIMEOUT */
+        function attempt(n) {
+          arm();
+          try {
+            fetch(u, isExt(u) ? { mode: 'no-cors' } : {}).then(function (r) {
+              if (!isExt(u) && r.status >= 500 && n < RETRY) { got[i] = 0; return new Promise(function (ok) { setTimeout(ok, 400); }).then(function () { return attempt(n + 1); }); }
+              if (isExt(u) || !r.body || !r.body.getReader) return r.arrayBuffer();
+              var cl = parseInt(r.headers.get('content-length'), 10);
+              if (cl > 0) exp[i] = cl; /* ukuran asli dari server menggantikan perkiraan */
+              var rd = r.body.getReader();
+              return (function pump() {
+                return rd.read().then(function (c) {
+                  if (c.done) return;
+                  arm();
+                  got[i] = Math.min(exp[i], got[i] + c.value.length);
+                  return pump();
+                });
+              })();
+            }, function () {
+              if (n < RETRY) { got[i] = 0; return new Promise(function (ok) { setTimeout(ok, 400); }).then(function () { return attempt(n + 1); }); }
+            }).then(done, done);
+          } catch (e) { done(); }
+        }
+        attempt(0);
       });
     }
     function worker() {
@@ -52,7 +63,7 @@ window.UT_Preload = (function () {
         var target = minMs > 0 ? Math.min(real, (now - t0) / minMs) : real;
         shown += (target - shown) * 0.2;
         if (target - shown < 0.002) shown = target;
-        onProgress(Math.round(shown * 100));
+        onProgress(Math.round(shown * 100), curKind);
         if (shown >= 1 && doneN >= N) { resolve(); return; }
         requestAnimationFrame(paint);
       }
@@ -66,7 +77,8 @@ window.UT_Preload = (function () {
     var man = fetch(base).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
     return Promise.race([man, tm]).then(function (m) {
       m = m || {};
-      var urls = (extra || []).concat(Object.keys(m));
+      var rest = Object.keys(m).sort(function (a, b) { return (m[a] || 0) - (m[b] || 0); }); /* kecil -> besar: musik terakhir */
+      var urls = (extra || []).concat(rest);
       return run(urls, onProgress, 0, m);
     });
   }
