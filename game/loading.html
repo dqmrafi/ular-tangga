@@ -75,6 +75,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 .status{text-shadow:-2px 0 #0b1838,2px 0 #0b1838,0 -2px #0b1838,0 2px #0b1838,-2px -2px #0b1838,2px -2px #0b1838,-2px 2px #0b1838,2px 2px #0b1838,0 4px 0 #0b1838}
 @media(max-width:700px){.meta,.load-meta{font-size:15px}}
 </style>
+<style id="progress-bottom">
+/* Bar loading dikecilkan dan dipindah ke bawah layar (tidak lagi di tengah). HANYA tampilan. */
+.ui{top:auto;bottom:clamp(18px,6vh,48px);transform:translateX(-50%);width:min(240px,52vw)}
+.status{font-size:16px;margin-bottom:10px}
+.track,.loading-track{height:18px;padding:3px;box-shadow:inset 0 2px 0 rgba(0,0,0,.65),0 -3px 0 0 #000,0 3px 0 0 #000,-3px 0 0 0 #000,3px 0 0 0 #000,0 6px 0 0 #000}
+.fill,.loading-fill{background:repeating-linear-gradient(90deg,transparent 0 17px,#0b2a0b 17px 19px),linear-gradient(#86f04f,#38c22d 55%,#239a25)}
+.meta,.load-meta{margin-top:14px;font-size:13px}
+@media (min-aspect-ratio:1/1){.ui{width:min(240px,30cqw)}}
+</style>
 <script src="assets/js/landscape.js"></script></head>
 <body>
 
