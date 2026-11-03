@@ -2585,6 +2585,7 @@ function updatePortal(dt,now){
 const AWK={done:false,running:false};
 var ARENA=null,MOUNT=null;
 const ARENA_POS={x:-11.6,z:-0.2},ARENA_SIZE={w:5.2,d:5.6},ARENA_TOWER_H=3.3;
+const CRYSTAL_N=6; /* jumlah End Crystal progression (angka dadu 1..6): 4 di sudut arena + 2 di tengah sisi kiri/kanan */
 function buildArena(){
   const g=new THREE.Group(); g.position.set(ARENA_POS.x,-1,ARENA_POS.z); g.visible=false;
   const B=makeBatch(),W=ARENA_SIZE.w,D=ARENA_SIZE.d,E={edge:false};
@@ -2621,8 +2622,8 @@ function buildArena(){
   const mkPlane=(col,sz,y)=>{ const m=new THREE.Mesh(new THREE.PlaneGeometry(sz,sz),new THREE.MeshBasicMaterial({map:tex,color:col,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); m.rotation.x=-Math.PI/2; m.position.y=y; m.frustumCulled=false; g.add(m); return m; };
   const glowP=mkPlane(0x7A4DFF,4.2,0.85),glowC=mkPlane(0xE040FF,2.4,cr.position.y),ring=mkPlane(0x4AEDD9,3,0.88);
   const beam=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshBasicMaterial({color:0xE040FF,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); beam.visible=false; beam.frustumCulled=false; g.add(beam);
-  /* Feature 3: 4 End Crystal progression di 4 sudut arena (urut searah jarum jam dari kiri-atas). Tampilan mengikuti progress pemain yang sedang giliran. */
-  const cvs=[[-1,-1],[1,-1],[1,1],[-1,1]].map((q,i)=>{
+  /* Feature 3: 6 End Crystal progression: 1-4 di 4 sudut arena (searah jarum jam dari kiri-atas), 5 di tengah sisi kiri, 6 di tengah sisi kanan. Tampilan mengikuti progress pemain yang sedang giliran. */
+  const cvs=[[-1,-1],[1,-1],[1,1],[-1,1],[-1,0],[1,0]].map((q,i)=>{
     const cg=new THREE.Group(); cg.position.set(q[0]*(W/2-0.2),2.25,q[1]*(D/2-0.2)); cg.visible=false;
     const cc=new THREE.Mesh(new THREE.BoxGeometry(0.3,0.3,0.3),new THREE.MeshBasicMaterial({color:0xE040FF}));
     const cs2=new THREE.Mesh(new THREE.BoxGeometry(0.5,0.5,0.5),new THREE.MeshBasicMaterial({color:0x4AEDD9,transparent:true,opacity:0.38,depthWrite:false}));
@@ -2759,7 +2760,7 @@ function applyArenaState(){
   applyMountainState();
   const A=ARENA; if(!A) return;
   const fin=AWK.done;
-  A.g.visible=fin; A.rise=fin?1:0; A.tower=fin?1:0; A.crystal=0; A.energy=0; A.burst=0; /* crystal tower diganti 4 End Crystal progression setelah awakening */
+  A.g.visible=fin; A.rise=fin?1:0; A.tower=fin?1:0; A.crystal=0; A.energy=0; A.burst=0; /* crystal tower diganti 6 End Crystal progression setelah awakening */
   A.cv.forEach(c=>{ c.want=0; c.s=0; c.flash=0; }); A.act=-1; if(fin) syncCrystals();
 }
 /* Bidak yang sudah mencapai target 100 berdiri di Dragon Arena, mengelilingi tower (bersama naga). */
@@ -2781,19 +2782,19 @@ function resetAwakening(){
   applyArenaState();
 }
 /* ---------- Dragon Feature 3: End Crystal progression (per player) ----------
-   p.crystal = jumlah crystal yang sudah dihancurkan pemain itu (0..4); p.dragonReady = READY menyerang Dragon (setelah crystal 4).
+   p.crystal = jumlah crystal yang sudah dihancurkan pemain itu (0..6); p.dragonReady = READY menyerang Dragon (setelah semua crystal hancur).
    Crystal n hanya hancur bila pemain melempar angka n; selain itu tidak ada progress. Tidak menyentuh progress pemain lain.
-   Tampilan 4 crystal di arena mengikuti pemain yang sedang giliran (pemain yang tidak di Block 100 = semua utuh). */
-function crystalDone(p){ if(!p.cdone) p.cdone=[false,false,false,false]; return p.cdone; } /* crystal n hancur bila pemain melempar n; urutan bebas */
+   Tampilan 6 crystal di arena mengikuti pemain yang sedang giliran (pemain yang tidak di Block 100 = semua utuh). */
+function crystalDone(p){ if(!p.cdone) p.cdone=new Array(CRYSTAL_N).fill(false); return p.cdone; } /* crystal n hancur bila pemain melempar n; urutan bebas */
 function syncCrystals(){
   const A=ARENA; if(!A||!AWK.done) return;
-  const p=players[cur],d=(p&&p.pos===100)?crystalDone(p):[false,false,false,false];
+  const p=players[cur],d=(p&&p.pos===100)?crystalDone(p):new Array(CRYSTAL_N).fill(false);
   A.cv.forEach((c,i)=>{ c.want=d[i]?0:1; }); A.act=-1; /* tanpa target: semua crystal yang masih utuh setara */
 }
 /* ---------- Dragon Feature 5: Dragon Attack ----------
-   Hanya pemain yang sudah menyelesaikan Crystal 4 (p.dragonReady) yang boleh menyerang. Angka serangan datang dari Special Dice (Feature 4);
+   Hanya pemain yang sudah menghancurkan semua Crystal (p.dragonReady) yang boleh menyerang. Angka serangan datang dari Special Dice (Feature 4);
    damage/HP/animasi/kemenangan tetap memakai hitDragon + playTurn existing (tidak ada combat baru). */
-function canAttackDragon(p){ return !!(p&&p.dragonReady&&p.crystal>=4&&p.pos===100&&AWK.done&&!AWK.running&&!gameOver&&!DRG.defeated); }
+function canAttackDragon(p){ return !!(p&&p.dragonReady&&p.crystal>=CRYSTAL_N&&p.pos===100&&AWK.done&&!AWK.running&&!gameOver&&!DRG.defeated); }
 /* ---------- Dragon Feature 6: Dragon Defeat & Reward ----------
    Efek/suara/feedback kalah memakai yang existing di hitDragon + celebrate (sfx.dragonDeath, panel "Ender Dragon kalah!", konfeti, sfx.win).
    Hadiah = PlayerData.grant existing (nominal: UT.Gameplay.Config.DRAGON_REWARD). Tidak ada currency/reward system baru.
@@ -2845,16 +2846,16 @@ async function dragonDefeatReward(p,gid){
 }
 async function crystalRoll(p,v,gid){
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },n=v,d=crystalDone(p);
-  if(n>4||d[n-1]){
-    const why=n>4?'Tidak ada Crystal '+n+'.':'Crystal '+n+' sudah hancur.';
+  if(n>CRYSTAL_N||d[n-1]){
+    const why=n>CRYSTAL_N?'Tidak ada Crystal '+n+'.':'Crystal '+n+' sudah hancur.';
     setMsg(p.name+' melempar '+v+'. '+why+' Tidak ada progress.'); fb('event','dragon',why+' (dapat '+v+')',{gid,ttl:1800}); sfx.bounce();
     await S(sleep(900)); return false;
   }
   d[n-1]=true; p.crystal++; syncCrystals();
   const c=ARENA&&ARENA.cv[n-1]; if(c){ c.flash=1; } sfx.crystalBreak();
-  setMsg(p.name+' menghancurkan Crystal '+n+'! ('+p.crystal+'/4)'); fb('event','dragon','Crystal '+n+' hancur! '+p.crystal+'/4',{gid,ttl:1800});
+  setMsg(p.name+' menghancurkan Crystal '+n+'! ('+p.crystal+'/'+CRYSTAL_N+')'); fb('event','dragon','Crystal '+n+' hancur! '+p.crystal+'/'+CRYSTAL_N,{gid,ttl:1800});
   await S(sleep(900)); renderChips();
-  if(p.crystal>=4){ p.dragonReady=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.crystalsCleared(); renderChips(); await S(sleep(700)); }
+  if(p.crystal>=CRYSTAL_N){ p.dragonReady=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.crystalsCleared(); renderChips(); await S(sleep(700)); }
   return true;
 }
 async function awakenDragon(p,gid){
@@ -2891,7 +2892,7 @@ async function awakenDragon(p,gid){
     await S(tween(1.2*F,k=>{ Dd.dy=ay-Dd.y0+Math.sin(k*Math.PI)*0.5; A.energy=1-0.65*k; }));
     dragon.position.x=ax; dragon.position.z=az; Dd.dy=ay-Dd.y0; Dd.shk=hd; dragon.scale.setScalar(1.3);
     const e0=A.energy; await S(tween(0.8*F,k=>{ A.crystal=1-k; A.energy=e0*(1-k); }));
-    A.cv.forEach(c=>{ c.want=1; c.flash=0.6; }); A.act=0; sfx.crystalAppear(); /* 4 End Crystal progression muncul; progress per player ditentukan saat giliran */
+    A.cv.forEach(c=>{ c.want=1; c.flash=0.6; }); A.act=0; sfx.crystalAppear(); /* 6 End Crystal progression muncul; progress per player ditentukan saat giliran */
     await S(sleep(600*F));
     finished=true;
   }finally{
@@ -3476,7 +3477,7 @@ function renderChips(){
     const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':'')+(p.shield?' shielded':''); puFxApply(d,'pr:'+p.idx); d.style.setProperty('--pc',p.css);
     const im=document.createElement('img'); im.src=faceURL(p.key); im.alt='';
     const nm=document.createElement('span'); nm.textContent=p.name;
-    const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===100?(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/4'):String(p.pos));
+    const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===100?(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N):String(p.pos));
     d.appendChild(im); d.appendChild(nm); d.appendChild(ps);
     const bfT=[p.bonus?'🗡️+3':'',p.extra?'🪶 ekstra':'',p.p4?'🧪 dadu 4-6':'',p.shield?'🗿 kebal':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
     if(p.pos===100&&p.dragonReady){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=p.dhp+'%'; hp.appendChild(b); d.appendChild(hp); }
