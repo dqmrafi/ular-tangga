@@ -2625,18 +2625,12 @@ function woodTop(B,cx,cz,w,d,topY,base,seed){
     addBox(B,alongX?cx+t:cx+sd*half,topY-0.34,alongX?cz+sd*half:cz+t,alongX?0.016:0.012,0.62,alongX?0.012:0.016,sh(-0.14,Math.round(t*10),sd),E);
   });
 }
-/* riak air: sel kecil beda biru + garis terang/gelap */
+/* air: sel kecil dengan variasi biru (tanpa garis putih) */
 const WATERPAL=[0x2D6BD8,0x3A7BE6,0x4789EE,0x2A62C6,0x3470DC,0x5596F2];
 function waterDetail(B,cx,cz,y,w,d,seed,nx,nz){
   const E={edge:false},sx=w/nx,sz=d/nz;
   for(let i=0;i<nx;i++) for(let j=0;j<nz;j++)
     addBox(B,cx-w/2+sx*(i+0.5),y+0.006,cz-d/2+sz*(j+0.5),sx*0.98,0.012,sz*0.98,vcol(palAt(WATERPAL,hrn(i,j,seed,4)),seed,i,j,0.04),E);
-  const n=2+Math.floor(hrn(seed,1,2,3)*3);
-  for(let k=0;k<n;k++){
-    const rx=cx+(hrn(k,seed,5,6)-0.5)*(w-0.5),rz=cz+(hrn(k,seed,7,8)-0.5)*(d-0.12),l=0.22+hrn(k,seed,9,1)*0.3;
-    addBox(B,rx,y+0.016,rz,l,0.01,0.045,k%3===0?0xDDEFFF:(k%3===1?0xA9D2FF:0x8FC2FA),E);
-    if(k%2===0) addBox(B,rx+0.1,y+0.016,rz+0.1,0.14,0.01,0.04,0x1F4FA8,E);
-  }
 }
 const CRYSTAL_N=6; /* jumlah End Crystal progression (angka dadu 1..6): 4 di sudut arena + 2 di tengah sisi kiri/kanan */
 function buildArena(){
