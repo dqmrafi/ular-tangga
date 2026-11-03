@@ -3469,32 +3469,7 @@ async function applyChestReward(p,rw,gid){
       if(mv!==0){ await walk(p,p.pos,to); if(gid!==gameId) return {text:''}; p.pos=to; renderChips(); }
       return {text:mv===0?'Tidak bergerak':(mv>0?'Maju ':'Mundur ')+Math.abs(mv)+' langkah'};
     }
-    case 'tukar':{
-      const cand=players.filter(o=>o!==p&&o.pos<100&&Math.abs(o.pos-p.pos)===1); /* hanya 1 petak di atas / bawah; petak 100 dilarang */
-      if(!cand.length) return {text:'Tukar Posisi gagal (tidak ada pemain di petak sebelah)'};
-      const o=cand[Math.floor(Math.random()*cand.length)],pa=p.pos,pb=o.pos;
-      sfx.pop();
-      await Promise.all([fly(p,pb,0.6,1.2),fly(o,pa,0.6,1.2)]); if(gid!==gameId) return {text:''};
-      p.pos=pb; o.pos=pa; renderChips();
-      return {text:'Tukar Posisi dengan '+o.name+'! ('+pa+' \u2194 '+pb+')'};
-    }
     case 'bonus': p.bonus=2; renderChips(); return {text:'Bonus Langkah! Dadu berikutnya +2'};
-    case 'serang':{
-      const L=players.filter(q=>q!==p&&q.pos>0&&q.pos<100).sort((a,b)=>b.pos-a.pos)[0];
-      if(!L||L.pos<=p.pos) return {text:'Serang Terdepan gagal (tidak ada pemain di depanmu)'};
-      const old=L.pos,to=Math.max(1,old-2);
-      sfx.hit(); hitBlastFx(L); await fly(L,to,0.45,1.0); if(gid!==gameId) return {text:''};
-      L.pos=to; renderChips();
-      return {text:'Serang Terdepan! '+L.name+' mundur 2 petak ('+old+' \u2192 '+to+')'};
-    }
-    case 'lawan':{
-      const T=players.filter(q=>q!==p&&q.pos>1&&q.pos<100);
-      if(!T.length) return {text:'Semua Lawan Mundur gagal (tidak ada target)'};
-      sfx.hit();
-      await Promise.all(T.map(q=>{ hitBlastFx(q); const to=q.pos-1; return fly(q,to,0.4,0.8).then(()=>{ q.pos=to; }); })); if(gid!==gameId) return {text:''};
-      renderChips();
-      return {text:'Semua Lawan Mundur 1 petak!'};
-    }
     case 'odd': chestFlag(p,'odd'); return {text:'Dadu Ganjil Berikutnya (1/3/5)'};
     case 'even': chestFlag(p,'even'); return {text:'Dadu Genap Berikutnya (2/4/6)'};
     case 'lucky': chestFlag(p,'lucky'); return {text:'Pasti 6! Dadu berikutnya 6'};
