@@ -43,13 +43,14 @@ svg{display:block}
 .mode:focus-visible{outline:.4rem solid #fff}
 .art{position:absolute;left:0;right:0;top:0;height:16.5rem;background:linear-gradient(var(--a1),var(--a2));border-radius:2.6rem 2.6rem 0 0}
 .art svg{width:100%;height:100%}
-.art{overflow:hidden}.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
+.art{overflow:hidden}.art>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
 .mode.locked{cursor:not-allowed;animation:pop .45s both}
-.mode.locked .art img,.mode.locked .art svg{filter:grayscale(.85) brightness(.7)}
+.mode.locked .art>img,.mode.locked .art svg{filter:grayscale(.85) brightness(.7)}
 .mode.locked .pn{filter:grayscale(.7) brightness(.8)}
 .mode.locked:hover{transform:none}
 .lk{position:absolute;left:0;right:0;top:0;height:16.5rem;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;background:rgba(10,20,60,.38);border-radius:2.6rem 2.6rem 0 0;pointer-events:none}
 .lk svg{width:5.6rem;height:5.6rem;filter:drop-shadow(0 .3rem 0 rgba(0,0,0,.35))}
+.lk .ci{width:5.6rem;height:5.6rem;filter:drop-shadow(0 .3rem 0 rgba(0,0,0,.35));display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 .lk b{font-size:2.6rem;line-height:1;letter-spacing:.12em;padding:.5rem 1.8rem;border-radius:1.6rem;background:linear-gradient(#ffe36a,#ffb62a);color:#8a4a0a;box-shadow:0 .25rem 0 #c96a0c,inset 0 .15rem .2rem rgba(255,255,255,.6)}
 .cta.off{background:linear-gradient(#9aa4b8,#6f788c);box-shadow:0 .35rem 0 #4a5266,inset 0 .2rem .2rem rgba(255,255,255,.35);text-shadow:none;cursor:not-allowed;pointer-events:none}
 .pn{position:absolute;left:0;right:0;bottom:0;top:15.6rem;display:flex;flex-direction:column;padding:2.3rem 1.5rem 1.5rem;background:linear-gradient(var(--p1),var(--p2));border-radius:2.2rem 2.2rem 0 0;box-shadow:inset 0 .25rem 0 rgba(255,255,255,.28)}
@@ -58,6 +59,7 @@ svg{display:block}
 .mode p{margin:.4rem 0 0;font-size:1.35rem;line-height:1.2;font-weight:700;color:#fff;flex:1;text-shadow:0 .1rem 0 rgba(0,0,0,.25)}
 .cta{display:flex;align-items:center;justify-content:center;gap:.9rem;width:100%;height:4.3rem;border-radius:2.2rem;padding:0;font-size:1.9rem;white-space:nowrap;flex:none}
 .cta svg{width:2.3rem;height:2.3rem}
+.cta .ci{width:2.3rem;height:2.3rem;flex:none;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 .cta.y{background:linear-gradient(#ffd24d,#ff9a1f);box-shadow:0 .35rem 0 #c96a0c,inset 0 .2rem .2rem rgba(255,255,255,.6);text-shadow:0 .1rem 0 #8a4a0a}
 .cta.b{background:linear-gradient(#58b6ff,#1f86ee);box-shadow:0 .35rem 0 #14449f,inset 0 .2rem .2rem rgba(255,255,255,.5);text-shadow:0 .1rem 0 rgba(10,40,120,.6)}
 /* bottom bars */
@@ -66,12 +68,14 @@ svg{display:block}
  background:linear-gradient(#3d9bfa,#1f6fe0);box-shadow:0 .4rem 0 var(--bd),0 1rem 1.4rem rgba(18,51,127,.3),inset 0 .2rem .3rem rgba(255,255,255,.55),inset 0 0 0 .22rem rgba(120,195,255,.65)}
 .bb.w{flex:1.3}
 .bb>svg:first-child{width:4.2rem;height:4.2rem;flex:none;filter:drop-shadow(0 .2rem 0 rgba(10,40,120,.4))}
+.bb>.ci:first-child{width:4.2rem;height:4.2rem;flex:none;filter:drop-shadow(0 .2rem 0 rgba(10,40,120,.4));display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none;user-select:none}
 .bb .tx{flex:1;min-width:0;line-height:1.1}
 .bb b{display:flex;align-items:center;gap:.8rem;font-size:1.6rem;font-weight:800;white-space:nowrap}
 .bb small{display:block;margin-top:.2rem;font-size:1.05rem;font-weight:700;line-height:1.15;color:#d8efff}
 .bb .ch{width:2rem;height:2rem;flex:none}
 .soon{font-size:1rem;line-height:1.7rem;padding:0 1rem;border-radius:1rem;background:linear-gradient(#ffe36a,#ffb62a);color:#8a4a0a;box-shadow:0 .15rem 0 #c96a0c}
 .bot{position:absolute;right:.8rem;bottom:.2rem;width:6.4rem;height:6.8rem}
+img.bot{object-fit:contain;pointer-events:none;-webkit-user-drag:none}
 .bb.w .tx{padding-right:5.6rem}.bb.w{overflow:visible}
 /* fx / modal */
 .sp{position:fixed;width:1.3rem;height:1.3rem;background:#fff6a0;rotate:45deg;pointer-events:none;z-index:99;animation:spk .8s forwards}
@@ -123,6 +127,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 .pn{border-radius:0;background:linear-gradient(var(--p1),var(--p2));box-shadow:none;margin:0 .38rem .38rem;padding:2.4rem 1.3rem 1.3rem}
 .lk{border-radius:1.4rem 1.4rem 0 0;margin:.38rem .38rem 0;height:15.4rem;background:rgba(10,12,30,.35)}
 .lk svg{filter:grayscale(1) brightness(1.25) drop-shadow(0 .3rem 0 rgba(0,0,0,.45))}
+.lk .ci{filter:grayscale(1) brightness(1.25) drop-shadow(0 .3rem 0 rgba(0,0,0,.45))}
 .lk b{color:#1a1206;border-radius:.8rem;background:linear-gradient(#ffe65a,#ffc21a);box-shadow:0 0 0 .22rem #1a1206,0 .3rem 0 .22rem #1a1206,inset 0 .15rem .2rem rgba(255,255,255,.6)}
 .tag{left:1.4rem;top:14.9rem;border-radius:1rem;box-shadow:0 0 0 .2rem #0b0c10,inset 0 .15rem .2rem rgba(255,255,255,.4)}
 .mode h3{-webkit-text-stroke:.5rem #0b0c10;text-shadow:0 .3rem 0 #0b0c10;font-size:3.5rem}
@@ -136,6 +141,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 .pn{top:15.5rem;padding-top:2.2rem}.tag{top:14.2rem;z-index:4}
 .bb{gap:1rem;padding:0 1.2rem}
 .bb>svg:first-child{width:3.8rem;height:3.8rem}
+.bb>.ci:first-child{width:3.8rem;height:3.8rem}
 .bb b{font-size:1.5rem}.bb small{font-size:.95rem}
 .bb .tx{overflow:hidden}.bb .ch{width:1.7rem;height:1.7rem}
 .bb .soon{display:none}
@@ -225,15 +231,15 @@ ${Array.from({length:9},(_,i)=>slab(i*30-8,150+(i%2)*5,16,12,'#5ccc3a','#7a5232'
 turnamen:()=>sc(`${glow(120,84,95,'#fff2a0')}${rays(120,90)}${grass(32,44,12)}${tree(32,34)}${grass(208,36,12)}${tree(208,26)}${cube(22,104,9,'#b04ad0')}${cube(218,100,9,'#d870e8')}
 ${trophy(54,12,3.3,1)}${slab(80,150,28,10,'#b04ad0')}${slab(164,152,28,10,'#d870e8')}${slab(122,158,34,12,'#9a3ac0')}${star(40,80,6,'#fff6b0')}${star(204,70,5,'#fff6b0')}${star(160,14,4)}`)};
 // ---------- icons
-const LOCK_SVG='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><rect x="4.5" y="10" width="15" height="11" rx="3" fill="#ffd24d" stroke="#c96a0c" stroke-width="1.2"/><circle cx="12" cy="15" r="1.7" fill="#8a4a0a"/></svg>';
+const LOCK_SVG='<img class="ci" src="assets/Images/icon/lock.webp" alt="" draggable="false">';
 const I={play:'<svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z" fill="#fff" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>',
 trophy:'<svg viewBox="0 0 24 24"><path d="M7 3h10v6a5 5 0 0 1-10 0zM7 5H3c0 4 2 6 4 6M17 5h4c0 4-2 6-4 6M12 14v4M8 21h8M9 18h6" fill="#fff" stroke="#fff" stroke-width="1.800" stroke-linejoin="round" stroke-linecap="round"/></svg>',
-people:'<svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.500" fill="#fff"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6z" fill="#fff"/><circle cx="17" cy="9" r="3" fill="#fff" opacity=".8"/><path d="M15 14c4-.5 7 1.500 7 6h-5c0-2.500-.8-4.500-2-6z" fill="#fff" opacity=".8"/></svg>',
-crown:'<svg viewBox="0 0 30 18"><g>'+crownP+'</g></svg>',
+people:'<img class="ci" src="assets/Images/icon/kontak.webp" alt="" draggable="false">',
+crown:'<img class="ci" src="assets/Images/icon/modekhsusus.webp" alt="" draggable="false">',
 book:'<svg viewBox="0 0 24 24"><path d="M12 6C9 4 5 4 2 5v14c3-1 7-1 10 1 3-2 7-2 10-1V5c-3-1-7-1-10 1ZM12 6v14" fill="#fff" stroke="#bfe2ff" stroke-width="1.200" stroke-linejoin="round"/></svg>',
-cal:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3" fill="#fff"/><path d="M8 3v4M16 3v4" stroke="#fff" stroke-width="2.400" stroke-linecap="round"/><path d="m8 14 3 3 5-6" fill="none" stroke="#2f8cf0" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+cal:'<img class="ci" src="assets/Images/icon/calndar.webp" alt="" draggable="false">',
 chev:'<svg class="ch" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-bot:'<svg class="bot" viewBox="0 0 60 64"><circle cx="30" cy="6" r="3" fill="#ffd24d"/><rect x="29" y="6" width="2" height="6" fill="#cfe6ff"/><rect x="3" y="26" width="7" height="14" rx="3" fill="#2f6fd0"/><rect x="50" y="26" width="7" height="14" rx="3" fill="#2f6fd0"/><rect x="8" y="11" width="44" height="40" rx="12" fill="#4aa8ff" stroke="#1f6fe0" stroke-width="2"/><rect x="14" y="21" width="32" height="22" rx="7" fill="#10244f"/><rect x="20" y="27" width="6" height="9" rx="2" fill="#6cf0ff"/><rect x="34" y="27" width="6" height="9" rx="2" fill="#6cf0ff"/><path d="M26 39q4 3 8 0" stroke="#6cf0ff" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="16" y="52" width="28" height="11" rx="4" fill="#fff"/></svg>'};
+bot:'<img class="bot ci" src="assets/Images/icon/robot.webp" alt="" draggable="false">'};
 // ---------- data
 const MODES=[
 {id:'classic',name:'Classic',tag:'4 Player',d:'Mode klasik yang seru<br>dan penuh kejutan.',btn:'Mulai',ic:'play',cta:'g',c:['#34383f','#4a4f58','#0b0c10','#2f3237','#1f2124','#58b8ff','#2f90f0','#2f7fe8']},
@@ -249,9 +255,9 @@ const BARS=[
 function renderModes(){$('#modes').innerHTML=MODES.map((m,i)=>{const c=m.c;
  const lk=isLocked(m.id);
  return `<div class="mode ${m.id===sel?'sel':''}${lk?' locked':''}" data-id="${m.id}" tabindex="0" role="button" aria-pressed="${m.id===sel}" aria-disabled="${lk}" aria-label="${m.name}${lk?' (segera hadir)':''}" style="--c1:${c[0]};--c2:${c[1]};--c3:${c[2]};--p1:${c[3]};--p2:${c[4]};--a1:${c[5]};--a2:${c[6]};--tg:${c[7]};--tgc:${m.tc||'#fff'};animation-delay:${i*70}ms">
- <div class="art"><img src="assets/Images/mode/${m.id}.jpg" alt="" draggable="false" decoding="async" data-id="${m.id}">${lk?'<div class="lk">'+LOCK_SVG+'<b>SOON</b></div>':''}</div><span class="tag">${m.tag}</span>
- <div class="pn"><h3>${m.name}</h3><p>${m.d}</p><button class="cta ${lk?'off':m.cta}" data-act="${m.id}"${lk?' disabled tabindex="-1"':''}>${lk?LOCK_SVG.replace('<svg','<svg style="width:2.3rem;height:2.3rem"'):I[m.ic]}${lk?'Soon':m.btn}</button></div></div>`}).join('');
- document.querySelectorAll('.art img').forEach(im=>im.addEventListener('error',()=>{if(ART[im.dataset.id]){im.insertAdjacentHTML('afterend',ART[im.dataset.id]());im.remove()}}));
+ <div class="art"><img src="assets/Images/mode/${m.id}.webp" alt="" draggable="false" decoding="async" data-id="${m.id}">${lk?'<div class="lk">'+LOCK_SVG+'<b>SOON</b></div>':''}</div><span class="tag">${m.tag}</span>
+ <div class="pn"><h3>${m.name}</h3><p>${m.d}</p><button class="cta ${lk?'off':m.cta}" data-act="${m.id}"${lk?' disabled tabindex="-1"':''}>${lk?LOCK_SVG:I[m.ic]}${lk?'Soon':m.btn}</button></div></div>`}).join('');
+ document.querySelectorAll('.art>img').forEach(im=>im.addEventListener('error',()=>{if(ART[im.dataset.id]){im.insertAdjacentHTML('afterend',ART[im.dataset.id]());im.remove()}}));
  document.querySelectorAll('.mode').forEach(el=>{
   el.addEventListener('click',e=>{if(isLocked(el.dataset.id)){toast('Segera hadir!');return}select(el.dataset.id);if(e.target.closest('.cta')){act(el.dataset.id);sparkle(e.target.closest('.cta'))}});
   el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(isLocked(el.dataset.id)){toast('Segera hadir!');return}select(el.dataset.id);act(el.dataset.id)}})})}
