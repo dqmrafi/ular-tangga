@@ -208,7 +208,7 @@ goEv(0);
 const soon=n=>toast(n+' segera hadir');
 const ACT={
  inv(){location.href='inventory.html'},
- lead(){location.href='leaderboard.html'},prof(){location.href='profile.html'},misi(){soon('Misi')},hadiah(){location.href='dailyreward.html'},toko(){location.href='shop.html'},teman(){location.href='friendship.html'},mail(){soon('Pesan')},
+ lead(){location.href='leaderboard.html'},prof(){location.href='profile.html'},misi(){location.href='misi.html'},hadiah(){location.href='dailyreward.html'},toko(){location.href='shop.html'},teman(){location.href='friendship.html'},mail(){soon('Pesan')},
  event(){const e=EVENTS[si];if(e.url){location.href=e.url;return}openModal(`<img class="mimg" src="${e.modal||e.img}" alt="Event">`)},
  free(){soon('Hadiah gratis')},buygem(){soon('Beli gem')},buycoin(){soon('Beli coin')},
  gear(){const T=SET(),row=(k,l)=>`<div class="row"><span>${l}</span><button class="tg ${T[k]?'on':''}" data-k="${k}">${T[k]?'ON':'OFF'}</button></div>`;
