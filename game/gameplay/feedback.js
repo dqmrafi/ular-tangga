@@ -4,7 +4,7 @@
    showPUCard tetap didaftarkan gameplay sebagai presenter Feedback.reward. Kapan feedback ditampilkan (urutan aksi) tetap ditentukan gameplay.html.
    Dependensi diberikan lewat init({sfx, sleep, reduce}); data Power dibaca dari UT.Gameplay.Config.PUN (sumber yang sama dengan gameplay).
    Classic script. Namespace: UT.GameplayFeedback.
-   API: init(deps) · setCurrentMarker(players, cur) · hideMarker(player) · updateTurnMarkers(players, now, dt) · showPUCard(p, k) · showAttackCard(attacker, defender, weapon, desc) */
+   API: init(deps) · setCurrentMarker(players, cur) · hideMarker(player) · updateTurnMarkers(players, now, dt) · showPUCard(p, k) · showAttackCard(attacker, defender, weapon, desc, {silent}) — silent:true = tanpa sfx.pop (pemanggil memutar suara sendiri) */
 (function (win, doc) {
   'use strict';
   var UT = win.UT = win.UT || {};
@@ -45,15 +45,16 @@
      setIco(em,k); $('pcName').textContent=PUN[k][1]; $('pcDesc').textContent=PUN[k][2]; c.classList.add('pop'); sfx.pop();
      await sleep(reduce?900:1500); c.hidden=true;
   }
-  function showAttackCard(attacker,defender,weapon,desc){
+  var atkTimer = 0;
+  function showAttackCard(attacker,defender,weapon,desc,o){
      const PUN=getPUN();
      const c=$('puCard'),em=$('pcEmoji');
      $('pcWho').textContent=attacker+' → '+defender;
      $('pcName').textContent=PUN[weapon]?PUN[weapon][1]:weapon;
      $('pcDesc').textContent=desc;
      setIco(em,weapon,'⚔️');
-     c.classList.remove('pop'); c.hidden=false; c.classList.add('pop'); sfx.pop();
-     setTimeout(()=>c.hidden=true,1600);
+     c.classList.remove('pop'); c.hidden=false; c.classList.add('pop'); if(!(o&&o.silent)) sfx.pop();
+     clearTimeout(atkTimer); atkTimer=setTimeout(()=>c.hidden=true,1600); /* timer lama dibatalkan: card baru tidak ikut tertutup timer card sebelumnya */
   }
 
   UT.GameplayFeedback = { init: init, setCurrentMarker: setCurrentMarker, hideMarker: hideMarker, updateTurnMarkers: updateTurnMarkers, showPUCard: showPUCard, showAttackCard: showAttackCard };
