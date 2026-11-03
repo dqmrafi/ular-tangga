@@ -2363,6 +2363,8 @@ function makeChest(){
   addBox(L,0,0.035,0.11,0.3,0.07,0.22,0x7A4E1C); addBox(L,0,0.0,0.225,0.05,0.08,0.02,0xFFD23F,{edge:false});
   lid.add(buildBatch(L)); g.add(lid); g.userData.lid=lid; return g;
 }
+const CHEST_SCALE=1.8; /* ukuran final Chest */
+const RMQ=matchMedia('(prefers-reduced-motion: reduce)'); /* dibaca live: idle Chest berhenti otomatis saat reduced-motion aktif */
 let MOBOBJ={},CHESTOBJ={};
 function buildMobs(th){
   MOBOBJ={}; CHESTOBJ={};
@@ -2377,15 +2379,18 @@ function buildMobs(th){
       MOBOBJ[n]={g,k,x:t.x,y:t.h,z:t.z,s:k==='warden'?1.1:1,ph:n,react:0,rods};
     }
     if(CHESTS.has(n)){
-      const c=makeChest(); c.position.set(t.x,t.h,t.z-0.34); c.scale.setScalar(1.4); world.add(c);
+      const c=makeChest(); c.position.set(t.x,t.h,t.z-0.34); c.scale.setScalar(CHEST_SCALE); world.add(c);
       const sp=new THREE.Mesh(new THREE.OctahedronGeometry(0.07),new THREE.MeshBasicMaterial({color:0xFFD23F})); sp.position.set(t.x,t.h+0.6,t.z-0.34); world.add(sp);
-      CHESTOBJ[n]={lid:c.userData.lid,spark:sp,sy:t.h+0.6,open:0,x:t.x,y:t.h,z:t.z-0.34};
+      const gl=new THREE.Mesh(new THREE.SphereGeometry(0.3,12,8),new THREE.MeshBasicMaterial({color:0xFFD23F,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); gl.position.set(t.x,t.h+0.28,t.z-0.34); gl.visible=false; world.add(gl);
+      CHESTOBJ[n]={g:c,lid:c.userData.lid,spark:sp,glow:gl,sy:t.h+0.6,open:0,a:0,x:t.x,y:t.h,z:t.z-0.34};
     }
   }
 }
 function sparkle(pos){ if(FX) FX.sparkle(pos); } /* visual: UT.GameplayFX */
 function mobReact(n){ if(MOBOBJ[n]) MOBOBJ[n].react=1.6; }
-function openChest(n){ const c=CHESTOBJ[n]; if(!c) return; c.open=1.6; sparkle(new THREE.Vector3(c.x,c.y+0.35,c.z)); }
+/* Lifecycle Chest: open=1 menahan tutup terbuka sampai closeChest() dipanggil (tidak lagi timer otomatis). */
+function openChest(n){ const c=CHESTOBJ[n]; if(!c) return; c.open=1; sparkle(new THREE.Vector3(c.x,c.y+0.35,c.z)); }
+function closeChest(n){ const c=CHESTOBJ[n]; if(c) c.open=0; }
 function updateMobs(dt,t){
   const pw=players.map(p=>p.pawn.position);
   for(const n in MOBOBJ){
@@ -2405,9 +2410,18 @@ function updateMobs(dt,t){
   }
   if(FX) FX.updateSparks(dt);
   for(const n in CHESTOBJ){
-    const c=CHESTOBJ[n]; c.open=Math.max(0,c.open-dt);
-    const a=c.open>0?Math.max(0,Math.min(1,Math.min((1.6-c.open)*6,c.open*3))):0;
-    c.lid.rotation.x=-1.25*a; c.spark.rotation.y+=dt*2; c.spark.position.y=c.sy+Math.sin(t*3+Number(n))*0.04;
+    const c=CHESTOBJ[n]; /* a = 0..1 tutup terbuka, mengejar c.open (1=buka, 0=tutup) */
+    c.a+=(c.open-c.a)*Math.min(1,dt*7); if(Math.abs(c.open-c.a)<0.01) c.a=c.open;
+    const idle=!RMQ.matches&&c.open===0&&c.a===0, ph=Number(n);
+    let lx=0,by=0,sc=CHEST_SCALE;
+    if(idle){ /* idle: napas ringan, naik-turun tipis, tutup bergetar sesekali */
+      sc=CHEST_SCALE*(1+0.018*Math.sin(t*1.6+ph)); by=0.025*Math.sin(t*1.3+ph*1.7);
+      const vb=Math.sin(t*0.45+ph*2.3); if(vb>0.985) lx=-0.07*Math.abs(Math.sin(t*38));
+    }
+    c.g.scale.setScalar(sc); c.g.position.y=c.y+by;
+    c.lid.rotation.x=-1.25*c.a+lx;
+    c.glow.visible=c.a>0.02; c.glow.material.opacity=0.28*c.a; c.glow.scale.setScalar(1+0.12*Math.sin(t*6));
+    c.spark.rotation.y+=dt*(RMQ.matches?0:2); c.spark.position.y=c.sy+(RMQ.matches?0:Math.sin(t*3+ph)*0.04); c.spark.scale.setScalar(1+1.2*c.a);
   }
 }
 async function fly(p,to,dur,hgt){
@@ -3242,12 +3256,23 @@ function faceURL(k){
 }
 const PUN=UT.Gameplay.Config.PUN;
 function startPU(){ const o={sword:0,feather:0,tnt:0,totem:0,potion:0,grass:0},ks=Object.keys(o).sort(()=>Math.random()-0.5); o[ks[0]]=1; o[ks[1]]=1; return o; }
-async function giveChest(p){
-   openChest(p.pos);
-   const ks=Object.keys(p.pu),k=ks[Math.floor(Math.random()*ks.length)];
-   p.pu[k]++; p.score+=5; sfx.chest(); setMsg(p.name+' membuka peti: '+PUN[k][1]+' '+PUN[k][0]); fb('event','chest','Chest ditemukan! Dapat '+PUN[k][1]); puFx('pb:'+p.idx+':'+k,'pfx-get'); renderChips();
-   await (fb('reward',p,k)||showPUCard(p,k));
-   sfx.chestClose();
+/* Chest = event/reward container. Power BUKAN reward Chest (Power = item Shop/Inventory). Reward sementara: +5 skor (reward non-Power yang sudah ada).
+   Guard: 1 landing = 1 trigger/opening/reward/closing. Trigger kedua (saat lifecycle berjalan, atau token landing sama) -> ditolak. */
+const CHEST_LC={active:false,seq:0,done:new Set(),rewards:0};
+function chestToken(p){ return 'L'+gameId+':'+p.idx+':'+p.pos+':'+(++CHEST_LC.seq); }
+async function giveChest(p,tok){
+   tok=tok||chestToken(p);
+   if(CHEST_LC.active||CHEST_LC.done.has(tok)) return {status:'rejected'};
+   CHEST_LC.active=true; CHEST_LC.done.add(tok); const n=p.pos,gid=gameId;
+   try{
+     openChest(n); sfx.chest(); /* OPEN: lid membuka + glow + sparkle + SFX open */
+     await sleep(reduce?200:550); if(gid!==gameId) return {status:'stale'};
+     p.score+=5; CHEST_LC.rewards++; /* reward tepat 1x */
+     setMsg(p.name+' membuka peti: +5 skor.'); fb('event','chest','Chest ditemukan! +5 skor');
+     await sleep(reduce?300:900); if(gid!==gameId) return {status:'stale'}; /* Chest tetap OPEN selama proses */
+     sfx.chestClose(); closeChest(n); await sleep(reduce?150:350); /* CLOSE */
+     return {status:'accepted'};
+   }finally{ closeChest(n); CHEST_LC.active=false; }
 }
 try{ fb('setRewardPresenter',showPUCard); }catch(e){ console.error(e); }
 /* Presentasi visual feedback = UT.GameplayFeedback (gameplay/feedback.js). Routing teks/HUD tetap UT.Gameplay.Feedback (fb(...)); kapan kartu tampil tetap ditentukan di sini. */
@@ -3512,7 +3537,7 @@ async function playTurn(p,v,gid,bn){
       await A(sleep(450)); await A(fly(p,to,bk>3?0.8:0.45,bk>3?2.4:0.9)); p.pos=to;
     }
   }
-  if(CHESTS.has(p.pos)) await A(giveChest(p));
+  if(CHESTS.has(p.pos)) await A(giveChest(p,chestToken(p)));
   renderChips();
   await A(faceCamera(p.pawn));
   if(v===6||p.extra){ p.extra=false; busy=false; beginTurn(true); }
