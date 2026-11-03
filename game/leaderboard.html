@@ -78,6 +78,16 @@ button:focus-visible{outline:.3rem solid #fff}
 
 .blue{background:linear-gradient(#4f94ff,#2459d0);box-shadow:var(--bev),var(--px),var(--lip);text-shadow:0 .18rem 0 var(--ol)}
 svg{display:block}
+#back>.ci{width:3.6rem;height:3.6rem}
+#me .bk .ci{width:3.2rem;height:3.2rem;filter:drop-shadow(0 .14rem 0 var(--ol))}
+.plate .ci{width:2.6rem;height:2.6rem;flex:none}
+.mysc .ci{width:3.8rem;height:3.8rem;flex:none}
+.tb .ci{width:2.6rem;height:2.6rem;flex:none}
+.lr .sc .ci{width:3rem;height:3rem;flex:none}
+.lr .rk .ci{width:2.8rem;height:2.8rem}
+#ft>.ci{width:4.2rem;height:4.2rem;flex:none}
+#rw .ci{width:3.2rem;height:3.2rem;flex:none}
+.row .ci{width:3rem;height:3rem;flex:none}
 
 #back{width:4.5rem;height:4.5rem;padding:0;display:grid;place-items:center;flex-shrink:0}
 #back svg{width:2.8rem;height:2.8rem;filter:drop-shadow(0 .18rem 0 var(--ol))}
@@ -259,7 +269,7 @@ html body .ov>.box>.x{border-radius:0;background:linear-gradient(#f4705f,#c4291f
   <!-- Top Header Bar -->
   <header id="top-bar">
     <div class="header-left">
-      <button class="blue" id="back" aria-label="Kembali"><svg viewBox="0 0 24 24"><path d="M20 12H5m6-7-7 7 7 7" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button class="blue" id="back" aria-label="Kembali"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
       <div class="blue" id="title"><img class="ic" src="assets/Images/icon/lobby/trophy.webp" alt="" draggable="false" decoding="async">Leaderboard</div>
     </div>
 
@@ -296,7 +306,7 @@ html body .ov>.box>.x{border-radius:0;background:linear-gradient(#f4705f,#c4291f
       <div class="gc" id="hd"><span>#</span><span>Pemain</span><span>Skor</span><span>Rank</span></div>
       <div id="rows"></div>
       <div id="ft">
-        <svg viewBox="0 0 24 24"><path d="M3 18 2 7l5 4 5-7 5 7 5-4-1 11z" fill="#ffd24d" stroke="#c98a0c" stroke-width="1" stroke-linejoin="round"/><rect x="3" y="19" width="18" height="2.500" rx="1" fill="#ffc83a"/></svg>
+        <img class="ci" src="assets/Images/icon/lobby/leader.webp" alt="" draggable="false">
         <p>Tantang temanmu<br>dan raih peringkat tertinggi!</p>
         <button class="gold" id="rw"></button>
       </div>
@@ -328,10 +338,10 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 (()=>{const sk=$('#sky');[[5,60,6],[18,30,4],[30,70,5],[62,16,5],[86,48,7],[92,12,4],[2,20,5],[75,75,6],[45,85,4]].forEach((p,i)=>{const e=document.createElement('div');e.className='isl';e.style.cssText=`left:${p[0]}%;top:${p[1]}%;animation-delay:${-i}s;filter:blur(${i%3}px)`;e.innerHTML=`<i style="width:${p[2]}rem;height:${p[2]*.4}rem"></i><b style="width:${p[2]*.7}rem;height:${p[2]*.6}rem"></b>`;sk.appendChild(e)})})();
 
 // Icons & Helpers
-const DM='<svg viewBox="0 0 24 24"><path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill="#62e178"/><path d="M12 2l8.66 5-3.72 2.15L12 6.3z" fill="#47d85f"/><path d="M20.66 7v10l-3.72-2.15v-5.7z" fill="#3dcb55"/><path d="M20.66 17L12 22v-4.3l4.94-2.85z" fill="#32a643"/><path d="M12 22l-8.66-5 3.72-2.15L12 17.7z" fill="#2a8d3a"/><path d="M3.34 17V7l3.72 2.15v5.7z" fill="#37b44c"/><path d="M12 6.3l4.94 2.85v5.7L12 17.7l-4.94-2.85v-5.7z" fill="#a7e6b1"/><path d="M12 6.3l4.94 2.85L12 12 7.06 9.15z" fill="#c4f2cc" opacity=".7"/></svg>';
-const TR='<svg viewBox="0 0 24 24"><path d="M7 3h10v5a5 5 0 0 1-10 0zM7 5H3c0 4 2 6 4 6M17 5h4c0 4-2 6-4 6M12 13v4M8 21h8M9 17h6v4H9z" fill="#ffc83a" stroke="#c98a0c" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></svg>';
-const SHD='<svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.500 9 8 11 4.500-2 8-6 8-11V5z" fill="#b8c8e0" stroke="#7a8aa8" stroke-width="1.500" stroke-linejoin="round"/><text x="12" y="16" font-size="10" font-weight="900" text-anchor="middle" fill="#5a6a88">S</text></svg>';
-const TABS=[['global','Global','<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-4 4-4 14 0 18M12 3c4 4 4 14 0 18" fill="none"/>'],['teman','Teman','<circle cx="9" cy="8" r="3.500"/><path d="M2 20c0-4 3-6 7-6s7 2 7 6zM16 5a3.500 3.500 0 0 1 0 7M18 14c3 .5 4 3 4 6h-3"/>'],['mingguan','Mingguan','<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M8 14h.1M12 14h.1M16 14h.1M8 18h.1M12 18h.1" stroke-linecap="round"/>']];
+const DM='<img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false">';
+const TR='<img class="ci" src="assets/Images/icon/lobby/trophy.webp" alt="" draggable="false">';
+const SHD='<img class="ci" src="assets/Images/icon/ui/start.webp" alt="" draggable="false">';
+const TABS=[['global','Global','profile/globe'],['teman','Teman','mode/kontak'],['mingguan','Mingguan','mode/calndar']];
 
 const medal=(n,c1,c2)=>`<svg viewBox="0 0 100 100"><path d="M18 60C6 45 8 25 22 16M82 60c12-15 10-35-4-44" fill="none" stroke="${c2}" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="50" r="33" fill="url(#g${n})" stroke="${c2}" stroke-width="5"/><defs><linearGradient id="g${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><text x="50" y="66" font-size="46" font-weight="900" text-anchor="middle" fill="#fff" stroke="${c2}" stroke-width="2" paint-order="stroke">${n}</text></svg>`;
 $('#m1').innerHTML=medal(1,'#ffe27a','#d9920c');$('#m2').innerHTML=medal(2,'#d6e2f2','#6f88ac');$('#m3').innerHTML=medal(3,'#f0a066','#a85a28');
@@ -348,7 +358,7 @@ const DATA={
 let tab='global';
 const pad=n=>n<10?'0'+n:''+n;
 
-function renderTabs(){$('#tb').innerHTML=TABS.map(t=>`<button class="tb ${t[0]===tab?'on':''}" data-t="${t[0]}"><svg viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="1.800" stroke-linejoin="round" stroke-linecap="round">${t[2]}</svg>${t[1]}</button>`).join('');
+function renderTabs(){$('#tb').innerHTML=TABS.map(t=>`<button class="tb ${t[0]===tab?'on':''}" data-t="${t[0]}"><img class="ci" src="assets/Images/icon/${t[2]}.webp" alt="" draggable="false">${t[1]}</button>`).join('');
  document.querySelectorAll('.tb').forEach(b=>b.addEventListener('click',()=>{if(tab===b.dataset.t)return;tab=b.dataset.t;playSound('select');buzz();renderTabs();renderAll()}))}
 
 function renderPodium(){const d=DATA[tab].top;
@@ -356,7 +366,7 @@ function renderPodium(){const d=DATA[tab].top;
  $('#p1').innerHTML=pl(0);$('#p2').innerHTML=pl(1);$('#p3').innerHTML=pl(2)}
 
 function renderMe(){const m=DATA[tab].me;
- $('#me').innerHTML=`<button class="blue bk" id="bk" aria-label="Sebelumnya"><svg viewBox="0 0 24 24"><path d="m15 5-7 7 7 7" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div class="pos"><small>Posisi Kamu</small><b>#${m.rank}</b></div><span class="av">${face(ME.hair,ME.hood)}</span><div class="inf"><div class="nm">${ME.name}</div><div class="lv">Lv. ${ME.lv}</div><div class="xp"><i style="width:${ME.xp/ME.xpMax*100}%"></i><span>${ME.xp} / ${fmt(ME.xpMax)}</span></div></div><div class="mysc">${TR}${fmt(m.score)}</div>`;
+ $('#me').innerHTML=`<button class="blue bk" id="bk" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button><div class="pos"><small>Posisi Kamu</small><b>#${m.rank}</b></div><span class="av">${face(ME.hair,ME.hood)}</span><div class="inf"><div class="nm">${ME.name}</div><div class="lv">Lv. ${ME.lv}</div><div class="xp"><i style="width:${ME.xp/ME.xpMax*100}%"></i><span>${ME.xp} / ${fmt(ME.xpMax)}</span></div></div><div class="mysc">${TR}${fmt(m.score)}</div>`;
  $('#bk').addEventListener('click',()=>{playSound('click');toast('Posisi kamu: #'+m.rank)})}
 
 function renderRows(){const d=DATA[tab],m=d.me;
