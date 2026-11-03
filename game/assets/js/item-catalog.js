@@ -73,7 +73,7 @@
      gameplay (Config.PUIMG), Shop/Inventory/Profil (ItemArt.powerup). Key = ID Power (identity), bukan nama effect. */
   var POWER_ICON = {
     sword: 'data/power/sm/pedang.webp', feather: 'data/power/sm/feather.webp', tnt: 'data/power/sm/dinamit.webp',
-    totem: 'data/power/sm/totem.webp', potion_odd: 'data/power/sm/ramuan.webp', potion_even: 'data/power/sm/ramuan.webp', grass: 'data/power/sm/block.webp'
+    totem: 'data/power/sm/totem.webp', potion_odd: 'data/power/sm/ramuan-merah.webp', potion_even: 'data/power/sm/ramuan-biru.webp', grass: 'data/power/sm/block.webp'
   };
   /* Stage 4.1.20: ID Power lama -> identity sekarang. Dipakai HANYA untuk membaca data lama (save/localStorage pemain
      yang menyimpan Totem sebagai 'apple'); ID lama tidak dipakai lagi sebagai identity visual maupun di gameplay. */
