@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Lobby</title><style id="ut-vt">/* Transisi antar-halaman (cross-document View Transition): halaman lama tetap tampil sampai halaman baru siap, lalu crossfade singkat -> terasa seperti satu halaman. Browser tanpa dukungan mengabaikan aturan ini. */@media(prefers-reduced-motion:no-preference){@view-transition{navigation:auto}::view-transition-old(root),::view-transition-new(root){animation-duration:.22s;animation-timing-function:ease-out}}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/base.css"><style>
+<link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="full"></script><style>
 :root{--bd:#12337f;--g:#3cc23c;--sl1:#3f506b;--sl2:#26344c;--gold:#f4cd5c}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 html{font-size:min(1vw,1.85vh)}
@@ -157,6 +157,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'lobby'});</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="assets/js/floating-island.js"></script>
 <script>
 (()=>{
 const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID');
@@ -252,30 +253,18 @@ function M(c,r=.7){return new THREE.MeshStandardMaterial({color:new THREE.Color(
 /* scene */
 const cv=$('#gl'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
-const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xc8e8ff,45,135);
+const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xa8ecff,22,90);/* distance fog biru-cyan */
 const cam=new THREE.PerspectiveCamera(36,16/9,.1,250);
-scene.add(new THREE.AmbientLight(0xffffff,.5),new THREE.HemisphereLight(0xcfeaff,0x6a9a50,.4));
-const sun=new THREE.DirectionalLight(0xfff2d8,.8);sun.position.set(9,18,14);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-24,right:24,top:16,bottom:-14,near:1,far:60});sun.shadow.bias=-.0008;scene.add(sun);
+scene.add(new THREE.AmbientLight(0xdff6ff,.42),new THREE.HemisphereLight(0xb4eeff,0x6a9a50,.5));/* langit cyan + pantulan rumput */
+const sun=new THREE.DirectionalLight(0xffd88a,1.05);sun.position.set(16,20,10);/* sinar emas hangat dari kanan atas */sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-24,right:24,top:16,bottom:-14,near:1,far:60});sun.shadow.bias=-.0008;scene.add(sun);
 const anims=[];
 
-// pulau melayang kecil (sama dengan profil/inventory/shop) — diam, tidak berputar
-function island(){const g=new THREE.Group(),cells=[];for(let y=0;y>-4;y--){const r=y===0?3.2:y===-1?3:Math.max(1,3.2+y*.8);for(let x=-3;x<=3;x++)for(let z=-3;z<=3;z++)if(Math.hypot(x,z)<=r+(((x*7+z*13+y*5)%3)*.15)-.2)cells.push([x,y,z])}
- const m=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({roughness:.8}),cells.length),m4=new THREE.Matrix4(),col=new THREE.Color();
- cells.forEach((c,i)=>{m4.setPosition(c[0],c[1]-.5,c[2]);m.setMatrixAt(i,m4);m.setColorAt(i,col.setHex(c[1]===0?((c[0]+c[2])&1?0x58b83c:0x4fae36):c[1]===-1?0x8a5a3a:(c[0]*c[2]%3===0?0x7a7a80:0x754b30)))});m.castShadow=m.receiveShadow=true;g.add(m);
- for(let i=0;i<7;i++){const a=i*2.3;bx(.2,.5+.3*(i%2),.2,M(0x3fa83a),Math.cos(a)*2.4,.25,Math.sin(a)*2.4,g)}bx(.25,.25,.25,M(0xffffff),-1.8,.4,1.5,g);bx(.9,.25,.9,M(0x9a9aa0),2,.12,1.9,g);
- const glow=new THREE.Mesh(new THREE.RingGeometry(3.4,4.3,40),new THREE.MeshBasicMaterial({color:0xbfeaff,transparent:true,opacity:.6,side:THREE.DoubleSide}));glow.rotation.x=-Math.PI/2;glow.position.y=-3.6;g.add(glow);return g}
-scene.add(island());
-// siluet balok biru pucat di kejauhan + kabut tipis
-const farM=new THREE.MeshBasicMaterial({color:0x74bdf8,transparent:true,opacity:.5,fog:false,depthWrite:false});
-[[-72,-20,14,34],[-58,-14,12,24],[-46,-22,10,18],[-86,-12,16,30],[44,-22,10,22],[56,-14,14,32],[70,-18,12,26],[84,-10,16,36]].forEach(b=>{const m=new THREE.Mesh(new THREE.BoxGeometry(b[2],b[3],8),farM);m.position.set(b[0],b[1]+b[3]/2-14,-80);scene.add(m)});
-const hc=document.createElement('canvas');hc.width=4;hc.height=128;{const c=hc.getContext('2d'),g=c.createLinearGradient(0,0,0,128);g.addColorStop(0,'rgba(215,240,255,0)');g.addColorStop(1,'rgba(215,240,255,.95)');c.fillStyle=g;c.fillRect(0,0,4,128)}
-const haze=new THREE.Mesh(new THREE.PlaneGeometry(400,44),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(hc),transparent:true,fog:false,depthWrite:false}));haze.position.set(0,-14,-60);scene.add(haze);
-// awan voxel
-const clouds=[];const cm=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0x9cc8ff,emissiveIntensity:.35,roughness:1,transparent:true,opacity:.96,fog:false});
-for(let i=0;i<7;i++){const g=new THREE.Group(),n=3+(rnd()*3|0);for(let k=0;k<n;k++){const m=new THREE.Mesh(new THREE.BoxGeometry(3+rnd()*3,1.6+rnd(),2.5+rnd()*2),cm);m.position.set(k*2.6-n,rnd()*.9,rnd()*1.5);g.add(m)}
- g.position.set(-55+rnd()*110,8+rnd()*16,-30-rnd()*14);g.userData.v=.2+rnd()*.3;scene.add(g);clouds.push(g)}
+// pulau melayang = komponen terpisah (assets/js/floating-island.js); latar+awan = SceneBackground (assets/js/scene-bg.js)
+const isl=UT.FloatingIsland.create(THREE,{seed:5});scene.add(isl);
 // hero character (palet dari ItemArt.palette skin terpasang di PlayerData)
 const hero=new THREE.Group();let chI=character(PAL,'idle'),chC=character(PAL,'cheer');chC.visible=false;hero.add(chI,chC);hero.position.set(.3,0,0);hero.rotation.y=-.3;scene.add(hero);
+const cs=UT.FloatingIsland.contactShadow(THREE,3.4,2.6,.4);cs.position.set(.3,.03,.1);scene.add(cs);/* AO kontak di bawah karakter */
+anims.push(t=>{isl.userData.update(t);hero.position.y=isl.position.y;cs.position.y=.03+isl.position.y});
 hero3d={rebuild(){const p=AR.palette(PD.equippedId('skin'))||AR.palette('skin.steve');hero.remove(chI);hero.remove(chC);chI=character(p,'idle');chC=character(p,'cheer');chC.visible=false;hero.add(chI,chC)}};
 let cheer=0;
 cv.addEventListener('pointerdown',e=>{const u=$('#ui').getBoundingClientRect(),x=(e.clientX-u.left)/u.width,y=(e.clientY-u.top)/u.height;const yr=(e.clientY-innerHeight/2)/(u.width/100);if(x>.385&&x<.615&&yr>-16.8&&yr<10.3){cheer=1.6;chI.visible=false;chC.visible=true;buzz()}});
@@ -287,8 +276,7 @@ function loop(){requestAnimationFrame(loop);const t=clock.getElapsedTime(),dt=Ma
  if(cheer>0){cheer-=.016;if(cheer<=0){chI.visible=true;chC.visible=false}}
  (chC.visible?chC:chI).userData.anim(t);
  anims.forEach(f=>f(t));
- clouds.forEach(c=>{c.position.x+=c.userData.v*.016;if(c.position.x>60)c.position.x=-60});
-  renderer.render(scene,cam)}
+   renderer.render(scene,cam)}
 loop();
 document.documentElement.classList.add('ut-ready'); /* 4.1.17B: render awal selesai -> tampilkan halaman */
 })();

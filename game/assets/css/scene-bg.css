@@ -1,0 +1,49 @@
+/* SceneBackground — komponen latar reusable (Stage 4).
+   Hanya latar: langit + bg.webp + awan + efek cahaya. TIDAK berisi pulau melayang / karakter
+   (itu komponen terpisah: assets/js/floating-island.js dan karakter milik tiap halaman).
+   Dipasang lewat assets/js/scene-bg.js (UT.SceneBG.mount). z-index:-1 => selalu di belakang UI & canvas 3D. */
+html.sbg-on body{background:transparent!important}
+html.sbg-on #sky{display:none!important} /* pulau-langit lama per halaman diganti oleh bg.webp */
+
+.sbg{--sun-x:86%;--sun-y:-8%;position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;contain:strict;
+  background:linear-gradient(#1f86f5 0%,#4db4ff 38%,#8fe9ff 72%,#c6faff 100%)}
+.sbg>*{position:absolute;inset:0;pointer-events:none}
+.sbg-img{width:100%;height:100%;object-fit:cover;object-position:50% 72%;user-select:none;-webkit-user-drag:none}
+
+/* sky gradient: biru -> cyan terang (menguatkan bagian atas bg.webp) */
+.sbg-sky{background:linear-gradient(180deg,rgba(18,118,245,.55) 0%,rgba(52,164,255,.2) 34%,rgba(120,230,255,0) 62%)}
+/* distance fog biru-cyan: menebal ke bawah / ke kejauhan */
+.sbg-fog{background:linear-gradient(180deg,rgba(150,240,255,0) 36%,rgba(150,240,255,.16) 60%,rgba(165,246,255,.5) 100%)}
+/* warm golden sunlight dari kanan atas */
+.sbg-sun{mix-blend-mode:screen;background:radial-gradient(circle at var(--sun-x) var(--sun-y),rgba(255,228,142,.9) 0,rgba(255,206,104,.5) 13%,rgba(255,190,92,.18) 32%,rgba(255,190,92,0) 56%)}
+/* volumetric light: berkas cahaya lembut, sedikit "bernapas" */
+.sbg-rays{mix-blend-mode:screen;opacity:.8;filter:blur(7px);
+  background:conic-gradient(from 188deg at var(--sun-x) var(--sun-y),
+    transparent 0 2deg,rgba(255,238,176,.34) 5deg,transparent 9deg,
+    transparent 14deg,rgba(255,232,160,.26) 18deg,transparent 24deg,
+    transparent 30deg,rgba(255,240,184,.3) 35deg,transparent 41deg,
+    transparent 48deg,rgba(255,230,150,.22) 53deg,transparent 60deg,
+    transparent 68deg,rgba(255,238,176,.2) 73deg,transparent 80deg,transparent 360deg);
+  -webkit-mask-image:radial-gradient(circle at var(--sun-x) var(--sun-y),#000 0,rgba(0,0,0,.65) 45%,transparent 82%);
+  mask-image:radial-gradient(circle at var(--sun-x) var(--sun-y),#000 0,rgba(0,0,0,.65) 45%,transparent 82%);
+  animation:sbg-breathe 9s ease-in-out infinite alternate}
+/* soft bloom (pendekatan CSS): glow lebar & lembut di sekitar sumber cahaya + highlight tengah */
+.sbg-bloom{mix-blend-mode:screen;filter:blur(26px);
+  background:radial-gradient(circle at calc(var(--sun-x) - 2%) 2%,rgba(255,246,214,.55) 0,rgba(255,246,214,0) 40%),
+             radial-gradient(ellipse at 50% 38%,rgba(255,255,255,.12) 0,rgba(255,255,255,0) 62%)}
+@keyframes sbg-breathe{from{opacity:.55}to{opacity:.95}}
+
+/* awan: ukuran relatif tinggi layar; hanya animasi transform (murah di HP) */
+.sbg-clouds{overflow:hidden}
+.sbg-cloud{position:absolute;left:0;top:var(--t);width:var(--cw);height:auto;--cw:calc(var(--k)*38vh);
+  opacity:var(--o);filter:blur(var(--b,0px));will-change:transform;
+  transform:translate3d(calc(-1*var(--cw)),0,0);
+  animation:sbg-drift var(--d) linear infinite;animation-delay:var(--dl)}
+@keyframes sbg-drift{from{transform:translate3d(calc(-1*var(--cw)),0,0)}to{transform:translate3d(100vw,0,0)}}
+
+/* preset "soft": halaman penuh panel UI -> efek lebih halus agar konten tetap terbaca */
+.sbg.soft .sbg-rays{opacity:.5}.sbg.soft .sbg-sun{opacity:.75}.sbg.soft .sbg-bloom{opacity:.7}
+/* perangkat lemah / reduced motion */
+.sbg.lite .sbg-rays,.sbg.lite .sbg-bloom{display:none}
+@media (prefers-reduced-motion:reduce){
+  .sbg-cloud{animation:none;transform:translate3d(calc(var(--x)*1vw),0,0)}.sbg-rays{animation:none}}
