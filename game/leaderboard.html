@@ -436,21 +436,65 @@ function character(sk,emote){const g=new THREE.Group(),P={};const skin=M(0xf0b98
   P.eyes.forEach(e=>e.scale.y=(t%4<.15)?.1:1)};
  return g}
 
+/* ===== Podium kayu ala Minecraft: papan kayu + tiang log + trim logam (emas/perak/tembaga, kalem — bukan neon) ===== */
+function pxTex(kind,seed){
+ let q=seed*7919+13;const rn=()=>(q=(q*16807)%2147483647)/2147483647;
+ const c=document.createElement('canvas');c.width=c.height=16;const g=c.getContext('2d');
+ const put=(x,y,v)=>{v=Math.max(0,Math.min(255,v|0));g.fillStyle=`rgb(${v},${v},${v})`;g.fillRect(x,y,1,1)};
+ for(let y=0;y<16;y++)for(let x=0;x<16;x++){
+  let v;
+  if(kind==='plank'){const row=y>>2,base=222-(row%2)*10+((row*37+seed)%3)*5;v=base+(rn()-.5)*16;
+   if((y&3)===3)v-=46;                                    /* celah antar papan */
+   if(((x+row*5+seed*3)%11)===0&&(y&3)!==3)v-=26;           /* sambungan ujung papan */
+   if((y&3)===1&&rn()<.18)v-=14;                            /* serat */}
+  else if(kind==='log'){v=206+((x*5+seed)%4)*7-((x&3)===0?32:0)+(rn()-.5)*24;if(rn()<.06)v-=40}
+  else {v=232+(rn()-.5)*16;if(rn()<.05)v-=34;if(x===0||y===0)v-=14}
+  put(x,y,v)}
+ const t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;t.minFilter=THREE.NearestFilter;t.generateMipmaps=false;t.wrapS=t.wrapT=THREE.RepeatWrapping;return t}
+function repTex(t,rx,ry){const k=t.clone();k.needsUpdate=true;k.repeat.set(rx,ry);return k}
+function plaqueTex(n,metal){
+ const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');
+ g.fillStyle='#'+metal.toString(16).padStart(6,'0');g.fillRect(0,0,64,64);
+ g.fillStyle='rgba(0,0,0,.28)';g.fillRect(0,0,64,4);g.fillRect(0,60,64,4);g.fillRect(0,0,4,64);g.fillRect(60,0,4,64);   /* tepi gelap */
+ g.fillStyle='rgba(255,255,255,.14)';g.fillRect(4,4,56,3);g.fillRect(4,4,3,56);                                          /* tepi terang */
+ g.font='900 44px "Baloo 2",Arial Black,sans-serif';g.textAlign='center';g.textBaseline='middle';
+ g.fillStyle='rgba(255,255,255,.18)';g.fillText(n,33,35);g.fillStyle='#3a2a18';g.fillText(n,32,33);                      /* angka terukir */
+ const t=new THREE.CanvasTexture(c);t.magFilter=THREE.NearestFilter;return t}
+const PT={plank:pxTex('plank',3),log:pxTex('log',5),metal:pxTex('metal',9)};
+function podium(c,n){
+ const W=3.1,H=c.h,g=new THREE.Group();
+ const wood=new THREE.Color(c.wood),logC=new THREE.Color(c.wood).multiplyScalar(.62),dark=new THREE.Color(c.wood).multiplyScalar(.55);
+ const M2=(col,tex,r=.9,m=0)=>new THREE.MeshStandardMaterial({color:col,map:tex||null,roughness:r,metalness:m});
+ const metal=(col,tex)=>new THREE.MeshStandardMaterial({color:col,map:tex||null,roughness:.5,metalness:.3});
+ const side=M2(wood,repTex(PT.plank,W,H)),topb=M2(wood,repTex(PT.plank,W,W));
+ const body=new THREE.Mesh(new THREE.BoxGeometry(W,H,W),[side,side,topb,topb,side,side]);body.position.y=H/2;g.add(body);
+ const plinth=new THREE.Mesh(new THREE.BoxGeometry(W+.34,.22,W+.34),M2(dark,repTex(PT.plank,W+.34,.22)));plinth.position.y=.11;g.add(plinth);
+ const pm=M2(logC,repTex(PT.log,.34,H/.34*.2));
+ [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sz])=>{
+  const p=new THREE.Mesh(new THREE.BoxGeometry(.36,H+.02,.36),pm);p.position.set(sx*(W/2-.02),H/2+.01,sz*(W/2-.02));g.add(p);
+  const st=new THREE.Mesh(new THREE.BoxGeometry(.44,.18,.44),metal(c.metalDk,repTex(PT.metal,1,1)));st.position.set(sx*(W/2-.02),H+.09,sz*(W/2-.02));g.add(st)});
+ const band=new THREE.Mesh(new THREE.BoxGeometry(W+.06,.1,W+.06),metal(c.metalDk,repTex(PT.metal,W,.2)));band.position.y=Math.max(.45,H*.3);g.add(band);
+ const slab=new THREE.Mesh(new THREE.BoxGeometry(W+.3,.1,W+.3),metal(c.metal,repTex(PT.metal,W,W)));slab.position.y=H+.05;g.add(slab);
+ const inset=new THREE.Mesh(new THREE.BoxGeometry(W-.5,.04,W-.5),M2(dark,repTex(PT.plank,W,W)));inset.position.y=H+.12;g.add(inset);
+ const ps=.56,py=H-.37,pl=new THREE.Mesh(new THREE.PlaneGeometry(ps,ps),new THREE.MeshStandardMaterial({map:plaqueTex(n,c.metal),roughness:.5,metalness:.25}));
+ pl.position.set(0,py,W/2+.012);g.add(pl);
+ [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sy])=>{const rv=new THREE.Mesh(new THREE.BoxGeometry(.06,.06,.05),metal(c.metalDk));rv.position.set(sx*(ps/2-.06),py+sy*(ps/2-.06),W/2+.03);g.add(rv)});
+ return g}
+
 let ok=typeof THREE!=='undefined',R=null;
 function build(){const cv=$('#gl');
  try{const r=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
   const scene=new THREE.Scene(),cam=new THREE.PerspectiveCamera(30,1.45,.1,100);
-  scene.add(new THREE.AmbientLight(0xffffff,.75),new THREE.HemisphereLight(0xcfeaff,0x6a9a50,.6));
-  const sun=new THREE.DirectionalLight(0xfff2d8,.9);sun.position.set(5,12,10);scene.add(sun);
+  scene.add(new THREE.AmbientLight(0xfff4e4,.58),new THREE.HemisphereLight(0xcfeaff,0x6a5a40,.42));
+  const sun=new THREE.DirectionalLight(0xffe2b0,.78);sun.position.set(6,12,10);scene.add(sun);
   const holder=new THREE.Group();scene.add(holder);
-  const cfg=[{x:-3.3,h:1.9,col:0x9fb4d4,cap:0xc4d4ec,sk:{hood:0xeeeef2,hair:0xcfcfd6,pants:0x2a2a30},rot:.25},
-             {x:0,h:2.6,col:0xf2b72a,cap:0xffd964,sk:{hood:0x1fb8d8,hair:0x7a4a2a,pants:0x4a4a58},rot:0,emote:'wave'},
-             {x:3.3,h:1.5,col:0xc8743a,cap:0xe29a60,sk:{hood:0xd23a32,hair:0x5a3420,pants:0x333a4a},rot:-.25}];
+  const cfg=[{x:-3.3,h:1.9,n:2,wood:0x7b5b38,metal:0xa9b0ba,metalDk:0x7d838d,sk:{hood:0xeeeef2,hair:0xcfcfd6,pants:0x2a2a30},rot:.25},
+             {x:0,h:2.6,n:1,wood:0x8f6c3d,metal:0xc49b43,metalDk:0x8f6e2a,sk:{hood:0x1fb8d8,hair:0x7a4a2a,pants:0x4a4a58},rot:0,emote:'wave'},
+             {x:3.3,h:1.5,n:3,wood:0x5c4429,metal:0xad693f,metalDk:0x7d4a2b,sk:{hood:0xd23a32,hair:0x5a3420,pants:0x333a4a},rot:-.25}];
   const chars=[];
-  cfg.forEach(c=>{const pod=new THREE.Mesh(new THREE.CylinderGeometry(1.75,1.95,c.h,8),M(c.col,.6));pod.position.set(c.x,c.h/2,0);pod.rotation.y=Math.PI/8;holder.add(pod);
-   const cap=new THREE.Mesh(new THREE.CylinderGeometry(1.55,1.75,.14,8),M(c.cap,.5));cap.position.set(c.x,c.h+.07,0);cap.rotation.y=Math.PI/8;holder.add(cap);
+  cfg.forEach(c=>{const pd=podium(c,c.n);pd.position.x=c.x;holder.add(pd);
    const w=new THREE.Group();w.position.set(c.x,c.h+.14,0);w.scale.setScalar(.46);w.rotation.y=c.rot;const ch=character(c.sk,c.emote);w.add(ch);holder.add(w);chars.push(ch)});
-  const ring=new THREE.Mesh(new THREE.RingGeometry(4.6,5.6,48),new THREE.MeshBasicMaterial({color:0xbfeaff,transparent:true,opacity:.55,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.02;ring.scale.set(1.6,1,1);holder.add(ring);
+  const ring=new THREE.Mesh(new THREE.RingGeometry(4.6,5.6,48),new THREE.MeshBasicMaterial({color:0xbfeaff,transparent:true,opacity:.3,side:THREE.DoubleSide}));ring.rotation.x=-Math.PI/2;ring.position.y=.02;ring.scale.set(1.6,1,1);holder.add(ring);
   R={r,scene,cam,chars,cv}}catch(e){ok=false;console.warn('WebGL unavailable',e)}}
 
 function fit(){if(!R)return;const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;const hi=SET().graphics==='high';R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=w/h<1.2?36:30;R.cam.updateProjectionMatrix()}
