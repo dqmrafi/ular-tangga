@@ -1,4 +1,4 @@
-/* Preloader bersama untuk splash.html & loading.html.
+/* Preloader untuk splash.html (satu-satunya layar loading dengan bar; perpindahan halaman memakai layar dadu di play.html).
    Progres NYATA dihitung dari BYTE yang benar-benar terunduh (stream fetch), bukan dari jumlah file atau timer:
      UT_Preload.run(urls, onProgress, minMs, sizes) -> Promise     (sizes = {url: perkiraan byte}, opsional)
      UT_Preload.runAuto(extraUrls, onProgress)       -> Promise     (memuat assets/preload-manifest.json + extraUrls)

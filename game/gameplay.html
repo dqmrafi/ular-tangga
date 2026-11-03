@@ -3880,7 +3880,7 @@ function startGame(m,keys){
 }
 
 /* ---------- Kontrol antarmuka ---------- */
-const LOBBY_URL='loading.html?to=lobby'; /* keluar selalu lewat layar loading */
+const LOBBY_URL='lobby.html'; /* pindah halaman: layar dadu (play.html) tampil otomatis */
 function chooseTheme(key){
   if(busy){ pendingTheme=key; document.querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',b.getAttribute('data-theme')===key?'true':'false')); const t=THEMES.find(x=>x.key===key); $('btnTheme').textContent='Tema: '+t.name; return; }
   pendingTheme=null; buildWorld(key);
