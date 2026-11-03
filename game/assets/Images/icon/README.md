@@ -10,6 +10,7 @@ Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/Images/icon/<
 | `items/` | skin, dadu, power, efek, emote | tab kategori Shop & Inventory, Profil; Gameplay: banner event (`dadu`, `power`) |
 | `lobby/` | shop, inventory, invenotry, dailyreward, gift, misi, mail, hand, trophy, leader | menu Lobby, Leaderboard, Friendship, Profil; Gameplay: mahkota layar menang (`leader`), banner chest (`invenotry`) |
 | `mode/` | console, modekhsusus, tutorial, calndar, kontak, robot | halaman Pilih Mode, judul Profil |
+| `rank/` | 1st, 2nd, 3rd | medali podium Leaderboard (peringkat 1–3) |
 | `profile/` | user, globe, camera, 360 | halaman Profil; Gameplay: preset kamera (`camera`) |
 
 Catatan:
@@ -17,7 +18,6 @@ Catatan:
 - `lobby/invenotry.webp` = peti, `lobby/inventory.webp` = tas ransel.
 - Path dinamis: `shop.html` & `inventory.html` (`catImg` -> `icon/items/`), `profile.html` (`RI('grup/nama')`).
 - Semua icon baru berukuran 256x256 (cukup untuk tampil <= 64px di layar 3x). Jangan taruh file 1024px di sini; perkecil dulu agar loading ringan.
-- `1st`, `2nd`, `3nd` (medali peringkat) masih 1024px dan belum dipakai di Gameplay.
 
 ## Peta ikon Gameplay (`gameplay.html`, `gameplay/hud.js`)
 

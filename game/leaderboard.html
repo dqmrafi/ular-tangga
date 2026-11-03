@@ -132,6 +132,7 @@ svg{display:block}
 
 .med{position:absolute;translate:-50% 0;pointer-events:none;filter:drop-shadow(0 .3rem 0 rgba(8,17,43,.55));animation:fl 4s ease-in-out infinite}
 .med svg{width:100%;height:100%}
+.med img.mi{display:block;width:100%;height:100%;object-fit:contain;-webkit-user-drag:none;user-select:none}
 
 /* papan nama juara: panel gelap bersudut piksel */
 .plate{position:absolute;translate:-50% 0;bottom:.9rem;text-align:center;padding:.5rem .6rem .5rem;line-height:1.15;border:0;border-radius:0;
@@ -343,8 +344,9 @@ const TR='<img class="ci" src="assets/Images/icon/lobby/trophy.webp" alt="" drag
 const SHD='<img class="ci" src="assets/Images/icon/ui/start.webp" alt="" draggable="false">';
 const TABS=[['global','Global','profile/globe'],['teman','Teman','mode/kontak'],['mingguan','Mingguan','mode/calndar']];
 
-const medal=(n,c1,c2)=>`<svg viewBox="0 0 100 100"><path d="M18 60C6 45 8 25 22 16M82 60c12-15 10-35-4-44" fill="none" stroke="${c2}" stroke-width="7" stroke-linecap="round"/><circle cx="50" cy="50" r="33" fill="url(#g${n})" stroke="${c2}" stroke-width="5"/><defs><linearGradient id="g${n}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><text x="50" y="66" font-size="46" font-weight="900" text-anchor="middle" fill="#fff" stroke="${c2}" stroke-width="2" paint-order="stroke">${n}</text></svg>`;
-$('#m1').innerHTML=medal(1,'#ffe27a','#d9920c');$('#m2').innerHTML=medal(2,'#d6e2f2','#6f88ac');$('#m3').innerHTML=medal(3,'#f0a066','#a85a28');
+const MEDAL=['1st','2nd','3rd'];
+const medal=n=>`<img class="mi" src="assets/Images/icon/rank/${MEDAL[n-1]}.webp" alt="Peringkat ${n}" draggable="false" decoding="async">`;
+$('#m1').innerHTML=medal(1);$('#m2').innerHTML=medal(2);$('#m3').innerHTML=medal(3);
 
 const face=(hair,hood)=>`<svg viewBox="0 0 40 40"><rect width="40" height="40" fill="#8fd0ff"/><rect x="6" y="30" width="28" height="12" fill="${hex(hood)}"/><rect x="10" y="9" width="20" height="21" fill="#f0b98d"/><rect x="8" y="5" width="24" height="9" fill="${hex(hair)}"/><rect x="8" y="10" width="4" height="12" fill="${hex(hair)}"/><rect x="28" y="10" width="4" height="12" fill="${hex(hair)}"/><rect x="14" y="19" width="3.500" height="4.500" fill="#222"/><rect x="23" y="19" width="3.500" height="4.500" fill="#222"/><rect x="17" y="25" width="6" height="2" fill="#c0473a"/></svg>`;
 
