@@ -5,14 +5,40 @@ Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/Images/icon/<
 | Folder | Isi | Dipakai di |
 |---|---|---|
 | `currency/` | coin, coinadd, emerald, emeraldadd | bar mata uang semua halaman |
-| `ui/` | back, gear, menu, refresh, copy, edit, lock, play, start | tombol umum (kembali, pengaturan, salin, edit, kunci, play, bintang) |
-| `audio/` | sound, mute | pengaturan suara (belum dipasang) |
-| `items/` | skin, dadu, power, efek, emote | tab kategori Shop & Inventory, Profil |
-| `lobby/` | shop, inventory, invenotry, dailyreward, gift, misi, mail, hand, trophy, leader | menu Lobby, Leaderboard, Friendship, Profil |
+| `ui/` | back, gear, menu, refresh, copy, edit, lock, play, start, exit, focus, day, night | tombol umum (kembali, pengaturan, salin, edit, kunci, play, bintang); Gameplay: menu, keluar, ikuti bidak (`focus`), reset kamera (`refresh`), suasana siang/malam (`day`/`night`) |
+| `audio/` | sound, mute, music, sfx | Gameplay: tombol suara (`sound`/`mute`), menu jeda (volume musik `music`, suara efek `sfx`) |
+| `items/` | skin, dadu, power, efek, emote | tab kategori Shop & Inventory, Profil; Gameplay: banner event (`dadu`, `power`) |
+| `lobby/` | shop, inventory, invenotry, dailyreward, gift, misi, mail, hand, trophy, leader | menu Lobby, Leaderboard, Friendship, Profil; Gameplay: mahkota layar menang (`leader`), banner chest (`invenotry`) |
 | `mode/` | console, modekhsusus, tutorial, calndar, kontak, robot | halaman Pilih Mode, judul Profil |
-| `profile/` | user, globe, camera, 360 | halaman Profil |
+| `profile/` | user, globe, camera, 360 | halaman Profil; Gameplay: preset kamera (`camera`) |
 
 Catatan:
 - Nama file `calndar`, `modekhsusus`, `invenotry` memang typo dari aslinya; tidak di-rename agar tidak memutus referensi.
 - `lobby/invenotry.webp` = peti, `lobby/inventory.webp` = tas ransel.
 - Path dinamis: `shop.html` & `inventory.html` (`catImg` -> `icon/items/`), `profile.html` (`RI('grup/nama')`).
+- Semua icon baru berukuran 256x256 (cukup untuk tampil <= 64px di layar 3x). Jangan taruh file 1024px di sini; perkecil dulu agar loading ringan.
+- `1st`, `2nd`, `3nd` (medali peringkat) masih 1024px dan belum dipakai di Gameplay.
+
+## Peta ikon Gameplay (`gameplay.html`, `gameplay/hud.js`)
+
+| Elemen HUD | Aset |
+|---|---|
+| Ikuti bidak (`#btnFollow`) | `ui/focus` |
+| Reset kamera (`#btnCam`) | `ui/refresh` |
+| Preset kamera (`#btnPreset`) | `profile/camera` |
+| Kunci kamera (`#btnAngle`, mode LOCK) | `ui/lock` |
+| Suara (`#btnSnd`) | `audio/sound` / `audio/mute` (ganti saat diklik) |
+| Menu (`#btnMenu`) | `ui/menu` |
+| Layar menang: mahkota | `lobby/leader` |
+| Menu jeda: Lanjutkan | `ui/play` |
+| Menu jeda: slider Musik | `audio/music` + `audio/sound` |
+| Menu jeda: slider Suara efek | `audio/sfx` + `audio/sound` |
+| Menu jeda: Keluar | `ui/exit` |
+| Menu jeda: Suasana | `ui/day` / `ui/night` |
+| Banner giliran / tiga kali 6 | `items/dadu` |
+| Banner chest | `lobby/invenotry` |
+| Banner power (pesan teks) | `items/power` |
+| Tombol Power-up | `data/power/sm/*.webp` (via `item-catalog.js`) |
+
+Masih SVG/emoji karena belum ada aset: gembok terbuka (mode ANGLE), layar kalah, tombol tutup (X), dan banner tangga/ular/mob/naga/perisai/pantul/info.
+

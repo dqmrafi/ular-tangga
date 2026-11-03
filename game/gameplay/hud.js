@@ -27,6 +27,11 @@
   var STYLE_ID = 'ut-ghud-css';
   var ICON = { turn: '🎲', extra: '✨', ladder: '🪜', snake: '🐍', mob: '👾', chest: '🎁', power: '⚡', three6: '🎲',
                bounce: '↩️', shield: '🛡️', dragon: '🐉', info: 'ℹ️' };
+  /* Ikon gambar untuk banner event (aset buatan sendiri, 256px). Jenis yang tidak ada di sini tetap memakai emoji di ICON.
+     Emoji juga jadi cadangan bila gambar gagal dimuat. Ikon kustom dari pemanggil (o.icon) selalu dipakai apa adanya. */
+  var IMG_DIR = 'assets/Images/icon/';
+  var ICON_IMG = { turn: IMG_DIR + 'items/dadu.webp', three6: IMG_DIR + 'items/dadu.webp',
+                   chest: IMG_DIR + 'lobby/invenotry.webp', power: IMG_DIR + 'items/power.webp' };
   var cfg = { getGameId: null, isPaused: null };
   var root = null, stack = null, panel = null, pTitle = null, pText = null,
       combat = null, cWho = null, cText = null, cBar = null, cFill = null, cHp = null;
@@ -47,6 +52,7 @@
       'background:linear-gradient(#3b9cf8,#2a86ee);box-shadow:0 4px 0 rgba(0,0,0,.45),inset 0 0 0 3px #ffe36a,0 6px 14px rgba(0,0,0,.25);' +
       'overflow-wrap:anywhere;animation:utghin .22s ease-out}' +
       '.ut-ghud-b i{font-style:normal;font-size:20px;line-height:1;flex:none}' +
+      '.ut-ghud-b i>img{width:26px;height:26px;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none}' +
       '.ut-ghud-b[data-k=snake],.ut-ghud-c{background:linear-gradient(#ef5a5a,#c93636)}' +
       '.ut-ghud-b[data-k=ladder]{background:linear-gradient(#4cc46a,#2f9f4d)}' +
       '.ut-ghud-b[data-k=mob]{background:linear-gradient(#a06be0,#7b45c4)}' +
@@ -152,8 +158,13 @@
     });
     e.t = setTimeout(function () { expire(e); }, ttl);
   }
-  function textCard(n, icon, text) {
+  function textCard(n, icon, text, imgSrc) {
     var i = el('i', '', n); i.setAttribute('aria-hidden', 'true'); i.textContent = icon;
+    if (imgSrc) { /* gambar menggantikan emoji; bila gagal dimuat, kembali ke emoji */
+      var im = doc.createElement('img'); im.alt = ''; im.draggable = false; im.src = imgSrc;
+      im.onerror = function () { i.textContent = icon; };
+      i.textContent = ''; i.appendChild(im);
+    }
     el('span', '', n).textContent = String(text);
   }
   function powerCard(n, icon, who, title, eff, key) {
@@ -185,7 +196,8 @@
     showEvent: function (kind, text, o) {
       if (!text || stale(o) || !build()) return H;
       var k = ICON[kind] ? kind : 'info', icon = (o && o.icon) || ICON[k];
-      push(k, function (n) { textCard(n, icon, text); }, ttlOf(o, 2000));
+      var imgSrc = (o && o.icon) ? null : (ICON_IMG[k] || null);
+      push(k, function (n) { textCard(n, icon, text, imgSrc); }, ttlOf(o, 2000));
       return H;
     },
     showTurn: function (p, o) {
