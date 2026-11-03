@@ -121,6 +121,12 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 .status{text-shadow:-2px 0 #0b1838,2px 0 #0b1838,0 -2px #0b1838,0 2px #0b1838,-2px -2px #0b1838,2px -2px #0b1838,-2px 2px #0b1838,2px 2px #0b1838,0 4px 0 #0b1838}
 @media(max-width:700px){.meta,.load-meta{font-size:15px}}
 </style>
+<style id="island3d">
+/* Pulau utama 3D = komponen FloatingIsland yang sama dengan lobby (SVG lama jadi cadangan bila WebGL/Three.js gagal dimuat) */
+#islCv{display:none;width:100%;aspect-ratio:1/1;pointer-events:none}
+.isl.main.is3d #islCv{display:block}
+.isl.main.is3d .bob{display:none}
+</style>
 <script src="assets/js/landscape.js"></script></head>
 <body>
 
@@ -151,6 +157,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
 
   <!-- pulau utama (sama dengan landing page) -->
   <div class="isl main">
+    <canvas id="islCv" aria-hidden="true"></canvas>
     <div class="bob">
     <svg viewBox="150 70 340 360" role="img" aria-label="Pulau blok melayang dengan pohon kubik, tangga kayu, dan ular voxel yang ramah">
       <defs><filter id="bl" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="14"/></filter></defs>
@@ -280,6 +287,57 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#1a62b8;color:#fff}
     try { sessionStorage.setItem('ut:booted', '1'); } catch (e) {}
     setTimeout(() => location.replace(dest), 350);
   });
+})();
+</script>
+<script>
+/* Render pulau melayang 3D yang sama dengan lobby (assets/js/floating-island.js, seed 5, cahaya yang sama). Kamera dihitung otomatis agar seluruh pulau pas di kanvas. */
+(function () {
+  var main = document.querySelector('.isl.main'), cv = document.getElementById('islCv');
+  if (!main || !cv) return;
+  function load(src, cb) { var s = document.createElement('script'); s.src = src; s.async = true; s.onload = cb; s.onerror = function () {}; document.head.appendChild(s); }
+  function boot() {
+    try {
+      var T = window.THREE, UT = window.UT;
+      if (!T || !UT || !UT.FloatingIsland) return;
+      var renderer = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: true });
+      renderer.setClearColor(0x000000, 0);
+      renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
+      var scene = new T.Scene(), FOV = 30, cam = new T.PerspectiveCamera(FOV, 1, 0.1, 250);
+      scene.add(new T.AmbientLight(0xdff6ff, 0.42), new T.HemisphereLight(0xb4eeff, 0x6a9a50, 0.5));
+      var sun = new T.DirectionalLight(0xffd88a, 1.05); sun.position.set(16, 20, 10); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
+      Object.assign(sun.shadow.camera, { left: -24, right: 24, top: 16, bottom: -14, near: 1, far: 60 }); sun.shadow.bias = -0.0008; scene.add(sun);
+      var isl = UT.FloatingIsland.create(T, { seed: 5 }); scene.add(isl);
+
+      /* bounding box termasuk semua instance (Box3.setFromObject mengabaikan InstancedMesh) */
+      isl.updateMatrixWorld(true);
+      var box = new T.Box3(), tmp = new T.Box3(), mt = new T.Matrix4();
+      isl.traverse(function (o) {
+        if (!o.geometry) return;
+        if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+        if (o.isInstancedMesh) { for (var i = 0; i < o.count; i++) { o.getMatrixAt(i, mt); tmp.copy(o.geometry.boundingBox).applyMatrix4(mt).applyMatrix4(o.matrixWorld); box.union(tmp); } }
+        else { tmp.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld); box.union(tmp); }
+      });
+      var ctr = new T.Vector3(0, 3, 0), size = new T.Vector3(16, 14, 16);
+      if (!box.isEmpty()) { box.getCenter(ctr); box.getSize(size); }
+      var dir = new T.Vector3(0, 2.5, 26).normalize();
+      function size_() {
+        var w = cv.clientWidth || 300, h = cv.clientHeight || w, asp = w / h, th = Math.tan(FOV * Math.PI / 360);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5)); renderer.setSize(w, h, false);
+        cam.aspect = asp; cam.updateProjectionMatrix();
+        var dist = Math.max((size.x / 2) / (th * asp), (size.y / 2) / th) + size.z / 2;
+        dist *= 1.1; /* sisakan ruang untuk gerak naik-turun */
+        cam.position.copy(ctr).addScaledVector(dir, dist); cam.lookAt(ctr);
+      }
+      size_(); window.addEventListener('resize', size_);
+      var clock = new T.Clock(), shown = false;
+      (function loop() {
+        requestAnimationFrame(loop);
+        try { isl.userData.update(clock.getElapsedTime()); renderer.render(scene, cam); } catch (e) { return; }
+        if (!shown) { shown = true; main.classList.add('is3d'); }
+      })();
+    } catch (e) { /* WebGL tidak tersedia: tetap pakai SVG cadangan */ }
+  }
+  load('https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', function () { load('assets/js/floating-island.js', boot); });
 })();
 </script>
 </body>
