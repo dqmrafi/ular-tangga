@@ -142,7 +142,7 @@
       });
     }
     boxes.forEach(function (q) {
-      if (q[8] === 3 && dither) { for (var i = -1; i <= 1; i++) for (var j = -1; j <= 1; j++) for (var l = -1; l <= 1; l++) addCube(q, q[0] + i * 0.1, q[1] + j * 0.1, q[2] + l * 0.1, 0.1004, 0.1004, 0.1004, q[6], 0.05); }
+      if (q[8] === 3 && dither) { for (var i = -1; i <= 1; i++) for (var j = -1; j <= 1; j++) for (var l = -1; l <= 1; l++) addCube(q, q[0] + i * 0.1, q[1] + j * 0.1, q[2] + l * 0.1, 0.1, 0.1, 0.1, q[6], 0.09); }
       else addCube(q, q[0], q[1], q[2], q[3], q[4], q[5], q[6], 0);
     });
     var g = new THREE.BufferGeometry();

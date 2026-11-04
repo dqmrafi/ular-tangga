@@ -64,10 +64,8 @@
     idle: function (t, p) {
       var br = Math.sin(t * 2);
       p.by = br * 0.004; p.sq = br * 0.012;
-      /* postur santai menghadap kamera: badan & kepala hanya bergoyang halus (tidak berpaling/mendongak), bahu ikut menarik napas */
-      p.bry = Math.sin(t * 0.7) * 0.05; p.hy = Math.sin(t * 0.7 - 0.6) * 0.09; p.hx = 0.03 + Math.sin(t * 0.5) * 0.02; p.hz = Math.sin(t * 0.9) * 0.02;
-      p.alz = -0.08 - br * 0.02; p.arz = 0.08 + br * 0.02; p.alx = Math.sin(t * 2 - 0.5) * 0.03; p.arx = -p.alx;
-      p.llx = 0; p.lrx = 0;
+      p.bry = Math.sin(t * 0.7) * 0.10; p.hy = Math.sin(t * 0.7 - 0.6) * 0.18; p.hx = Math.sin(t * 0.5) * 0.04; p.hz = Math.sin(t * 0.9) * 0.03;
+      p.alz = -0.12 - br * 0.02; p.arz = 0.12 + br * 0.02; p.alx = Math.sin(t * 2 - 0.5) * 0.03; p.arx = -p.alx;
       p.hop = Math.sin(t * 1.6) * 0.012;
       if (Math.sin(t * 0.4) > 0.97) p.arz += 1.0; /* sesekali angkat tangan kanan sebentar */
     },

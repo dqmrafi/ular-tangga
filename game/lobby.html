@@ -255,16 +255,14 @@ const cv=$('#gl'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alp
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene();scene.fog=new THREE.Fog(0xa8ecff,22,90);/* distance fog biru-cyan */
 const cam=new THREE.PerspectiveCamera(36,16/9,.1,250);
-scene.add(new THREE.AmbientLight(0xdff6ff,.38),new THREE.HemisphereLight(0xb4eeff,0x6a9a50,.5));/* langit cyan + pantulan rumput */
+scene.add(new THREE.AmbientLight(0xdff6ff,.42),new THREE.HemisphereLight(0xb4eeff,0x6a9a50,.5));/* langit cyan + pantulan rumput */
 const sun=new THREE.DirectionalLight(0xffd88a,1.05);sun.position.set(16,20,10);/* sinar emas hangat dari kanan atas */sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-24,right:24,top:16,bottom:-14,near:1,far:60});sun.shadow.bias=-.0008;scene.add(sun);
-const rim=new THREE.DirectionalLight(0xcdf4ff,.35);rim.position.set(-14,12,-16);scene.add(rim);/* cahaya tepi dari belakang-kiri: siluet karakter hijau terpisah dari pulau hijau */
-const fill=new THREE.DirectionalLight(0xfff0dc,.12);fill.position.set(-6,7,22);scene.add(fill);/* isi lembut dari depan: wajah tidak gelap/rata */
 const anims=[];
 
 // pulau melayang = komponen terpisah (assets/js/floating-island.js); latar+awan = SceneBackground (assets/js/scene-bg.js)
 const isl=UT.FloatingIsland.create(THREE,{seed:5});scene.add(isl);
 // hero character (palet dari ItemArt.palette skin terpasang di PlayerData)
-const hero=new THREE.Group();let chI=character(PAL,'idle'),chC=character(PAL,'cheer');chC.visible=false;hero.add(chI,chC);hero.position.set(.3,0,0);hero.rotation.y=-.12;/* hampir menghadap kamera (sebelumnya -.3: wajah berpaling) */scene.add(hero);
+const hero=new THREE.Group();let chI=character(PAL,'idle'),chC=character(PAL,'cheer');chC.visible=false;hero.add(chI,chC);hero.position.set(.3,0,0);hero.rotation.y=-.3;scene.add(hero);
 const cs=UT.FloatingIsland.contactShadow(THREE,3.4,2.6,.4);cs.position.set(.3,.03,.1);scene.add(cs);/* AO kontak di bawah karakter */
 anims.push(t=>{isl.userData.update(t);hero.position.y=isl.position.y;cs.position.y=.03+isl.position.y});
 hero3d={rebuild(){const p=AR.palette(PD.equippedId('skin'))||AR.palette('skin.steve');hero.remove(chI);hero.remove(chC);chI=character(p,'idle');chC=character(p,'cheer');chC.visible=false;hero.add(chI,chC)}};
