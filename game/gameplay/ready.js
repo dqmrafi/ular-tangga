@@ -37,7 +37,7 @@
     'transition:transform .5s cubic-bezier(.3,1.3,.5,1) var(--dl,0ms)}' +
     '#readyScreen .rk.avail:hover{--lift:-5px}' +
     '#readyScreen .rk.picked{--lift:-10px}' +
-    '#readyScreen .rk.flip{--rot:180deg}' +
+    '#readyScreen .rk.revealed{--rot:180deg}' +
     '#readyScreen .rk-f,#readyScreen .rk-b{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-width:0;' +
     'border:3px solid #0b1838;border-radius:10px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}' +
     '#readyScreen .rk-f{background:repeating-linear-gradient(45deg,#2f5fc8 0 8px,#2a54b4 8px 16px);box-shadow:inset 0 0 0 3px #5e90f0,0 6px 0 rgba(0,0,0,.28)}' +
@@ -52,13 +52,13 @@
     '#readyScreen .rk-nm{max-width:100%;padding:0 6px;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 2px 0 #0b1838}' +
     '#readyScreen .rk.first .rk-b{box-shadow:inset 0 0 0 3px rgba(255,210,63,.6),0 0 18px #FFC21A}' +
     /* flip: dua fase (depan 0->90deg, belakang -90->0deg), sudut akhir 0deg => angka tidak pernah terbalik/mirror */
-    '#readyScreen .rk.flip{--rot:0deg}' +
+    '#readyScreen .rk.revealed{--rot:0deg}' +
     '#readyScreen .rk .rk-b{transform:rotateY(-90deg);visibility:hidden;backface-visibility:visible;-webkit-backface-visibility:visible}' +
-    '#readyScreen .rk.flip .rk-f{animation:rkOut .25s ease-in var(--dl,0ms) both}' +
-    '#readyScreen .rk.flip .rk-b{animation:rkIn .25s ease-out calc(var(--dl,0ms) + .25s) both}' +
+    '#readyScreen .rk.revealed .rk-f{animation:rkOut .25s ease-in var(--dl,0ms) both}' +
+    '#readyScreen .rk.revealed .rk-b{animation:rkIn .25s ease-out calc(var(--dl,0ms) + .25s) both}' +
     '@keyframes rkOut{from{transform:rotateY(0);visibility:visible}99%{transform:rotateY(90deg);visibility:visible}to{transform:rotateY(90deg);visibility:hidden}}' +
     '@keyframes rkIn{from{transform:rotateY(-90deg);visibility:visible}to{transform:rotateY(0);visibility:visible}}' +
-    '@media (prefers-reduced-motion:reduce){#readyScreen .rk.flip .rk-f,#readyScreen .rk.flip .rk-b{animation-duration:.01s}}' +
+    '@media (prefers-reduced-motion:reduce){#readyScreen .rk.revealed .rk-f,#readyScreen .rk.revealed .rk-b{animation-duration:.01s}}' +
     '@media (prefers-reduced-motion:reduce){#readyScreen .rk-in{transition:none}}' +
     /* landscape pendek: kartu dikecilkan agar muat tanpa scroll */
     '@media (orientation:landscape) and (max-height:430px){#readyScreen .rd-box{padding:8px 10px 10px}#readyScreen h2{font-size:14px;margin:0}#readyScreen .rd-sub{margin:2px 0 4px;font-size:10px}' +
@@ -167,7 +167,7 @@
           if (ctx.cancelled) return;
           var ordered = players.slice().sort(function (a, b) { return a.turnOrder - b.turnOrder; });
           slots.forEach(function (s) { /* flip berurutan menurut angka: 1, 2, 3, ... */
-            s.b.style.setProperty('--dl', ((s.num - 1) * 140) + 'ms'); s.b.classList.add('flip');
+            s.b.style.setProperty('--dl', ((s.num - 1) * 140) + 'ms'); s.b.classList.add('revealed');
             if (s.num === 1) s.b.classList.add('first');
             s.b.setAttribute('aria-label', 'Giliran ' + s.num + ': ' + s.owner.name);
           });
