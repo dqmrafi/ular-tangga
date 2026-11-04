@@ -22,20 +22,28 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 .dot:empty{min-width:1.7rem;width:1.7rem;height:1.7rem;padding:0;right:-.3rem;top:-.4rem}
 /* ===== profil (kiri atas) ===== */
 #prof{left:2.6rem;top:2.5rem;width:29.7rem;height:8.9rem;cursor:pointer}
-#ava{position:absolute;left:0;top:0;width:9rem;height:9rem;border-radius:.8rem;background:linear-gradient(#4a88c8,#2e6aa6);box-shadow:inset 0 0 0 .7rem #8a909c,inset 0 0 0 .9rem #3a404c,0 .35rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);overflow:hidden;padding:.9rem;z-index:2}
-#ava svg{width:100%;height:100%;image-rendering:pixelated}
+#ava{position:absolute;left:0;top:0;width:9rem;height:9rem;padding:1rem;z-index:2}
+#ava::before{content:"";position:absolute;inset:.4rem;border-radius:.6rem;background:linear-gradient(#4a88c8,#2e6aa6)}
+#ava svg{position:relative;width:100%;height:100%;image-rendering:pixelated}
+/* frame profil (data/frame/*.webp, 500px; badan kayu = 68% lebar gambar -> gambar 13.24rem menutup kotak 9rem) */
+#avf{position:absolute;left:-2.12rem;top:-2.12rem;width:13.24rem;height:13.24rem;z-index:2;pointer-events:none;user-select:none;filter:drop-shadow(0 .25rem 0 rgba(11,18,32,.55))}
 #pbox{position:absolute;left:8.6rem;top:.5rem;width:21.1rem;height:8.1rem}
-#shield{position:absolute;left:8.8rem;top:-1rem;width:6.4rem;height:6.4rem;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:1.5rem}
+#shield{position:absolute;left:9.68rem;top:-1rem;width:6.4rem;height:6.4rem;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:.9rem}
 #shield img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 .2rem 0 #0b1220);pointer-events:none;user-select:none}
 #shield b{position:relative;display:block;font-size:1rem;line-height:1rem;-webkit-text-stroke:.2rem #8a5a0a;paint-order:stroke fill}
 #shield strong{position:relative;display:block;font-size:2.3rem;line-height:2.2rem;-webkit-text-stroke:.28rem #8a5a0a;paint-order:stroke fill}
 #nrow{position:absolute;left:15.6rem;top:1.2rem;display:flex;align-items:center;gap:1rem;z-index:3}
 #pname{font-size:3.1rem;line-height:3.8rem}
 #flag{width:2.8rem;height:1.9rem;border-radius:.3rem;overflow:hidden;border:.1rem solid #fff;box-shadow:0 .1rem .3rem rgba(0,0,0,.3)}
-#xp{position:absolute;left:9.9rem;top:5.8rem;width:18.7rem;height:2.1rem;border-radius:.5rem;background:#0e1626;box-shadow:inset 0 .15rem .25rem rgba(0,0,0,.6),0 0 0 .14rem #56667e;overflow:hidden;z-index:3}
-#xp i{display:block;height:100%;background:linear-gradient(#8bec55,#2f9f23);box-shadow:inset 0 .15rem .15rem rgba(255,255,255,.5)}
-#xp em{position:absolute;left:.5rem;top:0;bottom:0;display:grid;place-items:center;font-style:normal;font-size:1.3rem;color:#d6ffb8;text-shadow:0 .1rem 0 #1c5a10}
-#xp span{position:absolute;inset:0;display:grid;place-items:center;font-size:1.35rem;line-height:1;text-shadow:0 .1rem 0 rgba(8,14,26,.9)}
+#xp{position:absolute;left:9.9rem;top:5.8rem;width:8.2rem;height:2.1rem;border-radius:.6rem;background:#0e1626;box-shadow:inset 0 .15rem .25rem rgba(0,0,0,.6),0 0 0 .14rem #56667e;overflow:hidden;z-index:3}
+#xp i{position:relative;display:block;height:100%;border-radius:.6rem;overflow:hidden;background:linear-gradient(#b9ff8a 0%,#6fe03c 38%,#2fa51f 52%,#46c92c 100%);box-shadow:inset 0 .12rem .1rem rgba(255,255,255,.65),inset 0 -.15rem .15rem rgba(14,84,10,.55),0 0 .6rem rgba(120,255,80,.55);animation:xpGlow 2.4s ease-in-out infinite}
+#xp i::before{content:"";position:absolute;left:.3rem;right:.3rem;top:.14rem;height:36%;border-radius:.4rem;background:linear-gradient(rgba(255,255,255,.75),rgba(255,255,255,.12))}
+#xp i::after{content:"";position:absolute;top:0;bottom:0;width:45%;left:-60%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.7),transparent);animation:xpShine 2.2s ease-in-out infinite}
+@keyframes xpShine{0%{left:-60%}60%,100%{left:130%}}
+@keyframes xpGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.12) saturate(1.1)}}
+#xpt{position:absolute;left:18.7rem;top:5.8rem;width:9.9rem;height:2.1rem;display:flex;align-items:center;justify-content:center;gap:.3rem;border-radius:.6rem;background:linear-gradient(#222f47,#131c2e);box-shadow:inset 0 0 0 .14rem #56667e,inset 0 .15rem .25rem rgba(0,0,0,.5);font-size:1.15rem;line-height:1;white-space:nowrap;color:#e9f6ff;text-shadow:0 .1rem 0 rgba(8,14,26,.9);z-index:3}
+#xpt b{color:#9fff72;font-weight:800}
+@media(prefers-reduced-motion:reduce){#xp i,#xp i::after{animation:none!important}}
 /* ===== mail & settings (kanan atas, bawah currency) ===== */
 .sq{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;line-height:1;white-space:nowrap}
 .sq>svg{width:3.7rem;height:3.7rem;filter:drop-shadow(0 .2rem .2rem rgba(0,0,0,.35))}
@@ -115,10 +123,11 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 <div id="ui">
  <div class="ab" id="prof" role="button" tabindex="0" data-act="prof" aria-label="Profil">
   <div id="pbox" class="pn"></div>
-  <div id="ava"></div>
-  <div id="shield"><img src="assets/Images/icon/emblem/shield.webp" alt="" draggable="false" decoding="async"><b>Lv.</b><strong id="lvn">26</strong></div>
+  <div id="ava"></div><img id="avf" src="data/frame/frame-default.webp" alt="" draggable="false" decoding="async">
+  <div id="shield"><img src="assets/Images/icon/emblem/shield.webp" alt="" draggable="false" decoding="async"><strong id="lvn">26</strong></div>
   <div id="nrow"><span id="pname" class="tx">FajarGG</span><div id="flag"><svg viewBox="0 0 3 2" width="100%" height="100%" preserveAspectRatio="none"><rect width="3" height="1" fill="#e8202a"/><rect y="1" width="3" height="1" fill="#fff"/></svg></div></div>
-  <div id="xp"><i style="width:41.7%"></i><em>XP</em><span>1.250 / 3.000 XP</span></div>
+  <div id="xp"><i style="width:41.7%"></i></div>
+  <div id="xpt"><b>1.250</b><span>/ 3.000 XP</span></div>
  </div>
 
  <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false" decoding="async"><span id="gemV"></span><button class="plus" data-act="buygem" aria-label="Tambah gem"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false" decoding="async"><span id="coinV"></span><button class="plus" data-act="buycoin" aria-label="Tambah coin"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg></button></div></div>

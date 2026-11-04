@@ -2933,7 +2933,7 @@ async function crystalRoll(p,v,gid){
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },n=v,d=crystalDone(p);
   if(n>CRYSTAL_N||d[n-1]){
     const why=n>CRYSTAL_N?'Tidak ada Crystal '+n+'.':'Crystal '+n+' sudah hancur.';
-    setMsg(p.name+' melempar '+v+'. '+why+' Tidak ada progress.'); fb('event','dragon',why+' (dapat '+v+')',{gid,ttl:1800}); sfx.bounce();
+    setMsg(p.name+' melempar '+v+'. '+why+' Tidak ada progress.'); fb('event','dragon',why+' (dapat '+v+')',{gid,ttl:1800}); if(d[n-1]) sfx.crystalDestroyed(); else sfx.bounce(); /* Crystal n sudah hancur -> suara 'crystal was destroyed', bukan bounce */
     await S(sleep(900)); return false;
   }
   d[n-1]=true; p.crystal++; syncCrystals();
@@ -3832,9 +3832,9 @@ async function walk(p,from,to){
 }
 async function climb(p,from,to){
   const L=LADINFO[from];
-  sfx.ladder();
   await hopTo(p.pawn,L.p1.clone(),0.3,0.25);
-  await glide(p.pawn,L.path?L.path.map(v=>v.clone()):[L.p1.clone(),L.p2.clone()],1.7,null,0.07);
+  const snd=sfx.ladder(); /* suara naik tangga mulai saat pion benar-benar naik & berhenti (fade) saat sampai atas */
+  try{ await glide(p.pawn,L.path?L.path.map(v=>v.clone()):[L.p1.clone(),L.p2.clone()],1.7,null,0.07); } finally{ sfx.ladderStop(snd); }
   await hopTo(p.pawn,slotPos(p.idx,to),0.3,0.3);
 }
 
@@ -3985,7 +3985,7 @@ async function askTotem(p,gid,what){
 async function resolveTileAt(p,gid){
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
   if(LADDERS[p.pos]){
-    const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); sfx.naiktangga();
+    const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); /* suara naik = sfx.ladder() di climb(); tidak ditumpuk dengan ladder-up.mp3 */
     await A(sleep(350)); await A(climb(p,p.pos,to)); p.pos=to; p.score+=10;
   }else if((SNAKES[p.pos]||(mobOn(p.pos,themeKey)&&mobOn(p.pos,themeKey)!=='villager'))&&await askTotem(p,gid,SNAKES[p.pos]?'Ular':MOBNAME[mobOn(p.pos,themeKey)])){
     p.shield=false; puFx('pr:'+p.idx,'pfx-hit'); renderChips(); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900));

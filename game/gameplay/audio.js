@@ -57,7 +57,7 @@
                /* file ada di root sfx/ (nama apa adanya, termasuk ejaan 'areana'/'crsytal'): arena naik setelah gempa; semua Crystal hancur */
                arenaUp:'dragon-areana-up-before-crystal.mp3', crystalsDone:'setalah-hancurkan-crsytal.mp3',
     /* new sound/ (folder assets/new sound/, dirujuk relatif dari SFX_DIR) — pengganti SFX yang dulu sintetis; fungsi sintetis lama tetap jadi fallback */
-    hiss:NS+'hiss.mp3', chomp:NS+'chomp.mp3', gulp:NS+'gulp.mp3', ladderClimb:NS+'ladder.mp3', pop:NS+'pop.mp3', bounce:NS+'bounce.mp3',
+    hiss:NS+'hiss.mp3', chomp:NS+'chomp.mp3', gulp:NS+'gulp.mp3', ladderClimb:NS+'ladder.mp3', pop:NS+'pop.mp3', bounce:NS+'bounce.mp3', crystalDestroyed:NS+'crystall-was-destroy.mp3',
     win:NS+'win.mp3', victory:NS+'win2.mp3', shuffle:NS+'shuffle.mp3', villager:NS+'villager.mp3'
   };
   const FILE_AWAKENING=NS+'dragonAwakening.mp3'; /* file ada di assets/new sound/; bila gagal -> fallback sintetis (retak + gema) */
@@ -77,7 +77,8 @@
     /* ---------- PAPAN: gerak & kejadian di tile ---------- */
     hop(){ fileSfx('hop',0.5,function(){ beep(480+Math.random()*120,0.08,'square',0.04); }); },
     naiktangga(){ fileSfx('ladder',0.7,ladderBeeps); },
-    ladder(){ fileSfx('ladderClimb',1,ladderBeeps); },
+    ladder(){ return fileSfx('ladderClimb',1,ladderBeeps); }, /* mengembalikan elemen Audio agar bisa dihentikan tepat saat pion sampai (ladder.mp3 ~9,5 dtk, lebih lama dari animasi naik) */
+    ladderStop(a){ fadeOut(a,220); },
     caplokular(){ fileSfx('snakeBite',0.8,function(){ beep(200,0.12,'square',0.09,0,60); }); },
     hundred(){ fileSfx('block100',0.7,function(){ beep(523,0.2,'square',0.05); }); },
     hiss(){ fileSfx('hiss',0.8,function(){ noise(0.55,0.09,0,4500); }); },
@@ -118,6 +119,7 @@
     towerRise(){ return fileSfx('tower',0.8); },
     towerStop(a){ fadeOut(a,600); },
     crystalAppear(){ return fileSfx('crystalAppear',0.7,function(){ beep(900,0.4,'sine',0.05,0,1400); }); },
+    crystalDestroyed(){ fileSfx('crystalDestroyed',0.9,function(){ beep(330,0.2,'triangle',0.07,0,140); }); }, /* angka dadu = Crystal yang SUDAH hancur (bukan bounce); fallback = beep bounce lama */
     crystalBreak(){ fileSfx('crystalBreak',0.9,function(){ noise(0.25,0.1,0,2500); beep(900,0.22,'triangle',0.06,0,200); beep(1400,0.12,'square',0.03,0.04,500); }); },
     arenaUp(){ return fileSfx('arenaUp',0.8); }, /* Awakening: Dragon Arena naik setelah gempa, sebelum tower/crystal. Tanpa fallback sintetis (senyap bila file gagal) */
     arenaStop(a){ fadeOut(a,600); },
