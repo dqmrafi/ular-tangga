@@ -4184,7 +4184,7 @@ function startGame(m,keys){
   /* 4.1.15: Ready Screen sebelum giliran pertama. ?ready=0 / modul tak termuat -> langsung main seperti sebelumnya. */
   const gidR=gameId,goPlay=()=>{ if(gidR!==gameId) return; publishTurnState(); beginTurn(); },RD=window.UT&&UT.GameplayReady;
   if(RD&&RD.show&&UT.GameplayAFK&&new URLSearchParams(location.search).get('ready')!=='0'){
-    setRoll(false); setMsg('Tekan READY untuk mulai.'); focus=players[0].pawn; renderChips();
+    setRoll(false); setMsg('Pilih kartu untuk menentukan urutan giliran.'); focus=players[0].pawn; renderChips();
     const pre=players.filter(q=>PNG_DEFS.some(d=>d.key===q.key)).map(q=>loadSkin3D(q.key)).concat([frameWait()]); /* tunggu wajah PNG (maks 1,5 dtk) */
     Promise.race([Promise.all(pre),sleep(1500)]).catch(()=>{}).then(()=>{ if(gidR!==gameId) return; return RD.show(players,{face:q=>framedFace(q),sfx:n=>{ try{ sfx[n]&&sfx[n](); }catch(e){} }}); }).then(r=>{ if(!r) return; if(gidR!==gameId) return;
       /* 4.1.15.6: hasil shuffle = sumber giliran. Urutkan ulang players[] (nextTurn/cur existing dipakai apa adanya); p.idx (slot api unggun) tidak berubah. */
