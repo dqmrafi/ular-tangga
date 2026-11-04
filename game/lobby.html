@@ -186,6 +186,9 @@ document.querySelectorAll('#ui>:not(.ut-curbar)').forEach((e,i)=>e.style.animati
 /* event: UI ikut berubah tanpa reload halaman */
 UT.Events.on('currencyChanged',renderCurrency);
 UT.Events.on('skinChanged',()=>{PAL=AR.palette(PD.equippedId('skin'))||PAL;renderAvatar();if(hero3d)hero3d.rebuild()});
+/* frame profil = frame yang sedang dipakai (Inventory) */
+function applyFrame(){const f=window.ItemCatalog.byId(PD.equippedId('frame')),im=document.getElementById('avf');if(im)im.src=(f&&f.image)||'data/frame/frame-default.webp'}
+applyFrame();UT.Events.on('frameChanged',applyFrame);
 /* ---------- modal ---------- */
 const modal=$('#modal');let mOpen=false;
 function openModal(html,init){$('#mb').innerHTML=html;modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;init&&init();$('#mx').focus()}
