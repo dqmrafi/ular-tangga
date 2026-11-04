@@ -43,24 +43,24 @@
      Satu tabel path. Struktur folder: assets/sfx/<kategori>/<nama>.<ext>
        ui/ dice/ board/ reward/ powerup/ mob/ dragon/   (daftar lengkap: assets/sfx/README.md)
      Mengganti/menambah file cukup ubah baris di sini; fungsi sfx di bawah hanya memakai kuncinya. */
-  const SFX_DIR='assets/sfx/';
+  const SFX_DIR='assets/sfx/', NS='../new sound/';
   const FILE={
     /* dice */   roll:'dice/dice-roll.mp3',
     /* board */  hop:'board/pawn-hop.mp3', ladder:'board/ladder-up.mp3', snakeBite:'board/snake-bite.mp3', block100:'board/block-100.mp3',
-    /* win */    firework:'win/firework-launch.ogg',
+    /* win */    firework:'win/Firework_launch.ogg',
     /* result */ defeat:'ui/game-lose.mp3',
     /* power */  swordUse:'powerup/sword-use.mp3', tntExplosion:'mob/creeper-explosion.mp3', /* tntExplosion = asset ledakan bersama dengan Creeper (Stage C C14) */
     /* reward */ chestOpen:'reward/chest-open.mp3', chestClose:'reward/chest-close.mp3', powerReward:'reward/power-reward.mp3',
     /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.mp3', skeletonShoot:'mob/skeleton-shoot.mp3', endermanTp:'mob/enderman-teleport.mp3',
     /* dragon */ dragonIdle:'dragon/dragon-idle.mp3', dragonHurt:'dragon/dragon-hurt.mp3', dragonDeath:'dragon/dragon-death.mp3',
                earthquake:'dragon/earthquake.mp3', tower:'dragon/tower-rise.mp3', crystalAppear:'dragon/crystal-appear.mp3', crystalBreak:'dragon/crystal-break.mp3',
-               /* arena naik setelah gempa; semua Crystal hancur */
-               arenaUp:'dragon/arena-up.mp3', crystalsDone:'dragon/crystals-cleared.mp3',
-    /* pengganti SFX yang dulu sintetis; fungsi sintetis lama tetap jadi fallback */
-    hiss:'board/snake-hiss.mp3', chomp:'board/snake-chomp.mp3', gulp:'board/snake-gulp.mp3', ladderClimb:'board/ladder-climb.mp3', pop:'powerup/pop.mp3', bounce:'board/bounce.mp3', crystalDestroyed:'dragon/crystal-destroyed.mp3',
-    win:'win/win.mp3', victory:'win/victory.mp3', shuffle:'dice/shuffle-tick.mp3', villager:'mob/villager.mp3'
+               /* file ada di root sfx/ (nama apa adanya, termasuk ejaan 'areana'/'crsytal'): arena naik setelah gempa; semua Crystal hancur */
+               arenaUp:'dragon-areana-up-before-crystal.mp3', crystalsDone:'setalah-hancurkan-crsytal.mp3',
+    /* new sound/ (folder assets/new sound/, dirujuk relatif dari SFX_DIR) — pengganti SFX yang dulu sintetis; fungsi sintetis lama tetap jadi fallback */
+    hiss:NS+'hiss.mp3', chomp:NS+'chomp.mp3', gulp:NS+'gulp.mp3', ladderClimb:NS+'ladder.mp3', pop:NS+'pop.mp3', bounce:NS+'bounce.mp3', crystalDestroyed:NS+'crystall-was-destroy.mp3',
+    win:NS+'win.mp3', victory:NS+'win2.mp3', shuffle:NS+'shuffle.mp3', villager:NS+'villager.mp3'
   };
-  const FILE_AWAKENING='dragon/dragon-awakening.mp3'; /* file ada di assets/sfx/dragon/; bila gagal -> fallback sintetis (retak + gema) */
+  const FILE_AWAKENING=NS+'dragonAwakening.mp3'; /* file ada di assets/new sound/; bila gagal -> fallback sintetis (retak + gema) */
   /* Warm-up: file SFX dimuat lebih awal (tanpa diputar, tanpa butuh gesture) agar pemutaran pertama tidak menunggu fetch/decode. */
   var warm=[];
   function preload(){ if(warm.length) return; Object.keys(FILE).forEach(function(k){ try{ var a=new Audio(); a.preload='auto'; a.src=SFX_DIR+FILE[k]; warm.push(a); }catch(e){} }); }

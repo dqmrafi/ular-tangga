@@ -3248,7 +3248,7 @@ async function awakenDragon(p,gid){
   const pg={x:panGoal.x,z:panGoal.z}; let finished=false,qk=null,tw=null,ar=null;
   try{
     while(paused) await S(sleep(200)); /* pause dibuka sebelum sequence: tunggu dilanjutkan */
-    setMsg('Block 100 aktif! Gunung di kiri papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); qk=sfx.quakeStart(); /* SFX existing (assets/sfx/dragon/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
+    setMsg('Block 100 aktif! Gunung di kiri papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); qk=sfx.quakeStart(); /* SFX existing (assets/sfx/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
     panGoal.x=pg.x-6; /* kamera menggeser ke Arena (kosmetik; dipulihkan di akhir) */
     if(!A){ await S(sleep(700*F)); Dd.dy=0; dragon.position.x=T.x; dragon.position.z=T.z; dragon.visible=true; finished=true; return; }
     const M=MOUNT,MW=(d,fn)=>S(tween(d,k=>{ if(gid===gameId) fn(k); })); /* tween lama tidak dibersihkan saat game baru: jangan tulis ke gunung milik game lain */

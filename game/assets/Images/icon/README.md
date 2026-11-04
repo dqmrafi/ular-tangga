@@ -8,14 +8,14 @@ Semua icon `.webp` dikelompokkan per fungsi. Path di HTML: `assets/Images/icon/<
 | `ui/` | back, gear, menu, refresh, copy, edit, lock, unlock, play, start, exit, focus, day, night | tombol umum (kembali, pengaturan, salin, edit, kunci, play, bintang); Gameplay: menu, keluar, ikuti bidak (`focus`), reset kamera (`refresh`), suasana siang/malam (`day`/`night`) |
 | `audio/` | sound, mute, music, sfx | Gameplay: tombol suara (`sound`/`mute`), menu jeda (volume musik `music`, suara efek `sfx`) |
 | `items/` | skin, dadu, power, efek, emote | tab kategori Shop & Inventory, Profil; Gameplay: banner event (`dadu`, `power`) |
-| `lobby/` | shop, inventory, chest, dailyreward, gift, misi, mail, hand, trophy, leader | menu Lobby, Leaderboard, Friendship, Profil; Gameplay: mahkota layar menang (`leader`), banner chest (`chest`) |
-| `mode/` | console, mode-khusus, tutorial, calendar, kontak, robot | halaman Pilih Mode, judul Profil |
+| `lobby/` | shop, inventory, invenotry, dailyreward, gift, misi, mail, hand, trophy, leader | menu Lobby, Leaderboard, Friendship, Profil; Gameplay: mahkota layar menang (`leader`), banner chest (`invenotry`) |
+| `mode/` | console, modekhsusus, tutorial, calndar, kontak, robot | halaman Pilih Mode, judul Profil |
 | `rank/` | 1st, 2nd, 3rd | medali podium Leaderboard (peringkat 1–3) |
 | `profile/` | user, globe, camera, 360 | halaman Profil; Gameplay: preset kamera (`camera`) |
 
 Catatan:
-- Typo nama lama sudah diperbaiki dan seluruh referensi disinkronkan: `calndar`→`calendar`, `modekhsusus`→`mode-khusus`, `invenotry`→`chest`.
-- `lobby/chest.webp` = peti, `lobby/inventory.webp` = tas ransel.
+- Nama file `calndar`, `modekhsusus`, `invenotry` memang typo dari aslinya; tidak di-rename agar tidak memutus referensi.
+- `lobby/invenotry.webp` = peti, `lobby/inventory.webp` = tas ransel.
 - Path dinamis: `shop.html` & `inventory.html` (`catImg` -> `icon/items/`), `profile.html` (`RI('grup/nama')`).
 - Semua icon baru berukuran 256x256 (cukup untuk tampil <= 64px di layar 3x). Jangan taruh file 1024px di sini; perkecil dulu agar loading ringan.
 
@@ -41,7 +41,7 @@ Catatan:
 | Menu jeda: Keluar | `ui/exit` |
 | Menu jeda: Suasana | `ui/day` / `ui/night` |
 | Banner giliran / tiga kali 6 | `items/dadu` |
-| Banner chest | `lobby/chest` |
+| Banner chest | `lobby/invenotry` |
 | Banner power (pesan teks) | `items/power` |
 | Tombol Power-up | `data/power/sm/*.webp` (via `item-catalog.js`) |
 

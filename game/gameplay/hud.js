@@ -31,7 +31,7 @@
      Emoji juga jadi cadangan bila gambar gagal dimuat. Ikon kustom dari pemanggil (o.icon) selalu dipakai apa adanya. */
   var IMG_DIR = 'assets/Images/icon/';
   var ICON_IMG = { turn: IMG_DIR + 'items/dadu.webp', three6: IMG_DIR + 'items/dadu.webp',
-                   chest: IMG_DIR + 'lobby/chest.webp', power: IMG_DIR + 'items/power.webp' };
+                   chest: IMG_DIR + 'lobby/invenotry.webp', power: IMG_DIR + 'items/power.webp' };
   var cfg = { getGameId: null, isPaused: null };
   var root = null, stack = null, panel = null, pTitle = null, pText = null,
       combat = null, cWho = null, cText = null, cBar = null, cFill = null, cHp = null;
