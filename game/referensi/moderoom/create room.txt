@@ -1,0 +1,51 @@
+# FITUR INVITE FRIEND — CREATE ROOM
+
+Gunakan gambar referensi tambahan sebagai acuan tampilan fitur undangan teman.
+
+Referensi:
+`game/referensi/invite.jpg`
+
+Fitur ini hanya berlaku untuk mode **Create Room**, baik format Solo maupun Team.
+
+**1. Lokasi Invite**
+
+- Tambahkan tombol atau panel Invite Friend di dalam Game Room.
+- Pemain dapat membuka daftar teman tanpa harus keluar dari room.
+- Undangan dapat dilakukan sebelum pertandingan dimulai.
+- Jangan mengganggu panel Power Shop, Character Preparation, dan Player List.
+
+**2. Tampilan Daftar Teman**
+
+Gunakan konsep seperti gambar referensi:
+- Tab Undang LINE Friend dan Undang Game Friend.
+- Daftar teman dalam bentuk baris.
+- Avatar atau foto profil teman.
+- Nama teman.
+- Indikator status Online / Offline.
+- Tombol Invite pada setiap baris.
+- Teman yang sedang offline tidak dapat diundang.
+
+**3. Perilaku Invite**
+
+- Ketika tombol Invite diklik, kirim undangan ke teman yang dipilih.
+- Tampilkan status undangan, misalnya Invited atau Waiting.
+- Setelah teman menerima undangan, masukkan ke slot Player List.
+- Jika slot room penuh, tombol Invite dinonaktifkan.
+- Host dapat melihat jumlah pemain dan slot yang masih tersedia.
+- Pemain yang sudah berada di room tidak dapat diundang kembali.
+
+**4. Perbedaan Format Solo dan Team**
+
+- Create Room Solo: undang teman untuk mengisi slot pemain secara individu.
+- Create Room Team: undang teman untuk mengisi slot tim, dengan indikator Team 1 dan Team 2.
+- Pastikan pembagian tim terlihat jelas pada Player List.
+- Host dapat mengatur pemain ke tim jika sistem permainan mendukung pengaturan tim.
+
+**5. Aturan Penting**
+
+- Fitur Invite hanya muncul pada Create Room Solo dan Create Room Team.
+- VS Computer dan Multi Player tidak membutuhkan fitur undangan teman online.
+- Undangan tidak boleh mengubah konfigurasi room secara otomatis.
+- Setelah pemain bergabung, tampilkan avatar, nama, dan status Ready di Player List.
+
+Pertahankan gaya visual panel undangan sesuai referensi, tetapi sesuaikan warna, font, border, tombol, dan ikon dengan tema Minecraft game yang sudah digunakan.
