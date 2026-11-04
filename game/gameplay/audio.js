@@ -77,7 +77,8 @@
     /* ---------- PAPAN: gerak & kejadian di tile ---------- */
     hop(){ fileSfx('hop',0.5,function(){ beep(480+Math.random()*120,0.08,'square',0.04); }); },
     naiktangga(){ fileSfx('ladder',0.7,ladderBeeps); },
-    ladder(){ fileSfx('ladderClimb',1,ladderBeeps); },
+    ladder(){ return fileSfx('ladderClimb',1,ladderBeeps); }, /* mengembalikan elemen Audio agar bisa dihentikan tepat saat pion sampai (ladder.mp3 ~9,5 dtk, lebih lama dari animasi naik) */
+    ladderStop(a){ fadeOut(a,220); },
     caplokular(){ fileSfx('snakeBite',0.8,function(){ beep(200,0.12,'square',0.09,0,60); }); },
     hundred(){ fileSfx('block100',0.7,function(){ beep(523,0.2,'square',0.05); }); },
     hiss(){ fileSfx('hiss',0.8,function(){ noise(0.55,0.09,0,4500); }); },
