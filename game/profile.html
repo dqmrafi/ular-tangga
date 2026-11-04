@@ -179,6 +179,11 @@ html body .hd.big{border-radius:.6rem;border:.2rem solid var(--ol);background:li
 
 /* avatar, bar XP, tombol ikon */
 html body .av{border-radius:.5rem;border:.25rem solid var(--ol);background:linear-gradient(#bfe6ff,#6cb8f0);box-shadow:inset 0 0 0 .12rem #fff}
+/* frame profil (data/frame/frame-default.webp): badan kayu = 68% lebar gambar -> gambar 147% dari kotak avatar, diposisi -23.5% */
+html body .av.fr{position:relative;overflow:visible;border:0;background:none;box-shadow:none;padding:.5rem}
+html body .av.fr::before{content:"";position:absolute;inset:.2rem;border-radius:.3rem;background:linear-gradient(#bfe6ff,#6cb8f0)}
+html body .av.fr svg{position:relative}
+html body .av.fr .frm{position:absolute;left:-23.5%;top:-23.5%;width:147%;height:147%;max-width:none;pointer-events:none;user-select:none;filter:drop-shadow(0 .15rem 0 rgba(11,18,32,.5))}
 html body .bar{border-radius:.4rem;border:.2rem solid var(--ol);background:#0e1b3d;box-shadow:none}
 html body .bar i{border-radius:.2rem}
 html body .ib,html body .ti{border-radius:.5rem;border:.2rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2))}
@@ -293,7 +298,7 @@ const pcn=()=>MOCK.play?Math.floor(MOCK.win/MOCK.play*100):0;
 function render(){
  const eq=eqSkin(),
  bar=`<div class="bar"><i style="width:${MOCK.xp/MOCK.xpMax*100}%"></i><span>${fmt(MOCK.xp)} / ${fmt(MOCK.xpMax)}</span></div>`,
- av=(i,c)=>`<div class="av ${c}">${thumb(i)}</div>`,
+ av=(i,c)=>c==='a1'?`<div class="av fr ${c}">${thumb(i)}<img class="frm" src="data/frame/frame-default.webp" alt="" draggable="false" decoding="async"></div>`:`<div class="av ${c}">${thumb(i)}</div>`,
  bd=r=>`<span class="bd" style="background:linear-gradient(${RB[r][0]},${RB[r][1]})">${RN[r]}</span>`,
  A=[['Skin',12,'lobby/leader','#ffd24d','#c98a0c'],['Dadu',8,'items/dadu','#4aa8ff','#1d5fc8'],['Misi',15,'ui/start','#ff6a4a','#d0302a'],['Event',5,'mode/modekhsusus','#b45cf0','#7a2ad0']];
  $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><div class="onl"><u></u>Online</div>`;
