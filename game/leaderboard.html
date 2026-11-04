@@ -320,6 +320,7 @@ html body .ov>.box>.x{border-radius:0;background:linear-gradient(#f4705f,#c4291f
 
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/frame-avatar.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'leaderboard'});</script>
@@ -357,6 +358,8 @@ const DATA={
  teman:{top:[['Dika',6200],['Barra',5480],['Nayla',4900]],others:[['Sakura',24,2980,0xff6ab8,0x1fb8d8],['FajarGG',26,2640,0x8a2be2,0x4a2a8a],['Luna',20,2210,0xd23a32,0xd23a32],['Zyrex',19,1870,0xcfcfd6,0xeeeef2]],me:{rank:4,score:3420}},
  mingguan:{top:[['Luna',2840],['RizkyPro',2610],['FajarGG',2390]],others:[['Zyrex',19,2100,0xcfcfd6,0xeeeef2],['Sakura',24,1980,0xff6ab8,0x1fb8d8],['Barra',23,1760,0x7a4a2a,0x2a3a5a],['Nayla',22,1640,0x2a2a34,0x2a2a34],['Dika',21,1500,0x2fb04a,0x2fa04a]],me:{rank:57,score:820}}
 };
+/* frame pemain lain = data contoh (belum ada server); frame kamu = frame yang sedang dipakai */
+const FA=window.FrameAvatar,FR={Sakura:'frame.gold',FajarGG:'frame.gold',Luna:'frame.gold'};
 let tab='global';
 const pad=n=>n<10?'0'+n:''+n;
 
@@ -368,17 +371,17 @@ function renderPodium(){const d=DATA[tab].top;
  $('#p1').innerHTML=pl(0);$('#p2').innerHTML=pl(1);$('#p3').innerHTML=pl(2)}
 
 function renderMe(){const m=DATA[tab].me;
- $('#me').innerHTML=`<button class="blue bk" id="bk" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button><div class="pos"><small>Posisi Kamu</small><b>#${m.rank}</b></div><span class="av">${face(ME.hair,ME.hood)}</span><div class="inf"><div class="nm">${ME.name}</div><div class="lv">Lv. ${ME.lv}</div><div class="xp"><i style="width:${ME.xp/ME.xpMax*100}%"></i><span>${ME.xp} / ${fmt(ME.xpMax)}</span></div></div><div class="mysc">${TR}${fmt(m.score)}</div>`;
+ $('#me').innerHTML=`<button class="blue bk" id="bk" aria-label="Sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button><div class="pos"><small>Posisi Kamu</small><b>#${m.rank}</b></div>${FA.wrap('<span class="av">'+face(ME.hair,ME.hood)+'</span>','4.4rem',FA.mine())}<div class="inf"><div class="nm">${ME.name}</div><div class="lv">Lv. ${ME.lv}</div><div class="xp"><i style="width:${ME.xp/ME.xpMax*100}%"></i><span>${ME.xp} / ${fmt(ME.xpMax)}</span></div></div><div class="mysc">${TR}${fmt(m.score)}</div>`;
  $('#bk').addEventListener('click',()=>{playSound('click');toast('Posisi kamu: #'+m.rank)})}
 
 function renderRows(){const d=DATA[tab],m=d.me;
- const list=d.others.map(o=>({n:o[0],lv:o[1],s:o[2],h:o[3],c:o[4]}));
- const me={n:ME.name,lv:ME.lv,s:m.score,h:ME.hair,c:ME.hood,me:1};
+ const list=d.others.map(o=>({n:o[0],lv:o[1],s:o[2],h:o[3],c:o[4],f:FR[o[0]]}));
+ const me={n:ME.name,lv:ME.lv,s:m.score,h:ME.hair,c:ME.hood,me:1,f:FA.mine()};
  let out=[];
  if(m.rank<=8){list.splice(m.rank-4,0,me);out=list.map((o,i)=>({...o,r:4+i}))}
  else{out=list.slice(0,5).map((o,i)=>({...o,r:4+i}));out.push({...me,r:m.rank})}
  out=out.slice(0,6);if(m.rank<=8&&!out.some(o=>o.me))out[5]={...me,r:m.rank};
- $('#rows').innerHTML=out.map((o,i)=>`<div class="gc lr ${o.me?'me':''}" style="animation-delay:${i*40}ms" data-n="${o.n}" data-r="${o.r}"><span class="no">${o.me&&o.r>99?o.r:pad(o.r)}</span><div class="who"><span class="av">${face(o.h,o.c)}</span><div><div class="nm2">${o.n}</div><div class="lv2">Lv. ${o.lv}</div></div></div><div class="sc">${TR}${fmt(o.s)}</div><div class="rk">${o.me?SHD:DM}</div></div>`).join('');
+ $('#rows').innerHTML=out.map((o,i)=>`<div class="gc lr ${o.me?'me':''}" style="animation-delay:${i*40}ms" data-n="${o.n}" data-r="${o.r}"><span class="no">${o.me&&o.r>99?o.r:pad(o.r)}</span><div class="who">${FA.wrap('<span class="av">'+face(o.h,o.c)+'</span>','4rem',o.f)}<div><div class="nm2">${o.n}</div><div class="lv2">Lv. ${o.lv}</div></div></div><div class="sc">${TR}${fmt(o.s)}</div><div class="rk">${o.me?SHD:DM}</div></div>`).join('');
  document.querySelectorAll('.lr').forEach(r=>r.addEventListener('click',()=>{playSound('click');toast(r.dataset.n+' — peringkat #'+r.dataset.r)}))}
 
 function renderCur(){renderCurrency()}
@@ -386,6 +389,7 @@ function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').text
 function renderAll(){renderPodium();renderMe();renderRows();renderCur()}
 
 UT.Events.on('currencyChanged',renderCurrency);
+UT.Events.on('frameChanged',()=>renderAll());
 $('#rw').innerHTML=TR+'Lihat Hadiah';
 
 // Modals

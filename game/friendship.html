@@ -50,7 +50,7 @@ svg{display:block}
 .add{height:4.2rem;padding:0 1.6rem;background:linear-gradient(#ffd23e,#f09a12);box-shadow:var(--bev),var(--px),var(--lip);font-size:1.5rem;text-shadow:0 .14rem 0 #8a4a06}
 #list{flex:1;min-height:0;overflow:auto;padding:1rem .9rem .9rem;background:#0f2766;box-shadow:inset .25rem .25rem 0 rgba(0,0,0,.45),var(--pxs)}
 #friends{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,38rem),1fr));gap:1rem;align-content:start}
-.friend{min-width:0;min-height:6.8rem;padding:.6rem .9rem;display:grid;grid-template-columns:5.5rem 1fr auto;align-items:center;gap:1rem;background:linear-gradient(#2a62d6,#1a4cb8);box-shadow:var(--bevs),var(--pxs);animation:pop .25s both;text-shadow:0 .14rem 0 var(--ol)}
+.friend{min-width:0;min-height:6.8rem;padding:.6rem .9rem;display:grid;grid-template-columns:6.6rem 1fr auto;align-items:center;gap:.8rem;background:linear-gradient(#2a62d6,#1a4cb8);box-shadow:var(--bevs),var(--pxs);animation:pop .25s both;text-shadow:0 .14rem 0 var(--ol)}
 .friend:hover{filter:brightness(1.1)}@keyframes pop{from{opacity:0;transform:translateY(.5rem)}}
 .avatar{width:5.2rem;height:5.2rem;background:linear-gradient(#5db4f5,#a9dcf8);border:.2rem solid var(--ol);box-shadow:0 0 0 .2rem #8aa8e0;display:grid;place-items:center;overflow:hidden}.avatar svg{width:100%;height:100%}
 .finfo{min-width:0}.name{font-size:1.65rem;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -112,6 +112,7 @@ html body .ov>.box>.x{border-radius:0;background:linear-gradient(#f4705f,#c4291f
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/frame-avatar.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
 <script>UT.App.init({page:'friendship'});</script>
@@ -128,9 +129,9 @@ UT.Events.on('currencyChanged',renderCurrency);
 const friends=[
 {id:1,name:'RakaPlay',level:28,status:'online',mode:'Lobby',skin:0x22b8d8},
 {id:2,name:'NayaCraft',level:24,status:'online',mode:'Menunggu',skin:0x9a4ae0},
-{id:3,name:'BimaGG',level:31,status:'busy',mode:'Ranked',skin:0xf0b030},
+{id:3,name:'BimaGG',level:31,status:'busy',mode:'Ranked',skin:0xf0b030,frame:'frame.gold'},
 {id:4,name:'AlyaVoxel',level:19,status:'online',mode:'Lobby',skin:0x4acb58},
-{id:5,name:'DinoRush',level:35,status:'offline',mode:'Offline',skin:0xd23a32},
+{id:5,name:'DinoRush',level:35,status:'offline',mode:'Offline',skin:0xd23a32,frame:'frame.gold'},
 {id:6,name:'KikoPlay',level:17,status:'offline',mode:'Offline',skin:0x5a75d6}
 ];
 const requests=[{id:101,name:'FajarCube',level:21,status:'online',mode:'Mengirim permintaan',skin:0x35d3f0},{id:102,name:'SalsaFun',level:26,status:'online',mode:'Mengirim permintaan',skin:0xff7ad0}];
@@ -140,7 +141,7 @@ function statusText(f){return f.status==='online'?'Online':f.status==='busy'?'Se
 function render(){
  const source=filter==='request'?requests:friends;
  const arr=source.filter(f=>(f.name+' '+f.level).toLowerCase().includes(query.toLowerCase())).filter(f=>filter!=='online'||f.status==='online');
- $('#friends').innerHTML=arr.length?arr.map((f,i)=>`<article class="friend ${filter==='request'?'request':''}" data-id="${f.id}" style="animation-delay:${i*35}ms"><div class="avatar">${avatar(f.skin,i)}</div><div class="finfo"><div class="name">${f.name}</div><div class="meta"><span class="dot ${f.status==='offline'?'off':f.status==='busy'?'busy':''}"></span>Lv. ${f.level} · ${statusText(f)}${f.status!=='offline'&&filter!=='request'?` · ${f.mode}`:''}</div></div><div class="actions">${filter==='request'?`<button class="act accept">Terima</button><button class="act remove decline">Tolak</button>`:f.status==='online'?`<button class="act play">Ajak Main</button><button class="act remove" data-action="remove">Hapus</button>`:`<button class="act" data-action="profile">Profil</button>`}</div></article>`).join(''):`<div class="empty"><div><div style="font-size:4rem">👥</div><p>Tidak ada teman yang ditemukan.</p></div></div>`;
+ $('#friends').innerHTML=arr.length?arr.map((f,i)=>`<article class="friend ${filter==='request'?'request':''}" data-id="${f.id}" style="animation-delay:${i*35}ms">${FrameAvatar.wrap('<div class="avatar">'+avatar(f.skin,i)+'</div>','5.2rem',f.frame)}<div class="finfo"><div class="name">${f.name}</div><div class="meta"><span class="dot ${f.status==='offline'?'off':f.status==='busy'?'busy':''}"></span>Lv. ${f.level} · ${statusText(f)}${f.status!=='offline'&&filter!=='request'?` · ${f.mode}`:''}</div></div><div class="actions">${filter==='request'?`<button class="act accept">Terima</button><button class="act remove decline">Tolak</button>`:f.status==='online'?`<button class="act play">Ajak Main</button><button class="act remove" data-action="remove">Hapus</button>`:`<button class="act" data-action="profile">Profil</button>`}</div></article>`).join(''):`<div class="empty"><div><div style="font-size:4rem">👥</div><p>Tidak ada teman yang ditemukan.</p></div></div>`;
  $('#onlineCount').textContent=friends.filter(x=>x.status==='online').length;
  $('#reqCount').textContent=requests.length;
 }
