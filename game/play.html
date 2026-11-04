@@ -35,23 +35,36 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
 #ov .cl.l.k2{top:16%;z-index:4}#ov .cl.r.k2{top:22%;z-index:4}
 #ov .cl.l.k3{top:42%;z-index:5}#ov .cl.r.k3{top:46%;z-index:5}
 #ov .cl.l.k4{top:64%;z-index:6}#ov .cl.r.k4{top:68%;z-index:6}
-#ov .cl.k1{--d:1.25s;--w:0s;--s:3.4s;--o:0s}#ov .cl.k2{--d:1.3s;--w:.06s;--s:4s;--o:-1.1s}#ov .cl.k3{--d:1.35s;--w:.12s;--s:3.7s;--o:-2.2s}#ov .cl.k4{--d:1.4s;--w:.04s;--s:4.3s;--o:-.6s}
+#ov .cl.k1{--d:1.25s;--w:0s;--s:2.4s;--o:0s}#ov .cl.k2{--d:1.3s;--w:.06s;--s:2.9s;--o:-1.1s}#ov .cl.k3{--d:1.35s;--w:.12s;--s:2.6s;--o:-2.2s}#ov .cl.k4{--d:1.4s;--w:.04s;--s:3.1s;--o:-.6s}
 /* menunggu: awan melayang halus (geser + naik-turun sedikit), tiap awan beda tempo */
 #ov:not(.hide) .cl::before{animation:cfloat var(--s) ease-in-out var(--o) infinite alternate}
 #ov:not(.hide) .cl.r::before{animation-direction:alternate-reverse}
-@keyframes cfloat{from{transform:translate3d(-2.2%,-1.6%,0)}to{transform:translate3d(2.2%,1.6%,0)}}
+@keyframes cfloat{from{transform:translate3d(-3.6%,-2.4%,0)}to{transform:translate3d(3.6%,2.4%,0)}}
 /* halaman siap: awan menyibak mulus ke kiri/kanan dari posisi melayangnya, putih memudar, halaman baru terlihat */
 #ov:not(.quiet).hide{opacity:1;background:transparent;transition:visibility 0s linear 1.6s}
 #ov:not(.quiet).hide .c0{opacity:0;transition:opacity 1.2s cubic-bezier(.4,0,.6,1) .1s}
 #ov:not(.quiet).hide .cl.l{transform:translate3d(-140%,0,0);transition:transform var(--d) cubic-bezier(.45,.05,.3,1) var(--w)}
 #ov:not(.quiet).hide .cl.r{transform:translate3d(140%,0,0);transition:transform var(--d) cubic-bezier(.45,.05,.3,1) var(--w)}
+/* indikator progres: bar terisi bertahap (tahap muat halaman nyata + merayap pelan agar tidak terasa macet) */
+#ov .ld{position:absolute;left:50%;bottom:9%;z-index:20;width:min(46%,320px);text-align:center;pointer-events:none;transform:translateX(-50%);font:800 15px/1 -apple-system,BlinkMacSystemFont,sans-serif;color:#2a5f93;text-shadow:0 1px 0 #fff;animation:ldin .35s ease-out .3s both}
+#ov .ldt{margin-bottom:8px;white-space:nowrap}
+#ov .ldt i{display:inline-block;width:5px;height:5px;margin-left:4px;border-radius:1px;background:#2a5f93;animation:ldd 1s ease-in-out infinite}
+#ov .ldt i:nth-child(2){animation-delay:.15s}#ov .ldt i:nth-child(3){animation-delay:.3s}
+#ov .ldb{height:14px;border-radius:7px;background:rgba(255,255,255,.7);border:2px solid #fff;box-shadow:0 2px 0 rgba(42,95,147,.28),inset 0 2px 3px rgba(42,95,147,.18);overflow:hidden}
+#ov .ldb b{display:block;height:100%;width:0;border-radius:5px;background:linear-gradient(#9be15a,#4fb83a);transition:width .35s ease-out;position:relative;overflow:hidden}
+#ov .ldb b::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.6) 50%,transparent 70%);transform:translateX(-100%);animation:ldsh 1.1s linear infinite}
+@keyframes ldsh{to{transform:translateX(100%)}}
+@keyframes ldd{0%,100%{transform:translateY(0);opacity:.45}40%{transform:translateY(-4px);opacity:1}}
+@keyframes ldin{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+#ov.quiet .ld{display:none}
+#ov.hide .ld{animation:none;opacity:0;transition:opacity .25s ease}
 #ov.quiet .clouds{visibility:hidden}
-@media (prefers-reduced-motion:reduce){#ov .cl::before{animation:none!important}#ov:not(.quiet).hide{opacity:0;transition:opacity .25s ease,visibility 0s linear .25s}#ov:not(.quiet).hide .cl{transform:none;transition:none}#ov:not(.quiet).hide .c0{opacity:1;transition:none}}
+@media (prefers-reduced-motion:reduce){#ov .ldb b::after,#ov .ldt i{animation:none!important}#ov .cl::before{animation:none!important}#ov:not(.quiet).hide{opacity:0;transition:opacity .25s ease,visibility 0s linear .25s}#ov:not(.quiet).hide .cl{transform:none;transition:none}#ov:not(.quiet).hide .c0{opacity:1;transition:none}}
 </style>
 </head>
 <body>
 <iframe id="f" title="Ular Tangga Blok" allow="fullscreen; autoplay; gamepad" allowfullscreen></iframe>
-<div id="ov" role="status" aria-live="polite" aria-label="Memuat"><div class="clouds" aria-hidden="true"><div class="c0"></div><div class="cl a k1 l"></div><div class="cl b k1 r"></div><div class="cl c k2 l"></div><div class="cl a k2 r"></div><div class="cl b k3 l"></div><div class="cl c k3 r"></div><div class="cl a k4 l"></div><div class="cl b k4 r"></div></div></div>
+<div id="ov" role="status" aria-live="polite" aria-label="Memuat"><div class="clouds" aria-hidden="true"><div class="c0"></div><div class="cl a k1 l"></div><div class="cl b k1 r"></div><div class="cl c k2 l"></div><div class="cl a k2 r"></div><div class="cl b k3 l"></div><div class="cl c k3 r"></div><div class="cl a k4 l"></div><div class="cl b k4 r"></div></div><div class="ld" aria-hidden="true"><div class="ldt"><span>Memuat halaman</span><i></i><i></i><i></i></div><div class="ldb"><b></b></div></div></div>
 <noscript>Game ini memerlukan JavaScript.</noscript>
 <script>
 (function () {
@@ -71,16 +84,23 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
   /* Overlay antar-halaman: tirai awan (tanpa persen palsu; progres asli dihitung di splash).
      Setelah splash (yang sudah memuat dan menyimpan aset di cache) overlay hanya latar polos, agar tidak tampak memuat dua kali. */
   var hideT = 0, shown = true, shownAt = 0, MIN_SHOW = 700;   // awan minimal tampil 0,7 dtk (sempat melayang) sebelum menyibak
+  /* progres: tahap nyata (halaman dimuat -> font/latar/gambar siap) + merayap pelan menuju batas tahap, tidak pernah terlihat diam */
+  var bar = ov.querySelector('.ldb b'), lbl = ov.querySelector('.ldt span'), pct = 0, cap = 60, creepRaf = 0;
+  function setP(v) { if (v > pct) { pct = v; bar.style.width = pct + '%'; } }
+  function stage(c, text) { if (c > cap) cap = c; if (text && lbl) lbl.textContent = text; }
+  function resetP() { pct = 0; cap = 60; bar.style.transition = 'none'; bar.style.width = '0%'; void bar.offsetWidth; bar.style.transition = ''; if (lbl) lbl.textContent = 'Memuat halaman'; setP(6); }
+  function creep() { cancelAnimationFrame(creepRaf); (function tick() { if (!shown) return; var room = cap - pct; if (room > 0.2) setP(pct + room * 0.03); creepRaf = requestAnimationFrame(tick); })(); }
   function showOv(quiet) {
     clearTimeout(hideT);
     if (shown && !ov.classList.contains('hide')) return;   // pagehide + beforeunload bisa datang berurutan
     shown = true; shownAt = Date.now(); ov.classList.toggle('quiet', !!quiet);
-    ov.classList.remove('hide');
+    ov.classList.remove('hide'); resetP(); creep();
   }
   function hideOv() {
     if (!shown) return;
     shown = false; clearTimeout(hideT);
-    var wait = ov.classList.contains('quiet') ? 120 : Math.max(120, MIN_SHOW - (Date.now() - shownAt));
+    setP(100);   // bar penuh dulu, baru awan menyibak
+    var wait = ov.classList.contains('quiet') ? 120 : Math.max(380, MIN_SHOW - (Date.now() - shownAt));
     hideT = setTimeout(function () { ov.classList.add('hide'); }, wait);
   }
   ov.classList.add('quiet');   // pembukaan pertama: splash langsung tampil di bawahnya, jangan ada dadu/teks lebih dulu
@@ -104,7 +124,9 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
         if (!hidden || Date.now() - t0 > 2000) r(); else setTimeout(poll, 30);
       })();
     });
-    Promise.all([fonts, bg, shownBody].concat(waits)).then(function () {
+    var all = [fonts, bg, shownBody].concat(waits), n = all.length;
+    all.forEach(function (pr) { pr.then(function () { stage(Math.min(96, cap + 24 / n)); setP(Math.min(94, pct + 24 / n)); }); });
+    Promise.all(all).then(function () {
       /* dua frame: beri kesempatan halaman menggambar frame pertamanya sebelum layar memuat dibuka */
       requestAnimationFrame(function () { requestAnimationFrame(cb); });
     });
@@ -181,6 +203,7 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
     var name = pageName(w);
 
     // layar memuat
+    stage(84, 'Menyiapkan tampilan'); setP(70);   // dokumen sudah dimuat
     if (SELF_LOADING.test(name)) hideOv(); else whenReady(w, hideOv);
     var leave = function () { showOv(SELF_LOADING.test(name)); };
     try {
