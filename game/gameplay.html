@@ -1,4 +1,4 @@
-<!doctype html><html lang="id"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/boot-guard.js"></script><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="gameplay/particle-fx.css"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}#side .pu-nav .ci{width:70%;height:70%;display:block;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+<!doctype html><html lang="id"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/boot-guard.js"></script><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="gameplay/particle-fx.css"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}
 .flip{transform:scaleX(-1)}
 </style><title>Ular Tangga Blok</title><script src="assets/js/landscape.js"></script></head><body>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -347,7 +347,7 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
 <aside class="side" id="side">
 <div class="col">
   <div class="pnl pl"><h3>Pemain</h3><div id="players" aria-label="Pemain"></div></div>
-  <div class="pnl pu"><h3>Power-up</h3><button class="blue pu-nav" id="puPrev" type="button" aria-label="Power-up sebelumnya"><img class="ci" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button><div id="pus"></div><button class="blue pu-nav" id="puNext" type="button" aria-label="Power-up berikutnya"><img class="ci flip" src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button></div>
+  <div class="pnl pu"><h3>Power-up</h3><div id="pus"></div></div>
 </div>
 <div class="rcol">
   <div class="pnl tn">
@@ -502,9 +502,6 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
 #side .pu>h3::before{content:"";flex:none;width:1.4em;height:1.4em;background:url("assets/Images/icon/items/power.webp") center/contain no-repeat;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
 #side #pus{flex:1;min-width:0;display:flex;flex-wrap:nowrap;gap:2px;max-width:none;overflow-x:auto;overflow-y:visible;scroll-snap-type:x proximity;scrollbar-width:none;padding:12px 4px 0;margin-top:-6px}
 #side #pus::-webkit-scrollbar{display:none}
-#side .pu-nav{background:linear-gradient(#4aa8ff,#1f6fe0);border:0;cursor:pointer;box-shadow:0 4px 0 var(--bd),inset 0 2px 2px rgba(255,255,255,.55);flex:none;width:clamp(30px,2.4vw,38px);height:clamp(36px,3vw,46px);padding:0;border-radius:12px;display:grid;place-items:center}
-#side .pu-nav svg{width:55%;height:55%}
-#side .pu-nav:disabled{opacity:.4;cursor:default;transform:none;filter:none}
 #side .pb{flex:1 0 var(--slot);min-width:var(--slot);height:calc(var(--slot)*1.18);scroll-snap-align:start;font-size:calc(var(--slot)*.52);border-radius:14px;overflow:visible;
   background:transparent;box-shadow:none;transition:transform .15s cubic-bezier(.3,1.6,.5,1),background .15s,opacity .15s}
 #side .pb em{margin-top:3px;font-size:clamp(11px,.85vw,13px);line-height:1}
@@ -730,7 +727,6 @@ body #side .pr img{border-radius:3px}
 body #side .pr .pos{border-radius:4px;border:2px solid var(--ol);box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
 body #side .pr.on .pos{background:rgba(120,70,5,.55)}
 /* power-up: panah + slot */
-body #side .pu-nav{border:3px solid var(--ol);border-radius:6px;background:linear-gradient(var(--rb1),var(--rb2));box-shadow:inset 0 0 0 2px var(--rb-hi),0 3px 0 var(--ol)}
 body #side #pus .pb{border:3px solid var(--ol);border-radius:6px;background:linear-gradient(var(--nv1),var(--nv2));box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 3px 0 var(--ol);margin-bottom:3px}
 body #side #pus .pb[data-state=ready]{background:linear-gradient(#3a6ac0,#2a4a94)}
 body #side #pus .pb:not(:disabled):hover{background:linear-gradient(#4a80dc,#2f58b0)}
@@ -4388,10 +4384,8 @@ requestAnimationFrame(frame);
  new MutationObserver(function(){sync();tn.classList.remove('swap');void tn.offsetWidth;tn.classList.add('swap')}).observe(n,{childList:true,characterData:true,subtree:true});
  sync();
  setTimeout(function(){var own='H3,.TROW,.MSG,BUTTON,.TN-AV,.TN-META';if([].some.call(tn.children,function(c){return !(c.tagName==='H3'||c.classList.contains('trow')||c.classList.contains('msg')||c.id==='btnRoll'||c.id==='tnAv'||c.id==='tnMeta')}))tn.classList.add('ext')},900);
- var pus=document.getElementById('pus'),pv=document.getElementById('puPrev'),nx=document.getElementById('puNext');
- if(pus&&pv&&nx){var upd=function(){pv.disabled=pus.scrollLeft<=2;nx.disabled=pus.scrollLeft+pus.clientWidth>=pus.scrollWidth-2};
-  pv.addEventListener('click',function(){pus.scrollBy({left:-pus.clientWidth*.7,behavior:'smooth'})});nx.addEventListener('click',function(){pus.scrollBy({left:pus.clientWidth*.7,behavior:'smooth'})});
-  pus.addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);new MutationObserver(upd).observe(pus,{childList:true});upd()}
+ var pus=document.getElementById('pus');
+ if(pus){pus.addEventListener('wheel',function(e){if(Math.abs(e.deltaY)>Math.abs(e.deltaX)&&pus.scrollWidth>pus.clientWidth){pus.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false})} /* panah dihapus: geser dengan swipe / roda mouse */
 }catch(e){}})();
 </script>
 </body></html>
