@@ -151,6 +151,25 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 #modes{left:4.6rem;right:4.6rem;top:9rem;height:33rem;gap:1.6rem}
 #bar{left:4.6rem;right:4.6rem;top:44.4rem;height:7.2rem;gap:1.8rem}
 }
+/* ===== flip card: isi pilihan tampil di sisi belakang kartu (bukan modal) ===== */
+.mode>.bk{display:none;position:absolute;inset:0;z-index:5;flex-direction:column;padding:1.3rem 1.3rem 1.2rem;border-radius:inherit;cursor:default;background:linear-gradient(var(--p1),var(--p2))}
+.mode.flipped>.bk{display:flex}
+.mode.flipped>.art,.mode.flipped>.tag,.mode.flipped>.pn{display:none}
+.mode.flipped,.mode.flipped:hover{cursor:default}
+.mode.flipped.sel:hover{transform:scale(1.04)}
+.bk .x{right:.9rem;top:.9rem;width:3.6rem;height:3.6rem;font-size:1.9rem;line-height:1}
+.bk .bkt{margin:0 4.2rem .3rem 0;font-size:2.8rem;line-height:1.05;text-align:left;-webkit-text-stroke:.45rem var(--c3);paint-order:stroke fill;text-shadow:0 .25rem 0 var(--c3)}
+.mode .bk p{flex:none;margin:0 0 .5rem;font-size:1.4rem;line-height:1.2;text-align:left;color:#d8e2f0;text-shadow:none}
+.bk .bkm{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;margin:0 -.2rem;padding:.2rem .2rem .4rem;scrollbar-width:none;overscroll-behavior:contain}
+.bk .bkm::-webkit-scrollbar{display:none}
+.bk .row{flex-wrap:wrap;gap:0 .6rem;margin:.5rem 0;padding:.6rem 1rem;border-radius:1rem;font-size:1.8rem;line-height:1.15;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 .2rem rgba(255,255,255,.12)}
+.bk .row small{font-size:1.15rem;color:#c9d6ea}
+.bk .row.sel{background:rgba(255,227,106,.26);box-shadow:inset 0 0 0 .25rem #ffe36a}
+.bk .code{font-size:3.4rem;margin:.3rem 0}
+.bk .bkacts{flex:none;display:flex;gap:1rem;padding:.8rem 0 .5rem}
+.bk .bkb{flex:1 1 0;min-width:0;height:3.8rem;padding:0 .6rem;border-radius:.9rem;font-size:1.7rem;white-space:nowrap}
+.bk .bkb.go{background:linear-gradient(#4fd24a,#27992a);text-shadow:0 .15rem 0 #0e4a12;box-shadow:0 0 0 .2rem #0b0c10,0 .35rem 0 .2rem #0b0c10,inset 0 .2rem .2rem rgba(255,255,255,.45)}
+.bk .bkb.no{background:linear-gradient(#8ab4e8,#5a88c8);box-shadow:0 0 0 .2rem #0b0c10,0 .35rem 0 .2rem #0b0c10,inset 0 .2rem .2rem rgba(255,255,255,.4)}
 </style></head>
 <body>
 <div id="sky"></div>
@@ -258,11 +277,11 @@ function renderModes(){$('#modes').innerHTML=MODES.map((m,i)=>{const c=m.c;
  const lk=isLocked(m.id);
  return `<div class="mode ${m.id===sel?'sel':''}${lk?' locked':''}" data-id="${m.id}" tabindex="0" role="button" aria-pressed="${m.id===sel}" aria-disabled="${lk}" aria-label="${m.name}${lk?' (segera hadir)':''}" style="--c1:${c[0]};--c2:${c[1]};--c3:${c[2]};--p1:${c[3]};--p2:${c[4]};--a1:${c[5]};--a2:${c[6]};--tg:${c[7]};--tgc:${m.tc||'#fff'};animation-delay:${i*70}ms">
  <div class="art"><img src="assets/Images/mode/${m.id}.webp" alt="" draggable="false" decoding="async" data-id="${m.id}">${lk?'<div class="lk">'+LOCK_SVG+'<b>SOON</b></div>':''}</div><span class="tag">${m.tag}</span>
- <div class="pn"><h3>${m.name}</h3><p>${m.d}</p><button class="cta ${lk?'off':m.cta}" data-act="${m.id}"${lk?' disabled tabindex="-1"':''}>${lk?LOCK_SVG:I[m.ic]}${lk?'Soon':m.btn}</button></div></div>`}).join('');
+ <div class="pn"><h3>${m.name}</h3><p>${m.d}</p><button class="cta ${lk?'off':m.cta}" data-act="${m.id}"${lk?' disabled tabindex="-1"':''}>${lk?LOCK_SVG:I[m.ic]}${lk?'Soon':m.btn}</button></div><div class="bk"></div></div>`}).join('');
  document.querySelectorAll('.art>img').forEach(im=>im.addEventListener('error',()=>{if(ART[im.dataset.id]){im.insertAdjacentHTML('afterend',ART[im.dataset.id]());im.remove()}}));
  document.querySelectorAll('.mode').forEach(el=>{
-  el.addEventListener('click',e=>{if(isLocked(el.dataset.id)){toast('Segera hadir!');return}select(el.dataset.id);if(e.target.closest('.cta')){act(el.dataset.id);sparkle(e.target.closest('.cta'))}});
-  el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(isLocked(el.dataset.id)){toast('Segera hadir!');return}select(el.dataset.id);act(el.dataset.id)}})})}
+  el.addEventListener('click',e=>{if(el.classList.contains('flipped'))return;if(isLocked(el.dataset.id)){toast('Segera hadir!');return}select(el.dataset.id);if(e.target.closest('.cta')){act(el.dataset.id);sparkle(e.target.closest('.cta'))}});
+  el.addEventListener('keydown',e=>{if(el.classList.contains('flipped'))return;if(e.key==='Enter'||e.key===' '){e.preventDefault();if(isLocked(el.dataset.id)){toast('Segera hadir!');return}select(el.dataset.id);act(el.dataset.id)}})})}
 function select(id){if(sel===id||isLocked(id))return;sel=id;save();buzz();document.querySelectorAll('.mode').forEach(el=>{const on=el.dataset.id===id;el.classList.toggle('sel',on);el.setAttribute('aria-pressed',on)})}
 function renderBars(){$('#bar').innerHTML=BARS.map(b=>`<button class="bb ${b.w?'w':''}" data-b="${b.id}">${I[b.ic]}<span class="tx"><b>${b.t}${b.soon?'<span class="soon">SEGERA</span>':''}</b><small>${b.d}</small></span>${b.w?I.bot:I.chev}</button>`).join('');
  document.querySelectorAll('.bb').forEach(el=>el.addEventListener('click',()=>bar(el.dataset.b)))}
@@ -276,12 +295,35 @@ const modal=$('#modal');let mOpen=false;
 function openModal(html,init){$('#mb').innerHTML=html;modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;init&&init();$('#mx').focus()}
 function closeModal(){if(!mOpen)return;mOpen=false;modal.classList.add('closing');modal.classList.remove('show');setTimeout(()=>{modal.style.display='none';modal.classList.remove('closing')},250)}
 $('#mx').addEventListener('click',closeModal);modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});
-addEventListener('keydown',e=>{if(e.key==='Escape')return closeModal();if(mOpen)return;const k=MODES.findIndex(m=>m.id===sel);if(e.key==='ArrowRight'){select(MODES[(k+1)%4].id)}if(e.key==='ArrowLeft'){select(MODES[(k+3)%4].id)}});
-function choose(title,sub,opts,cta,cb){let k=0;
- openModal(`<h2>${title}</h2><p>${sub}</p>${opts.map((o,i)=>`<div class="row opt ${i?'':'sel'}" data-i="${i}"><span>${o[0]}</span><small>${o[1]||''}</small></div>`).join('')}<div class="acts"><button class="mb no" id="no">Batal</button><button class="mb" id="go">${cta}</button></div>`,()=>{
-  document.querySelectorAll('.opt').forEach(r=>r.addEventListener('click',()=>{k=+r.dataset.i;document.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===r))}));
-  $('#no').addEventListener('click',closeModal);$('#go').addEventListener('click',()=>{closeModal();cb(opts[k][0]);buzz()})})}
-function info(title,html){openModal(`<h2>${title}</h2>${html}<div class="acts"><button class="mb" id="ok">Oke</button></div>`,()=>$('#ok').addEventListener('click',closeModal))}
+addEventListener('keydown',e=>{if(e.key==='Escape'){const f=flipped();return f&&!mOpen?closeBack(f):closeModal()}if(mOpen||flipped())return;const k=MODES.findIndex(m=>m.id===sel);if(e.key==='ArrowRight'){select(MODES[(k+1)%4].id)}if(e.key==='ArrowLeft'){select(MODES[(k+3)%4].id)}});
+// ---------- flip card: isi pilihan tampil di sisi belakang kartu mode (bukan modal)
+const flipped=()=>document.querySelector('.mode.flipped');
+const reduceMotion=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function flipCard(card,swap){
+ if(card._fl)return;
+ if(reduceMotion){swap();return}
+ card._fl=1;
+ const P='perspective(90rem) ',B=card.classList.contains('sel')?' scale(1.04)':'',t=a=>({transform:`${P}rotateY(${a}deg)${B}`});
+ const a=card.animate([t(0),t(90)],{duration:200,easing:'ease-in',fill:'forwards'});
+ a.onfinish=()=>{swap();const b=card.animate([t(-90),t(0)],{duration:280,easing:'ease-out'});a.cancel();b.onfinish=b.oncancel=()=>{card._fl=0}}}
+function openBack(card,html,init){
+ const bk=card.querySelector('.bk');
+ const fill=()=>{bk.innerHTML=`<button class="x" aria-label="Tutup">✕</button>${html}`;bk.querySelector('.x').addEventListener('click',()=>closeBack(card));init&&init(bk);card.classList.add('flipped');bk.querySelector('.x').focus({preventScroll:true})};
+ if(card.classList.contains('flipped'))fill();else flipCard(card,fill)}
+function closeBack(card){
+ if(!card.classList.contains('flipped'))return;
+ flipCard(card,()=>{card.classList.remove('flipped');card.querySelector('.bk').innerHTML='';card.focus({preventScroll:true})})}
+addEventListener('pageshow',e=>{if(e.persisted)document.querySelectorAll('.mode.flipped').forEach(c=>{c.classList.remove('flipped');c.querySelector('.bk').innerHTML=''})});
+function choose(title,sub,opts,cta,cb,card){let k=0;
+ const rows=opts.map((o,i)=>`<div class="row opt ${i?'':'sel'}" data-i="${i}"><span>${o[0]}</span><small>${o[1]||''}</small></div>`).join('');
+ const wire=(C,no,go,close)=>{
+  C.querySelectorAll('.opt').forEach(r=>r.addEventListener('click',()=>{k=+r.dataset.i;C.querySelectorAll('.opt').forEach(x=>x.classList.toggle('sel',x===r))}));
+  no.addEventListener('click',close);go.addEventListener('click',()=>{if(!card)closeModal();cb(opts[k][0]);buzz()})};
+ if(card)openBack(card,`<div class="bkt">${title}</div><p>${sub}</p><div class="bkm">${rows}</div><div class="bkacts"><button class="bkb no">Batal</button><button class="bkb go">${cta}</button></div>`,C=>wire(C,C.querySelector('.no'),C.querySelector('.go'),()=>closeBack(card)));
+ else openModal(`<h2>${title}</h2><p>${sub}</p>${rows}<div class="acts"><button class="mb no" id="no">Batal</button><button class="mb" id="go">${cta}</button></div>`,()=>wire($('#mb'),$('#no'),$('#go'),closeModal))}
+function info(title,html,card){
+ if(card)return openBack(card,`<div class="bkt">${title}</div><div class="bkm">${html}</div><div class="bkacts"><button class="bkb go">Oke</button></div>`,C=>C.querySelector('.go').addEventListener('click',()=>closeBack(card)));
+ openModal(`<h2>${title}</h2>${html}<div class="acts"><button class="mb" id="ok">Oke</button></div>`,()=>$('#ok').addEventListener('click',closeModal))}
 const start=(mode,extra)=>{const p=Object.assign({mode},extra||{});if(typeof window.onModeSelect==='function')window.onModeSelect(p);return p};
 // ---------- actions (hubungkan ke game kamu lewat window.onModeSelect)
 /* Kirim mode ke gameplay.html. Validasi/normalisasi tetap oleh assets/js/game-integration.js */
@@ -289,10 +331,11 @@ const GAME_MODE={'VS Komputer':'cpu','2 Player':'2','3 Player':'3','4 Player':'4
 function launchGame(v){const m=GAME_MODE[v];if(!m)return;const q=new URLSearchParams(location.search),p=new URLSearchParams({mode:m});
  ['skins','theme','dice','night'].forEach(k=>{if(q.get(k)!==null)p.set(k,q.get(k))});location.href='gameplay.html?'+p.toString()}
 function act(id){
- if(id==='classic')choose('Classic','Pilih lawan',[['VS Komputer','Lawan bot'],['2 Player','Duel'],['3 Player','Seru'],['4 Player','Penuh']],'Mulai',v=>{start('classic',{players:parseInt(v)});toast('Memulai Classic · '+v);launchGame(v)});
- if(id==='ranked')choose('Ranked','Pilih format pertandingan',[['Solo','1 vs 1'],['Duo','2 vs 2']],'Masuk',v=>{start('ranked',{format:v});toast('Mencari lawan · '+v+'…')});
- if(id==='team')choose('Buat Tim','Berapa anggota tim?',[['2 Player'],['3 Player'],['4 Player']],'Buat Tim',v=>{const code=Math.random().toString(36).slice(2,7).toUpperCase();start('team',{players:parseInt(v),code});info('Tim Dibuat','<p>Bagikan kode ini ke temanmu:</p><div class="code">'+code+'</div><p style="font-size:1.8rem">'+v+' · menunggu pemain…</p>')});
- if(id==='turnamen')info('Jadwal Turnamen','<div class="row"><span>Sabtu · 19.00</span><small>Solo</small></div><div class="row"><span>Minggu · 16.00</span><small>Duo</small></div><div class="row"><span>Jumat · 20.00</span><small>Squad</small></div>');
+ const card=document.querySelector('.mode[data-id="'+id+'"]');
+ if(id==='classic')choose('Classic','Pilih lawan',[['VS Komputer','Lawan bot'],['2 Player','Duel'],['3 Player','Seru'],['4 Player','Penuh']],'Mulai',v=>{start('classic',{players:parseInt(v)});toast('Memulai Classic · '+v);launchGame(v)},card);
+ if(id==='ranked')choose('Ranked','Pilih format pertandingan',[['Solo','1 vs 1'],['Duo','2 vs 2']],'Masuk',v=>{start('ranked',{format:v});toast('Mencari lawan · '+v+'…')},card);
+ if(id==='team')choose('Buat Tim','Berapa anggota tim?',[['2 Player'],['3 Player'],['4 Player']],'Buat Tim',v=>{const code=Math.random().toString(36).slice(2,7).toUpperCase();start('team',{players:parseInt(v),code});info('Tim Dibuat','<p>Bagikan kode ini ke temanmu:</p><div class="code">'+code+'</div><p style="font-size:1.8rem">'+v+' · menunggu pemain…</p>',card)},card);
+ if(id==='turnamen')info('Jadwal Turnamen','<div class="row"><span>Sabtu · 19.00</span><small>Solo</small></div><div class="row"><span>Minggu · 16.00</span><small>Duo</small></div><div class="row"><span>Jumat · 20.00</span><small>Squad</small></div>',card);
 }
 function bar(id){
  if(id==='khusus')info('Mode Khusus','<div class="row"><span>Weekend Rush</span><small>2x koin</small></div><div class="row"><span>Lucky Dice</span><small>hadiah gem</small></div>');
