@@ -2933,7 +2933,7 @@ async function crystalRoll(p,v,gid){
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },n=v,d=crystalDone(p);
   if(n>CRYSTAL_N||d[n-1]){
     const why=n>CRYSTAL_N?'Tidak ada Crystal '+n+'.':'Crystal '+n+' sudah hancur.';
-    setMsg(p.name+' melempar '+v+'. '+why+' Tidak ada progress.'); fb('event','dragon',why+' (dapat '+v+')',{gid,ttl:1800}); sfx.bounce();
+    setMsg(p.name+' melempar '+v+'. '+why+' Tidak ada progress.'); fb('event','dragon',why+' (dapat '+v+')',{gid,ttl:1800}); if(d[n-1]) sfx.crystalDestroyed(); else sfx.bounce(); /* Crystal n sudah hancur -> suara 'crystal was destroyed', bukan bounce */
     await S(sleep(900)); return false;
   }
   d[n-1]=true; p.crystal++; syncCrystals();
