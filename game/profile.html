@@ -303,6 +303,38 @@ html body #pg .alhint svg{width:2rem;height:2rem;animation:alh 1.2s ease-in-out 
 html body #pg .alhint.end{opacity:.35}html body #pg .alhint.end svg{animation:none}
 @keyframes alh{50%{translate:0 .25rem}}
 </style>
+<style id="profile-mid-claim">
+/* Kolom tengah: satu kolom flex, tinggi panel proporsional (15 : 12 : 18) mengikuti tinggi stage. */
+@media(min-aspect-ratio:1/1){
+html body #midcol{left:30.8cqw!important;top:13.5cqh!important;width:30cqw!important;height:83cqh!important;display:flex;flex-direction:column;gap:.9rem;z-index:3}
+html body #midcol>#ai,html body #midcol>#kl,html body #midcol>#ak{position:relative!important;left:auto!important;top:auto!important;width:auto!important;height:auto!important;min-height:0;overflow:hidden}
+html body #midcol>#ai{flex:15 1 0}html body #midcol>#kl{flex:12 1 0}html body #midcol>#ak{flex:18 1 0}
+}
+@media(max-aspect-ratio:1/1){html body #midcol{display:flex;flex-direction:column;gap:1.2rem;width:100%!important;height:auto!important}html body #midcol>.pn{flex:none!important;position:relative!important}}
+/* Informasi Akun: 3 baris sama tinggi, ikon menyesuaikan tinggi baris */
+html body #ai .rw{flex:1 1 0;min-height:0;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));padding:.3rem .8rem}
+html body #ai .r{height:auto;min-height:0;grid-template-columns:3.4rem auto minmax(0,1fr) 3.2rem;gap:.8rem;font-size:1.3rem}
+html body #ai .r>span{white-space:nowrap;font-size:1.35rem}
+html body #ai .r>b{text-align:right;justify-self:end;font-size:1.4rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+html body #ai .r .ti{width:auto;height:88%;max-height:3.2rem;aspect-ratio:1/1;justify-self:center}
+html body #ai .r .ib{width:auto;height:88%;max-height:3.2rem;aspect-ratio:1/1;justify-self:center}
+html body #ai .r .ib.sm{border:0;background:none}
+/* Koleksi & Aktivitas: isi ikut tinggi panel */
+html body .kt .ci{flex:1 1 0;min-height:0;max-height:3rem;width:auto;aspect-ratio:1/1}
+html body .ax>.ci,html body .ax>svg{max-height:88%;width:auto;aspect-ratio:1/1}
+/* bintang (asset ui/start.webp) */
+html body .stars{gap:.05rem}html body .stars .star{width:2.1rem;height:2.1rem;object-fit:contain;display:block;pointer-events:none;-webkit-user-drag:none}
+html body .stars .star.off{filter:grayscale(1) brightness(.6) contrast(.9);opacity:.85}
+html body .box .alm .ac2 .stars .star{width:2.6rem;height:2.6rem}
+/* tombol Claim */
+html body .ac2{grid-template-columns:5.2rem minmax(0,1fr) auto}
+html body .ac2 .aic{grid-row:1/3}
+html body .ac2 .clm{grid-column:3;grid-row:1/3;align-self:center;min-width:7.4rem;height:3.8rem;padding:0 1rem;font-size:1.7rem;line-height:1;border-radius:.7rem;border:.25rem solid var(--ol);background:linear-gradient(#58de58,#23a52b);color:#fff;text-shadow:0 .15rem 0 #0e5a16;box-shadow:inset 0 .15rem 0 rgba(255,255,255,.5),inset 0 -.25rem 0 rgba(0,70,10,.35),0 .25rem 0 var(--ol)}
+html body .ac2 .clm.off,html body .ac2 .clm:disabled{background:linear-gradient(#8e9ab0,#667389);color:#dbe3f0;text-shadow:0 .12rem 0 #3d4658;cursor:default;box-shadow:inset 0 .15rem 0 rgba(255,255,255,.3),inset 0 -.25rem 0 rgba(30,40,60,.35),0 .25rem 0 var(--ol)}
+html body .ac2 .clm:disabled:hover{transform:none;filter:none}
+html body .ac2 .clm:not(:disabled){animation:clmp 1.6s ease-in-out infinite}
+@keyframes clmp{50%{filter:brightness(1.12)}}
+</style>
 <script src="assets/js/landscape.js"></script></head>
 <body>
 <div id="sky"></div>
@@ -316,9 +348,11 @@ html body #pg .alhint.end{opacity:.35}html body #pg .alhint.end svg{animation:no
 <div class="ab" id="show"><canvas id="gl"></canvas><div id="art"></div></div>
 <div class="ab" id="sbs"><button class="blue" id="b0" aria-label="Simpan foto"></button><button class="blue" id="b1" aria-label="Ganti pose"></button><button class="blue" id="b3" aria-label="Putar 360"><img class="ci" src="assets/Images/icon/profile/360.webp" alt="" draggable="false" decoding="async"></button></div>
 <section class="ab pn" id="pc"></section>
+<div class="ab" id="midcol">
 <section class="ab pn" id="ai"></section>
 <section class="ab pn" id="kl"></section>
 <section class="ab pn" id="ak"></section>
+</div>
 <section class="ab pn" id="pg"></section>
 </div>
 <div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
@@ -391,12 +425,18 @@ const ACH=[
 ['strategi','Ahli Strategi','Menang dengan skill berbeda','strat',[2,5,10],'mode/robot'],
 ['legenda','Sang Legenda','Menangkan pertandingan','win',[500,1000,2000],'rank/1st']];
 const REW=[[250,5],[750,10],[2000,25]];
+/* klaim achievement: jumlah milestone yang sudah diklaim per achievement (permanen, tidak di-reset) */
+const CLK='ularTanggaBlok:achClaimed:v1';let clMem={};
+const CL={all(){try{return JSON.parse(localStorage.getItem(CLK))||clMem}catch(e){return clMem}},
+ get(id){return Math.min(3,+this.all()[id]||0)},
+ set(id,n){const o=this.all();o[id]=n;clMem=o;try{localStorage.setItem(CLK,JSON.stringify(o))}catch(e){}}};
 const STAT=()=>({chest:34,dragon:12,play:MOCK.play,win:MOCK.win,ladder:32,snake:28,skill:44,dice:310,match:MOCK.play,login:12,streak:3,skins:ownedSkins().length,emerald:PD.gems(),strat:4});
-const achInfo=()=>{const S=STAT();return ACH.map(a=>{const v=S[a[3]]||0,t=a[4],st=t.filter(x=>v>=x).length,tg=t[Math.min(st,2)];return {id:a[0],name:a[1],desc:a[2],fb:a[5],v,st,tg,done:st>=3,r:Math.min(1,v/tg)}})};
-const STAR=on=>`<svg viewBox="0 0 24 24"><path d="M12 2.2l3 6.4 7 .9-5.2 4.8 1.4 6.9L12 17.7 5.8 21.2l1.4-6.9L2 9.5l7-.9z" fill="${on?'#ffc928':'#4b5a7c'}" stroke="#0b1838" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const achInfo=()=>{const S=STAT();return ACH.map(a=>{const v=S[a[3]]||0,t=a[4],st=t.filter(x=>v>=x).length,tg=t[Math.min(st,2)];const cl=Math.min(CL.get(a[0]),st);return {id:a[0],name:a[1],desc:a[2],fb:a[5],v,st,tg,done:st>=3,r:Math.min(1,v/tg),cl,pend:st-cl}})};
+const STAR=on=>`<img class="star${on?'':' off'}" src="assets/Images/icon/ui/start.webp" alt="" draggable="false">`;
 const stars=n=>`<span class="stars">${[0,1,2].map(i=>STAR(i<n)).join('')}</span>`;
 const aicon=a=>`<img class="aic" src="assets/Images/icon/achievement/${a.id}.webp" alt="" draggable="false" onerror="this.onerror=null;this.src='assets/Images/icon/${a.fb}.webp'">`;
-const achCard=a=>`<div class="ac2">${aicon(a)}<div class="t"><b>${a.name}</b>${stars(a.st)}</div><div class="pbw"><div class="d">${a.desc}</div><div class="pb"><i style="width:${a.r*100}%"></i><span>${fmt(Math.min(a.v,a.tg))} / ${fmt(a.tg)}</span></div></div></div>`;
+const clmBtn=a=>a.pend>0?`<button class="clm" data-a="claim" data-id="${a.id}">Claim</button>`:`<button class="clm off" disabled>${a.cl>0&&a.cl===a.st?'Claimed':'Claim'}</button>`;
+const achCard=a=>`<div class="ac2">${aicon(a)}<div class="t"><b>${a.name}</b>${stars(a.st)}</div><div class="pbw"><div class="d">${a.desc}</div><div class="pb"><i style="width:${a.r*100}%"></i><span>${fmt(Math.min(a.v,a.tg))} / ${fmt(a.tg)}</span></div></div>${clmBtn(a)}</div>`;
 const FLAME='<svg viewBox="0 0 24 24"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10Z" fill="#ff8a1f" stroke="#0b1838" stroke-width="1.4" stroke-linejoin="round"/><path d="M12 13c1 1.500 2.500 2.200 2.500 4a2.500 2.500 0 0 1-5 0c0-1 .8-1.800 1.500-2.600.3.800.7 1.200 1 1.300 0-1-.2-1.800 0-2.700Z" fill="#ffd24d"/></svg>';
 const SWORDS='<svg viewBox="0 0 24 24" fill="none" stroke="#0b1838" stroke-width="3.2" stroke-linecap="round"><path d="M4 4l11 11M20 4 9 15M5 19l4-4M19 19l-4-4"/><path d="M4 4l11 11M20 4 9 15" stroke="#dfe8f5" stroke-width="1.6"/></svg>';
 const UPA='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M6 11l6-6 6 6M5 21h14"/></svg>';
@@ -424,6 +464,11 @@ function render(){
 function skinModal(re){
  const html=`<h2>Tampilan Profil</h2><div class="skl">${ownedSkins().map(i=>`<button class="av tile ${i===sel?'sel':''}" data-a="pick" data-id="${i.id}" aria-label="${i.name}">${thumb(i)}${i.id===eqSkin().id?`<em>${sv('<path d="m5 12 5 5 9-10"/>')}</em>`:''}</button>`).join('')}</div><button class="chg" data-a="chg">${RI('items/skin')}Ubah Skin</button>`;
  if(re){$('#mb').innerHTML=html;return}openModal(html,null,true)}
+function claimAch(id){const a=achInfo().find(x=>x.id===id);if(!a||a.pend<1){return}
+ const rw=REW.slice(a.cl,a.st).reduce((t,r)=>[t[0]+r[0],t[1]+r[1]],[0,0]);
+ const r=PD.addCurrency(rw[0],rw[1]);if(!r.ok){toast('Gagal klaim reward.');playSound('error');return}
+ CL.set(id,a.st);const al=$('#alist'),sc=al?al.scrollTop:0;render();const n=$('#alist');if(n)n.scrollTop=sc;renderCurrency();
+ pulse('#coin');pulse('#gem');playSound('coin');buzz();sparkle($('#pg'),14);toast('+'+fmt(rw[0])+' Coin  +'+fmt(rw[1])+' Emerald')}
 function achModal(){openModal(`<h2>Achievement</h2><div class="alm">${achInfo().map(achCard).join('')}</div>`,null,true)}
 function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
 function renderInfo(){renderCurrency()}
@@ -447,7 +492,7 @@ function editName(){openModal(`<h2>Ubah nama</h2><input class="ni" id="ni" maxle
 function pickSkin(id){const t=IC.byId(id);if(t){sel=t;render();buildModels();if(mOpen&&$('.skl'))skinModal(true)}}
 function changeSkin(){if(sel.id===eqSkin().id){toast('Skin ini sudah dipakai');return}const r=PD.equip(sel.id);
  if(r.ok){render();buildModels();sparkle($('#show'),16);buzz();toast('Skin diganti!');closeModal()}else{toast('Gagal memakai skin.');playSound('error')}}
-$('#ui').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;playSound('click');
+$('#ui').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;if(a==='claim'){claimAch(b.dataset.id);return}playSound('click');
  if(DT[a])DT[a]();else if(a==='set')$('#gear').click();else if(a==='name')editName();
  else if(a==='copy'){navigator.clipboard?.writeText(MOCK.uid).catch(()=>{});toast('ID pengguna disalin')}});
 /* modal berada di luar #ui -> delegasi sendiri untuk pilih/ganti skin */
