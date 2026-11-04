@@ -105,6 +105,7 @@
   function mesh(THREE, group, key, o) {
     o = o || {};
     var d = get(group, key); if (!d || !d.boxes.length) return null;
+    var boxes = o.boxes || d.boxes; if (!boxes.length) return null; /* o.boxes: sebagian kotak saja (bagian tubuh terpisah, lihat character-view.js) */
     var rnd = seeded(o.seed || 1337), dither = o.dither !== false, pos = [], nor = [], col = [], idx = [], n = 0;
     function addCube(q, cx, cy, cz, w, h, dd, hex, amt) {
       var c = new THREE.Color(hex); if (amt) c.offsetHSL(0, 0, (rnd() - 0.5) * amt);
@@ -114,7 +115,7 @@
         idx.push(n, n + 1, n + 2, n, n + 2, n + 3); n += 4;
       });
     }
-    d.boxes.forEach(function (q) {
+    boxes.forEach(function (q) {
       if (q[8] === 3 && dither) { for (var i = -1; i <= 1; i++) for (var j = -1; j <= 1; j++) for (var l = -1; l <= 1; l++) addCube(q, q[0] + i * 0.1, q[1] + j * 0.1, q[2] + l * 0.1, 0.1, 0.1, 0.1, q[6], 0.09); }
       else addCube(q, q[0], q[1], q[2], q[3], q[4], q[5], q[6], 0);
     });
