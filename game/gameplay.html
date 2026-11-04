@@ -923,10 +923,14 @@ if(!(window.UT&&UT.GameplayVoxelGeom)){ showBootErr(); return; }
 /* ---------- Musik latar ---------- */
 let bgMusic=null,musicOn=true,musicVol=60;
 try{ musicVol=parseInt(localStorage.getItem('ut-musicvol')||'60',10)||60; musicOn=localStorage.getItem('ut-musicon')!=='0'; }catch(e){}
-const MUSIC=['assets/music/community.mp3','assets/music/rainy.mp3'];
+const MUSIC=['assets/music/first_light_particles.mp3','assets/music/community.mp3','assets/music/sunset_plains.mp3','assets/music/rainy.mp3']; /* playlist BGM gameplay: diputar berurutan, lalu ulang dari awal */
+let musicIdx=0;
 function ensureMusic(){
   if(bgMusic) return;
-  try{ bgMusic=new Audio(); bgMusic.src=MUSIC[0]; bgMusic.loop=true; bgMusic.preload='auto'; }
+  try{
+    bgMusic=new Audio(); bgMusic.src=MUSIC[musicIdx]; bgMusic.loop=false; bgMusic.preload='auto';
+    bgMusic.addEventListener('ended',function(){ musicIdx=(musicIdx+1)%MUSIC.length; bgMusic.src=MUSIC[musicIdx]; playMusic(); });
+  }
   catch(e){ bgMusic=null; }
 }
 function playMusic(){
@@ -3901,7 +3905,7 @@ async function bite(p,from,to,gid){
 function isPlayerDefeat(p){ return mode==='cpu'&&!!p&&!!p.cpu; }
 async function celebrate(p){
   const defeat=isPlayerDefeat(p); /* CPU menang = pemain kalah: tanpa fanfare/firework kemenangan pemain; suara kalah diputar di finishGame */
-  if(!defeat) sfx.win();
+  if(!defeat) sfx.victory();
   spawnConfetti(p.pawn.position);
   if(!defeat) fireworkCelebrate(p);
   for(let i=0;i<3;i++) await hopTo(p.pawn,p.pawn.position.clone(),0.38,0.5);
@@ -3935,7 +3939,7 @@ async function resolveMobAt(p,gid){
     sfx.enderman();
     await A(sleep(300)); await A(teleport(p,to)); p.pos=to;
   }else if(k==='villager'){
-    const to=Math.min(99,p.pos+5); setMsg('Villager membantu! '+p.name+' maju 5 blok ke '+to+'.'); fb('event','mob','Villager membantu! Maju 5 blok',{gid}); sfx.pop(); p.score+=5;
+    const to=Math.min(99,p.pos+5); setMsg('Villager membantu! '+p.name+' maju 5 blok ke '+to+'.'); fb('event','mob','Villager membantu! Maju 5 blok',{gid}); sfx.villager(); p.score+=5;
     await A(sleep(500)); await A(walk(p,p.pos,to)); p.pos=to;
 }else if(k==='skeleton'){
     setMsg('Skeleton menembak! '+p.name+' terpental mundur 1 blok.'); fb('event','mob','Skeleton! Terpental mundur 1 blok',{gid});
