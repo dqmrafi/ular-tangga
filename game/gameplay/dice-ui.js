@@ -1,5 +1,5 @@
 /* Gameplay Dice UI (Stage 4.1.10) — HANYA presentation dadu: bangun 6 muka, rotasi 3D, animasi gulir, reset tampilan.
-   TIDAK menentukan hasil dadu: angka final (1..6) selalu datang dari gameplay.html (random/Potion 4-6/6=giliran ekstra/tiga 6 tetap di sana).
+   TIDAK menentukan hasil dadu: angka final (1..6) selalu datang dari gameplay.html (random/Ramuan Ganjil-Genap/Pasti 6/6=giliran ekstra/tiga 6 tetap di sana).
    Classic script. Namespace: UT.GameplayDiceUI.
    API:
      init(dieEl?, sceneEl?)  — bangun muka dadu di #die (idempoten, tidak membuat DOM ganda)

@@ -16,7 +16,7 @@ window.UT = window.UT || {};
   UT.Utils = UT.Utils || {};
 
   UT.version = 'tahap2';
-  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'inventory', 'leaderboard', 'profile', 'friendship', 'dailyreward'];
+  UT.PAGES = ['index', 'lobby', 'mode', 'gameplay', 'shop', 'inventory', 'leaderboard', 'profile', 'friendship', 'dailyreward', 'misi'];
 
   /* ================= Utils ================= */
   UT.Utils.safe = function (fn, fallback) { try { return fn(); } catch (e) { return fallback; } };

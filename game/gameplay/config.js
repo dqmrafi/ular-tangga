@@ -18,8 +18,8 @@
      DRAGON_REWARD  {coins, gems}            nominal hadiah mengalahkan Ender Dragon (dipakai PlayerData.grant)
      CHEST_POOL     [{id, w}]                bobot Reward Pool Chest (w = persen x 10, total 1000 = 100%)
      CHEST_AMOUNT   {coins, xp, gems}        nominal reward Chest (dipakai PlayerData.grant)
-     CHEST_SURPRISE [langkah]                kandidat langkah Surprise
-     PUN            {powerKey: [emoji, nama, deskripsi]} metadata power-up
+     CHEST_MOVE     [langkah]                kandidat langkah reward maju / mundur
+     PUN            {powerKey: [emoji, nama, deskripsi, labelPendek?]} metadata power-up
    Catatan: ukuran papan (10 x 10 = 100) belum ada sebagai konfigurasi di source (masih literal di
    logic), jadi sengaja tidak dibuat di sini agar tidak ada nilai ganda. */
 (function (win) {
@@ -54,25 +54,25 @@
   /* Chest Feature 2: Reward Pool. Persentase x10 supaya 0.5% dan 7.5% jadi bilangan bulat; total WAJIB 1000.
      Power = 0% (Power hanya dari Shop/Inventory). Tidak ada entri power di sini. */
   C.CHEST_POOL = C.CHEST_POOL || [
-    { id: 'empty',    w: 100 },  /* 10%  */
-    { id: 'coin',     w: 220 },  /* 22%  */
-    { id: 'xp',       w: 130 },  /* 13%  */
-    { id: 'surprise', w: 100 },  /* 10%  */
-    { id: 'odd',      w: 150 },  /* 15%  */
-    { id: 'even',     w: 150 },  /* 15%  */
-    { id: 'lucky',    w: 70 },   /* 7%   */
-    { id: 'gems',     w: 5 },    /* 0.5% (Emerald = gems existing) */
-    { id: 'addroll',  w: 75 }    /* 7.5% */
-  ];
+    { id: 'empty',   w: 150 },  /* 15%  */
+    { id: 'maju',    w: 190 },  /* 19%  maju 1-3 langkah */
+    { id: 'mundur',  w: 50 },   /* 5%   mundur 1-3 langkah */
+    { id: 'lucky',   w: 90 },   /* 9%   label tampil: "Pasti 6" (dadu berikutnya 6) */
+    { id: 'addroll', w: 150 },  /* 15%  */
+    { id: 'bonus',   w: 190 },  /* 19%  Bonus Langkah: dadu berikutnya +2 */
+    { id: 'tangga',  w: 90 },   /* 9%   Lucky: meluncur ke tangga terdekat di depan (lalu naik) */
+    { id: 'ular',    w: 90 }    /* 9%   Unlucky: meluncur ke ular terdekat di depan (lalu turun) */
+  ]; /* Dadu Ganjil/Genap BUKAN lagi reward Chest: pindah jadi Power (Ramuan Ganjil / Ramuan Genap). */ /* Semua reward Chest hanya berdampak ke pemain pembuka (tanpa interaksi antar pemain). Coin/XP/Emerald dihapus. */
   C.CHEST_AMOUNT = C.CHEST_AMOUNT || { coins: 5, xp: 10, gems: 1 };
-  C.CHEST_SURPRISE = C.CHEST_SURPRISE || [-3, -2, -1, 1, 2, 3];
+  C.CHEST_MOVE = C.CHEST_MOVE || [1, 2, 3]; /* kandidat langkah untuk reward maju / mundur */
 
   C.PUN = C.PUN || {
-    sword: ['🗡️', 'Pedang', 'langkah berikutnya +3'],
+    sword: ['🗡️', 'Pedang', 'serang musuh di petak yang sama: mundur 2'],
     feather: ['🪶', 'Bulu', 'giliran tambahan'],
     tnt: ['🧨', 'TNT', 'pemain terdepan mundur 6'],
-    totem: ['🗿', 'Totem', 'kebal dari 1 ular atau mob jahat'],
-    potion: ['🧪', 'Ramuan', 'dadu berikutnya 4 sampai 6'],
+    totem: ['🗿', 'Totem', 'pilih pakai saat kena ular, mob jahat, Pedang, TNT, atau Rumput'],
+    potion_odd: ['🧪', 'Ramuan Ganjil', 'dadu berikutnya ganjil (1, 3, atau 5)', 'Ganjil'],
+    potion_even: ['🧪', 'Ramuan Genap', 'dadu berikutnya genap (2, 4, atau 6)', 'Genap'],
     grass: ['🟩', 'Blok Rumput', 'tukar posisi dengan pemain terdepan']
   };
   /* Gambar ikon Power (versi 192px dari data/power). Emoji di PUN tetap jadi cadangan bila gambar gagal dimuat. */

@@ -65,7 +65,7 @@
       rarity: rarity, price: price, desc: desc, starter: price === 0, art: art }, extra || {});
   }
   /* Power-Up (Tahap 3.1): consumable ber-quantity.
-     ID canonical = PERSIS key gameplay di gameplay.html (p.pu: sword/feather/tnt/totem/potion/grass)
+     ID canonical = PERSIS key gameplay di gameplay.html (p.pu: sword/feather/tnt/totem/potion_odd/potion_even/grass)
      — tanpa prefiks, agar tidak perlu bridge ID (lihat DATA_MIGRATION.md "Power-Up").
      price: null = EKONOMI BELUM DITENTUKAN — tidak dijual di shop, tidak boleh diarang.
      rarity 'common' = default netral untuk UI; gameplay sendiri tidak mengenal rarity power-up. */
@@ -73,11 +73,11 @@
      gameplay (Config.PUIMG), Shop/Inventory/Profil (ItemArt.powerup). Key = ID Power (identity), bukan nama effect. */
   var POWER_ICON = {
     sword: 'data/power/sm/pedang.webp', feather: 'data/power/sm/feather.webp', tnt: 'data/power/sm/dinamit.webp',
-    totem: 'data/power/sm/totem.webp', potion: 'data/power/sm/ramuan.webp', grass: 'data/power/sm/block.webp'
+    totem: 'data/power/sm/totem.webp', potion_odd: 'data/power/sm/ramuan-merah.webp', potion_even: 'data/power/sm/ramuan-biru.webp', grass: 'data/power/sm/block.webp'
   };
   /* Stage 4.1.20: ID Power lama -> identity sekarang. Dipakai HANYA untuk membaca data lama (save/localStorage pemain
      yang menyimpan Totem sebagai 'apple'); ID lama tidak dipakai lagi sebagai identity visual maupun di gameplay. */
-  var LEGACY_POWER_ID = { apple: 'totem' };
+  var LEGACY_POWER_ID = { apple: 'totem', potion: 'potion_odd' }; /* 'potion' (Ramuan 4-6) diganti Ramuan Ganjil/Genap: stok lama dibaca sebagai Ramuan Ganjil */
   function normalizePowerId(id) { return Object.prototype.hasOwnProperty.call(LEGACY_POWER_ID, id) ? LEGACY_POWER_ID[id] : id; }
   function powerup(gameKey, name, rarity, desc, extra) {
     return Object.assign({ id: gameKey, kind: 'powerup', gameKey: gameKey, name: name,
@@ -133,15 +133,16 @@
 
     /* ---- Power-Up (Tahap 3.1) ----
        Metadata & efek = hasil audit gameplay.html (PUN + usePU), TIDAK diarang:
-       sword  -> p.bonus=3 (langkah berikutnya +3)      feather -> p.extra=true (giliran tambahan)
+       sword  -> serang musuh di petak yang sama, mundur 2 (tanpa p.bonus)      feather -> p.extra=true (giliran tambahan)
        tnt    -> pemain terdepan mundur 6 (teleport)    totem   -> p.shield=true (kebal 1 ular/mob; dulu ID 'apple', effect TIDAK berubah)
-       potion -> p.p4=true (dadu berikutnya 4-6)        grass   -> tukar posisi dgn pemain terdepan
+       potion_odd/potion_even -> p.odd/p.even=true (dadu berikutnya ganjil/genap)   grass -> tukar posisi dgn pemain terdepan
        Pemakaian & pengurangan quantity tetap di gameplay (p.pu); integrasi PlayerData menyusul. */
-    powerup('sword',   'Pedang',     'common', 'Langkah berikutnya +3.'),
+    powerup('sword',   'Pedang',     'common', 'Serang musuh di petak yang sama, ia mundur 2.'),
     powerup('feather', 'Bulu',       'common', 'Giliran tambahan sekali lempar.'),
     powerup('tnt',     'TNT',        'common', 'Pemain terdepan mundur 6 petak.'),
-    powerup('totem',   'Totem',      'common', 'Kebal dari 1 ular atau mob jahat.'),
-    powerup('potion',  'Ramuan',     'common', 'Dadu berikutnya selalu 4 sampai 6.'),
+    powerup('totem',   'Totem',      'common', 'Saat kena ular, mob jahat, Pedang, TNT, atau Rumput, kamu bisa memilih memakai Totem untuk menahannya.'),
+    powerup('potion_odd',  'Ramuan Ganjil', 'common', 'Dadu berikutnya selalu ganjil: 1, 3, atau 5.'),
+    powerup('potion_even', 'Ramuan Genap',  'common', 'Dadu berikutnya selalu genap: 2, 4, atau 6.'),
     powerup('grass',   'Blok Rumput','common', 'Tukar posisi dengan pemain terdepan.')
   ];
 
