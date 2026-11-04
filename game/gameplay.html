@@ -3463,12 +3463,13 @@ window.addEventListener('resize',onResize); window.addEventListener('orientation
 /* Stage 4.2.1 (Camera Part 1): mode ANGLE / kamera kustom. Memakai ulang cam/goal/pan/focus + resetCam; TIDAK ada engine kamera kedua.
    ANGLE ON = preset + follow + reset aktif. ANGLE OFF = perilaku kamera lama tidak berubah (mode LOCK dikerjakan di Part 2). */
 const CAM_KEY='ut-cam';
+const CAM_PITCH=0.62+5*Math.PI/180; /* sudut default 0.62 rad (35.5 derajat) dinaikkan 5 derajat -> kamera lebih tinggi, pandangan lebih ke bawah */
 const CAM_PRESETS={
-  free:{yaw:0,pitch:0.62,zoom:1},          /* sudut default existing; diatur manual */
-  front:{yaw:0,pitch:0.62,zoom:1},
-  back:{yaw:Math.PI,pitch:0.62,zoom:1},
-  left:{yaw:-Math.PI/2,pitch:0.62,zoom:1},
-  right:{yaw:Math.PI/2,pitch:0.62,zoom:1},
+  free:{yaw:0,pitch:CAM_PITCH,zoom:1},     /* sudut default; diatur manual */
+  front:{yaw:0,pitch:CAM_PITCH,zoom:1},
+  back:{yaw:Math.PI,pitch:CAM_PITCH,zoom:1},
+  left:{yaw:-Math.PI/2,pitch:CAM_PITCH,zoom:1},
+  right:{yaw:Math.PI/2,pitch:CAM_PITCH,zoom:1},
   iso:{yaw:Math.PI/4,pitch:0.615,zoom:1},  /* isometrik 35,26 derajat */
   top:{yaw:0,pitch:Math.PI/2-0.05,zoom:1.0,top:true} /* Top Angle = aturan POV Atas lama (87 derajat, titik pandang di tengah papan), sedikit lebih jauh (zoom 0.88 -> 1.0) */
 };
