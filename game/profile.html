@@ -227,6 +227,68 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 .st>i .ci{width:100%;height:100%}
 .st b .ci{width:2.4rem;height:2.4rem;flex:none}
 </style>
+<style id="profile-v2">
+/* Profil v2: layout 3 kolom mengikuti referensi game/referensi/achivment/lobby skin (kiri karakter+kartu pemain, tengah Informasi/Koleksi/Aktivitas, kanan Achievement). Renderer 3D (#show/#gl) tidak diubah. */
+@media(min-aspect-ratio:1/1){
+html body #pc{left:1.2cqw!important;bottom:2.6cqh!important;width:29.2cqw!important;height:20.6cqh!important;min-height:0}
+html body #ai{left:30.8cqw!important;top:13.5cqh!important;width:30cqw!important;height:15rem!important}
+html body #kl{left:30.8cqw!important;top:calc(13.5cqh + 16rem)!important;width:30cqw!important;height:11.9rem!important}
+html body #ak{left:30.8cqw!important;top:calc(13.5cqh + 28.9rem)!important;width:30cqw!important;height:17.8rem!important}
+html body #pg{left:62cqw!important;top:13.5cqh!important;width:36.8cqw!important;height:83cqh!important}
+}
+@media(max-aspect-ratio:1/1){html body #ai,html body #kl,html body #ak,html body #pg{width:100%!important;height:auto!important}}
+html body .pn{gap:.5rem;padding:.7rem 1rem}
+html body .hd.big{height:3rem;font-size:1.85rem}
+html body #ai .rw{padding:.2rem .8rem}
+html body #ai .r{height:3rem}
+/* kartu pemain */
+html body #pc{display:grid;grid-template-columns:6.2rem 1fr;grid-template-rows:auto 1fr auto;gap:.2rem 1.3rem;padding:1rem 1.2rem .8rem}
+html body #pc .a1{width:6.2rem;height:6.2rem;grid-row:1/3;align-self:center;justify-self:center;margin:.3rem 0 0 0}
+html body #pc .pm{align-self:center}
+html body #pc .pm .nm{font-size:2.5rem}
+html body #pc .lv{font-size:1.7rem;margin:.1rem 0 .4rem}
+html body #pc .bar{height:1.7rem;margin-right:4.9rem}
+html body #pc .onl{align-self:end}
+html body #pc .up{position:absolute;right:1.2rem;bottom:.9rem;width:3.8rem;height:3.8rem}
+html body #pc .up svg{width:2.2rem;height:2.2rem}
+/* koleksi */
+.kg{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;min-height:0}
+.kt{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1rem;padding:.3rem .2rem;line-height:1;text-align:center;border-radius:.7rem;border:.25rem solid var(--ol);background:linear-gradient(#2a58c4,#2250b4);box-shadow:inset 0 0 0 .12rem rgba(120,160,235,.3)}
+.kt .ci{width:3rem;height:3rem;object-fit:contain}
+.kt b{font-size:1.9rem;margin-top:.1rem}.kt span{font-size:1.2rem;color:#cfe6ff}
+/* aktivitas */
+.ag{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr .78fr;gap:.6rem;min-height:0}
+.ax{display:flex;align-items:center;gap:.5rem;padding:.2rem .5rem;min-width:0;text-align:left;line-height:1.05;border-radius:.7rem;border:.25rem solid var(--ol);background:linear-gradient(#2a58c4,#2250b4);box-shadow:inset 0 0 0 .12rem rgba(120,160,235,.3);width:100%}
+.ax:hover{transform:none}
+.ax.w2{grid-column:1/-1;justify-content:center}
+.ax>.ci,.ax>svg{width:2.9rem;height:2.9rem;flex:none;object-fit:contain}
+.ax div{flex:1;min-width:0}.ax small{display:block;font-size:1rem;font-weight:700;color:#cfe6ff;line-height:1;white-space:nowrap}.ax .v{display:flex;align-items:baseline;gap:.3rem;white-space:nowrap}
+.ax b{display:flex;align-items:center;gap:.4rem;font-size:1.9rem;white-space:nowrap}.ax b .ci{width:1.9rem;height:1.9rem}
+.ax em{font-style:normal;font-size:1rem;color:#cfe6ff;white-space:nowrap}
+.ax>svg.ch{width:1.5rem;height:1.5rem;margin-left:auto}
+/* achievement */
+.ah{display:flex;align-items:center;gap:.8rem;height:4rem;flex:none}
+.ah .ci{width:3.6rem;height:3.6rem;object-fit:contain}.ah h3{margin:0;font-size:2.1rem;flex:1;font-weight:800}
+.ah .gr{display:flex;align-items:center;gap:.5rem;height:3.2rem;padding:0 1rem;font-size:1.4rem;white-space:nowrap}.ah .gr svg{width:1.3rem;height:1.3rem}
+.al{flex:1;display:grid;grid-template-rows:repeat(5,1fr);gap:.6rem;min-height:0}
+.ac2{display:grid;grid-template-columns:5.2rem 1fr;gap:.2rem 1rem;align-items:center;padding:.5rem .9rem;min-width:0;text-align:left;border-radius:.7rem;border:.25rem solid var(--ol);background:linear-gradient(#2a58c4,#2250b4);box-shadow:inset 0 0 0 .12rem rgba(120,160,235,.3);font-size:1.5rem;line-height:1.05}
+.ac2 .aic{grid-row:1/3;width:5rem;height:5rem;object-fit:contain;filter:drop-shadow(0 .2rem 0 rgba(0,0,0,.35))}
+.ac2 .t{display:flex;align-items:center;gap:.5rem;min-width:0}.ac2 .t b{flex:1;font-size:1.7rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ac2 .d{font-size:1.2rem;font-weight:700;color:#cfe6ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stars{display:flex;gap:.1rem;flex:none}.stars svg{width:2rem;height:2rem}
+.pb{position:relative;height:1.5rem;border-radius:.4rem;border:.18rem solid var(--ol);background:#0e1b3d;overflow:hidden}
+.pb i{position:absolute;inset:0 auto 0 0;background:linear-gradient(#6ee8ff,#18a8ee)}
+.pb span{position:absolute;inset:0;display:grid;place-items:center;font-size:1.1rem;line-height:1;text-shadow:0 .1rem 0 #0b1838}
+.ac2 .pbw{grid-column:2}
+/* modal achievement & tampilan profil */
+.box .alm{display:flex;flex-direction:column;gap:.8rem;text-align:left}
+.box .alm .ac2{font-size:2rem;grid-template-columns:6rem 1fr}.box .alm .ac2 .aic{width:5.6rem;height:5.6rem}
+.box .alm .ac2 .t b{font-size:2.2rem}.box .alm .ac2 .d{font-size:1.6rem}.box .alm .pb{height:2rem}.box .alm .pb span{font-size:1.4rem}
+.box .alm .ac2 .stars svg{width:2.6rem;height:2.6rem}
+.box .skl{display:flex;flex-wrap:wrap;gap:1.2rem;justify-content:center;margin-bottom:1rem}
+.box .skl .tile{width:7rem;height:7rem}
+.box .chg{display:flex;margin:1.2rem auto .8rem;width:min(28rem,100%);height:5.4rem;font-size:2.6rem}
+</style>
 <script src="assets/js/landscape.js"></script></head>
 <body>
 <div id="sky"></div>
@@ -241,6 +303,8 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 <div class="ab" id="sbs"><button class="blue" id="b0" aria-label="Simpan foto"></button><button class="blue" id="b1" aria-label="Ganti pose"></button><button class="blue" id="b3" aria-label="Putar 360"><img class="ci" src="assets/Images/icon/profile/360.webp" alt="" draggable="false" decoding="async"></button></div>
 <section class="ab pn" id="pc"></section>
 <section class="ab pn" id="ai"></section>
+<section class="ab pn" id="kl"></section>
+<section class="ab pn" id="ak"></section>
 <section class="ab pn" id="pg"></section>
 </div>
 <div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
@@ -260,7 +324,7 @@ const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID'),esc=s=>Str
 // Statistik permainan (lvl/xp/win/rank/uid) belum punya sumber data -> placeholder mock, TIDAK mengarang hasil pertandingan.
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
 const RN={common:'COMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'},RB={common:['#4ad04a','#2a9a2a'],rare:['#4aa8ff','#2a78e0'],epic:['#b45cf0','#7a2ad0'],legendary:['#ffb02e','#e07a10']};
-const MOCK={uid:'#FG123456',joined:'12 Jan 2025',lvl:26,xp:1250,xpMax:3000,win:75,play:120,rank:128};
+const MOCK={uid:'#FG123456',joined:'12 Jan 2025',lvl:26,xp:1250,xpMax:3000,win:75,play:120,rank:128,misi:48,streak:7,dadu:8,efek:15,emote:5};
 const pname=()=>PD.profile().name;
 const eqSkin=()=>IC.byId(PD.equippedId('skin'))||IC.byId('skin.steve');
 const ownedSkins=()=>PD.ownedItems().filter(o=>o.item.kind==='skin').map(o=>o.item);
@@ -295,25 +359,57 @@ const CH=sv('<path d="m9 5 7 7-7 7"/>'),GLOBE=sv('<circle cx="12" cy="12" r="9"/
 const hx=(a,b,p)=>`<svg viewBox="0 0 48 54"><path d="M24 2l20 11.500v25L24 50 4 38.500v-25z" fill="${b}" stroke="#fff" stroke-width="2.500" stroke-linejoin="round"/><path d="M24 7l15.500 9v21L24 46 8.500 37V16z" fill="${a}"/><image href="assets/Images/icon/${p}.webp" x="12" y="13" width="24" height="24"/></svg>`;
 const NAV=[['prof','Profil',P.user],['stat','Statistik',P.trophy],['ach','Pencapaian',P.star],['hist','Riwayat',P.cal],['set','Pengaturan',G]];
 const pcn=()=>MOCK.play?Math.floor(MOCK.win/MOCK.play*100):0;
+/* ---- Achievement: definisi dari referensi (15 achievement x 3 bintang). Progress = PLACEHOLDER (belum ada sumber data statistik), kecuali jumlah skin & emerald yang nyata. Klaim reward dikerjakan terpisah. */
+const ACH=[
+['peti','Penakluk Peti','Buka peti','chest',[10,50,200],'lobby/gift'],
+['naga','Penyerang Naga','Serang naga','dragon',[3,10,30],'mode/modekhsusus'],
+['aktif','Pemain Aktif','Main sebanyak mungkin','play',[10,50,200],'mode/console'],
+['menang','Master Kemenangan','Menangkan pertandingan','win',[3,50,200],'lobby/trophy'],
+['tangga','Raja Tangga','Naik tangga','ladder',[10,50,150],'ui/start'],
+['ular','Penakluk Ular','Terkena ular','snake',[10,50,150],'ui/lock'],
+['skill','Pengguna Skill','Gunakan skill','skill',[10,50,200],'items/power'],
+['dadu','Pecinta Dadu','Lempar dadu','dice',[50,250,1000],'items/dadu'],
+['papan','Penjelajah Papan','Selesaikan pertandingan','match',[5,50,200],'profile/globe'],
+['login','Login Setia','Login berturut-turut','login',[3,7,30],'mode/calndar'],
+['streak','Win Streak','Menang beruntun','streak',[2,5,10],'lobby/dailyreward'],
+['skin','Kolektor Skin','Miliki skin','skins',[2,10,25],'items/skin'],
+['emerald','Pemburu Emerald','Kumpulkan Emerald','emerald',[10,100,500],'currency/emerald'],
+['strategi','Ahli Strategi','Menang dengan skill berbeda','strat',[2,5,10],'mode/robot'],
+['legenda','Sang Legenda','Menangkan pertandingan','win',[500,1000,2000],'rank/1st']];
+const REW=[[250,5],[750,10],[2000,25]];
+const STAT=()=>({chest:34,dragon:12,play:MOCK.play,win:MOCK.win,ladder:32,snake:28,skill:44,dice:310,match:MOCK.play,login:12,streak:3,skins:ownedSkins().length,emerald:PD.gems(),strat:4});
+const achInfo=()=>{const S=STAT();return ACH.map(a=>{const v=S[a[3]]||0,t=a[4],st=t.filter(x=>v>=x).length,tg=t[Math.min(st,2)];return {id:a[0],name:a[1],desc:a[2],fb:a[5],v,st,tg,done:st>=3,r:Math.min(1,v/tg)}})};
+const STAR=on=>`<svg viewBox="0 0 24 24"><path d="M12 2.2l3 6.4 7 .9-5.2 4.8 1.4 6.9L12 17.7 5.8 21.2l1.4-6.9L2 9.5l7-.9z" fill="${on?'#ffc928':'#4b5a7c'}" stroke="#0b1838" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const stars=n=>`<span class="stars">${[0,1,2].map(i=>STAR(i<n)).join('')}</span>`;
+const aicon=a=>`<img class="aic" src="assets/Images/icon/achievement/${a.id}.webp" alt="" draggable="false" onerror="this.onerror=null;this.src='assets/Images/icon/${a.fb}.webp'">`;
+const achCard=a=>`<div class="ac2">${aicon(a)}<div class="t"><b>${a.name}</b>${stars(a.st)}</div><div class="pbw"><div class="d">${a.desc}</div><div class="pb"><i style="width:${a.r*100}%"></i><span>${fmt(Math.min(a.v,a.tg))} / ${fmt(a.tg)}</span></div></div></div>`;
+const FLAME='<svg viewBox="0 0 24 24"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-4-1-6 1-10Z" fill="#ff8a1f" stroke="#0b1838" stroke-width="1.4" stroke-linejoin="round"/><path d="M12 13c1 1.500 2.500 2.200 2.500 4a2.500 2.500 0 0 1-5 0c0-1 .8-1.800 1.500-2.600.3.800.7 1.200 1 1.300 0-1-.2-1.800 0-2.700Z" fill="#ffd24d"/></svg>';
+const SWORDS='<svg viewBox="0 0 24 24" fill="none" stroke="#0b1838" stroke-width="3.2" stroke-linecap="round"><path d="M4 4l11 11M20 4 9 15M5 19l4-4M19 19l-4-4"/><path d="M4 4l11 11M20 4 9 15" stroke="#dfe8f5" stroke-width="1.6"/></svg>';
+const UPA='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V6M6 11l6-6 6 6M5 21h14"/></svg>';
+const kcount=k=>PD.ownedItems().filter(o=>o.item.kind===k).length;
 function render(){
  const eq=eqSkin(),
  bar=`<div class="bar"><i style="width:${MOCK.xp/MOCK.xpMax*100}%"></i><span>${fmt(MOCK.xp)} / ${fmt(MOCK.xpMax)}</span></div>`,
  av=(i,c)=>c==='a1'?`<div class="av fr ${c}">${thumb(i)}<img class="frm" src="data/frame/frame-default.webp" alt="" draggable="false" decoding="async"></div>`:`<div class="av ${c}">${thumb(i)}</div>`,
- bd=r=>`<span class="bd" style="background:linear-gradient(${RB[r][0]},${RB[r][1]})">${RN[r]}</span>`,
- A=[['Skin',12,'lobby/leader','#ffd24d','#c98a0c'],['Dadu',8,'items/dadu','#4aa8ff','#1d5fc8'],['Misi',15,'ui/start','#ff6a4a','#d0302a'],['Event',5,'mode/modekhsusus','#b45cf0','#7a2ad0']];
- $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><div class="onl"><u></u>Online</div>`;
+ K=[['Skin',ownedSkins().length,'items/skin'],['Dadu',kcount('dice')||MOCK.dadu,'items/dadu'],['Efek',MOCK.efek,'items/efek'],['Emote',MOCK.emote,'items/emote']],
+ AI=achInfo(),top=AI.filter(a=>!a.done).sort((a,b)=>b.r-a.r).concat(AI.filter(a=>a.done)).slice(0,5),got=AI.filter(a=>a.st>0).length;
+ $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><div class="onl"><u></u>Online</div><button class="ib up" data-a="skins" aria-label="Ganti tampilan profil">${UPA}</button>`;
  $('#ai').innerHTML=`<div class="hd big">${RI('mode/kontak')}Informasi Akun</div>
 <div class="in rw"><div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Nama</span><b>${esc(pname())}</b><button class="ib" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button></div>
 <div class="r"><i class="ti">${RI('ui/gear')}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>
-<div class="r"><i class="ti">${RI('mode/calndar')}</i><span>Tanggal Bergabung</span><b>${esc(MOCK.joined)}</b><i class="ib">${RI('mode/calndar')}</i></div></div>
-<div class="in pr"><div class="st2">${RI('ui/start')}Prestasi</div><div class="ac">${A.map(a=>`<button class="ach" data-a="ach"><div>${hx(a[3],a[4],a[2])}</div><b>${a[1]}</b><span>${a[0]}</span></button>`).join('')}</div></div>
-<div class="in tp"><div class="st2">${RI('items/skin')}Tampilan Profil</div><div class="tl">${ownedSkins().slice(0,6).map(i=>`<button class="av tile ${i===sel?'sel':''}" data-a="pick" data-id="${i.id}" aria-label="${i.name}">${thumb(i)}${i.id===eq.id?`<em>${sv('<path d="m5 12 5 5 9-10"/>')}</em>`:''}</button>`).join('')}</div><button class="chg" data-a="chg">${RI('items/skin')}Ubah Skin</button></div>`;
- $('#pg').innerHTML=`<div class="hd">${RI('mode/kontak')}Progress</div>
-<div class="in lvc"><div class="hx">${hx('#ffd24d','#c98a0c','lobby/leader')}</div><div class="lc"><b>Lv. ${MOCK.lvl}</b>${bar}</div></div>
-<button class="in st" data-a="win"><i>${RI('lobby/trophy')}</i><div><small>Rasio Kemenangan</small><b>${pcn()}%</b></div><em>${MOCK.win} / ${MOCK.play}</em>${CH}</button>
-<button class="in st" data-a="play"><i>${RI('mode/console')}</i><div><small>Total Main</small><b>${MOCK.play}</b></div>${CH}</button>
-<button class="in st" data-a="rank"><i>${RI('profile/globe')}</i><div><small>Peringkat Global</small><b>#${MOCK.rank} ${RI('lobby/leader')}</b></div>${CH}</button>
-<div class="in qt">Terus bermain, terus berkembang!&rdquo;</div>`}
+<div class="r"><i class="ti">${RI('mode/calndar')}</i><span>Tanggal Bergabung</span><b>${esc(MOCK.joined)}</b><i class="ib">${RI('mode/calndar')}</i></div></div>`;
+ $('#kl').innerHTML=`<div class="hd big">${RI('lobby/inventory')}Koleksi</div><div class="kg">${K.map(k=>`<div class="kt">${RI(k[2])}<b>${k[1]}</b><span>${k[0]}</span></div>`).join('')}</div>`;
+ $('#ak').innerHTML=`<div class="hd big">${RI('lobby/leader')}Aktivitas</div><div class="ag">
+<button class="ax" data-a="rank">${RI('profile/globe')}<div><small>Peringkat Global</small><b>#${MOCK.rank} ${RI('lobby/leader')}</b></div></button>
+<button class="ax" data-a="win">${SWORDS}<div><small>Rasio Kemenangan</small><span class="v"><b>${pcn()}%</b><em>${MOCK.win} / ${MOCK.play}</em></span></div></button>
+<button class="ax" data-a="mis">${RI('lobby/misi')}<div><small>Misi</small><b>${MOCK.misi}</b></div>${CH.replace('<svg','<svg class="ch"')}</button>
+<button class="ax" data-a="wl">${RI('lobby/trophy')}<div><small>Win / Lose</small><b>${MOCK.win} / ${MOCK.play-MOCK.win}</b></div></button>
+<div class="ax w2">${FLAME}<small style="display:inline;font-size:1.3rem">Win Streak</small><b style="margin-left:1rem">${MOCK.streak}</b></div></div>`;
+ $('#pg').innerHTML=`<div class="ah">${RI('lobby/trophy')}<h3>Achievement</h3><button class="gr" data-a="achall">${got} Achievement ${CH.replace('<svg','<svg class="ch"')}</button></div><div class="al">${top.map(achCard).join('')}</div>`}
+function skinModal(re){
+ const html=`<h2>Tampilan Profil</h2><div class="skl">${ownedSkins().map(i=>`<button class="av tile ${i===sel?'sel':''}" data-a="pick" data-id="${i.id}" aria-label="${i.name}">${thumb(i)}${i.id===eqSkin().id?`<em>${sv('<path d="m5 12 5 5 9-10"/>')}</em>`:''}</button>`).join('')}</div><button class="chg" data-a="chg">${RI('items/skin')}Ubah Skin</button>`;
+ if(re){$('#mb').innerHTML=html;return}openModal(html,null,true)}
+function achModal(){openModal(`<h2>Achievement</h2><div class="alm">${achInfo().map(achCard).join('')}</div>`,null,true)}
 function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
 function renderInfo(){renderCurrency()}
 function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse')}
@@ -324,18 +420,24 @@ const DT={win:()=>rows('Rasio Kemenangan',[['Menang',MOCK.win],['Kalah',MOCK.pla
  play:()=>rows('Total Main',[['Pertandingan',MOCK.play],['Misi selesai',15],['Event diikuti',5]]),
  rank:()=>rows('Peringkat Global',[['Peringkat','#'+MOCK.rank],['Level',MOCK.lvl],['XP',fmt(MOCK.xp)+' / '+fmt(MOCK.xpMax)]]),
  ach:()=>rows('Pencapaian',[['Skin',12],['Dadu',8],['Misi',15],['Event',5]]),
+ mis:()=>rows('Misi',[['Misi selesai',MOCK.misi],['Event diikuti',5]]),
+ wl:()=>rows('Win / Lose',[['Menang',MOCK.win],['Kalah',MOCK.play-MOCK.win],['Win streak',MOCK.streak]]),
+ achall:()=>achModal(),skins:()=>skinModal(),
  stat:()=>rows('Statistik',[['Level',MOCK.lvl],['Rasio kemenangan',pcn()+'%'],['Total main',MOCK.play],['Peringkat global','#'+MOCK.rank]]),
  hist:()=>openModal('<h2>Riwayat</h2><p>Riwayat pertandingan terbaru akan tampil di sini.</p>')};
 function editName(){openModal(`<h2>Ubah nama</h2><input class="ni" id="ni" maxlength="12" autocomplete="off"><button class="mb" id="ns" style="width:100%;margin:1.4rem 0 0">Simpan nama</button>`,()=>{
  const i=$('#ni');i.value=pname();setTimeout(()=>{i.focus();i.select()},60);
  const ok=()=>{const v=i.value.trim();if(v.length<3){toast('Nama minimal 3 karakter');return}PD.setName(v);closeModal();render();toast('Nama diperbarui')};
  $('#ns').addEventListener('click',ok);i.addEventListener('keydown',e=>{if(e.key==='Enter')ok()})})}
+function pickSkin(id){const t=IC.byId(id);if(t){sel=t;render();buildModels();if(mOpen&&$('.skl'))skinModal(true)}}
+function changeSkin(){if(sel.id===eqSkin().id){toast('Skin ini sudah dipakai');return}const r=PD.equip(sel.id);
+ if(r.ok){render();buildModels();sparkle($('#show'),16);buzz();toast('Skin diganti!');closeModal()}else{toast('Gagal memakai skin.');playSound('error')}}
 $('#ui').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;playSound('click');
  if(DT[a])DT[a]();else if(a==='set')$('#gear').click();else if(a==='name')editName();
- else if(a==='copy'){navigator.clipboard?.writeText(MOCK.uid).catch(()=>{});toast('ID pengguna disalin')}
- else if(a==='pick'){const t=IC.byId(b.dataset.id);if(t){sel=t;render();buildModels()}}
- else if(a==='chg'){if(sel.id===eqSkin().id){toast('Skin ini sudah dipakai');return}const r=PD.equip(sel.id);
-  if(r.ok){render();buildModels();sparkle($('#show'),16);buzz();toast('Skin diganti!')}else{toast('Gagal memakai skin.');playSound('error')}}});
+ else if(a==='copy'){navigator.clipboard?.writeText(MOCK.uid).catch(()=>{});toast('ID pengguna disalin')}});
+/* modal berada di luar #ui -> delegasi sendiri untuk pilih/ganti skin */
+$('#mb').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
+ if(a==='pick'){playSound('click');pickSkin(b.dataset.id)}else if(a==='chg'){playSound('click');changeSkin()}});
 $('#b0').addEventListener('click',()=>{if(!main)return;main.r.render(main.scene,main.cam);const l=document.createElement('a');l.href=main.cv.toDataURL('image/png');l.download='profil-'+pname()+'.png';l.click();toast('Foto disimpan')});
 $('#b1').addEventListener('click',()=>{pose=POSES[(POSES.indexOf(pose)+1)%POSES.length];buildModels();toast('Pose: '+pose)});
 $('#b3').addEventListener('click',()=>{spin=1;playSound('select')});
