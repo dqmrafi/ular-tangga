@@ -32,7 +32,7 @@ UT.CharacterData.SEATS                                           // warna kursi 
 Pakai di halaman: `<script src="assets/js/character-data.js"></script>` lalu masukkan hasil `svg()` ke `innerHTML`.
 
 ## Dipakai di halaman (Stage 4.2.2)
-- **Model 3D** lewat `assets/js/character-view.js` → `UT.CharacterView.make(THREE, skinIdAtauKey, emote)`: Lobby, Inventory, Shop, Profil, Leaderboard (podium). Emote: idle, wave, dance, victory, cheer, laugh (gerak seluruh badan karena model satu mesh).
+- **Model 3D** lewat `assets/js/character-view.js` → `UT.CharacterView.make(THREE, skinIdAtauKey, emote)`: Lobby, Inventory, Shop, Profil, Leaderboard (podium). Model dipecah otomatis jadi sendi (kepala+leher, mata berkedip, tangan kiri/kanan, kaki kiri/kanan, badan) lewat `mesh(..., {boxes})`. Emote: idle, wave, dance, victory, cheer, laugh, celebrate; pose berpindah halus dan bisa diganti runtime lewat `g.userData.setEmote('dance')`.
 - **Wajah/gambar 2D** lewat `ItemArt.face()/character()` (otomatis memakai `UT.CharacterData`, cadangan = gambar palet lama bila skrip tidak dimuat): grid Inventory/Shop/Profil, avatar Lobby, Leaderboard (`NK` = peta pemain contoh → karakter), frame avatar, ikon hadiah skin, ilustrasi kartu `mode.html`.
 - Halaman **Teman** dan **Hadiah Harian** sengaja tidak memakai karakter, melainkan mob: lihat `doc/MOB_VIEW.md`.
 - Skin PNG sudah dihapus (katalog, `data/skins/`, preload). Kepemilikan/equipped lama yang menunjuk skin PNG otomatis dibuang `PlayerData.sanitize` dan kembali ke skin bawaan.
