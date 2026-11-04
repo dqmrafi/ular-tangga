@@ -1209,6 +1209,7 @@ html body #side .rcol .pnl.tn #btnAuto[aria-pressed=true]{background:linear-grad
 html body #side .rcol .pnl.tn #btnAuto[aria-pressed=true]::after{content:"ON";opacity:1}
 html body #side .rcol .pnl.tn #btnAuto:active{transform:translateY(3px)}
 html body.awk-lock #btnAuto{opacity:.55;filter:grayscale(.35)}
+html body #side .rcol .pnl.tn #btnAuto:disabled{opacity:.45;filter:grayscale(.6);cursor:not-allowed;pointer-events:none;transform:none}
 
 /* --- Modal "Pilih kartu": lebar mengikuti jumlah pemain (bukan selalu lebar) --- */
 body #readyScreen .rd-box{width:fit-content;min-width:min(250px,100%);max-width:100%;padding-left:calc(var(--mu)*2.6);padding-right:calc(var(--mu)*2.6);box-sizing:border-box}
@@ -4237,7 +4238,7 @@ function beginTurn(extra){
   const p=players[cur];
   if(FBK) FBK.setCurrentMarker(players,cur);
   players.forEach((q,i)=>pawnOutline(q.pawn,i===cur&&!gameOver,q.hex));
-  focus=p.pawn; renderChips(); syncCrystals(); syncRollLabel();
+  focus=p.pawn; renderChips(); syncCrystals(); syncRollLabel(); try{ syncAutoBtn(); }catch(e){}
   if(extra) hud('showTurn',p,{extra:true}); /* toast "Giliran X" dihapus (sudah ada penanda giliran di panel Pemain); "Giliran tambahan!" tetap karena tidak ada penanda lain */
   if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Roll.'));
   else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll.':'Giliran '+p.name+'. Tekan Roll.'));
@@ -4569,7 +4570,7 @@ async function doRoll(opt){
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
 function finishGame(p){
-  gameOver=true; clearTurnTimer(); p.score+=50; renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
+  gameOver=true; clearTurnTimer(); p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(p.name+' mengalahkan Ender Dragon!'); setRoll(false);
   const lost=isPlayerDefeat(p);
   if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
@@ -4637,17 +4638,24 @@ $('btnDice').addEventListener('click',()=>applyDice(DICE[(DICE.findIndex(x=>x.ke
 applyDice(diceKey);
 updateNightUI();
 $('btnRoll').addEventListener('click',()=>{ if(specialDiceActive(players[cur])) return; /* mode khusus ditangani pointer/keyboard hold */ ensureAudio(); doRoll(); });
-/* Auto roll: bila aktif, giliran pemain manusia dilempar otomatis setelah jeda singkat lewat doRoll() yang sama dengan tombol Roll/AFK.
-   Hanya toggle + pemeriksa ringan; alur giliran, power-up, dan gameplay tidak diubah. Hanya berlaku selama sesi game ini. */
-const AUTO_ROLL_DELAY=900; let autoRoll=false,autoSince=0;
-function setAutoRoll(on){ autoRoll=!!on; autoSince=0; $('btnAuto').setAttribute('aria-pressed',String(autoRoll)); try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200}); }catch(e){} }
-$('btnAuto').addEventListener('click',()=>{ ensureAudio(); setAutoRoll(!autoRoll); });
+/* Auto roll (4.1.25 ownership): hanya menjalankan giliran PEMAIN LOKAL lewat doRoll() yang sama dengan tombol Roll/AFK.
+   Pemain lokal = pemain non-CPU dengan idx 0 (pemilik profil PlayerData; konvensi sama dengan frameOf). Sistem turn/ID tetap players[]+cur+p.idx.
+   Tombol disabled (bukan dihapus, agar layout tetap) saat giliran pemain lain/CPU, jeda, busy, atau game selesai. Status ON/OFF disimpan di localStorage 'ut-autoroll'. */
+const AUTO_ROLL_DELAY=900,AUTO_KEY='ut-autoroll'; let autoRoll=false,autoSince=0,autoGid=-1;
+try{ autoRoll=localStorage.getItem(AUTO_KEY)==='1'; }catch(e){}
+function localPlayerIdx(){ return 0; }
+function isLocalPlayer(p){ return !!p&&!p.cpu&&p.idx===localPlayerIdx(); }
+function autoCanRoll(){ const p=players[cur]; return isLocalPlayer(p)&&!busy&&!paused&&!gameOver&&!AWK.running&&!DH.on&&!$('btnRoll').disabled&&!document.getElementById('readyScreen'); }
+function syncAutoBtn(){ const b=$('btnAuto'); if(!b) return; b.setAttribute('aria-pressed',String(autoRoll)); b.disabled=!(players.length&&isLocalPlayer(players[cur])&&!gameOver); }
+function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ localStorage.setItem(AUTO_KEY,autoRoll?'1':'0'); }catch(e){} syncAutoBtn(); try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200}); }catch(e){} }
+$('btnAuto').addEventListener('click',()=>{ if($('btnAuto').disabled) return; ensureAudio(); setAutoRoll(!autoRoll); });
+syncAutoBtn();
 setInterval(()=>{
-  if(!autoRoll) return;
-  const p=players[cur];
-  if(!p||p.cpu||busy||paused||gameOver||AWK.running||DH.on||$('btnRoll').disabled||document.getElementById('readyScreen')){ autoSince=0; return; }
+  syncAutoBtn();
+  if(autoGid!==gameId){ autoGid=gameId; autoSince=0; return; } /* game baru: reset penghitung */
+  if(!autoRoll||!autoCanRoll()){ autoSince=0; return; }
   const now=performance.now(); if(!autoSince){ autoSince=now; return; }
-  if(now-autoSince>=AUTO_ROLL_DELAY){ autoSince=0; ensureAudio(); doRoll(); }
+  if(now-autoSince>=AUTO_ROLL_DELAY){ autoSince=0; ensureAudio(); doRoll(); } /* doRoll() set busy sinkron -> tick berikut tidak bisa roll ganda */
 },150);
 $('btnCam').addEventListener('click',()=>resetCam());
 camLoad(); camUI();
