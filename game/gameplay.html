@@ -355,7 +355,7 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
     <div class="tn-av" id="tnAv" aria-hidden="true"><img id="tnAvImg" alt=""></div>
     <div class="trow"><span id="turnName"></span><div class="die-scene" id="dieScene"><div class="die-tilt"><div class="die" id="die"></div></div></div></div>
     <div class="tn-meta" id="tnMeta"><span id="tnLv">Lv. 28</span><span class="on" id="tnSt">Online</span></div>
-    <button class="btn big" id="btnRoll" type="button">Roll dadu</button>
+    <button class="btn big" id="btnRoll" type="button">Roll</button>
     <div class="dmeter" id="diceMeter" hidden aria-hidden="true"><div class="dm-bar"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><b class="dm-needle" id="dmNeedle"></b></div></div>
     <p class="msg" id="msg" aria-live="polite"></p>
   </div>
@@ -542,33 +542,87 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
 @keyframes pfx-hop{0%{transform:translateY(0)}35%{transform:translateY(-5px)}100%{transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.pb[class*="pfx-"],.pb[class*="pfx-"] b,.pb[class*="pfx-"]::after,.pr[class*="pfx-"]::after{animation:none}}
 
-/* --- Panel giliran (kanan bawah): avatar + dadu menonjol di atas panel --- */
-#side .rcol .pnl.tn{display:flex;flex-direction:column;margin-top:clamp(70px,7vw,110px);padding:14px 16px 12px;
-  background:linear-gradient(#2a86ee,#1456c4);box-shadow:0 6px 0 var(--bd),0 14px 24px rgba(18,51,127,.35),inset 0 2px 3px rgba(255,255,255,.5),inset 0 0 0 3px var(--rim)}
-#side .tn>h3{right:16px;top:-18px;padding-left:14px}
-#side .tn>h3::before{content:"";flex:none;width:1.4em;height:1.4em;background:url("assets/Images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
-#side .tn.is-wait>h3::before{filter:grayscale(1) opacity(.75)}
-#side .tn.is-wait>h3{opacity:.95}
-.tn-av{position:absolute;left:4px;bottom:calc(100% - clamp(36px,3.2vw,52px));width:clamp(104px,9vw,150px);aspect-ratio:1;pointer-events:none;z-index:1;
-  --pc:#27b6e6;filter:drop-shadow(0 6px 4px rgba(10,30,100,.35))}
-.tn-av::before{content:"";position:absolute;inset:-12% -8% -2%;border-radius:50%;background:radial-gradient(circle,rgba(255,226,120,.95),rgba(255,210,77,0) 68%);z-index:-1}
-.tn-av svg,.tn-av img:not([src]){visibility:hidden}.tn-av img{display:block;width:100%;height:100%}
-.tn-av img{display:block;image-rendering:pixelated;object-fit:contain;padding:8%;border-radius:18%;background:#fff;box-shadow:0 0 0 4px var(--pc,#fff),0 5px 0 rgba(10,30,100,.4)}
-#side .tn .die-scene{position:absolute;right:clamp(18px,1.8vw,30px);top:22px;zoom:1.05;margin:0;z-index:1}
-#side .tn .trow{order:1;display:block;margin:clamp(46px,4vw,60px) 0 0;padding:0;min-height:0}
-#side #turnName{display:block;max-width:60%;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:clamp(22px,1.8vw,28px);line-height:1.1;margin-left:0}
-#side .tn-meta{order:2;display:flex;align-items:center;gap:10px;margin:2px 0 10px;font-size:clamp(13px,1vw,15px);color:#d8ecff;font-weight:800}
-#side .tn-meta .on::before{content:"";display:inline-block;width:.7em;height:.7em;margin-right:.4em;border-radius:50%;background:var(--ok);box-shadow:0 0 0 2px rgba(255,255,255,.6)}
-#side .tn.is-wait .tn-meta .on::before{background:var(--warn)}
-#side .tn #btnRoll{order:3;width:100%;display:flex;align-items:center;justify-content:center;gap:12px;height:clamp(54px,4.4vw,70px);padding:0 16px;font-size:clamp(22px,1.9vw,30px);line-height:1;white-space:nowrap;transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s,box-shadow .1s}
-#side .tn #btnRoll::before{content:"";flex:none;width:1.5em;height:1.5em;background:url("assets/Images/icon/items/dadu.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(120,60,0,.35))}
-#side .tn #btnRoll:disabled::before{filter:grayscale(1) opacity(.7)}
-#side .tn #btnRoll:not(:disabled){animation:hud-roll 1.8s ease-in-out infinite}
-#side .tn #btnRoll:not(:disabled):hover{transform:scale(1.03)}
-#side .tn #btnRoll:not(:disabled):active{transform:translateY(4px) scale(.98);animation:none}
-#side .tn #btnRoll:disabled{cursor:not-allowed}
-@keyframes hud-roll{0%,100%{box-shadow:0 5px 0 #c96a0c,inset 0 3px 3px rgba(255,255,255,.6),0 0 0 0 rgba(255,210,77,.55)}50%{box-shadow:0 5px 0 #c96a0c,inset 0 3px 3px rgba(255,255,255,.6),0 0 0 9px rgba(255,210,77,0)}}
-#side .tn .msg{order:4;display:grid!important;place-items:center;margin:8px 0 0;padding:0;min-height:2.5em;background:none;font-size:clamp(12px,.95vw,14px);line-height:1.25;color:#e6f4ff}
+/* --- Panel giliran (kanan bawah): transparan, hanya nama + dadu + tombol Roll --- */
+#side .rcol .pnl.tn{
+  display:grid;
+  grid-template-columns:1fr auto;
+  grid-template-areas:"name die" "btn btn";
+  column-gap:12px;
+  align-items:center;
+  margin-top:clamp(70px,7vw,110px);
+  padding:14px 16px 12px;
+  background:transparent;
+  box-shadow:none;
+  border:none;
+}
+#side .tn>h3{display:none}
+.tn-av{display:none}
+#side #turnName{
+  grid-area:name;
+  display:block;
+  color:#fff;
+  font-size:clamp(22px,1.8vw,28px);
+  line-height:1.1;
+  text-shadow:0 2px 4px rgba(0,0,0,.5);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+#side .tn .die-scene{
+  grid-area:die;
+  position:relative;
+  zoom:1.05;
+  margin:0;
+}
+#side .tn-meta{display:none}
+#side .tn .msg{display:none}
+#side .tn #btnRoll{
+  grid-area:btn;
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  height:clamp(54px,4.4vw,70px);
+  padding:0 24px;
+  font-size:clamp(22px,1.9vw,30px);
+  line-height:1;
+  white-space:nowrap;
+  color:#fff;
+  text-shadow:0 2px 0 #0d4a14;
+  border:3px solid var(--ol);
+  border-radius:999px;
+  background:linear-gradient(#4fd24c,#259a2e 50%,#1fa83c 52%,#2faa2f);
+  box-shadow:
+    inset 0 0 0 2px #8cf08a,
+    inset 0 -4px 0 rgba(0,70,10,.45),
+    0 4px 0 var(--ol),
+    0 0 0 0 rgba(79,210,76,.55);
+  transition:transform .15s cubic-bezier(.3,1.6,.5,1),filter .15s,box-shadow .1s;
+  position:relative;
+  overflow:hidden;
+}
+#side .tn #btnRoll::before{
+  content:"";
+  position:absolute;
+  left:4%; right:4%; top:6%;
+  height:44%;
+  border-radius:999px 999px 9999px 9999px;
+  background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.08));
+  pointer-events:none;
+}
+#side .tn #btnRoll::after{
+  content:"";
+  flex:none;
+  width:1.5em;
+  height:1.5em;
+  background:url("assets/Images/icon/items/dadu.webp") center/contain no-repeat;
+  filter:drop-shadow(0 2px 0 rgba(120,60,0,.35));
+}
+#side .tn #btnRoll:disabled::after{filter:grayscale(1) opacity(.7)}
+#side .tn #btnRoll:not(:disabled):hover{transform:scale(1.03);filter:brightness(1.08)}
+#side .tn #btnRoll:not(:disabled):active{transform:translateY(3px) scale(.98);box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 1px 0 var(--ol)}
+#side .tn #btnRoll:disabled{cursor:not-allowed;background:linear-gradient(#7d8da8,#58698a);text-shadow:0 2px 0 #2a3550;transform:none;box-shadow:inset 0 0 0 2px #a6b4cc,0 3px 0 var(--ol)}
 #side .tn.swap #turnName,#side .tn.swap .tn-av{animation:hud-swap .4s ease-out}
 @keyframes hud-swap{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
 /* bila modul HUD eksternal sudah menambah avatar/meta sendiri, versi bawaan ini disembunyikan agar tidak dobel */
@@ -621,29 +675,74 @@ body .pucard.chest #pcDesc:empty{display:none}
 </style>
 
 <style id="turn-panel-v2">
-/* Panel giliran (kanan bawah) — layout grid, tanpa elemen yang saling menimpa:
-   kiri = avatar, nama, status | kanan = dadu | bawah = tombol Roll & pesan (lebar penuh). Tab "Giliran" tetap menempel di tepi atas panel. */
+/* Panel giliran (kanan bawah) — layout grid, transparan, hanya nama + dadu + tombol Roll */
 #side{--tav:clamp(62px,5.2vw,80px)}
-body #side .rcol .pnl.tn{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"av die" "name die" "meta die" "btn btn" "meter meter" "msg msg";column-gap:8px;align-items:start;margin-top:22px;padding:18px 14px 12px}
-body #side .tn-av{position:relative;grid-area:av;left:auto;top:auto;bottom:auto;width:var(--tav);margin:0 0 8px 2px}
-body #side .tn .trow{display:contents}
-body #side #turnName{grid-area:name;max-width:100%;min-width:0;align-self:center;font-size:clamp(20px,1.6vw,24px);line-height:1.1}
-body #side .tn-meta{grid-area:meta;margin:3px 0 0;gap:8px;flex-wrap:nowrap;white-space:nowrap;font-size:clamp(12px,.9vw,13px)}
-body #side .tn .die-scene{grid-area:die;position:relative;top:auto;right:auto;zoom:1.2;margin:6px 6px 6px 0;align-self:center;justify-self:end}
-body #side .tn #btnRoll{grid-area:btn;height:clamp(46px,3.8vw,56px);margin-top:12px;font-size:clamp(20px,1.7vw,24px);gap:10px}
-body #side .tn .msg{grid-area:msg;font-size:12px;min-height:0!important;margin-top:8px}
+body #side .rcol .pnl.tn{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-areas:"name die" "btn btn";
+  column-gap:12px;
+  align-items:center;
+  margin-top:22px;
+  padding:18px 14px 12px;
+  background:transparent;
+  box-shadow:none;
+  border:none;
+}
+body #side .tn-av{display:none}
+body #side .tn .trow{display:none}
+body #side #turnName{
+  grid-area:name;
+  max-width:100%;
+  min-width:0;
+  align-self:center;
+  font-size:clamp(20px,1.6vw,24px);
+  line-height:1.1;
+  color:#fff;
+  text-shadow:0 2px 4px rgba(0,0,0,.5);
+}
+body #side .tn-meta{display:none}
+body #side .tn .die-scene{
+  grid-area:die;
+  position:relative;
+  top:auto;
+  right:auto;
+  zoom:1.2;
+  margin:6px 6px 6px 0;
+  align-self:center;
+  justify-self:end;
+}
+body #side .tn #btnRoll{
+  grid-area:btn;
+  height:clamp(46px,3.8vw,56px);
+  margin-top:12px;
+  font-size:clamp(20px,1.7vw,24px);
+  gap:10px;
+  border-radius:999px;
+}
+body #side .tn .msg{display:none}
 @media(min-width:700px){body #side .rcol{width:clamp(240px,19vw,300px)}}
-@media(max-width:699px) and (orientation:portrait){#side{--tav:54px}body #side .rcol .pnl.tn{padding:14px 12px 8px}body #side .tn-av{margin-bottom:6px}body #side .tn .die-scene{zoom:1}body #side .tn #btnRoll{height:44px;margin-top:6px}body #side .tn .msg{margin-top:5px}}
-@media(min-width:700px) and (max-height:560px){#side{--tav:54px}body #side .rcol .pnl.tn{padding:14px 12px 8px;margin-top:18px}body #side .tn .die-scene{zoom:1;margin:2px 4px 2px 0}body #side .tn #btnRoll{height:42px;margin-top:8px;font-size:20px}body #side .tn .msg{margin-top:5px}}
+@media(max-width:699px) and (orientation:portrait){
+  #side{--tav:54px}
+  body #side .rcol .pnl.tn{padding:14px 12px 8px}
+  body #side .tn-av{display:none}
+  body #side .tn .die-scene{zoom:1}
+  body #side .tn #btnRoll{height:44px;margin-top:6px}
+  body #side .tn .msg{display:none}
+}
+@media(min-width:700px) and (max-height:560px){
+  #side{--tav:54px}
+  body #side .rcol .pnl.tn{padding:14px 12px 8px;margin-top:18px}
+  body #side .tn .die-scene{zoom:1;margin:2px 4px 2px 0}
+  body #side .tn #btnRoll{height:42px;margin-top:8px;font-size:20px}
+  body #side .tn .msg{display:none}
+}
 
-/* Panel giliran (kanan bawah) mengikuti warna pemain yang sedang main. --tnc diisi skrip HUD di akhir body (p.css = warna kursi);
-   tanpa dukungan color-mix, panel tetap biru seperti sebelumnya. */
+/* --- Panel giliran (kanan bawah) mengikuti warna pemain yang sedang main. --tnc diisi skrip HUD di akhir body (p.css = warna kursi);
+   tanpa dukungan color-mix, panel tetap transparan seperti sebelumnya. */
 @supports (color:color-mix(in srgb,red,blue)){
-  #side .rcol .pnl.tn{--tnc:#3b7ddd;--rim:color-mix(in srgb,var(--tnc) 55%,#fff);--bd:color-mix(in srgb,var(--tnc) 42%,#000);
-    background:var(--tnc);
-    box-shadow:0 6px 0 var(--bd),0 14px 24px rgba(18,51,127,.35),inset 0 2px 3px rgba(255,255,255,.5),inset 0 0 0 3px var(--rim)}
-  #side .tn>h3{background:color-mix(in srgb,var(--tnc) 78%,#000)}
-  #side .tn .msg,#side .tn .tn-meta{color:#fff;text-shadow:0 1px 0 var(--bd)}
+  #side .rcol .pnl.tn{background:transparent}
+  #side .tn .msg,#side .tn .tn-meta{display:none}
 }
 </style>
 <style id="dice-meter">
@@ -676,12 +775,12 @@ body #side .tn .dmeter{grid-area:meter;margin-top:8px;width:100%}
   #side #pus{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:none;gap:4px;scrollbar-width:none}
   #side .pb{flex:0 0 44px;min-width:44px;width:44px;height:48px;font-size:20px}#side .pb em{display:none}
   #side .rcol{left:auto;right:max(8px,env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));top:auto;width:clamp(180px,32vw,240px)}
-  body #side .rcol .pnl.tn{margin-top:16px;padding:12px 10px 8px;grid-template-areas:"name die" "btn btn" "meter meter" "msg msg"}
+  body #side .rcol .pnl.tn{margin-top:16px;padding:12px 10px 8px;background:transparent;box-shadow:none;border:none;grid-template-areas:"name die" "btn btn"}
   body #side .tn-av,body #side .tn-meta{display:none}
-  body #side #turnName{font-size:16px}
-  body #side .tn .die-scene{zoom:.7;margin:0 2px 0 0}
-  body #side .tn #btnRoll{height:44px;margin-top:6px;font-size:18px}
-  body #side .tn .msg{font-size:11px;margin-top:4px;min-height:0!important}
+  body #side #turnName{font-size:16px;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.5)}
+  body #side .tn .die-scene{zoom:.55;margin:0 2px 0 0}
+  body #side .tn #btnRoll{height:44px;margin-top:6px;font-size:18px;border-radius:999px}
+  body #side .tn .msg{display:none}
 }
 </style>
 <style id="hud-responsive">
@@ -717,8 +816,8 @@ body #side .pnl{border:3px solid var(--ol);border-radius:8px;background:linear-g
   box-shadow:inset 0 0 0 3px #5e90f0,0 4px 0 var(--ol),0 10px 16px rgba(10,30,90,.3)}
 body #side .pnl>h3{border:3px solid var(--ol);border-radius:5px;padding:2px 16px 3px;background:linear-gradient(var(--nv1),var(--nv2));
   box-shadow:inset 0 0 0 2px var(--rb-hi),0 3px 0 var(--ol);text-shadow:0 2px 0 var(--ol)}
-body #side .pnl.tn>h3{background:color-mix(in srgb,var(--tnc,#2a4478) 70%,#000)}
-body #side .rcol .pnl.tn{border:3px solid var(--ol);border-radius:8px;box-shadow:inset 0 0 0 3px var(--rim),0 5px 0 var(--ol),0 12px 20px rgba(10,30,90,.3)}
+body #side .pnl.tn>h3{display:none}
+body #side .rcol .pnl.tn{border:none;background:transparent;box-shadow:none;border-radius:12px}
 /* baris pemain */
 body #side .pr{border:3px solid var(--ol);border-radius:6px;background:linear-gradient(var(--nv1),var(--nv2));
   box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 3px 0 var(--ol)}
@@ -732,15 +831,15 @@ body #side #pus .pb[data-state=ready]{background:linear-gradient(#3a6ac0,#2a4a94
 body #side #pus .pb:not(:disabled):hover{background:linear-gradient(#4a80dc,#2f58b0)}
 body #side #pus .pb b{border:2px solid var(--ol);border-radius:4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.45);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.5)}
 body #side #pus .pb[data-state=locked] b{color:#4a2a05;text-shadow:none}
-/* panel giliran: avatar, tombol Roll hijau, meter */
-body #side .tn-av img{border-radius:4px;background:#fff}
-body #side .tn #btnRoll{color:#fff;text-shadow:0 2px 0 #0d4a14;border:3px solid var(--ol);border-radius:7px;background:linear-gradient(#4fd24c,#259a2e);
-  box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 4px 0 var(--ol)}
-body #side .tn #btnRoll:not(:disabled){animation:hud-roll-px 1.8s ease-in-out infinite}
+/* panel giliran: tombol Roll glossy seperti tombol Lanjutkan di menu */
+body #side .tn-av{display:none}
+body #side .tn #btnRoll{color:#fff;text-shadow:0 2px 0 #0d4a14;border:3px solid var(--ol);border-radius:999px;background:linear-gradient(#4fd24c,#259a2e 50%,#1fa83c 52%,#2faa2f);
+  box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 4px 0 var(--ol),0 0 0 0 rgba(79,210,76,.55);
+  position:relative;overflow:hidden}
+body #side .tn #btnRoll::before{content:"";position:absolute;left:4%;right:4%;top:6%;height:44%;border-radius:999px 999px 9999px 9999px;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.08));pointer-events:none}
+body #side .tn #btnRoll:not(:disabled):hover{transform:scale(1.03);filter:brightness(1.08)}
+body #side .tn #btnRoll:not(:disabled):active{transform:translateY(3px);box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 1px 0 var(--ol)}
 body #side .tn #btnRoll:disabled{background:linear-gradient(#7d8da8,#58698a);text-shadow:0 2px 0 #2a3550;transform:none;box-shadow:inset 0 0 0 2px #a6b4cc,0 3px 0 var(--ol)}
-body #side .tn #btnRoll:not(:disabled):active{transform:translateY(3px);box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 1px 0 var(--ol);animation:none}
-@keyframes hud-roll-px{0%,100%{box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 4px 0 var(--ol),0 0 0 0 rgba(79,210,76,.55)}50%{box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 4px 0 var(--ol),0 0 0 8px rgba(79,210,76,0)}}
-@media(prefers-reduced-motion:reduce){body #side .tn #btnRoll:not(:disabled){animation:none}}
 .dm-bar{border-radius:4px;box-shadow:inset 0 2px 4px rgba(0,0,0,.35),0 0 0 3px var(--ol)}
 </style>
 <style id="hud-ref">
@@ -764,9 +863,9 @@ body #side .pr .bf{grid-column:2 / -1;grid-row:2;justify-self:start;margin:0;lin
 body #side .pr.on>span:first-of-type{text-shadow:0 2px 0 #8a5a08}
 body #side .pr.on::after{content:"";grid-column:3;grid-row:1;width:22px;height:22px;background:url("assets/Images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(138,90,8,.85))}
 body #side .pr.on::before{content:"";position:absolute;left:-13px;top:50%;translate:0 -50%;border-left:9px solid #ffc83d;border-top:8px solid transparent;border-bottom:8px solid transparent;filter:drop-shadow(0 2px 0 var(--ol))}
-/* ---- panel giliran: pesan sebagai bar gelap ---- */
-body #side .tn .msg{background:linear-gradient(#17316f,#102659);border:2px solid var(--ol);border-radius:6px;box-shadow:inset 0 0 0 1px rgba(120,160,235,.3);padding:3px 8px;color:#fff;text-shadow:0 1px 0 var(--ol);font-weight:800}
-body #side .tn>h3{font-weight:800}
+/* ---- panel giliran: sembunyikan pesan & header lama ---- */
+body #side .tn .msg{display:none}
+body #side .tn>h3{display:none}
 @media (orientation:landscape) and (max-height:430px){
   #side .col{top:calc(20px + env(safe-area-inset-top,0px));left:max(16px,env(safe-area-inset-left,0px))}
   body #side .pnl.pl{padding:15px 6px 7px}
@@ -782,12 +881,12 @@ body #side .tn>h3{font-weight:800}
   body #side .pnl.pu>h3{left:10px}
   #side .pb{flex:0 0 46px;min-width:46px;width:46px;height:56px;padding:2px 0 3px}
   body #side .pb em{display:block;font-size:9px;line-height:1;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
-  body #side .rcol .pnl.tn{margin-top:18px;padding:11px 10px 8px}
-  body #side .tn>h3{top:-15px;right:12px;font-size:13px;padding:1px 12px 2px;border-radius:5px}
-  body #side .tn .msg{font-size:10px;margin-top:6px}
+  body #side .rcol .pnl.tn{margin-top:18px;padding:11px 10px 8px;background:transparent;box-shadow:none;border:none}
+  body #side .tn>h3{display:none}
+  body #side .tn .msg{display:none}
   #side .col{width:clamp(160px,27vw,212px)}
   body #side .tn .die-scene{zoom:.55;margin:4px 8px 4px 0}
-  body #side .rcol .pnl.tn{grid-template-rows:auto auto auto auto}
+  body #side .rcol .pnl.tn{grid-template-areas:"name die" "btn btn"}
 }
 </style>
 <style id="hud-ord-chip">
@@ -809,14 +908,10 @@ body #side .pr .ord{display:inline-block;font-style:normal;font-weight:800;font-
 <style id="hud-turn-gloss">
 /* Panel giliran (kanan bawah): warna panel = warna pemain aktif (--tnc diisi renderChips), tampilan glossy dua-nada seperti tombol MULAI/SHOP di lobby. */
 @supports (color:color-mix(in srgb,red,blue)){
-  body #side .rcol .pnl.tn{--tnc:#2a78d6;--g1:color-mix(in srgb,var(--tnc) 62%,#fff);--g2:color-mix(in srgb,var(--tnc) 88%,#fff);--g3:color-mix(in srgb,var(--tnc) 78%,#000);--gr:color-mix(in srgb,var(--tnc) 40%,#fff);--go:color-mix(in srgb,var(--tnc) 28%,#0b1220);
-    border:0;border-radius:12px;
-    background:linear-gradient(var(--g1) 0%,var(--g2) 55%,var(--g3) 56%,var(--g3) 100%);
-    box-shadow:inset 0 0 0 2px var(--gr),inset 0 0 0 4px var(--go),0 5px 0 var(--go),0 12px 18px rgba(10,30,90,.35);
-    transition:background .35s,box-shadow .35s}
-  body #side .rcol .pnl.tn>h3{background:linear-gradient(color-mix(in srgb,var(--tnc) 70%,#fff),color-mix(in srgb,var(--tnc) 70%,#000) 56%);border:0;border-radius:6px;box-shadow:inset 0 0 0 2px var(--gr),inset 0 0 0 3px var(--go),0 3px 0 var(--go)}
-  body #side .rcol .pnl.tn .msg{background:linear-gradient(color-mix(in srgb,var(--tnc) 45%,#000),color-mix(in srgb,var(--tnc) 30%,#000));border-color:var(--go);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tnc) 50%,#fff)}
-  body #side .rcol .pnl.tn #turnName{text-shadow:0 2px 0 var(--go)}
+  body #side .rcol .pnl.tn{background:transparent;border:none;box-shadow:none}
+  body #side .rcol .pnl.tn>h3{display:none}
+  body #side .rcol .pnl.tn .msg{display:none}
+  body #side .rcol .pnl.tn #turnName{text-shadow:0 2px 4px rgba(0,0,0,.5)}
 }
 </style>
 <style id="win-modal">
