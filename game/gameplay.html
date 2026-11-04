@@ -346,7 +346,7 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
 
 <aside class="side" id="side">
 <div class="col">
-  <div class="pnl pl"><h3>Pemain</h3><div id="players" aria-label="Pemain"></div></div>
+  <div class="pnl pl" id="playersPanel" aria-label="Pemain"><div id="players"></div></div>
   <div class="pnl pu"><h3>Power-up</h3><div id="pus"></div></div>
 </div>
 <div class="rcol">
@@ -356,8 +356,9 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
     <div class="trow"><span id="turnName"></span><div class="die-scene" id="dieScene"><div class="die-tilt"><div class="die" id="die"></div></div></div></div>
     <div class="tn-meta" id="tnMeta"><span id="tnLv">Lv. 28</span><span class="on" id="tnSt">Online</span></div>
     <button class="btn big" id="btnRoll" type="button">Roll</button>
-    <div class="dmeter" id="diceMeter" hidden aria-hidden="true"><div class="dm-bar"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><b class="dm-needle" id="dmNeedle"></b></div></div>
     <p class="msg" id="msg" aria-live="polite"></p>
+    <p class="hint" id="rollHint">Giliranmu. Tekan Roll</p>
+    <div class="dmeter" id="diceMeter" hidden aria-hidden="true"><div class="dm-bar"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><b class="dm-needle" id="dmNeedle"></b></div></div>
   </div>
   <div id="scores" hidden></div>
 </div>
@@ -484,15 +485,14 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
   background:linear-gradient(#2d78e0,var(--navy));box-shadow:0 3px 0 var(--bd),inset 0 0 0 2px var(--rim),inset 0 2px 2px rgba(255,255,255,.35);display:flex;align-items:center;gap:8px;text-align:center}
 
 /* --- Player status --- */
-#side .pnl.pl{padding:26px 12px 12px}
-#side .pl>h3{left:50%;translate:-50% 0;min-width:78%;justify-content:center}
-#side #players{display:flex;flex-direction:column;gap:8px}
-#side .pr{position:relative;margin:0;gap:10px;min-height:clamp(46px,3.5vw,56px);padding:6px 10px 6px 7px;border-radius:15px;line-height:1.1;font-size:clamp(14px,1.05vw,17px);opacity:.95;filter:none;transform:none;
-  background:linear-gradient(#3f9bff,#1c64d4);box-shadow:0 3px 0 rgba(10,30,100,.5),inset 0 0 0 2px rgba(190,225,255,.75)}
-#side .pr img{width:clamp(34px,2.7vw,42px);height:clamp(34px,2.7vw,42px);border-radius:8px;border-width:2px}
+#side .pnl.pl{padding:12px;background:transparent;box-shadow:none;border:none}
+#side #players{display:flex;flex-direction:column;gap:6px}
+#side .pr{position:relative;margin:0;gap:8px;min-height:clamp(40px,3vw,48px);padding:4px 8px;border-radius:12px;line-height:1.1;font-size:clamp(13px,1vw,15px);opacity:.95;
+  background:transparent;box-shadow:none;border:1px solid rgba(255,255,255,.15)}
+#side .pr img{width:clamp(30px,2.4vw,36px);height:clamp(30px,2.4vw,36px);border-radius:6px;border-width:2px}
 #side .pr>span:first-of-type{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#side .pr .pos{min-width:2.4em;padding:0 10px;text-align:center;font-size:clamp(13px,1vw,16px);line-height:1.55;border-radius:999px;background:rgba(10,40,120,.6)}
-#side .pr.on{background:linear-gradient(#ffd24d,#f4a81f);box-shadow:0 3px 0 #b9740c,inset 0 0 0 2px rgba(255,255,255,.8);animation:hud-on .25s ease-out}
+#side .pr .pos{min-width:2em;padding:0 8px;text-align:center;font-size:clamp(12px,.9vw,14px);line-height:1.4;border-radius:999px;background:rgba(10,40,120,.6)}
+#side .pr.on{background:linear-gradient(#ffd24d,#f4a81f);box-shadow:0 2px 0 #b9740c,inset 0 0 0 2px rgba(255,255,255,.8);animation:hud-on .25s ease-out}
 #side .pr.on .pos{background:rgba(163,95,8,.45)}
 @keyframes hud-on{from{transform:scale(.97)}to{transform:none}}
 
@@ -546,7 +546,7 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
 #side .rcol .pnl.tn{
   display:grid;
   grid-template-columns:1fr auto;
-  grid-template-areas:"name die" "btn btn";
+  grid-template-areas:"name die" "btn btn" "hint hint";
   column-gap:12px;
   align-items:center;
   margin-top:clamp(70px,7vw,110px);
@@ -623,6 +623,17 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
 #side .tn #btnRoll:not(:disabled):hover{transform:scale(1.03);filter:brightness(1.08)}
 #side .tn #btnRoll:not(:disabled):active{transform:translateY(3px) scale(.98);box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 1px 0 var(--ol)}
 #side .tn #btnRoll:disabled{cursor:not-allowed;background:linear-gradient(#7d8da8,#58698a);text-shadow:0 2px 0 #2a3550;transform:none;box-shadow:inset 0 0 0 2px #a6b4cc,0 3px 0 var(--ol)}
+#side .tn #rollHint{
+  grid-area:hint;
+  margin:8px 0 0;
+  padding:0;
+  font-size:clamp(12px,.95vw,14px);
+  line-height:1.25;
+  color:#d8ecff;
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
+  text-align:center;
+  font-weight:700;
+}
 #side .tn.swap #turnName,#side .tn.swap .tn-av{animation:hud-swap .4s ease-out}
 @keyframes hud-swap{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
 /* bila modul HUD eksternal sudah menambah avatar/meta sendiri, versi bawaan ini disembunyikan agar tidak dobel */
@@ -762,7 +773,7 @@ body #side .tn .dmeter{grid-area:meter;margin-top:8px;width:100%}
 @media (orientation:landscape) and (max-height:430px){
   .ttl{display:none}
   body .hud,.hud{left:auto;right:0;transform:none;max-width:calc(100vw - 8px);padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) 0 8px}
-  #hud .tools{flex-wrap:wrap;justify-content:flex-end;gap:6px}
+  #hud .tools{flex-wrap:wrap;justify_content:flex-end;gap:6px}
   body .btn.small,body .hud .btn.small{font-size:11px;padding:6px 10px;min-height:40px}
   #side .col{left:max(8px,env(safe-area-inset-left,0px));top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;right:auto;width:clamp(136px,24vw,176px);gap:6px}
   #side .pnl.pl{padding:6px}#side .pnl.pl h3,.sc{display:none}
@@ -772,15 +783,16 @@ body #side .tn .dmeter{grid-area:meter;margin-top:8px;width:100%}
   body #side .pr .pos{flex:none;padding:0 5px;font-size:9px}
   #side .pnl.pu{position:fixed;left:max(8px,env(safe-area-inset-left,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));width:auto;max-width:calc(100vw - clamp(190px,34vw,250px) - 24px);padding:16px 6px 6px}
   #side .pnl.pu h3{display:none}
-  #side #pus{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:none;gap:4px;scrollbar-width:none}
+  #side #pus{flex-wrap:nowrap;overflow-x:auto;justify_content:flex-start;max-width:none;gap:4px;scrollbar-width:none}
   #side .pb{flex:0 0 44px;min-width:44px;width:44px;height:48px;font-size:20px}#side .pb em{display:none}
   #side .rcol{left:auto;right:max(8px,env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));top:auto;width:clamp(180px,32vw,240px)}
-  body #side .rcol .pnl.tn{margin-top:16px;padding:12px 10px 8px;background:transparent;box-shadow:none;border:none;grid-template-areas:"name die" "btn btn"}
+  body #side .rcol .pnl.tn{margin-top:16px;padding:12px 10px 8px;background:transparent;box-shadow:none;border:none;grid-template-areas:"name die" "btn btn" "hint hint"}
   body #side .tn-av,body #side .tn-meta{display:none}
   body #side #turnName{font-size:16px;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.5)}
   body #side .tn .die-scene{zoom:.55;margin:0 2px 0 0}
   body #side .tn #btnRoll{height:44px;margin-top:6px;font-size:18px;border-radius:999px}
   body #side .tn .msg{display:none}
+  body #side .tn #rollHint{font-size:10px;margin-top:4px}
 }
 </style>
 <style id="hud-responsive">
@@ -816,12 +828,14 @@ body #side .pnl{border:3px solid var(--ol);border-radius:8px;background:linear-g
   box-shadow:inset 0 0 0 3px #5e90f0,0 4px 0 var(--ol),0 10px 16px rgba(10,30,90,.3)}
 body #side .pnl>h3{border:3px solid var(--ol);border-radius:5px;padding:2px 16px 3px;background:linear-gradient(var(--nv1),var(--nv2));
   box-shadow:inset 0 0 0 2px var(--rb-hi),0 3px 0 var(--ol);text-shadow:0 2px 0 var(--ol)}
+body #side .pnl.pl{background:transparent;border:none;box-shadow:none;padding:8px}
+body #side .pnl.pl>h3{display:none}
 body #side .pnl.tn>h3{display:none}
 body #side .rcol .pnl.tn{border:none;background:transparent;box-shadow:none;border-radius:12px}
-/* baris pemain */
-body #side .pr{border:3px solid var(--ol);border-radius:6px;background:linear-gradient(var(--nv1),var(--nv2));
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 3px 0 var(--ol)}
-body #side .pr.on{background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -3px 0 rgba(150,90,0,.5),0 3px 0 var(--ol);color:#fff;text-shadow:0 2px 0 #8a5a08}
+/* baris pemain - compact transparent */
+body #side .pr{border:2px solid var(--ol);border-radius:6px;background:rgba(10,30,90,.3);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 2px 0 var(--ol)}
+body #side .pr.on{background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -2px 0 rgba(150,90,0,.5),0 2px 0 var(--ol);color:#fff;text-shadow:0 2px 0 #8a5a08}
 body #side .pr img{border-radius:3px}
 body #side .pr .pos{border-radius:4px;border:2px solid var(--ol);box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
 body #side .pr.on .pos{background:rgba(120,70,5,.55)}
