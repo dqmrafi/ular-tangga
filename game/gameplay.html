@@ -336,7 +336,7 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
     <button class="btn small light ico" id="btnFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="assets/Images/icon/ui/focus.webp" alt="" draggable="false"></button>
     <button class="btn small light ico" id="btnCam" type="button" aria-label="Reset kamera"><img class="hi" src="assets/Images/icon/ui/refresh.webp" alt="" draggable="false"></button>
     </span>
-    <button class="btn small light" id="btnTheme" type="button" hidden>Tema</button>
+    <button class="btn small light" id="btnTheme" type="button" hidden>Maps</button>
     <button class="btn small light" id="btnNight" type="button" hidden>Mode: Siang</button>
     <button class="btn small light" id="btnDice" type="button" hidden>Dadu</button>
     <button class="btn small light" id="btnSnd" type="button"><img class="hi" src="assets/Images/icon/audio/sound.webp" alt="" draggable="false">Suara: nyala</button>
@@ -3075,7 +3075,7 @@ function buildWorld(key){
   fontReady.then(()=>{ if(tk===worldToken) buildLabels(th); });
 
   applyLook(th);
-  const tb=$('btnTheme'); if(tb) tb.textContent='Tema: '+th.name;
+  const tb=$('btnTheme'); if(tb) tb.textContent='Maps: '+th.name;
   document.querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',b.getAttribute('data-theme')===th.key?'true':'false'));
   try{ localStorage.setItem('ut-tema2',th.key); }catch(e){}
 }
@@ -4191,7 +4191,7 @@ function startGame(m,keys){
 /* ---------- Kontrol antarmuka ---------- */
 const LOBBY_URL='lobby.html'; /* pindah halaman: layar dadu (play.html) tampil otomatis */
 function chooseTheme(key){
-  if(busy){ pendingTheme=key; document.querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',b.getAttribute('data-theme')===key?'true':'false')); const t=THEMES.find(x=>x.key===key); $('btnTheme').textContent='Tema: '+t.name; return; }
+  if(busy){ pendingTheme=key; document.querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',b.getAttribute('data-theme')===key?'true':'false')); const t=THEMES.find(x=>x.key===key); $('btnTheme').textContent='Maps: '+t.name; return; }
   pendingTheme=null; buildWorld(key);
 }
 let lastSkins=null;
