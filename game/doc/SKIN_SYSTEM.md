@@ -1,3 +1,5 @@
+> **DIHAPUS (Stage 4.2.2):** skin PNG (hero, knight, ninja_red, pejabat, sakura, warden) dan folder `data/skins/` sudah dihapus. Semua skin kini memakai model voxel `UT.CharacterData` (lihat `CHARACTER_DATA.md`). Isi dokumen di bawah hanya riwayat; `skinPng()` tidak ada lagi. Kode PNG di `gameplay.html` (`PNG_DEFS`, `loadSkin3D`) dan `gameplay/skin-uv.js` kini tidak terpakai dan sengaja dibiarkan (gameplay tidak diubah).
+
 # Skin System (Tahap 3.2) — fondasi skin karakter berbasis PNG
 
 PNG adalah **texture**, bukan model baru. Satu model karakter voxel dapat memakai banyak PNG.

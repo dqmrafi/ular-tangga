@@ -81,8 +81,15 @@
   }
 
   /* Karakter voxel tampak depan (16x32 unit piksel) */
+  /* Model karakter bersama (UT.CharacterData, sama dengan gameplay). Bila data/skrip tidak dimuat -> kembali ke gambar palet lama di bawah. */
+  function sharedSvg(it, label, headOnly) {
+    var CD = g.UT && g.UT.CharacterData; if (!CD || !CD.get('player', it.gameKey)) return '';
+    var o = { label: label || it.name }, out = headOnly ? CD.face('player', it.gameKey, o) : CD.svg('player', it.gameKey, { view: 'front', label: o.label });
+    return out ? out.replace('class="ut-char"', 'class="' + (headOnly ? 'art-face' : 'art-char') + ' ut-char"') : '';
+  }
   function character(skinId, label) {
     var it = C.byId(skinId); if (!it || it.kind !== 'skin') return '';
+    var shared = sharedSvg(it, label, false); if (shared) return shared;
     var d = faceData(it); if (!d) return '';
     var s = bodyRects(d, isPng(it) && it.arms === 'slim') + faceRects(d, 4);
     s += rect(4, 0, 8, 1, 'rgba(255,255,255,.18)') + rect(4, 7, 8, 1, 'rgba(0,0,0,.18)');
@@ -93,6 +100,7 @@
   /* Wajah saja (untuk thumbnail kecil) */
   function face(skinId, label) {
     var it = C.byId(skinId); if (!it || it.kind !== 'skin') return '';
+    var shared = sharedSvg(it, label, true); if (shared) return shared;
     var d = faceData(it); if (!d) return '';
     var s = faceRects(d, 0);
     if (pngReady(it)) s += pngFaceLayers(it.texture, 0, 0);

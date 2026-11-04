@@ -20,10 +20,7 @@
     { key: 'lainnya',  label: 'Lainnya' }
   ];
 
-  var SKIN_GROUPS = ['Default', 'Adventure', 'Fantasy', 'Rare', 'Epic', 'Legendary', 'PNG'];
-
-  /* Folder texture skin PNG, RELATIF terhadap halaman di game/ (tanpa path absolut / URL eksternal). */
-  var SKIN_DIR = 'data/skins/';
+  var SKIN_GROUPS = ['Default', 'Adventure', 'Fantasy', 'Rare', 'Epic', 'Legendary'];
 
   /* kind: skin -> bidak karakter | dice -> skin dadu | theme -> tema papan | powerup -> power-up gameplay
      slot powerup = null: consumable (quantity), BUKAN equipment — tidak masuk defaultEquipped. */
@@ -50,17 +47,7 @@
       rarity: rarity, price: price, desc: desc, starter: price === 0,
       texture: null, renderer: 'palette' }, extra || {});
   }
-  /* Skin PNG (Tahap 3.2): PNG = TEXTURE untuk model voxel yang sama, BUKAN model 3D baru.
-     texture  = path relatif ke file PNG (template Minecraft 64x64, lihat SKIN_SYSTEM.md).
-     arms     = 'classic' (lengan 4 px) | 'slim' (lengan 3 px) — hasil audit piksel PNG, bukan karangan.
-     price: null = EKONOMI BELUM DITENTUKAN — tidak dijual di shop, tidak boleh diarang (sama seperti Power-Up).
-     rarity 'common' = default netral untuk UI, BUKAN rarity sungguhan.
-     Menambah skin baru = taruh PNG di data/skins/ + satu baris skinPng() di bawah + kepemilikan di PlayerData. */
-  function skinPng(gameKey, name, file, extra) {
-    return Object.assign({ id: 'skin.' + gameKey, kind: 'skin', gameKey: gameKey, name: name, group: 'PNG',
-      rarity: 'common', price: null, desc: 'Skin PNG bergaya Minecraft (64\u00d764).', starter: false,
-      texture: SKIN_DIR + file, renderer: 'png', arms: 'classic' }, extra || {});
-  }
+  /* Skin PNG sudah dihapus: semua skin memakai model voxel UT.CharacterData (assets/js/character-data.js). */
   /* Path texture harus relatif, berakhiran .png, tanpa skema/URL, drive Windows, '..' atau spasi. */
   function validTexturePath(p) {
     return typeof p === 'string' && /^[A-Za-z0-9_\-]+(\/[A-Za-z0-9_\-]+)*\.png$/.test(p);
@@ -105,14 +92,6 @@
     skin('zombie',   'Zombie',   'Adventure', 'common', 0,   'Berjalan lambat tapi pantang menyerah sampai petak 100.'),
     skin('skeleton', 'Skeleton', 'Rare',      'rare',   300, 'Tulang-belulang pemanah dari gua gelap. Dingin dan tajam.'),
     skin('ender',    'Enderman', 'Epic',      'epic',   700, 'Makhluk tinggi dari dimensi lain dengan mata ungu menyala.', { featured: true }),
-
-    /* ---- Skin PNG (Tahap 3.2) — hasil audit game/data/skins/*.png (semua 64x64, template Minecraft) ---- */
-    skinPng('hero',      'Hero',      'hero.png'),
-    skinPng('knight',    'Knight',    'knight.png',    { arms: 'slim' }),
-    skinPng('ninja_red', 'Ninja Red', 'ninja_red.png'),
-    skinPng('pejabat',   'Pejabat',   'pejabat.png'),
-    skinPng('sakura',    'Sakura',    'sakura.png',    { arms: 'slim' }),
-    skinPng('warden',    'Warden',    'warden.png'),
 
     /* ---- Skin dadu (Aksesori) ---- */
     /* legacyIds = metadata migrasi Tahap 3 (ID lama yang dipetakan eksplisit ke ID canonical ini).

@@ -186,6 +186,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
 <div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
 <div id="toast"></div>
 <script src="assets/js/item-catalog.js"></script>
+<script src="assets/js/character-data.js"></script>
 <script src="assets/js/player-data.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="hud/ui-core.js"></script>
@@ -222,18 +223,12 @@ const crownP='<path d="M0 16L2 3L9 10L15 0L21 10L28 3L30 16Z" fill="#ffc92e" str
 const trophy=(x,y,s,emb)=>`<g transform="translate(${x} ${y}) scale(${s})"><path d="M8 8H3c0 9 3 12 8 13M32 8h5c0 9-3 12-8 13" fill="none" stroke="#e6a21a" stroke-width="3.500" stroke-linecap="round"/><path d="M8 1h24v13c0 8-5 13-12 14C13 27 8 22 8 14Z" fill="#ffcf3a" stroke="#d98f10" stroke-width="1.200"/><path d="M11 4h5v12c0 4 1 6 3 8-4-1-8-5-8-10Z" fill="#fff2a0" opacity=".7"/><rect x="17" y="27" width="6" height="7" fill="#e6a21a"/><rect x="11" y="33" width="18" height="5" rx="1.500" fill="#ffc22a"/><rect x="8" y="37" width="24" height="5" rx="1.500" fill="#e6a21a"/>${emb?`<g transform="translate(12.500 6.500) scale(.5)" opacity=".85"><path d="M0 16L2 3L9 10L15 0L21 10L28 3L30 16Z" fill="#e08a10"/></g>`:`<path d="M20 7l2 4.500 5 .5-3.700 3.300 1.100 5L20 17.800 15.600 20.300l1.100-5L13 12l5-.5Z" fill="#fff2a0"/>`}</g>`;
 const pips=(x,y,w)=>{const r=w*.12,c=p=>`<circle cx="${p[0]*w}" cy="${p[1]*w}" r="${r}"/>`;
  return `<g fill="#2f6fd0"><g transform="matrix(1 .5 -1 .5 ${x} ${y})">${[[.3,.3],[.5,.5],[.7,.7]].map(c).join('')}</g><g transform="translate(${x-w} ${y+w/2}) skewY(26.565)">${[[.3,.3],[.7,.7]].map(c).join('')}</g><g transform="translate(${x} ${y+w}) skewY(-26.565)">${[[.3,.3],[.7,.3],[.3,.7],[.7,.7]].map(c).join('')}</g></g>`};
-const ch=(x,y,s,o)=>{o=Object.assign({hood:'#1fb8d8',hair:'#7a4a2a',pants:'#3a4660',skin:'#f4bf94',a1:6,a2:-6,crown:0,band:0},o);
- const arm=(px,rx,a)=>`<g transform="rotate(${a} ${px} 30)"><rect x="${rx}" y="29" width="8" height="14" fill="${o.hood}"/><rect x="${rx}" y="42" width="8" height="6" fill="${o.skin}"/></g>`;
- return `<g transform="translate(${x} ${y}) scale(${s})"><rect x="27" y="27" width="10" height="19" fill="#8a5a3a"/>
-<rect x="11" y="46" width="8" height="11" fill="${o.pants}"/><rect x="21" y="46" width="8" height="11" fill="${o.pants}"/>
-<rect x="9" y="56" width="11" height="5" rx="1" fill="#fff"/><rect x="20" y="56" width="11" height="5" rx="1" fill="#fff"/><rect x="9" y="56" width="11" height="1.600" fill="#2f6fd0"/><rect x="20" y="56" width="11" height="1.600" fill="#2f6fd0"/>
-${arm(6,2,o.a1)}<rect x="8" y="27" width="24" height="20" fill="${o.hood}"/><rect x="8" y="27" width="24" height="3" fill="#fff" opacity=".2"/><rect x="16" y="30" width="8" height="12" fill="#fff"/><rect x="9" y="27" width="3" height="18" fill="#8a5a3a"/>${arm(34,30,o.a2)}
-<rect x="7" y="3" width="26" height="25" fill="${o.skin}"/><rect x="30" y="3" width="3" height="25" fill="#000" opacity=".07"/>
-<rect x="5" y="0" width="30" height="9" fill="${o.hair}"/><rect x="5" y="5" width="5" height="15" fill="${o.hair}"/><rect x="30" y="5" width="5" height="12" fill="${o.hair}"/><rect x="10" y="7" width="14" height="4" fill="${o.hair}"/><rect x="22" y="8" width="6" height="2.500" fill="${o.hair}"/>
-${o.band?`<rect x="4" y="9" width="32" height="2.500" fill="${o.band}"/>`:''}
-<rect x="12" y="15" width="5.500" height="8" rx="1" fill="#2a1a18"/><rect x="23" y="15" width="5.500" height="8" rx="1" fill="#2a1a18"/><rect x="13.500" y="16" width="2.200" height="2.200" fill="#fff"/><rect x="24.500" y="16" width="2.200" height="2.200" fill="#fff"/>
-<rect x="9.500" y="22" width="3" height="2" fill="#ff8a8a" opacity=".55"/><rect x="27.500" y="22" width="3" height="2" fill="#ff8a8a" opacity=".55"/><rect x="16" y="24.500" width="8" height="3" rx=".8" fill="#c0473a"/><rect x="17" y="24.500" width="6" height="1.400" fill="#fff"/>
-${o.crown?`<g transform="translate(8.500 -11) scale(.77)">${crownP}</g>`:''}</g>`};
+/* Karakter ilustrasi = UT.CharacterData (sama dengan gameplay). Warna hood lama dipetakan ke karakter; lengan tidak lagi berayun (satu model). */
+const CHK={'#d8363a':'alex','#7a3ad0':'ender','#eceef4':'skeleton'};
+const ch=(x,y,s,o)=>{o=Object.assign({hood:'#1fb8d8',crown:0},o);
+ const sv=UT.CharacterData.svg('player',CHK[o.hood]||'steve',{view:'front'}),vb=(sv.match(/viewBox="([^"]+)"/)||[])[1];if(!vb)return'';
+ const [,,vw,vh]=vb.split(' ').map(Number),H=61*s,W=H*vw/vh;
+ return `<g>${sv.replace('<svg ',`<svg x="${(x+20*s-W/2).toFixed(2)}" y="${y}" width="${W.toFixed(2)}" height="${H.toFixed(2)}" `)}${o.crown?`<g transform="translate(${x} ${y}) scale(${s})"><g transform="translate(8.500 -11) scale(.77)">${crownP}</g></g>`:''}</g>`};
 const rays=(cx,cy)=>`<g fill="#fff" opacity=".16">${Array.from({length:12},(_,i)=>{const a=i*Math.PI/6,b=a+.2;return`<path d="M${cx} ${cy}L${cx+300*Math.cos(a)} ${cy+300*Math.sin(a)}L${cx+300*Math.cos(b)} ${cy+300*Math.sin(b)}Z"/>`}).join('')}</g>`;
 const glow=(cx,cy,r,c)=>`<defs><radialGradient id="g${cx}${cy}"><stop offset="0" stop-color="${c}" stop-opacity=".95"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient></defs><circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#g${cx}${cy})"/>`;
 const sc=b=>`<svg viewBox="0 0 240 175" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${b}</svg>`;

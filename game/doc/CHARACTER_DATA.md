@@ -12,7 +12,7 @@ memakai tampilan yang sama dengan gameplay — bukan lagi wajah 8×8 sederhana.
 ## Isi
 | Grup | Key |
 |---|---|
-| `player` | steve, alex, creeper, ender, zombie, skeleton, villager + skin PNG (hero, knight, ninja_red, pejabat, sakura, warden → model cadangan `steve`; tekstur tetap lewat `ItemArt`) |
+| `player` | steve, alex, creeper, ender, zombie, skeleton, villager |
 | `mob` | creeper, ender, skeleton, zombie, warden, villager, blaze (mob di petak papan) |
 | `wild` | golem, spider, zombie, skeleton, creeper (mob liar) |
 
@@ -31,6 +31,9 @@ UT.CharacterData.SEATS                                           // warna kursi 
 ```
 Pakai di halaman: `<script src="assets/js/character-data.js"></script>` lalu masukkan hasil `svg()` ke `innerHTML`.
 
-## Catatan
-- Skin PNG: `svg()/face()/mesh()` menampilkan model `steve` (sama seperti fallback gameplay). Untuk tekstur PNG tetap pakai `ItemArt.character()/face()`.
-- Belum ada halaman yang dipindah ke data ini; langkah berikutnya: Lobby → Leaderboard → Profil/Shop/Inventory.
+## Dipakai di halaman (Stage 4.2.2)
+- **Model 3D** lewat `assets/js/character-view.js` → `UT.CharacterView.make(THREE, skinIdAtauKey, emote)`: Lobby, Inventory, Shop, Profil, Leaderboard (podium). Emote: idle, wave, dance, victory, cheer, laugh (gerak seluruh badan karena model satu mesh).
+- **Wajah/gambar 2D** lewat `ItemArt.face()/character()` (otomatis memakai `UT.CharacterData`, cadangan = gambar palet lama bila skrip tidak dimuat): grid Inventory/Shop/Profil, avatar Lobby, Leaderboard (`NK` = peta pemain contoh → karakter), frame avatar, ikon hadiah skin, ilustrasi kartu `mode.html`.
+- Halaman **Teman** dan **Hadiah Harian** sengaja tidak memakai karakter, melainkan mob: lihat `doc/MOB_VIEW.md`.
+- Skin PNG sudah dihapus (katalog, `data/skins/`, preload). Kepemilikan/equipped lama yang menunjuk skin PNG otomatis dibuang `PlayerData.sanitize` dan kembali ke skin bawaan.
+- Skin PNG di katalog tidak ada lagi, jadi `META` tidak memuat entri PNG.

@@ -21,3 +21,8 @@ Game ular tangga bertema voxel/Minecraft. Jalankan lewat server lokal (mis. `pyt
 - `game-integration.js` : memastikan gameplay hanya memakai skin/tema/dadu yang dimiliki.
 
 Data hanya tersimpan di browser yang dipakai (tanpa akun/server).
+
+## Karakter & mob
+- `game/assets/js/character-data.js` (`UT.CharacterData`) = model karakter pemain/mob gameplay; `character-view.js` = karakter 3D di halaman. Lihat `game/doc/CHARACTER_DATA.md`.
+- `game/assets/js/mob-view.js` (`UT.MobView`) = mob dekoratif reusable (kupu-kupu + bunga di Teman, ayam di Hadiah Harian). Lihat `game/doc/MOB_VIEW.md`.
+- Skin PNG sudah dihapus; semua skin memakai model voxel yang sama dengan gameplay.
