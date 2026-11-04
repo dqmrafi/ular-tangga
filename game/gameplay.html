@@ -1075,6 +1075,22 @@ html body #readyScreen .rd-sub{color:#3b3b3b;text-shadow:none}
 html body #win .lm-box[class]{background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAACTUlEQVR42kWRzU7bQBDHB3ud9QL2bghKIIWkQaJKJSIFqVK5lV54B96gx75V34FTb82NSqlEpLRCCSpNDQ7rdYh37YnpYVs6h9HoPx+a+c1as/8RcxXUe2k09IMWGom58oOWTqfWA4AftMKdbjS+IJXQIVSgiYssIZVwcX+JuaofnqGRAKDTKamEQb2HRqrZyA9aAODyvdNyVWCeOC4NGn3H8R/j74QKQjnAExNtAECdOMQHALHXdzzGSSVEE2OuiizxGMdc2fG2usiSrfYJGukxrmYjp8gSQkXz6BxNDP/MYzyo9x5uPgMAGjmfDJhop9EQAFzKDzBPHuc/ePPt8mFcFtpxadh4/XDzZb3aLdEs5VXQ6DO+axZ3DvFd/uJdvrwtVxmaFAAclwJAoReEcjQyz6L1ajd//F3oxVJebdS6hFCxSY89xtNoiCYO6j3Gd7PkVyYnzxtirjBXftBJo6GDRup0avcjtJbJSTS+YHyXUIG5IpUQjSSVEAC22idoYodQYQEDgE3UD8+i8YVOp2jiv21UAICajQDA3X/zoVwV9lbM1UbtVSZ/MtEqC01olQaN5fxq++C9Q9Zdz2f8pUvYHjytlStt8ZeFLlfa88Xi7qsfdtRsAABp9A2e1lAnqBNiSRMqdHrdPDpXs5HHuL3HBtX9U/s+NJKJtgMATLQX95d+0JlPBov7SwCwDKy3QbjT1ek1ABDbTWgNc4Umru6fFlmCJt7cPg53ugAwnwxIJZxPBn7QKbLE+Q/bxFZ6Vm6/fVKzEaHimRUa+QfrtlBkdYjriwAAAABJRU5ErkJggg==") 0 0/48px 48px #1a3070;image-rendering:pixelated;border-color:#060d24;border-radius:calc(var(--mu)*.5);box-shadow:inset calc(var(--mu)*.35) calc(var(--mu)*.35) 0 rgba(120,160,255,.5),inset calc(var(--mu)*-.35) calc(var(--mu)*-.35) 0 rgba(0,0,0,.45),0 calc(var(--mu)*.5) 0 #060d24,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
 html body #win[data-state=lose] .lm-box[class]{background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAACAklEQVR42j1SzWrbQBAeac2UNSOjrmVFFj2kAdsEDDn4EHwqpY+Qd+rb5CF8yik9OYfGEEwxkuooSxJPrHSKSA/TGPa0u998fxN8H48BYOn91DkAAAAWIUQAiBBX3hMii4ycA4CV9+YoCLZNM88yaduKmUWctRWzIqVtnbWE+PljVOxeCDGcOjfPsp0Ii9QitcgkiUfvbIRYMUeI18V2ksQsYo6C4DxPb7Y1GvMoMnVusSk6AErVt1aZ0Zir8vepc+ZrHD/sX6VtpW3PBgPfNJ+I0BgA6Fu78t5Zq+CuMSwS1iJDIkKsRUpmAJgksRq4qqqDYxbRyzBB3IkAgKZEiJe3dwCQEV2MTw7IIZG+hiPnlt5rsrM8VWTFXDErcuTcMVHe62rWZtTpnA0GFXNq7e7P30kSP+xfAaBommMiTZYQb7Y1i6AxYUak7ayZl94Xz/sIkRATRNW9Zo4Qa5H/kpRUUz/4WXo/ck4PAJTM8yzTisy3fv+DMZMkNm8BvU9Nrf319ITG/Li/vxifwFtQMp86V+xeQgDIe93FehMhVszq7LA8U+cub+9KZhYpmSPEkEUW641KzIiW3rPIkEg7iRABYJanhEiIJXOHRTKiL0kMAMWzeoGV9xkRi7DI1Lmf9aOqneVpqLMX681ivcl73QRxSKS/h0QsoptbMc/y9LrY/gO48junLbQ4OQAAAABJRU5ErkJggg==") 0 0/48px 48px #7a2020;border-color:#2a0608;box-shadow:inset calc(var(--mu)*.35) calc(var(--mu)*.35) 0 rgba(255,140,130,.45),inset calc(var(--mu)*-.35) calc(var(--mu)*-.35) 0 rgba(0,0,0,.45),0 calc(var(--mu)*.5) 0 #2a0608,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
 </style>
+<style id="roll-square">
+/* ===== Panel Giliran (kanan bawah): dadu lebih besar + tombol Roll persegi 1:1, teks hanya "Roll", sejajar dasar dengan baris Power-up di kiri =====
+   HANYA tampilan (id/JS tidak berubah). Dimuat paling akhir agar menimpa semua aturan lama di semua ukuran layar. */
+html body #side{--die-z:1.35;--roll-sq:64px;--roll-fs:19px;--tn-pb:8px}
+@media (max-height:720px){html body #side{--die-z:1.1;--roll-sq:56px;--roll-fs:17px}}
+@media (orientation:landscape) and (max-height:430px){html body #side{--die-z:.95;--roll-sq:52px;--roll-fs:16px;--tn-pb:8px}}
+html body #side .rcol{justify-content:flex-end}
+html body #side .rcol .pnl.tn{aspect-ratio:auto;display:grid;grid-template-columns:auto auto;grid-template-areas:"name name" "die btn";justify-content:end;justify-items:end;align-items:end;align-content:end;column-gap:8px;row-gap:2px;margin:0;padding:0 var(--tn-pb) var(--tn-pb) 0;width:auto}
+html body #side .rcol .pnl.tn #turnName{grid-area:name;justify-self:end;max-width:calc(var(--tn-w) + 40px);font-size:var(--name-fs);text-align:right}
+html body #side .rcol .pnl.tn .die-scene{grid-area:die;zoom:var(--die-z);margin:0;align-self:end;justify-self:end}
+html body #side .rcol .pnl.tn #btnRoll{grid-area:btn;width:var(--roll-sq);height:var(--roll-sq);aspect-ratio:1/1;padding:0;margin:0;font-size:var(--roll-fs);gap:0;border-radius:12px;justify-content:center;align-self:end}
+html body #side .rcol .pnl.tn #btnRoll::before{border-radius:9px 9px 40% 40%}
+html body #side .rcol .pnl.tn #btnRoll::after{display:none}
+html body #side .rcol .pnl.tn #btnRoll.special{white-space:normal;text-align:center;line-height:1.05;padding:0 4px;font-size:calc(var(--roll-fs)*.5)}
+html body #side .rcol .pnl.tn .dmeter{grid-column:1/-1;grid-row:3;justify-self:stretch;margin-top:4px}
+</style>
 <script src="gameplay/hud-scale.js"></script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script>
