@@ -115,3 +115,12 @@ html body #side .rcol .pnl.tn .die-dock .die-scene.hop{animation:dieDrop 1.25s b
    Setelah dock dadu mengambil baris 2 penuh, Auto terdorong ke baris lain dan tertutup. Tempatkan eksplisit di baris 3 kolom 1 (kiri Roll). */
 html body #side .rcol .pnl.tn #btnAuto{grid-row:3;grid-column:1;position:relative;z-index:4;pointer-events:auto}
 html body #side .rcol .pnl.tn #btnRoll{grid-row:3;grid-column:2}
+
+/* Kartu pemain: bagian posisi tile (angka di samping mahkota) tanpa latar abu, baik giliran aktif maupun tidak. */
+html body #side .pr .pos,
+html body #side .pr:not(.on) .pos,
+html body #side .pr.on .pos{
+  background:none!important;background-color:transparent!important;
+  box-shadow:none!important;border:0!important;outline:0!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
