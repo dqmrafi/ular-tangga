@@ -142,8 +142,8 @@ html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#1a62b8;ove
   function musicVol() { try { return Math.max(0, Math.min(100, parseInt(localStorage.getItem('ut-musicvol') || '60', 10) || 60)) / 100; } catch (e) { return 0.6; } }
 
   /* Musik latar untuk semua halaman selain gameplay (gameplay punya musiknya sendiri).
-     Dua lagu yang ada di assets/music diputar bergantian. */
-  var TRACKS = ['assets/music/community.mp3', 'assets/music/rainy.mp3'], ti = 0, bgm = null, fadeRaf = 0;
+     Empat lagu di assets/music diputar bergantian. */
+  var TRACKS = ['assets/music/sunset_plains.mp3', 'assets/music/community.mp3', 'assets/music/first_light_particles.mp3', 'assets/music/rainy.mp3'], ti = 0, bgm = null, fadeRaf = 0;
   var wantMusic = false;                     // halaman saat ini boleh bermusik (bukan gameplay)
   function ensureBgm() {
     if (bgm) return bgm;

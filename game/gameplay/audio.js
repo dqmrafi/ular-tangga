@@ -43,21 +43,24 @@
      Satu tabel path. Struktur folder: assets/sfx/<kategori>/<nama>.<ext>
        ui/ dice/ board/ reward/ powerup/ mob/ dragon/   (daftar lengkap: assets/sfx/README.md)
      Mengganti/menambah file cukup ubah baris di sini; fungsi sfx di bawah hanya memakai kuncinya. */
-  const SFX_DIR='assets/sfx/';
+  const SFX_DIR='assets/sfx/', NS='../new sound/';
   const FILE={
     /* dice */   roll:'dice/dice-roll.mp3',
     /* board */  hop:'board/pawn-hop.mp3', ladder:'board/ladder-up.mp3', snakeBite:'board/snake-bite.mp3', block100:'board/block-100.mp3',
     /* win */    firework:'win/Firework_launch.ogg',
     /* result */ defeat:'ui/game-lose.mp3',
     /* power */  swordUse:'powerup/sword-use.mp3', tntExplosion:'mob/creeper-explosion.mp3', /* tntExplosion = asset ledakan bersama dengan Creeper (Stage C C14) */
-    /* reward */ chestOpen:'reward/chest-open.ogg', chestClose:'reward/chest-close.ogg', powerReward:'reward/power-reward.mp3',
-    /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.ogg', skeletonShoot:'mob/skeleton-shoot.ogg', endermanTp:'mob/enderman-teleport.ogg',
-    /* dragon */ dragonIdle:'dragon/dragon-idle.ogg', dragonHurt:'dragon/dragon-hurt.ogg', dragonDeath:'dragon/dragon-death.ogg',
+    /* reward */ chestOpen:'reward/chest-open.mp3', chestClose:'reward/chest-close.mp3', powerReward:'reward/power-reward.mp3',
+    /* mob */    punch:'mob/mob-punch.mp3', playerHurt:'mob/player-hurt.mp3', creeperFuse:'mob/creeper-fuse.mp3', skeletonShoot:'mob/skeleton-shoot.mp3', endermanTp:'mob/enderman-teleport.mp3',
+    /* dragon */ dragonIdle:'dragon/dragon-idle.mp3', dragonHurt:'dragon/dragon-hurt.mp3', dragonDeath:'dragon/dragon-death.mp3',
                earthquake:'dragon/earthquake.mp3', tower:'dragon/tower-rise.mp3', crystalAppear:'dragon/crystal-appear.mp3', crystalBreak:'dragon/crystal-break.mp3',
                /* file ada di root sfx/ (nama apa adanya, termasuk ejaan 'areana'/'crsytal'): arena naik setelah gempa; semua Crystal hancur */
-               arenaUp:'dragon-areana-up-before-crystal.mp3', crystalsDone:'setalah-hancurkan-crsytal.mp3'
+               arenaUp:'dragon-areana-up-before-crystal.mp3', crystalsDone:'setalah-hancurkan-crsytal.mp3',
+    /* new sound/ (folder assets/new sound/, dirujuk relatif dari SFX_DIR) — pengganti SFX yang dulu sintetis; fungsi sintetis lama tetap jadi fallback */
+    hiss:NS+'hiss.mp3', chomp:NS+'chomp.mp3', gulp:NS+'gulp.mp3', ladderClimb:NS+'ladder.mp3', pop:NS+'pop.mp3', bounce:NS+'bounce.mp3',
+    win:NS+'win.mp3', victory:NS+'win2.mp3', shuffle:NS+'shuffle.mp3', villager:NS+'villager.mp3'
   };
-  const FILE_AWAKENING='dragon/dragon-awakening.mp3'; /* PLACEHOLDER: file belum ada -> fallback sintetis (retak + gema). Taruh file bernama ini untuk menggantinya. */
+  const FILE_AWAKENING=NS+'dragonAwakening.mp3'; /* file ada di assets/new sound/; bila gagal -> fallback sintetis (retak + gema) */
   /* Warm-up: file SFX dimuat lebih awal (tanpa diputar, tanpa butuh gesture) agar pemutaran pertama tidak menunggu fetch/decode. */
   var warm=[];
   function preload(){ if(warm.length) return; Object.keys(FILE).forEach(function(k){ try{ var a=new Audio(); a.preload='auto'; a.src=SFX_DIR+FILE[k]; warm.push(a); }catch(e){} }); }
@@ -74,14 +77,14 @@
     /* ---------- PAPAN: gerak & kejadian di tile ---------- */
     hop(){ fileSfx('hop',0.5,function(){ beep(480+Math.random()*120,0.08,'square',0.04); }); },
     naiktangga(){ fileSfx('ladder',0.7,ladderBeeps); },
-    ladder(){ ladderBeeps(); },
+    ladder(){ fileSfx('ladderClimb',1,ladderBeeps); },
     caplokular(){ fileSfx('snakeBite',0.8,function(){ beep(200,0.12,'square',0.09,0,60); }); },
     hundred(){ fileSfx('block100',0.7,function(){ beep(523,0.2,'square',0.05); }); },
-    hiss(){ noise(0.55,0.09,0,4500); },
-    chomp(){ beep(200,0.12,'square',0.09,0,60); beep(90,0.25,'sawtooth',0.08,0.02); noise(0.12,0.07,0,1500); },
-    gulp(){ beep(220,0.18,'sine',0.1,0,90); beep(200,0.18,'sine',0.1,0.24,80); },
-    pop(){ beep(300,0.12,'triangle',0.08,0,900); },
-    bounce(){ beep(330,0.2,'triangle',0.07,0,140); },
+    hiss(){ fileSfx('hiss',0.8,function(){ noise(0.55,0.09,0,4500); }); },
+    chomp(){ fileSfx('chomp',0.9,function(){ beep(200,0.12,'square',0.09,0,60); beep(90,0.25,'sawtooth',0.08,0.02); noise(0.12,0.07,0,1500); }); },
+    gulp(){ fileSfx('gulp',0.9,function(){ beep(220,0.18,'sine',0.1,0,90); beep(200,0.18,'sine',0.1,0.24,80); }); },
+    pop(){ fileSfx('pop',0.8,function(){ beep(300,0.12,'triangle',0.08,0,900); }); },
+    bounce(){ fileSfx('bounce',0.8,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
 
     /* ---------- HADIAH & PETI ---------- */
     chest(){ fileSfx('chestOpen',0.7,function(){ beep(300,0.12,'triangle',0.08,0,900); }); },
@@ -92,7 +95,9 @@
     /* Stage 4.1.24.D.2: SATU titik suara aktivasi Power (dipanggil usePU, Player & Computer sama). Sword/TNT = file nyata, tanpa fallback sintetis (file gagal = senyap).
        Feather/Potion/Totem/Grass: asset belum ada (BLOCKED) -> tetap pop() lama (bukan audio final). TNT fuse: BLOCKED / NEEDS LISTENING, belum dipasang. */
     power(k){ if(k==='sword') return fileSfx('swordUse',0.7); if(k==='tnt') return fileSfx('tntExplosion',0.7); sfx.pop(); return null; },
-    win(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); },
+    win(){ fileSfx('win',0.8,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* tiba di Block 100 (win.mp3, ~4 dtk) */
+    victory(){ return fileSfx('victory',0.8,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* layar menang / celebrate (win2.mp3, ~16 dtk) */
+    villager(){ fileSfx('villager',1,function(){ beep(300,0.12,'triangle',0.08,0,900); }); }, /* Villager membantu (maju 5 blok) */
 
     /* ---------- MOB DI BOARD ---------- */
     hit(){ fileSfx('punch',0.7,function(){ beep(330,0.2,'triangle',0.07,0,140); }); },
@@ -119,7 +124,7 @@
     crystalsCleared(){ fileSfx('crystalsDone',0.9,function(){ [523,659,784,1047,784,1047].forEach((f,i)=>beep(f,0.2,'square',0.05,i*0.14)); }); }, /* semua Crystal hancur (READY). Fallback = fanfare sintetis lama (sama dengan sfx.win) bila file gagal */
 
     /* ---------- READY SCREEN (acak urutan giliran) — sintetis ---------- */
-    shuffleTick(){ beep(700+Math.random()*700,0.03,'square',0.03); },
+    shuffleTick(){ fileSfx('shuffle',0.5,function(){ beep(700+Math.random()*700,0.03,'square',0.03); }); },
     revealTick(){ beep(660,0.07,'square',0.05); },
     revealFirst(){ beep(660,0.07,'square',0.05); beep(990,0.14,'square',0.05,0.08); }
   };
