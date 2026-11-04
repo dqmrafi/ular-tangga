@@ -308,11 +308,11 @@ html body #pg .alhint.end{opacity:.35}html body #pg .alhint.end svg{animation:no
 @media(min-aspect-ratio:1/1){
 html body #midcol{left:30.8cqw!important;top:13.5cqh!important;width:30cqw!important;height:83cqh!important;display:flex;flex-direction:column;gap:.9rem;z-index:3}
 html body #midcol>#ai,html body #midcol>#kl,html body #midcol>#ak{position:relative!important;left:auto!important;top:auto!important;width:auto!important;height:auto!important;min-height:0;overflow:hidden}
-html body #midcol>#ai{flex:15 1 0}html body #midcol>#kl{flex:12 1 0}html body #midcol>#ak{flex:18 1 0}
+html body #midcol>#ai{flex:11 1 0}html body #midcol>#kl{flex:12 1 0}html body #midcol>#ak{flex:21 1 0}
 }
 @media(max-aspect-ratio:1/1){html body #midcol{display:flex;flex-direction:column;gap:1.2rem;width:100%!important;height:auto!important}html body #midcol>.pn{flex:none!important;position:relative!important}}
 /* Informasi Akun: 3 baris sama tinggi, ikon menyesuaikan tinggi baris */
-html body #ai .rw{flex:1 1 0;min-height:0;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));padding:.3rem .8rem}
+html body #ai .rw{flex:1 1 0;min-height:0;display:grid;grid-template-rows:repeat(2,minmax(0,1fr));padding:.3rem .8rem}
 html body #ai .r{height:auto;min-height:0;grid-template-columns:3.4rem auto minmax(0,1fr) 3.2rem;gap:.8rem;font-size:1.3rem}
 html body #ai .r>span{white-space:nowrap;font-size:1.35rem}
 html body #ai .r>b{text-align:right;justify-self:end;font-size:1.4rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -322,6 +322,10 @@ html body #ai .r .ib.sm{border:0;background:none}
 /* Koleksi & Aktivitas: isi ikut tinggi panel */
 html body .kt .ci{flex:1 1 0;min-height:0;max-height:3rem;width:auto;aspect-ratio:1/1}
 html body .ax>.ci,html body .ax>svg{max-height:88%;width:auto;aspect-ratio:1/1}
+/* Aktivitas: semua baris (termasuk Win Streak) harus muat */
+html body #ak .ag{grid-template-rows:repeat(2,minmax(0,1fr)) minmax(0,.8fr);gap:.5rem}
+html body #ak .ax{min-height:0;overflow:hidden}
+html body #ak .ax.w2{gap:.8rem}
 /* bintang (asset ui/start.webp) */
 html body .stars{gap:.05rem}html body .stars .star{width:2.1rem;height:2.1rem;object-fit:contain;display:block;pointer-events:none;-webkit-user-drag:none}
 html body .stars .star.off{filter:grayscale(1) brightness(.6) contrast(.9);opacity:.85}
@@ -450,8 +454,7 @@ function render(){
  $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><div class="onl"><u></u>Online</div><button class="ib up" data-a="skins" aria-label="Ganti tampilan profil">${UPA}</button>`;
  $('#ai').innerHTML=`<div class="hd big">${RI('mode/kontak')}Informasi Akun</div>
 <div class="in rw"><div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Nama</span><b>${esc(pname())}</b><button class="ib" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button></div>
-<div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>
-<div class="r"><i class="ti">${RI('mode/calndar')}</i><span>Tanggal Bergabung</span><b>${esc(MOCK.joined)}</b><i class="ib sm"></i></div></div>`;
+<div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div></div>`;
  $('#kl').innerHTML=`<div class="hd big">${RI('lobby/inventory')}Koleksi</div><div class="kg">${K.map(k=>`<div class="kt">${RI(k[2])}<b>${k[1]}</b><span>${k[0]}</span></div>`).join('')}</div>`;
  $('#ak').innerHTML=`<div class="hd big">${RI('lobby/leader')}Aktivitas</div><div class="ag">
 <button class="ax" data-a="rank">${RI('profile/globe')}<div><small>Peringkat Global</small><b>#${MOCK.rank} ${RI('lobby/leader')}</b></div></button>
