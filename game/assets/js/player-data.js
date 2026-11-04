@@ -124,7 +124,7 @@
       if (!st.inventory[it.id]) st.inventory[it.id] = { qty: 1, acquiredAt: st.createdAt, seq: st.nextSeq++ };
     });
     var eq = (o.equipped && typeof o.equipped === 'object') ? o.equipped : {};
-    ['skin', 'dice', 'theme'].forEach(function (slot) {
+    ['skin', 'dice', 'theme', 'frame'].forEach(function (slot) { /* save lama tanpa frame -> frame.default (starter) */
       var it = C.byId(eq[slot]);
       st.equipped[slot] = (it && it.slot === slot && st.inventory[it.id]) ? it.id : C.defaultEquipped[slot];
     });

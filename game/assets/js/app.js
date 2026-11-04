@@ -25,7 +25,7 @@ window.UT = window.UT || {};
 
   /* ================= Events (event bus) ================= */
   var handlers = {};
-  UT.Events.NAMES = ['skinChanged', 'diceChanged', 'currencyChanged', 'inventoryChanged', 'settingsChanged', 'modeChanged'];
+  UT.Events.NAMES = ['skinChanged', 'diceChanged', 'currencyChanged', 'inventoryChanged', 'settingsChanged', 'modeChanged', 'frameChanged'];
   UT.Events.on = function (name, fn) {
     if (typeof fn !== 'function') return function () {};
     (handlers[name] = handlers[name] || []).push(fn);
@@ -235,6 +235,7 @@ window.UT = window.UT || {};
           if (JSON.stringify(now.inventory) !== JSON.stringify(last.inventory)) UT.Events.emit('inventoryChanged', { reason: reason });
           if (now.equipped.skin !== last.equipped.skin) UT.Events.emit('skinChanged', { id: now.equipped.skin });
           if (now.equipped.dice !== last.equipped.dice) UT.Events.emit('diceChanged', { id: now.equipped.dice });
+          if (now.equipped.frame !== last.equipped.frame) UT.Events.emit('frameChanged', { id: now.equipped.frame });
           if (JSON.stringify(now.settings) !== JSON.stringify(last.settings)) UT.Events.emit('settingsChanged', { settings: now.settings, reason: reason });
           if (JSON.stringify(now.profile) !== JSON.stringify(last.profile)) UT.Events.emit('profileChanged', { profile: now.profile, reason: reason });
         }

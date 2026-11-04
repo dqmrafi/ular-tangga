@@ -348,7 +348,16 @@ html body .tg{border-radius:.6rem;border:.2rem solid var(--ol)}
 html body .pack,html body .mb{border-radius:.9rem;border:.3rem solid var(--ol);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ol)}
 html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:linear-gradient(var(--nv1),var(--nv2))}
 </style>
-<script src="assets/js/landscape.js"></script></head>
+<script src="assets/js/landscape.js"></script><style id="frame-tab">
+/* tab Frame: frame + wajah skin terpasang */
+.fr-th{position:relative;width:100%;height:100%}
+.fr-th .fr-in{position:absolute;inset:16%;display:block;border-radius:.3rem;background:linear-gradient(#bfe6ff,#6cb8f0)}
+.fr-th .fr-in svg{width:100%;height:100%;display:block}
+.fr-th .fr-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+#show #art .fr-th{width:min(34rem,70%);height:auto;aspect-ratio:1/1}
+#show #art .fr-th .fr-in svg{width:100%;height:100%}
+</style>
+</head>
 <body>
 <div id="sky"></div>
 
@@ -420,10 +429,10 @@ const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID');
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
 const RN={common:'COMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'},RC={common:'var(--r0)',rare:'var(--r1)',epic:'var(--r2)',legendary:'var(--r3)'};
 const BG={common:['#36517c','#243a60'],rare:['#3a82ee','#2257c8'],epic:['#7a3fd8','#4f27a6'],legendary:['#f0c040','#b98020']};
-const CI={skin:IC.items.filter(i=>i.kind==='skin'),dice:IC.items.filter(i=>i.kind==='dice'),theme:IC.items.filter(i=>i.kind==='theme'),powerup:IC.items.filter(i=>i.kind==='powerup')};
+const CI={skin:IC.items.filter(i=>i.kind==='skin'),dice:IC.items.filter(i=>i.kind==='dice'),theme:IC.items.filter(i=>i.kind==='theme'),powerup:IC.items.filter(i=>i.kind==='powerup'),frame:IC.items.filter(i=>i.kind==='frame')};
 const SOON={effect:'Efek',emote:'Emote'};
-const CATS=[['skin','Skin','M8 3 2 6l2 5 3-1v11h10V10l3 1 2-5-6-3c-.5 1.700-2 2.600-4 2.600S8.500 4.700 8 3Z'],['dice','Dadu','M4 4h16v16H4zM8 8h.1M16 8h.1M12 12h.1M8 16h.1M16 16h.1'],['powerup','Power','M13 2 4 14h6l-1 8 9-12h-6l1-8z'],['effect','Efek','M12 2l2.500 7.500L22 12l-7.500 2.500L12 22l-2.500-7.500L2 12l7.500-2.500z'],['emote','Emote','M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM8 10h.1M16 10h.1M7 15c2 3 8 3 10 0']];
-const catImg=k=>'<img class="ci" src="assets/Images/icon/items/'+({skin:'skin',dice:'dadu',powerup:'power',effect:'efek',emote:'emote'}[k]||'skin')+'.webp" alt="" draggable="false">';
+const CATS=[['skin','Skin','M8 3 2 6l2 5 3-1v11h10V10l3 1 2-5-6-3c-.5 1.700-2 2.600-4 2.600S8.500 4.700 8 3Z'],['frame','Frame','M4 4h16v16H4zM8 8h8v8H8z'],['dice','Dadu','M4 4h16v16H4zM8 8h.1M16 8h.1M12 12h.1M8 16h.1M16 16h.1'],['powerup','Power','M13 2 4 14h6l-1 8 9-12h-6l1-8z'],['effect','Efek','M12 2l2.500 7.500L22 12l-7.500 2.500L12 22l-2.500-7.500L2 12l7.500-2.500z'],['emote','Emote','M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM8 10h.1M16 10h.1M7 15c2 3 8 3 10 0']];
+const catImg=k=>k==='frame'?'<img class="ci" src="'+IC.FRAME_TAB_ICON+'" alt="" draggable="false">':'<img class="ci" src="assets/Images/icon/items/'+({skin:'skin',dice:'dadu',powerup:'power',effect:'efek',emote:'emote'}[k]||'skin')+'.webp" alt="" draggable="false">';
 const icon=p=>`<svg viewBox="0 0 24 24"><path d="${p}" fill="#fff" stroke="#fff" stroke-width="1.800" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
 const DM='<svg viewBox="0 0 24 24"><path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill="#62e178"/><path d="M12 2l8.66 5-3.72 2.15L12 6.3z" fill="#47d85f"/><path d="M20.66 7v10l-3.72-2.15v-5.7z" fill="#3dcb55"/><path d="M20.66 17L12 22v-4.3l4.94-2.85z" fill="#32a643"/><path d="M12 22l-8.66-5 3.72-2.15L12 17.7z" fill="#2a8d3a"/><path d="M3.34 17V7l3.72 2.15v5.7z" fill="#37b44c"/><path d="M12 6.3l4.94 2.85v5.7L12 17.7l-4.94-2.85v-5.7z" fill="#a7e6b1"/><path d="M12 6.3l4.94 2.85L12 12 7.06 9.15z" fill="#c4f2cc" opacity=".7"/></svg>';
 const CM='<svg viewBox="0 0 24 24"><path d="M12 12V.24A11.76 11.76 0 0 0 .24 12z" fill="#ffd12b"/><path d="M12 12h11.76A11.76 11.76 0 0 0 12 .24z" fill="#ffb800"/><path d="M12 12v11.76A11.76 11.76 0 0 0 23.76 12z" fill="#ffd12b"/><path d="M12 12H.24A11.76 11.76 0 0 0 12 23.76z" fill="#ffb800"/><circle cx="12" cy="12" r="8.75" fill="#ff8a00"/><g fill="#ffb901"><circle cx="18.90" cy="12.00" r=".6"/><circle cx="16.88" cy="16.88" r=".6"/><circle cx="12.00" cy="18.90" r=".6"/><circle cx="7.12" cy="16.88" r=".6"/><circle cx="5.10" cy="12.00" r=".6"/><circle cx="7.12" cy="7.12" r=".6"/><circle cx="12.00" cy="5.10" r=".6"/><circle cx="16.88" cy="7.12" r=".6"/></g><path d="M12 7.2l3.9 4.8-3.9 4.8-3.9-4.8z" fill="#ffd12b" stroke="#ffd12b" stroke-width="1" stroke-linejoin="round"/></svg>';
@@ -447,6 +456,7 @@ function thumb(c,it){
  if(c==='dice')return AR.dice(it.id);
  if(c==='theme')return AR.theme(it.id);
  if(c==='powerup')return AR.powerup(it.id);
+ if(c==='frame')return AR.frame(it.id);
  return `<svg viewBox="0 0 40 40"><rect x="5" y="5" width="30" height="30" rx="7" fill="rgba(255,255,255,.25)"/><path d="M12 21l6 6 11-13" fill="none" stroke="#fff" stroke-width="3.500" stroke-linecap="round" stroke-linejoin="round"/></svg>`}
 
 function renderCats(){
@@ -469,7 +479,7 @@ function renderGrid(){const g=$('#grid');g.innerHTML='';
 const CK='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
 function act(i){if(i.price==null){toast('Belum dijual — segera hadir.');playSound('error');return}
- if(owned(i)){const r=PD.equip(i.id);toast(r.ok?(i.kind==='skin'?'Skin digunakan.':'Item digunakan.'):'Gagal memakai item.');renderGrid();renderInfo();playSound('select')}else confirmBuy(i)}
+ if(owned(i)){const r=PD.equip(i.id);toast(r.ok?(i.kind==='skin'?'Skin digunakan.':i.kind==='frame'?'Frame digunakan.':'Item digunakan.'):'Gagal memakai item.');renderGrid();renderInfo();playSound('select')}else confirmBuy(i)}
 
 function renderInfo(){const p=$('#info');
  if(!sel){$('#irar').textContent='SOON';$('#irar').style.setProperty('--rc',RC.common);$('#iname').textContent=SOON[cat];$('#idesc').textContent='Kategori ini belum memiliki item canonical.';$('#iprice').innerHTML='';const b=$('#buy');b.className='cta';b.disabled=true;b.innerHTML='Segera hadir';renderCurrency();return}
@@ -492,6 +502,7 @@ UT.Events.on('currencyChanged',renderCurrency);
 UT.Events.on('inventoryChanged',()=>{const l=list(cat);if(l&&(!sel||!l.includes(sel)))sel=l.find(i=>equipped(i))||l[0];renderGrid();renderInfo()});
 UT.Events.on('skinChanged',()=>{renderGrid();renderInfo()});
 UT.Events.on('diceChanged',()=>{renderGrid();renderInfo()});
+UT.Events.on('frameChanged',()=>{renderGrid();renderInfo()});
 
 const modal=$('#modal');let mOpen=false,onClose=null;
 function openModal(html,init,big){$('#mb').innerHTML=html;$('#box').classList.toggle('big',!!big);modal.style.display='grid';requestAnimationFrame(()=>modal.classList.add('show'));mOpen=true;playSound('open');init&&init();$('#mx').focus()}
@@ -586,7 +597,7 @@ function showThemeArt(on){const s=$('#show');const sv=on&&sel?AR.forItem(sel.id)
  s.classList.toggle('art',!!sv);$('#art').innerHTML=sv}
 
 function buildModels(){if(!list(cat)){showThemeArt(false);return}
- if(cat==='theme'||cat==='powerup'||(cat==='skin'&&sel&&sel.renderer==='png')){showThemeArt(true);return}
+ if(cat==='theme'||cat==='powerup'||cat==='frame'||(cat==='skin'&&sel&&sel.renderer==='png')){showThemeArt(true);return}
  showThemeArt(false);setModel(main,cat,sel);spin=1}
 
 function fit(){const hi=SET().graphics==='high';rigs.forEach(R=>{const w=R.cv.clientWidth,h=R.cv.clientHeight;if(!w||!h)return;R.r.setPixelRatio(hi?Math.min(devicePixelRatio,1.5):1);R.r.setSize(w,h,false);R.cam.aspect=w/h;R.cam.fov=R.fov*(w/h<.8?1.15:1);R.cam.updateProjectionMatrix()})}

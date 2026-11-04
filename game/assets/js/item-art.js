@@ -264,9 +264,18 @@
     return '<svg class="art-powerup" viewBox="0 0 64 64" shape-rendering="crispEdges" role="img" aria-label="' + (label || it.name) + '">' + s + '</svg>';
   }
 
+  /* Frame profil: gambar frame di atas wajah skin yang sedang dipakai (badan frame = 68% lebar gambar -> wajah inset 16%). */
+  function frame(frameId, label) {
+    var it = C.byId(frameId); if (!it || it.kind !== 'frame') return '';
+    var skinId = (g.PlayerData && g.PlayerData.equippedId && g.PlayerData.equippedId('skin')) || C.fallbackSkinId();
+    return '<div class="fr-th" role="img" aria-label="' + (label || it.name) + '"><span class="fr-in">' + face(skinId) + '</span>' +
+      '<img class="fr-img" src="' + it.image + '" alt="" draggable="false" decoding="async"></div>';
+  }
+
   /* Gambar utama kartu. variant: 'full' (karakter penuh) | 'face' */
   function forItem(itemId, variant) {
     var it = C.byId(itemId); if (!it) return '';
+    if (it.kind === 'frame') return frame(itemId);
     if (it.kind === 'skin') return variant === 'face' ? face(itemId) : character(itemId);
     if (it.kind === 'dice') return dice(itemId);
     if (it.kind === 'theme') return theme(itemId);
@@ -286,6 +295,6 @@
     return pal;
   }
 
-  g.ItemArt = { character: character, face: face, dice: dice, theme: theme, powerup: powerup, forItem: forItem, palette: palette,
+  g.ItemArt = { character: character, face: face, frame: frame, dice: dice, theme: theme, powerup: powerup, forItem: forItem, palette: palette,
                 textureUrl: textureUrl, loadSkinTexture: loadSkinTexture, resolveSkinId: resolveSkinId, makeSkinTexture: makeSkinTexture };
 })(window);

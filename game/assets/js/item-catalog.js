@@ -31,8 +31,17 @@
     skin:    { category: 'skin',     noun: 'Skin',       slot: 'skin' },
     dice:    { category: 'aksesori', noun: 'Skin dadu',  slot: 'dice' },
     theme:   { category: 'lainnya',  noun: 'Tema papan', slot: 'theme' },
-    powerup: { category: 'efek',     noun: 'Power-Up',   slot: null }
+    powerup: { category: 'efek',     noun: 'Power-Up',   slot: null },
+    frame:   { category: 'aksesori', noun: 'Frame',      slot: 'frame' }
   };
+  /* Frame profil: gambar WebP transparan (badan frame = 68% lebar gambar) di game/data/frame/.
+     Ikon tab Shop/Inventory = FRAME_TAB_ICON. */
+  var FRAME_DIR = 'data/frame/';
+  var FRAME_TAB_ICON = FRAME_DIR + 'icon-frame.webp';
+  function frame(gameKey, name, rarity, price, desc, file, extra) {
+    return Object.assign({ id: 'frame.' + gameKey, kind: 'frame', gameKey: gameKey, name: 'Frame ' + name,
+      rarity: rarity, price: price, desc: desc, starter: price === 0, image: FRAME_DIR + file }, extra || {});
+  }
 
   /* Skin legacy (palet bawaan di item-art.js / gameplay.html): texture = null, renderer = 'palette'.
      Tidak ada PNG palsu untuk skin ini. */
@@ -85,6 +94,10 @@
   }
 
   var ITEMS = [
+    /* ---- Frame profil (Aksesori) ---- */
+    frame('default', 'Kayu', 'common', 0,   'Frame kayu sederhana berhias daun hijau. Terpasang sejak awal.', 'frame-default.webp'),
+    frame('gold',    'Emas', 'epic',   800, 'Frame emas berkilau dengan daun rimbun untuk profil yang menonjol.', 'frame-gold.webp', { featured: true }),
+
     /* ---- Skin karakter ---- */
     skin('steve',    'Steve',    'Default',   'common', 0,   'Petualang blok klasik. Siap melangkah ke petak mana pun.'),
     skin('alex',     'Alex',     'Default',   'common', 0,   'Penjelajah lincah berambut oranye dengan jiwa petualang.'),
@@ -146,7 +159,7 @@
     powerup('grass',   'Blok Rumput','common', 'Tukar posisi dengan pemain terdepan.')
   ];
 
-  var DEFAULT_EQUIPPED = Object.freeze({ skin: 'skin.steve', dice: 'dice.klasik', theme: 'theme.minecraft' });
+  var DEFAULT_EQUIPPED = Object.freeze({ skin: 'skin.steve', dice: 'dice.klasik', theme: 'theme.minecraft', frame: 'frame.default' });
   var BY_ID = {};
   ITEMS.forEach(function (it) {
     var meta = KIND_META[it.kind];
@@ -169,6 +182,7 @@
     RARITY: RARITY,
     CATEGORIES: CATEGORIES,
     SKIN_GROUPS: SKIN_GROUPS,
+    FRAME_TAB_ICON: FRAME_TAB_ICON,
     KIND_META: KIND_META,
     items: Object.freeze(ITEMS.slice()),
     byId: function (id) { return Object.prototype.hasOwnProperty.call(BY_ID, id) ? BY_ID[id] : null; },
