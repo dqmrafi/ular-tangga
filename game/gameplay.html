@@ -991,6 +991,72 @@ body #win.lm-ov{background:rgba(11,24,56,.32);backdrop-filter:none;-webkit-backd
 .pr img,.sr img,.tn-av img,#readyScreen .rd-av{image-rendering:auto}
 .pr img,.sr img{border-width:0;background:rgba(0,0,0,.18)}
 </style>
+<style id="hud-clean-silver">
+/* ===== HUD bersih + tema silver (dimuat paling akhir; HANYA tampilan, JS/logika/id tidak berubah) =====
+   1) Panel gameplay (Pemain kiri atas, Power-up kiri bawah, Giliran kanan bawah): transparan, lebih kecil, proporsi 1:1
+      (panel Giliran persegi; slot Power-up persegi).
+   2) Perbaikan dadu hilang: .trow (pembungkus nama + dadu) sebelumnya di-display:none oleh #turn-panel-v2, sehingga dadu 0x0 dan grid panel berantakan.
+      Sekarang .trow = display:contents agar nama & dadu menjadi anak grid panel Giliran.
+   3) Tombol atas dan panel modal (Menu, Keluar, Menang/Kalah, Ready) = silver. Tombol DI DALAM modal tidak diubah. */
+
+/* --- ukuran HUD (satu tempat; ubah angka di sini untuk memperbesar/memperkecil) --- */
+html body #side{--tn-w:clamp(150px,12.5vw,188px);--pl-w:clamp(168px,13.5vw,204px);--die-z:.8;--roll-h:40px;--roll-fs:20px;--name-fs:16px;--slot:clamp(42px,3.6vw,52px)}
+@media (max-height:720px){html body #side{--tn-w:clamp(140px,11.5vw,170px);--pl-w:clamp(160px,13vw,188px);--die-z:.7;--roll-h:36px;--roll-fs:18px;--name-fs:15px;--slot:clamp(40px,3.4vw,48px)}}
+@media (orientation:landscape) and (max-height:430px){html body #side{--tn-w:clamp(112px,17vw,148px);--pl-w:clamp(138px,21vw,168px);--die-z:.5;--roll-h:30px;--roll-fs:15px;--name-fs:12px;--slot:clamp(36px,5.2vw,44px)}}
+@media not all and (max-width:699px) and (orientation:portrait){
+  html body #side .rcol{width:var(--tn-w)}
+  html body #side .col{width:var(--pl-w)}
+  html body #side .rcol .pnl.tn{aspect-ratio:1/1}
+}
+
+/* --- Panel Giliran (kanan bawah): transparan, nama + dadu + tombol Roll --- */
+html body #side .rcol .pnl.tn .trow{display:contents}
+html body #side .rcol .pnl.tn{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name die" "btn btn";align-content:center;align-items:center;column-gap:8px;row-gap:8px;box-sizing:border-box;margin:0;padding:10px;background:transparent;border:0;box-shadow:none;pointer-events:none}
+html body #side .rcol .pnl.tn #turnName{grid-area:name;display:block;min-width:0;max-width:100%;font-size:var(--name-fs);line-height:1.1;color:#fff;text-shadow:0 2px 3px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body #side .rcol .pnl.tn .die-scene{grid-area:die;position:relative;top:auto;right:auto;margin:0;zoom:var(--die-z);justify-self:end;align-self:center}
+html body #side .rcol .pnl.tn #btnRoll{grid-area:btn;width:100%;height:var(--roll-h);margin:0;padding:0 10px;box-sizing:border-box;font-size:var(--roll-fs);gap:6px;pointer-events:none}
+html body:not(.awk-lock) #side .rcol .pnl.tn #btnRoll{pointer-events:auto}
+html body #side .rcol .pnl.tn #btnRoll::after{width:1.25em;height:1.25em}
+html body #side .rcol .pnl.tn #btnRoll.special{font-size:calc(var(--roll-fs)*.7);padding:0 6px}
+html body #side .rcol .pnl.tn #btnRoll.special::after{display:none}
+html body #side .rcol .pnl.tn .dmeter{grid-column:1/-1;margin-top:0}
+html body #side .rcol .pnl.tn #rollHint,html body #side .rcol .pnl.tn .msg{display:none!important} /* .msg sebelumnya dipaksa tampil oleh aturan lama ".tn .msg{display:block!important}" -> penyebab panel melar & teks melayang */
+
+/* --- Panel Pemain (kiri atas): transparan, ringkas --- */
+html body #side .pnl.pl{padding:2px;background:transparent;border:0;box-shadow:none}
+html body #side #players{gap:4px}
+html body #side .pr{min-height:clamp(30px,2.4vw,34px);padding:2px 6px 2px 4px;column-gap:5px;border:2px solid rgba(11,24,56,.55);border-radius:8px;background:rgba(10,30,90,.22);box-shadow:none;font-size:clamp(11px,.9vw,13px)}
+html body #side .pr img,html body #side .pr .pav>img{width:clamp(22px,1.9vw,28px);height:clamp(22px,1.9vw,28px)}
+html body #side .pr .pos{padding:0 6px;font-size:clamp(10px,.8vw,12px);line-height:1.35}
+html body #side .pr .bf{font-size:clamp(8px,.65vw,10px)}
+html body #side .pr.on{background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 1px #ffe58a}
+html body #side .pr.on::after{width:14px;height:14px}
+
+/* --- Panel Power-up (kiri bawah): transparan, slot persegi 1:1 --- */
+html body #side .pnl.pu{width:auto;max-width:calc(100vw / var(--hs) - var(--tn-w) - 44px);padding:2px;background:transparent;border:0;box-shadow:none}
+html body #side .pnl.pu>h3{display:none}
+html body #side #pus{flex:0 1 auto;gap:4px;padding:6px 4px 2px;margin-top:0}
+html body #side #pus .pb{flex:0 0 var(--slot);width:var(--slot);min-width:var(--slot);height:var(--slot);aspect-ratio:1/1;padding:0;border:2px solid rgba(11,24,56,.85);border-radius:8px;background:rgba(18,38,92,.42);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+html body #side #pus .pb[data-state=ready]{background:rgba(40,74,150,.55)}
+html body #side #pus .pb:not(:disabled):hover{background:rgba(60,100,190,.6)}
+html body #side #pus .pb em{font-size:clamp(8px,.62vw,10px);margin-top:1px}
+html body #side #pus .pb b{top:-5px;right:-5px;min-width:16px;height:16px;font-size:10px;border-width:2px}
+
+/* --- Tombol atas (kanan atas): silver --- */
+html body #hud .btn.small[class]:not(#sv){color:#14223f;text-shadow:0 1px 0 rgba(255,255,255,.8);background:linear-gradient(#f4f6fa,#c6cdda 52%,#aab4c6);border:3px solid var(--ol);border-radius:7px;box-shadow:inset 0 0 0 2px #fff,inset 0 -3px 0 rgba(70,82,110,.35),0 3px 0 var(--ol)}
+html body #hud .btn.small[class]:not(#sv):active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 0 0 2px #fff,inset 0 -3px 0 rgba(70,82,110,.35),0 1px 0 var(--ol)}
+html body #hud .btn.small[aria-pressed=true][class]:not(#sv){background:linear-gradient(#aab4c6,#d3d9e4);box-shadow:inset 0 0 0 2px #e8ecf3,inset 0 3px 0 rgba(70,82,110,.35),0 3px 0 var(--ol)}
+html body #hud #btnSnd.muted[class]:not(#sv){color:#3a4560;background:linear-gradient(#d6dbe4,#98a2b5)}
+
+/* --- Modal gameplay (Menu, Keluar, Menang/Kalah, Ready): panel silver; tombol di dalamnya tetap --- */
+html body :is(#pauseMenu,#exitConfirm,#win) .lm-box[class]{background:linear-gradient(#f1f4f8,#c5ccd9);border-color:#0b1838;box-shadow:inset 0 0 0 calc(var(--mu)*.25) #fff,inset 0 calc(var(--mu)*-.4) 0 rgba(70,82,110,.25),0 calc(var(--mu)*.5) 0 #0b1838,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+html body :is(#pauseMenu,#exitConfirm,#win) .lm-box[class] h2{color:#14223f;text-shadow:0 calc(var(--mu)*.15) 0 rgba(255,255,255,.85)}
+html body :is(#pauseMenu,#exitConfirm,#win) .lm-box[class] .lm-eyebrow{color:#3a486a;text-shadow:0 calc(var(--mu)*.15) 0 rgba(255,255,255,.7)}
+html body :is(#pauseMenu,#exitConfirm,#win) .lm-box[class] .lm-note{color:#26324f;text-shadow:0 calc(var(--mu)*.15) 0 rgba(255,255,255,.7)}
+html body #readyScreen .rd-box{background:linear-gradient(#f1f4f8,#c5ccd9);box-shadow:inset 0 0 0 calc(var(--mu)*.25) #fff,inset 0 calc(var(--mu)*-.4) 0 rgba(70,82,110,.25),0 calc(var(--mu)*.5) 0 #0b1838,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+html body #readyScreen h2{color:#14223f;text-shadow:0 calc(var(--mu)*.15) 0 rgba(255,255,255,.85)}
+html body #readyScreen .rd-sub{color:#26324f;text-shadow:0 calc(var(--mu)*.15) 0 rgba(255,255,255,.7)}
+</style>
 <script src="gameplay/hud-scale.js"></script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script>
@@ -4015,8 +4081,8 @@ function beginTurn(extra){
   players.forEach((q,i)=>pawnOutline(q.pawn,i===cur&&!gameOver,q.hex));
   focus=p.pawn; renderChips(); syncCrystals(); syncRollLabel();
   if(extra) hud('showTurn',p,{extra:true}); /* toast "Giliran X" dihapus (sudah ada penanda giliran di panel Pemain); "Giliran tambahan!" tetap karena tidak ada penanda lain */
-  if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Lempar dadu.'));
-  else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll dadu.':'Giliran '+p.name+'. Tekan Lempar dadu.'));
+  if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Roll.'));
+  else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll.':'Giliran '+p.name+'. Tekan Roll.'));
   specialHint(p); setRoll(!p.cpu); startTurnTimer();
   if(p.cpu){ const gid=gameId; setTimeout(async()=>{ if(gid!==gameId||gameOver) return; const ks=['sword','feather','potion_odd','potion_even','totem','tnt'].filter(k=>cpuPUValid(p,k)); const go=()=>{ if(gid!==gameId||gameOver) return; if(busy||paused){ setTimeout(go,paused?250:500); return; } doRoll(); }; if(paused){ go(); return; } if(ks.length&&Math.random()<0.6) await usePU(ks[0],true); go(); },950); }
 }
@@ -4264,7 +4330,7 @@ function specialHint(p){
 }
 function syncRollLabel(){
   const b=$('btnRoll'),sp=specialDiceActive(players[cur]); b.classList.toggle('special',sp); b.classList.toggle('holding',DH.on);
-  b.textContent=DH.on?'Lepas untuk memilih':(sp?'Tahan & lepas':'Roll dadu');
+  b.textContent=DH.on?'Lepas untuk memilih':(sp?'Tahan & lepas':'Roll');
   dmShow(sp&&!AWK.running); if(sp&&!DH.on) dmDraw(0);
 }
 const DM_SWEEP_MS=850; /* waktu satu sapuan kiri -> kanan */
