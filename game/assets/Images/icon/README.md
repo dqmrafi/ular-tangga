@@ -47,3 +47,16 @@ Catatan:
 
 Masih SVG/emoji karena belum ada aset: layar kalah, tombol tutup (X), dan banner tangga/ular/mob/naga/perisai/pantul/info.
 
+
+## Tabler Icons (`tabler/`)
+Icon SVG outline dari [Tabler Icons](https://tabler.io/icons) v3.50.0 (lisensi MIT), warna mengikuti `currentColor`. Disiapkan untuk tombol HUD kanan atas Gameplay:
+
+| Elemen HUD | File |
+|---|---|
+| Ikuti bidak (`#btnFollow`) | `tabler/focus-2.svg` |
+| Reset kamera (`#btnCam`) | `tabler/refresh.svg` |
+| Preset kamera (`#btnPreset`) | `tabler/camera.svg` |
+| Kunci kamera (`#btnAngle`, LOCK) | `tabler/lock.svg` |
+| Kamera bebas (`#btnAngle`, ANGLE) | `tabler/lock-open.svg` |
+| Suara nyala / mati (`#btnSnd`) | `tabler/volume.svg` / `tabler/volume-off.svg` |
+| Menu (`#btnMenu`) | `tabler/menu-2.svg` |
