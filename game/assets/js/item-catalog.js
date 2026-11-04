@@ -30,7 +30,7 @@
   var KIND_META = {
     skin:    { category: 'skin',     noun: 'Skin',       slot: 'skin' },
     dice:    { category: 'aksesori', noun: 'Skin dadu',  slot: 'dice' },
-    theme:   { category: 'lainnya',  noun: 'Tema papan', slot: 'theme' },
+    theme:   { category: 'lainnya',  noun: 'Maps', slot: 'theme' },
     powerup: { category: 'efek',     noun: 'Power-Up',   slot: null },
     frame:   { category: 'aksesori', noun: 'Frame',      slot: 'frame' }
   };
@@ -70,7 +70,7 @@
       rarity: rarity, price: price, desc: desc, starter: price === 0, art: art }, extra || {});
   }
   function theme(gameKey, name, rarity, price, desc, art, extra) {
-    return Object.assign({ id: 'theme.' + gameKey, kind: 'theme', gameKey: gameKey, name: 'Tema ' + name,
+    return Object.assign({ id: 'theme.' + gameKey, kind: 'theme', gameKey: gameKey, name: 'Map ' + name,
       rarity: rarity, price: price, desc: desc, starter: price === 0, art: art }, extra || {});
   }
   /* Power-Up (Tahap 3.1): consumable ber-quantity.

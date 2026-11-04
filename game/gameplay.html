@@ -336,7 +336,7 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
     <button class="btn small light ico" id="btnFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="assets/Images/icon/ui/focus.webp" alt="" draggable="false"></button>
     <button class="btn small light ico" id="btnCam" type="button" aria-label="Reset kamera"><img class="hi" src="assets/Images/icon/ui/refresh.webp" alt="" draggable="false"></button>
     </span>
-    <button class="btn small light" id="btnTheme" type="button" hidden>Tema</button>
+    <button class="btn small light" id="btnTheme" type="button" hidden>Maps</button>
     <button class="btn small light" id="btnNight" type="button" hidden>Mode: Siang</button>
     <button class="btn small light" id="btnDice" type="button" hidden>Dadu</button>
     <button class="btn small light" id="btnSnd" type="button"><img class="hi" src="assets/Images/icon/audio/sound.webp" alt="" draggable="false">Suara: nyala</button>
@@ -789,6 +789,10 @@ body #side .tn>h3{font-weight:800}
   body #side .tn .die-scene{zoom:.55;margin:4px 8px 4px 0}
   body #side .rcol .pnl.tn{grid-template-rows:auto auto auto auto}
 }
+</style>
+<style id="hud-ord">
+/* label urutan giliran (1st/2nd/3rd/4th) sebelum nama pemain; warna pemain tetap jadi acuan (border label + avatar) */
+body #side .pr .ord{display:inline-block;font-style:normal;font-weight:800;font-size:.8em;line-height:1.35;letter-spacing:.02em;padding:0 5px;margin-right:5px;vertical-align:1px;border-radius:5px;border:2px solid var(--pc,#fff);background:linear-gradient(#1b3270,#12235a);color:#fff;text-shadow:0 1px 0 #000}
 </style>
 <style id="hud-turn-gloss">
 /* Panel giliran (kanan bawah): warna panel = warna pemain aktif (--tnc diisi renderChips), tampilan glossy dua-nada seperti tombol MULAI/SHOP di lobby. */
@@ -3075,7 +3079,7 @@ function buildWorld(key){
   fontReady.then(()=>{ if(tk===worldToken) buildLabels(th); });
 
   applyLook(th);
-  const tb=$('btnTheme'); if(tb) tb.textContent='Tema: '+th.name;
+  const tb=$('btnTheme'); if(tb) tb.textContent='Maps: '+th.name;
   document.querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',b.getAttribute('data-theme')===th.key?'true':'false'));
   try{ localStorage.setItem('ut-tema2',th.key); }catch(e){}
 }
@@ -3779,13 +3783,14 @@ async function usePU(k,cpu){
 const PUFX={}, PUFX_MS=650;
 function puFx(key,cls){ if(reduce) return; PUFX[key]={cls,t:performance.now()}; }
 function puFxApply(el,key){ const f=PUFX[key]; if(!f) return; const e=performance.now()-f.t; if(e>=PUFX_MS){ delete PUFX[key]; return; } el.classList.add(f.cls); el.style.setProperty('--fx-d',(-e)+'ms'); }
+function ORD(i){ return ['1st','2nd','3rd','4th'][i]||(i+1)+'th'; } /* urutan giliran (index players[] = urutan giliran) */
 function renderChips(){
   try{ syncDiceGuide(); }catch(e){ console.error(e); }
   const box=$('players'),sc=$('scores'),pu=$('pus'); box.textContent=''; sc.textContent=''; pu.textContent='';
   players.forEach((p,i)=>{
     const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':'')+(p.shield?' shielded':''); puFxApply(d,'pr:'+p.idx); d.style.setProperty('--pc',p.css);
     const im=document.createElement('img'); im.src=framedFace(p); im.alt='';
-    const nm=document.createElement('span'); nm.textContent=p.name;
+    const nm=document.createElement('span'); const od=document.createElement('i'); od.className='ord'; od.textContent=ORD(i); nm.appendChild(od); nm.appendChild(document.createTextNode(p.name));
     const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===100?(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N):String(p.pos));
     d.appendChild(im); d.appendChild(nm); d.appendChild(ps);
     const bfT=[p.bonus?'👟+'+p.bonus:'',p.extra?'🪶 ekstra':'',p.odd?'🧪 ganjil':'',p.even?'🧪 genap':'',p.lucky?'🍀 pasti 6':'',p.shield?'🗿 kebal':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
@@ -3798,7 +3803,7 @@ function renderChips(){
     r.appendChild(im2); r.appendChild(n2); r.appendChild(sv); sc.appendChild(r);
   });
   const c=players[cur];
-  $('turnName').textContent=c?c.name:''; { const tn_=document.querySelector('#side .tn'),tb=tn_&&tn_.querySelector('h3'); if(tb&&c) tb.textContent=c.name; if(tn_&&c&&c.css) tn_.style.setProperty('--tnc',c.css); } if(c) $('turnName').style.color=c.key==='ender'?'#c9a2ff':'#fff';
+  $('turnName').textContent=c?c.name:''; { const tn_=document.querySelector('#side .tn'),tb=tn_&&tn_.querySelector('h3'); if(tb&&c) tb.textContent=ORD(cur)+' '+c.name; if(tn_&&c&&c.css) tn_.style.setProperty('--tnc',c.css); } if(c) $('turnName').style.color=c.key==='ender'?'#c9a2ff':'#fff';
   Object.keys(PUN).forEach(k=>{
     const bt=document.createElement('button'); bt.type='button'; bt.className='pb'; bt.title=PUN[k][1]+': '+PUN[k][2];
     bt.setAttribute('aria-label',PUN[k][1]+': '+PUN[k][2]); UT.Gameplay.Config.setPuIcon(bt,k); const lb=document.createElement('em'); lb.textContent=PUN[k][3]||PUN[k][1].split(' ')[0]; bt.appendChild(lb);
@@ -4191,7 +4196,7 @@ function startGame(m,keys){
 /* ---------- Kontrol antarmuka ---------- */
 const LOBBY_URL='lobby.html'; /* pindah halaman: layar dadu (play.html) tampil otomatis */
 function chooseTheme(key){
-  if(busy){ pendingTheme=key; document.querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',b.getAttribute('data-theme')===key?'true':'false')); const t=THEMES.find(x=>x.key===key); $('btnTheme').textContent='Tema: '+t.name; return; }
+  if(busy){ pendingTheme=key; document.querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',b.getAttribute('data-theme')===key?'true':'false')); const t=THEMES.find(x=>x.key===key); $('btnTheme').textContent='Maps: '+t.name; return; }
   pendingTheme=null; buildWorld(key);
 }
 let lastSkins=null;
