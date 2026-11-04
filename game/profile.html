@@ -289,6 +289,20 @@ html body #pc .up svg{width:2.2rem;height:2.2rem}
 .box .skl .tile{width:7rem;height:7rem}
 .box .chg{display:flex;margin:1.2rem auto .8rem;width:min(28rem,100%);height:5.4rem;font-size:2.6rem}
 </style>
+<style id="profile-achievement-scroll">
+/* Achievement: semua 15 tampil, daftar bisa di-scroll; tombol header hanya indikator jumlah. HANYA tampilan. */
+html body #pg .ah .gr.cnt{pointer-events:none;cursor:default;user-select:none}
+html body #pg .al{display:flex;flex-direction:column;gap:.6rem;grid-template-rows:none;flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;padding:.1rem .5rem .3rem .1rem;scrollbar-width:thin;scrollbar-color:#6cc0ff #0e1b3d}
+html body #pg .al::-webkit-scrollbar{width:.8rem}
+html body #pg .al::-webkit-scrollbar-track{background:#0e1b3d;border:.15rem solid var(--ol);border-radius:.4rem}
+html body #pg .al::-webkit-scrollbar-thumb{background:linear-gradient(#8cc8ff,#4a8ee8);border:.15rem solid var(--ol);border-radius:.4rem}
+html body #pg .al:focus-visible{outline:.25rem solid #ffe36a;outline-offset:.1rem}
+html body #pg .al .ac2{flex:none;min-height:7.6rem}
+html body #pg .alhint{flex:none;height:2.6rem;display:grid;place-items:center;border-radius:.7rem;border:.25rem solid var(--ol);background:linear-gradient(#2a58c4,#2250b4);box-shadow:inset 0 0 0 .12rem rgba(120,160,235,.3);transition:opacity .2s}
+html body #pg .alhint svg{width:2rem;height:2rem;animation:alh 1.2s ease-in-out infinite}
+html body #pg .alhint.end{opacity:.35}html body #pg .alhint.end svg{animation:none}
+@keyframes alh{50%{translate:0 .25rem}}
+</style>
 <script src="assets/js/landscape.js"></script></head>
 <body>
 <div id="sky"></div>
@@ -396,8 +410,8 @@ function render(){
  $('#pc').innerHTML=`${av(eq,'a1')}<div class="pm"><div class="nm"><span>${esc(pname())}</span><button class="ib sm" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button><i class="flag"></i></div><div class="lv">Lv. ${MOCK.lvl}</div>${bar}</div><div class="onl"><u></u>Online</div><button class="ib up" data-a="skins" aria-label="Ganti tampilan profil">${UPA}</button>`;
  $('#ai').innerHTML=`<div class="hd big">${RI('mode/kontak')}Informasi Akun</div>
 <div class="in rw"><div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>Nama</span><b>${esc(pname())}</b><button class="ib" data-a="name" aria-label="Ubah nama">${RI('ui/edit')}</button></div>
-<div class="r"><i class="ti">${RI('ui/gear')}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>
-<div class="r"><i class="ti">${RI('mode/calndar')}</i><span>Tanggal Bergabung</span><b>${esc(MOCK.joined)}</b><i class="ib">${RI('mode/calndar')}</i></div></div>`;
+<div class="r"><i class="ti">${RI('profile/user','lt')}</i><span>ID Pengguna</span><b>${esc(MOCK.uid)}</b><button class="ib" data-a="copy" aria-label="Salin ID">${RI('ui/copy','lt')}</button></div>
+<div class="r"><i class="ti">${RI('mode/calndar')}</i><span>Tanggal Bergabung</span><b>${esc(MOCK.joined)}</b><i class="ib sm"></i></div></div>`;
  $('#kl').innerHTML=`<div class="hd big">${RI('lobby/inventory')}Koleksi</div><div class="kg">${K.map(k=>`<div class="kt">${RI(k[2])}<b>${k[1]}</b><span>${k[0]}</span></div>`).join('')}</div>`;
  $('#ak').innerHTML=`<div class="hd big">${RI('lobby/leader')}Aktivitas</div><div class="ag">
 <button class="ax" data-a="rank">${RI('profile/globe')}<div><small>Peringkat Global</small><b>#${MOCK.rank} ${RI('lobby/leader')}</b></div></button>
@@ -405,7 +419,8 @@ function render(){
 <button class="ax" data-a="mis">${RI('lobby/misi')}<div><small>Misi</small><b>${MOCK.misi}</b></div>${CH.replace('<svg','<svg class="ch"')}</button>
 <button class="ax" data-a="wl">${RI('lobby/trophy')}<div><small>Win / Lose</small><b>${MOCK.win} / ${MOCK.play-MOCK.win}</b></div></button>
 <div class="ax w2">${FLAME}<small style="display:inline;font-size:1.3rem">Win Streak</small><b style="margin-left:1rem">${MOCK.streak}</b></div></div>`;
- $('#pg').innerHTML=`<div class="ah">${RI('lobby/trophy')}<h3>Achievement</h3><button class="gr" data-a="achall">${got} Achievement ${CH.replace('<svg','<svg class="ch"')}</button></div><div class="al">${top.map(achCard).join('')}</div>`}
+ $('#pg').innerHTML=`<div class="ah">${RI('lobby/trophy')}<h3>Achievement</h3><span class="gr cnt" role="status" aria-label="${got} achievement diraih">${got} Achievement</span></div><div class="al" id="alist" tabindex="0">${AI.map(achCard).join('')}</div><div class="alhint" aria-hidden="true">${sv('<path d="m6 9 6 6 6-6"/>')}</div>`;
+ const al=$('#alist'),hint=$('#pg .alhint');if(al&&hint){const upd=()=>hint.classList.toggle('end',al.scrollTop+al.clientHeight>=al.scrollHeight-4);al.addEventListener('scroll',upd,{passive:true});requestAnimationFrame(upd)}}
 function skinModal(re){
  const html=`<h2>Tampilan Profil</h2><div class="skl">${ownedSkins().map(i=>`<button class="av tile ${i===sel?'sel':''}" data-a="pick" data-id="${i.id}" aria-label="${i.name}">${thumb(i)}${i.id===eqSkin().id?`<em>${sv('<path d="m5 12 5 5 9-10"/>')}</em>`:''}</button>`).join('')}</div><button class="chg" data-a="chg">${RI('items/skin')}Ubah Skin</button>`;
  if(re){$('#mb').innerHTML=html;return}openModal(html,null,true)}
