@@ -535,25 +535,6 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
 .pr.pfx-shield{--fxc:#ffd24d}
 .pr.pfx-hit{--fxc:#ffffff}
 .pr.shielded{outline:2px solid #ffd24d;outline-offset:-2px} /* shield aktif: indikator statis ringan, tanpa animasi */
-/* --- Semburan api naga (2D, murni visual; di bawah HUD z-index 5) --- */
-#dfire{position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;z-index:4;display:none;will-change:transform}
-#dfire.on{display:block}
-#dfire .dcone{position:absolute;left:0;top:calc(var(--H,90px)/-2);width:var(--L,200px);height:var(--H,90px);transform-origin:0 50%;animation:dfGrow 1.9s ease-out both}
-#dfire i,#dfire b{position:absolute;display:block}
-#dfire .dglow{inset:-30% -5% -30% 0;background:radial-gradient(ellipse at 0 50%,rgba(255,170,40,.55),rgba(255,90,20,.25) 45%,transparent 70%);filter:blur(10px)}
-#dfire .dt{left:0;top:0;width:100%;height:100%;transform-origin:0 50%;clip-path:polygon(0 46%,100% 8%,90% 30%,100% 50%,88% 70%,100% 92%,0 54%);background:linear-gradient(90deg,#fff7c2 0%,#ffd23a 18%,#ff8a1e 48%,#e0361a 78%,rgba(120,10,10,0) 100%);mix-blend-mode:screen;filter:blur(1px);animation:dfFlick .16s ease-in-out infinite}
-#dfire .t2{--r:7deg;--sx:.9;animation-duration:.21s;animation-delay:-.07s;opacity:.85}
-#dfire .t3{--r:-7deg;--sx:.86;animation-duration:.19s;animation-delay:-.11s;opacity:.85}
-#dfire .t4{--r:0deg;--sx:.62;animation-duration:.14s;animation-delay:-.05s;opacity:.9}
-#dfire .dcore{left:0;top:36%;width:55%;height:28%;border-radius:50%;background:linear-gradient(90deg,#fff,#fff3a8 40%,rgba(255,200,60,0));filter:blur(2px);mix-blend-mode:screen;animation:dfFlick .13s ease-in-out infinite}
-#dfire .ds{width:7px;height:7px;border-radius:50%;background:#ffd23a;box-shadow:0 0 6px 2px rgba(255,140,30,.9);left:45%;top:48%;opacity:0;animation:dfSpark .9s ease-out infinite}
-#dfire .s1{--dx:90px;--dy:-34px}
-#dfire .s2{--dx:120px;--dy:30px;animation-delay:.25s}
-#dfire .s3{--dx:60px;--dy:-52px;animation-delay:.5s}
-#dfire .s4{--dx:140px;--dy:6px;animation-delay:.7s}
-@keyframes dfGrow{0%{transform:scale(.04,.3);opacity:0}12%{opacity:1}22%{transform:scale(1,1)}78%{transform:scale(1.04,1.08);opacity:1}100%{transform:scale(.7,.4);opacity:0}}
-@keyframes dfFlick{0%,100%{transform:rotate(var(--r,0deg)) scale(var(--sx,1),1)}50%{transform:rotate(calc(var(--r,0deg) + 2.5deg)) scale(calc(var(--sx,1)*.92),.86)}}
-@keyframes dfSpark{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
 @keyframes pfx-ring{0%{opacity:.9;transform:scale(.92)}100%{opacity:0;transform:scale(1.28)}}
 @keyframes pfx-badge{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
 @keyframes pfx-pop{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
@@ -3254,9 +3235,9 @@ function fireworkCelebrate(p){
 }
 
 /* ---------- Naga (desain orisinal: "Naga Zamrud") ----------
-   Naga umum bergaya fantasi: sisik zamrud bercorak, perut emas berpelat, tanduk gading, sayap selaput merah-jingga.
+   Naga bergaya fantasi: sisik merah gelap bercorak hitam, perut perunggu berpelat, tanduk obsidian, duri bara, sayap selaput merah-hitam.
    API tetap: dragon.userData = {wR,wL,y0,dy,shk,mats} (+ head,jaw,tail,wRo,wLo,mouth,open untuk animasi & semburan api). */
-const DPAL={body:0x1F7A5A,dark:0x0F4A38,hi:0x37B98C,belly:0xE9C86E,belly2:0xC99A3B,horn:0xF3E6BC,spike:0xF2A93A,claw:0xEFE3C0,eye:0xFFC61A,pupil:0x120A06,tooth:0xFFF6DC,mouth:0x8E1F2A,mem1:0x6E1220,mem2:0xC23A2B,mem3:0xF39A3E};
+const DPAL={body:0x7E1515,dark:0x140809,hi:0xB5321F,belly:0xD9A24A,belly2:0x8A5A22,horn:0x2B1B1A,spike:0xF2862A,claw:0xD8C9A8,eye:0xFFB41A,pupil:0x120A06,tooth:0xFFF1D6,mouth:0xC4361A,mem1:0x1C0606,mem2:0x6B0F10,mem3:0xB8301E};
 function dVec(a,b){ return [b[0]-a[0],b[1]-a[1],b[2]-a[2]]; }
 function dLerp(a,b,k){ return [a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,a[2]+(b[2]-a[2])*k]; }
 /* tulang/kotak miring dari titik a ke b (tebal th) */
@@ -3305,9 +3286,10 @@ function makeDragon(){
   addBox(BB,0,0.31,0,0.34,0.07,1.5,P.dark,{edge:false}); addBox(BB,0,0.37,0.62,0.4,0.07,0.55,P.dark,{edge:false}); addBox(BB,0,0.27,-0.65,0.3,0.07,0.55,P.dark,{edge:false});
   for(let i=0;i<9;i++) addBox(BB,0,-0.31,-0.85+i*0.24,0.62-(i<2?0.12:0),0.07,0.2,i%2?P.belly2:P.belly,{edge:false});
   for(const s of [-1,1]) for(let i=0;i<5;i++) for(let j=0;j<2;j++) addBox(BB,s*0.41,0.1-0.17*j,-0.55+i*0.3+(j%2)*0.15,0.05,0.12,0.2,(i+j)%2?P.hi:P.dark,{edge:false});
+  for(const z of [-0.5,-0.18,0.14,0.46]) addBox(BB,0,0.02,z,0.83,0.58,0.09,P.dark,{edge:false}); /* pita hitam melintang (corak harimau) */
   for(let i=0;i<6;i++) dSpike(BB,0,0.34,0.72-i*0.28,0.16-i*0.008,P.spike,P.horn);
   const NK=[[0,0.2,0.8,0.5],[0,0.42,1.1,0.44],[0,0.68,1.35,0.4],[0,0.95,1.55,0.36],[0,1.2,1.72,0.34]];
-  dChain(BB,NK,i=>i%2?P.body:P.hi);
+  dChain(BB,NK,i=>i%2?P.dark:P.hi);
   for(let i=0;i<NK.length-1;i++){ const a=NK[i],b=NK[i+1]; addBox(BB,0,(a[1]+b[1])/2-0.1,(a[2]+b[2])/2+0.13,0.26,0.05,0.15,i%2?P.belly2:P.belly,{edge:false}); if(i<3) dSpike(BB,0,(a[1]+b[1])/2+0.18,(a[2]+b[2])/2-0.08,0.13,P.spike,P.horn); }
   for(const s of [-1,1]){
     dBone(BB,[s*0.42,-0.2,0.55],[s*0.58,-0.5,0.42],0.2,P.body); dBone(BB,[s*0.58,-0.5,0.42],[s*0.5,-0.7,0.72],0.14,P.dark); addBox(BB,s*0.5,-0.74,0.8,0.2,0.08,0.26,P.hi);
@@ -3338,7 +3320,7 @@ function makeDragon(){
   const tail=new THREE.Group(); tail.position.set(0,0,-0.9); rig.add(tail);
   const TB=makeBatch(),TM=makeBatch();
   const TP=[[0,0,0,0.4],[0,-0.02,-0.55,0.34],[0,0.04,-1.1,0.27],[0,0.16,-1.65,0.21],[0,0.32,-2.15,0.15],[0,0.5,-2.6,0.1]];
-  dChain(TB,TP,i=>i%2?P.body:P.hi);
+  dChain(TB,TP,i=>i%2?P.dark:P.body);
   for(let i=0;i<TP.length-1;i++){ const a=TP[i],b=TP[i+1]; addBox(TB,0,(a[1]+b[1])/2-(a[3]+b[3])/4,(a[2]+b[2])/2,0.2,0.04,0.3,i%2?P.belly2:P.belly,{edge:false}); dSpike(TB,0,(a[1]+b[1])/2+(a[3]+b[3])/4,(a[2]+b[2])/2,0.14-i*0.016,P.spike,P.horn); }
   dTri(TM,[0,0.5,-2.62],[0,0.72,-3.3],[0.3,0.55,-2.88],P.spike,P.horn,P.belly2); dTri(TM,[0,0.5,-2.62],[0,0.72,-3.3],[-0.3,0.55,-2.88],P.spike,P.horn,P.belly2);
   tail.add(mk(TB)); tail.add(mk(TM,DW));
@@ -3352,43 +3334,84 @@ function makeDragon(){
   scene.add(g); return g;
 }
 const dragon=makeDragon();
-/* ---------- Semburan api naga: efek 2D (CSS) murni, TANPA damage / tanpa efek gameplay ---------- */
-const DFIRE={el:null,cone:null,t:0,on:false,next:0,DUR:1.9};
-function dfireEl(){
-  if(DFIRE.el) return DFIRE.el;
-  const d=document.createElement('div'); d.id='dfire'; d.setAttribute('aria-hidden','true');
-  d.innerHTML='<div class="dcone"><i class="dglow"></i><i class="dt t1"></i><i class="dt t2"></i><i class="dt t3"></i><i class="dt t4"></i><i class="dcore"></i><b class="ds s1"></b><b class="ds s2"></b><b class="ds s3"></b><b class="ds s4"></b></div>';
-  document.body.appendChild(d); DFIRE.el=d; DFIRE.cone=d.firstChild; return d;
-}
+/* ---------- Efek naga 3D (kubus piksel halus, murni visual: TANPA damage / efek gameplay) ----------
+   Api: hanya dari mulut saat menyembur (kuning -> oranye -> merah -> gelap, transparan memudar).
+   Asap: terus naik pelan dari sudut bibir kiri & kanan, seperti asap api unggun. */
+const DFX=(()=>{
+  const grp=new THREE.Group(); scene.add(grp);
+  const geo=new THREE.BoxGeometry(1,1,1),FIRE=[],SMK=[];
+  const mk=(n,arr)=>{ for(let i=0;i<n;i++){ const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false})); m.visible=false; grp.add(m); arr.push({m,life:0,max:1,vx:0,vy:0,vz:0,s:0.1,ph:0,side:0,spark:false}); } };
+  mk(220,FIRE); mk(56,SMK);
+  const RAMP=[[0,0xFFF3B0],[0.18,0xFFCB3A],[0.45,0xFF7A14],[0.75,0xE0300E],[1,0x5A0C08]].map(a=>[a[0],new THREE.Color(a[1])]);
+  const SC0=new THREE.Color(0x3A3A40),SC1=new THREE.Color(0xA0A0AA),tmp=new THREE.Color();
+  function ramp(t,out){ for(let i=1;i<RAMP.length;i++){ if(t<=RAMP[i][0]){ const a=RAMP[i-1],b=RAMP[i]; return out.copy(a[1]).lerp(b[1],(t-a[0])/(b[0]-a[0]||1)); } } return out.copy(RAMP[RAMP.length-1][1]); }
+  const free=arr=>{ for(const q of arr) if(q.life<=0) return q; return null; };
+  const V=new THREE.Vector3(),M=new THREE.Vector3(),T=new THREE.Vector3(),Dv=new THREE.Vector3(),LP=new THREE.Vector3();
+  let acc=0,sacc=[0,0],clock=0;
+  function emitFire(dir,sp,n,k){
+    for(let i=0;i<n;i++){ const q=free(FIRE); if(!q) return;
+      const spark=Math.random()<0.12, j=0.2;
+      V.copy(dir).add(LP.set((Math.random()-.5)*j,(Math.random()-.5)*j,(Math.random()-.5)*j)).normalize();
+      const v=sp*(spark?1.25:0.72+Math.random()*0.5);
+      q.vx=V.x*v; q.vy=V.y*v; q.vz=V.z*v; q.spark=spark;
+      q.max=q.life=spark?0.9+Math.random()*0.5:0.55+Math.random()*0.5; q.s=spark?0.06+Math.random()*0.05:0.17+Math.random()*0.17;
+      q.m.position.set(M.x+(Math.random()-.5)*0.05,M.y+(Math.random()-.5)*0.05,M.z+(Math.random()-.5)*0.05);
+      q.m.rotation.set(Math.random()*3,Math.random()*3,Math.random()*3); q.m.visible=true; }
+  }
+  function emitSmoke(side,head){
+    const q=free(SMK); if(!q) return;
+    head.localToWorld(LP.set(side*0.15,-0.11,0.5+Math.random()*0.1));        /* sudut bibir kiri / kanan */
+    q.m.position.copy(LP); q.side=side; q.ph=Math.random()*6.28;
+    q.vx=side*(0.03+Math.random()*0.07); q.vy=0.5+Math.random()*0.3; q.vz=(Math.random()-.5)*0.06;
+    q.max=q.life=1.9+Math.random()*1.0; q.s=0.09+Math.random()*0.05;
+    q.m.rotation.set(Math.random()*3,Math.random()*3,Math.random()*3); q.m.visible=true;
+  }
+  function step(dt,o){
+    clock+=dt;
+    if(o.fire){ /* api: arah = ke pemain aktif, mulai dari mulut */
+      const D=dragon.userData; D.head.updateWorldMatrix(true,false); D.mouth.getWorldPosition(M);
+      const pl=players[cur];
+      if(pl&&pl.pawn){ T.copy(pl.pawn.position); T.y+=0.35; } else { D.head.localToWorld(T.set(0,-0.1,3)); }
+      Dv.copy(T).sub(M); const dist=Dv.length()||1; Dv.divideScalar(dist);
+      const reach=Math.max(2.2,Math.min(dist,6.5)),sp=reach/0.7;
+      acc+=dt*(o.fire>0?150*o.fire:0); const n=Math.floor(acc); acc-=n; if(n) emitFire(Dv,sp,n);
+    } else acc=0;
+    if(o.smoke){ const D=dragon.userData; D.head.updateWorldMatrix(true,false);
+      for(let i=0;i<2;i++){ sacc[i]+=dt*6.5; while(sacc[i]>=1){ sacc[i]-=1; emitSmoke(i?1:-1,D.head); } } }
+    for(const q of FIRE){ if(q.life<=0) continue; q.life-=dt; if(q.life<=0){ q.m.visible=false; q.m.material.opacity=0; continue; }
+      const t=1-q.life/q.max; q.vy+=1.6*dt; q.m.position.x+=q.vx*dt; q.m.position.y+=q.vy*dt; q.m.position.z+=q.vz*dt;
+      const sz=q.s*(q.spark?1-0.6*t:(0.55+0.95*Math.sqrt(t))*(1-0.45*t)); q.m.scale.setScalar(sz);
+      q.m.material.color.copy(ramp(q.spark?Math.min(1,t*0.8):t,tmp));
+      q.m.material.opacity=(t<0.08?t/0.08:Math.pow(1-(t-0.08)/0.92,1.3))*(q.spark?0.95:0.92); }
+    for(const q of SMK){ if(q.life<=0) continue; q.life-=dt; if(q.life<=0){ q.m.visible=false; q.m.material.opacity=0; continue; }
+      const t=1-q.life/q.max; q.m.position.x+=(q.vx+Math.sin(clock*1.8+q.ph)*0.07)*dt; q.m.position.y+=q.vy*dt*(1-0.35*t); q.m.position.z+=(q.vz+Math.cos(clock*1.5+q.ph)*0.05)*dt;
+      q.m.scale.setScalar(q.s*(1+2.4*t)); q.m.material.color.copy(SC0).lerp(SC1,t);
+      q.m.material.opacity=0.62*Math.min(1,t/0.12)*Math.pow(1-t,1.2); }
+  }
+  function clear(){ for(const q of FIRE.concat(SMK)){ q.life=0; q.m.visible=false; q.m.material.opacity=0; } acc=0; sacc[0]=sacc[1]=0; }
+  return {step,clear};
+})();
+const DFIRE={t:0,on:false,next:0,DUR:1.9};
 function dragonFireOK(){ return dragon.visible&&AWK.done&&!AWK.running&&!DRG.defeated&&!gameOver&&!paused&&!reduce&&!document.hidden&&players.length>0; }
-function dragonBreathe(){
-  if(DFIRE.on||!dragonFireOK()) return false;
-  const el=dfireEl(); DFIRE.on=true; DFIRE.t=0; el.classList.remove('on'); void el.offsetWidth; el.classList.add('on'); return true;
-}
-function dragonFireStop(){ DFIRE.on=false; if(DFIRE.el) DFIRE.el.classList.remove('on'); }
+function dragonBreathe(){ if(DFIRE.on||!dragonFireOK()) return false; DFIRE.on=true; DFIRE.t=0; return true; }
+function dragonFireStop(){ DFIRE.on=false; }
 function updateDragonFire(dt,now){
-  const D=dragon.userData;
+  const D=dragon.userData,ok=dragonFireOK();
+  let fire=0;
   if(!DFIRE.on){
     D.open=Math.max(0,(D.open||0)-dt*3);
     if(!DFIRE.next) DFIRE.next=now+4000+Math.random()*3000;
     else if(now>=DFIRE.next){ DFIRE.next=now+7000+Math.random()*4000; dragonBreathe(); }
-    return;
+  } else if(!ok){ dragonFireStop(); }
+  else {
+    DFIRE.t+=dt; const k=DFIRE.t/DFIRE.DUR;
+    if(k>=1) dragonFireStop();
+    else { D.open=k<0.12?k/0.12:(k>0.82?(1-k)/0.18:1); /* rahang membuka selama menyembur */
+      fire=(k<0.12?k/0.12:(k>0.8?Math.max(0,(1-k)/0.2):1)); }
   }
-  if(!dragonFireOK()){ dragonFireStop(); return; }
-  DFIRE.t+=dt; const k=DFIRE.t/DFIRE.DUR; if(k>=1){ dragonFireStop(); return; }
-  D.open=k<0.12?k/0.12:(k>0.82?(1-k)/0.18:1); /* rahang membuka selama menyembur */
-  const r=$('c').getBoundingClientRect(),v=new THREE.Vector3(); D.mouth.getWorldPosition(v); v.project(camera);
-  if(v.z>1||Math.abs(v.x)>1.2||Math.abs(v.y)>1.2){ DFIRE.el.style.visibility='hidden'; return; }
-  DFIRE.el.style.visibility='visible';
-  const x=r.left+(v.x*0.5+0.5)*r.width,y=r.top+(-v.y*0.5+0.5)*r.height;
-  let tx=x,ty=y+220; const pl=players[cur];
-  if(pl&&pl.pawn){ const q=pl.pawn.position.clone(); q.y+=0.4; q.project(camera); tx=r.left+(q.x*0.5+0.5)*r.width; ty=r.top+(-q.y*0.5+0.5)*r.height; }
-  const dx=tx-x,dy=ty-y,dist=Math.hypot(dx,dy)||1,ang=Math.atan2(dy,dx);
-  const L=Math.max(150,Math.min(dist,0.55*Math.min(r.width,r.height)));
-  DFIRE.el.style.transform='translate('+x.toFixed(1)+'px,'+y.toFixed(1)+'px) rotate('+ang.toFixed(3)+'rad)';
-  DFIRE.cone.style.setProperty('--L',L.toFixed(0)+'px'); DFIRE.cone.style.setProperty('--H',(L*0.5).toFixed(0)+'px');
+  DFX.step(dt,{fire:DFIRE.on?fire:0,smoke:ok||(dragon.visible&&!reduce&&!document.hidden&&AWK.done&&!AWK.running&&!DRG.defeated&&!gameOver)});
 }
-function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(1.3); dragon.userData.dy=0; dragon.userData.shk=0; dragon.userData.open=0; dragonFireStop(); DFIRE.next=0; }
+function resetDragon(){ dragon.visible=false; dragon.scale.setScalar(1.3); dragon.userData.dy=0; dragon.userData.shk=0; dragon.userData.open=0; dragonFireStop(); DFIRE.next=0; DFX.clear(); }
 async function hitDragon(p,v){
    if(!canAttackDragon(p)) return; /* Feature 5: pemain yang belum READY (Crystal 1-4) tidak boleh melukai Dragon */
    const D=dragon.userData,dmg=v*DMG,gid=gameId,atk='Serangan '+v+' x '+DMG+' = '+dmg+' damage!';
