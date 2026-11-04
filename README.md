@@ -2,23 +2,47 @@
 
 Game ular tangga bertema voxel/Minecraft. Jalankan lewat server lokal (mis. `python3 -m http.server`) lalu buka `index.html`.
 
-## Halaman
+## Peta folder
+
+```
+/                      landing publik (index.html, leaderboard.html) + assets/ khusus landing
+├─ assets/             css/ js/ lang/ image/ untuk landing; old/ = arsip landing lama
+├─ audit/              laporan audit per stage (arsip, jangan dijadikan acuan path)
+├─ .agent/stages/      log kerja per stage
+└─ game/               aplikasi game (scope service worker /game/)
+   ├─ *.html           halaman: splash, index, lobby, mode, shop, inventory, profile,
+   │                   leaderboard, friendship, dailyreward, misi, play (shell), gameplay
+   ├─ assets/
+   │  ├─ css/ js/      kode bersama (js/vendor = three.min.js)
+   │  ├─ Images/       background, clouds, mode, icon/<grup>/ (lihat icon/README.md)
+   │  ├─ icons/        ikon PWA
+   │  ├─ music/        BGM & musik Awakening Naga
+   │  ├─ sfx/<kategori>/  semua efek suara (lihat sfx/README.md)
+   │  └─ preload-manifest.json   dibuat oleh tools/gen-preload-manifest.py
+   ├─ gameplay/        modul gameplay (audio, hud, fx, config, themes, ...)
+   ├─ hud/             UT.Hud + komponen (badge, button, card, currency, modal, toast)
+   ├─ data/            gambar data game: dice/ frame/ power/
+   ├─ promosi/         banner event lobby
+   ├─ doc/             dokumentasi & catatan (CATATAN_GAMEPLAY.md, CATATAN_SOUND.md)
+   ├─ referensi/       bahan referensi desain & lab (tidak dimuat game)
+   └─ tools/           skrip build (character-data, gen-preload-manifest.py)
+```
+
+Setelah menambah/memindah aset: jalankan `python3 game/tools/gen-preload-manifest.py` dan naikkan `VERSION` di `game/sw.js`.
+
+## Halaman utama (`game/`)
 | File | Fungsi |
 |---|---|
-| `index.html` | Landing publik. "Main Sekarang" -> `ular tangga.html` |
-| `ular tangga.html` | Beranda aplikasi (profil, koin, ringkasan, pintasan) |
-| `inventory.html` | Koleksi item yang dimiliki (cari, filter, urut, gunakan) |
-| `skins.html` | Pratinjau & terapkan skin karakter |
-| `shop.html` | Toko dengan koin virtual (tanpa uang sungguhan) |
-| `lobby.html` | Pilih mode, skin, tema, dadu -> `gameplay.html` |
-| `gameplay.html` | Game 3D (logika asli tidak diubah) |
-| `ular-tangga.html` | Versi monolit lama (tidak diubah, tidak ditautkan) |
+| `splash.html` | Preloader aset, lalu masuk ke aplikasi |
+| `play.html` | Shell: halaman game dijalankan di dalam frame (BGM + transisi) |
+| `index.html` / `lobby.html` | Beranda aplikasi / lobi (mode, skin, tema, dadu) |
+| `mode.html`, `shop.html`, `inventory.html`, `profile.html`, `leaderboard.html`, `friendship.html`, `dailyreward.html`, `misi.html` | Halaman fitur |
+| `gameplay.html` | Game 3D (sumber kebenaran logika; modul di `gameplay/`) |
 
-## Kode bersama (`assets/js/`, gaya di `assets/css/`)
+## Kode bersama (`game/assets/js/`, gaya di `game/assets/css/`)
 - `item-catalog.js` : satu-satunya sumber harga & metadata item.
 - `player-data.js` : saldo, inventory, item aktif; `localStorage["ularTanggaBlok:player:v1"]`.
-- `item-art.js`, `app-ui.js`, `navigation.js` : gambar SVG item, toast/modal, bottom nav.
-- `game-integration.js` : memastikan gameplay hanya memakai skin/tema/dadu yang dimiliki.
+- `item-art.js`, `app.js`, `game-integration.js` : gambar SVG item, util UI/audio, validasi pilihan gameplay.
 
 Data hanya tersimpan di browser yang dipakai (tanpa akun/server).
 

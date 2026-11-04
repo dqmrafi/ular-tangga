@@ -11,7 +11,7 @@
   var UT = win.UT = win.UT || {};
   var KEY = 'ut:quest', WINKEY = 'ut-dragon-win';
   var DEFS = [
-    { id: 'login', title: 'Login Harian',      desc: 'Masuk ke dalam game',        goal: 1, reward: 50,  icon: 'mode/calndar' },
+    { id: 'login', title: 'Login Harian',      desc: 'Masuk ke dalam game',        goal: 1, reward: 50,  icon: 'mode/calendar' },
     { id: 'play',  title: 'Mainkan Permainan', desc: 'Selesaikan 1 pertandingan',  goal: 1, reward: 75,  icon: 'items/dadu' },
     { id: 'win',   title: 'Raih Kemenangan',   desc: 'Menangkan 3 pertandingan',   goal: 3, reward: 150, icon: 'lobby/trophy' }
   ];
