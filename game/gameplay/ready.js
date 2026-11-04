@@ -51,6 +51,14 @@
     '#readyScreen .rk-no{font-size:clamp(52px,15vh,84px);line-height:1;font-weight:800;color:#ffd23f;text-shadow:0 4px 0 #0b1838}' +
     '#readyScreen .rk-nm{max-width:100%;padding:0 6px;font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-shadow:0 2px 0 #0b1838}' +
     '#readyScreen .rk.first .rk-b{box-shadow:inset 0 0 0 3px rgba(255,210,63,.6),0 0 18px #FFC21A}' +
+    /* flip: dua fase (depan 0->90deg, belakang -90->0deg), sudut akhir 0deg => angka tidak pernah terbalik/mirror */
+    '#readyScreen .rk.flip{--rot:0deg}' +
+    '#readyScreen .rk .rk-b{transform:rotateY(-90deg);visibility:hidden;backface-visibility:visible;-webkit-backface-visibility:visible}' +
+    '#readyScreen .rk.flip .rk-f{animation:rkOut .25s ease-in var(--dl,0ms) both}' +
+    '#readyScreen .rk.flip .rk-b{animation:rkIn .25s ease-out calc(var(--dl,0ms) + .25s) both}' +
+    '@keyframes rkOut{from{transform:rotateY(0);visibility:visible}99%{transform:rotateY(90deg);visibility:visible}to{transform:rotateY(90deg);visibility:hidden}}' +
+    '@keyframes rkIn{from{transform:rotateY(-90deg);visibility:visible}to{transform:rotateY(0);visibility:visible}}' +
+    '@media (prefers-reduced-motion:reduce){#readyScreen .rk.flip .rk-f,#readyScreen .rk.flip .rk-b{animation-duration:.01s}}' +
     '@media (prefers-reduced-motion:reduce){#readyScreen .rk-in{transition:none}}' +
     /* landscape pendek: kartu dikecilkan agar muat tanpa scroll */
     '@media (orientation:landscape) and (max-height:430px){#readyScreen .rd-box{padding:8px 10px 10px}#readyScreen h2{font-size:14px;margin:0}#readyScreen .rd-sub{margin:2px 0 4px;font-size:10px}' +
