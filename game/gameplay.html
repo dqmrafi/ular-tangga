@@ -333,14 +333,14 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
     <button class="btn small light" id="btnAngle" type="button" aria-pressed="false" aria-label="Kamera terkunci"></button>
     <span class="camgrp" id="camGrp" hidden>
     <button class="btn small light" id="btnPreset" type="button" aria-label="Ganti sudut kamera"></button>
-    <button class="btn small light ico" id="btnFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="assets/Images/icon/ui/focus.webp" alt="" draggable="false"></button>
-    <button class="btn small light ico" id="btnCam" type="button" aria-label="Reset kamera"><img class="hi" src="assets/Images/icon/ui/refresh.webp" alt="" draggable="false"></button>
+    <button class="btn small light ico" id="btnFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="assets/Images/icon/tabler/focus-2.svg" alt="" draggable="false"></button>
+    <button class="btn small light ico" id="btnCam" type="button" aria-label="Reset kamera"><img class="hi" src="assets/Images/icon/tabler/refresh.svg" alt="" draggable="false"></button>
     </span>
     <button class="btn small light" id="btnTheme" type="button" hidden>Maps</button>
     <button class="btn small light" id="btnNight" type="button" hidden>Mode: Siang</button>
     <button class="btn small light" id="btnDice" type="button" hidden>Dadu</button>
-    <button class="btn small light" id="btnSnd" type="button"><img class="hi" src="assets/Images/icon/audio/sound.webp" alt="" draggable="false">Suara: nyala</button>
-    <button class="btn small light" id="btnMenu" type="button"><img class="hi" src="assets/Images/icon/ui/menu.webp" alt="" draggable="false">Menu</button>
+    <button class="btn small light" id="btnSnd" type="button"><img class="hi" src="assets/Images/icon/tabler/volume.svg" alt="" draggable="false">Suara: nyala</button>
+    <button class="btn small light" id="btnMenu" type="button"><img class="hi" src="assets/Images/icon/tabler/menu-2.svg" alt="" draggable="false">Menu</button>
   </div>
 </header>
 
@@ -3927,7 +3927,7 @@ function resetCam(P){
   goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=0; panGoal.z=0;
   camHold.x=CAM_BASE.x; camHold.y=CAM_BASE.y; camHold.z=CAM_BASE.z;
 }
-const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/ui/lock.webp" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/ui/unlock.webp" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/profile/camera.webp" alt="" draggable="false">';
+const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/tabler/lock.svg" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/tabler/lock-open.svg" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/tabler/camera.svg" alt="" draggable="false">';
 function camUI(){
   const a=$('btnAngle'); if(!a) return;
   a.innerHTML=camCfg.angle?ICON_OPEN+'ANGLE':ICON_LOCK+'LOCK'; a.setAttribute('aria-pressed',String(camCfg.angle));

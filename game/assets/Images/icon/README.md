@@ -49,7 +49,7 @@ Masih SVG/emoji karena belum ada aset: layar kalah, tombol tutup (X), dan banner
 
 
 ## Tabler Icons (`tabler/`)
-Icon SVG outline dari [Tabler Icons](https://tabler.io/icons) v3.50.0 (lisensi MIT), warna mengikuti `currentColor`. Disiapkan untuk tombol HUD kanan atas Gameplay:
+Icon SVG outline dari [Tabler Icons](https://tabler.io/icons) v3.50.0 (lisensi MIT), warna mengikuti `currentColor`. Sudah dipakai di tombol HUD kanan atas Gameplay (`gameplay.html`, diputihkan lewat filter CSS `.hud .btn .hi`):
 
 | Elemen HUD | File |
 |---|---|
