@@ -110,3 +110,8 @@ html body #side .rcol .pnl.tn .die-dock .die-scene.hop{animation:dieDrop 1.25s b
   .die-dock .pad-glow,.die-dock.drop .pad-shadow,.die-dock.thud .pad-top,.die-dock.thud-s .pad-top,.die-dock .dp-ring.go{animation:none}
   .em-bubble{animation-duration:.01s}
 }
+
+/* Perbaikan: tombol Auto memakai "grid-area:auto" (kata kunci, bukan nama area) sehingga ditempatkan otomatis.
+   Setelah dock dadu mengambil baris 2 penuh, Auto terdorong ke baris lain dan tertutup. Tempatkan eksplisit di baris 3 kolom 1 (kiri Roll). */
+html body #side .rcol .pnl.tn #btnAuto{grid-row:3;grid-column:1;position:relative;z-index:4;pointer-events:auto}
+html body #side .rcol .pnl.tn #btnRoll{grid-row:3;grid-column:2}
