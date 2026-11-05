@@ -5,13 +5,13 @@
 ## Current checkpoint
 
 - **Checkpoint:** 7 — Hardening and deployment
-- **Status:** Implementation committed; runtime validation pending Supabase project
+- **Status:** Supabase browser config committed; runtime validation pending migration application and deployment
 - **Working branch:** `feature/supabase-multiplayer`
 - **Repository:** https://github.com/dqmrafi/ular-tangga
 - **Base branch:** `main`
 - **Checkpoint 0 commit:** `76e71e67233116936f8c27b4c6c5241efffb275f`
 - **Checkpoint 1 commit:** `5e55393291dc70fa1535900339a6b8ef4c91253f`
-- **Current checkpoint commit:** pending (static audit correction)
+- **Current implementation/config commit:** `298be2d441bd3377decf58cfb2693da3b671d6df`
 - **Application code changed:** Yes — Supabase foundation and private-room UI integration.
 - **Tests run:** No runtime tests. No Supabase project credentials/config are available in the repository.
 
@@ -47,6 +47,7 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 | 5 | Realtime lobby | Committed; runtime validation pending | `f4f37e7ede9a6849968930b017d6f7f11f660c9a` |
 | 6 | Gameplay synchronization | Committed; runtime validation pending | `3d6ee1b7873e8dfebeecf2e282ded0f5ebfedada` |
 | 7 | Hardening and deployment | Code committed; live Supabase validation pending | `113810753b0bb1eb26634e59a7d0bedbca9df435` |
+| 8 | Configure supplied Supabase project | Public browser URL/publishable key committed; migration and live tests pending | `298be2d441bd3377decf58cfb2693da3b671d6df` |
 
 ## Post-checkpoint static audit
 
@@ -64,6 +65,7 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 - `room-service.js`: host heartbeat every 30 seconds while connected; heartbeat stops on unsubscribe/host transfer. Static review caught and fixed a stale variable reference in the host-transfer heartbeat cleanup path.
 - Room state now carries the server status through the UI so Ready/Start controls stay hidden after the room starts or finishes; the setup path no longer overrides that status-based visibility.
 - `client.js` imports the tracked `config.example.js`, avoiding an ignored/untracked config file in static Vercel deployments.
+- Configured `game/assets/js/multiplayer/config.example.js` with the user-provided Supabase project URL and publishable key. No secret/service-role key was supplied or added.
 - `room-flow.js`, `room.html`, `game-integration.js`, and `gameplay.html`: online rooms no longer send account inventory, equipped cosmetics, or power-up selections; neutral defaults are used.
 - `supabase/README.md`: documented Vercel root directory (`game/`), public browser config, Anonymous Auth, and live test checklist.
 
@@ -127,4 +129,4 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 
 ## Exact next action
 
-Repository implementation and static review are complete to the prototype scope. Before calling this production-ready, configure a Supabase project and run the real acceptance pass:  create/configure a Supabase project, enable Anonymous Auth, apply `supabase/migrations/202611050001_multiplayer.sql`, fill `game/assets/js/multiplayer/config.example.js` with the public project URL/anon key, deploy `game/` as the Vercel root, and run the multi-browser checklist in `supabase/README.md`. Fix runtime issues discovered and record actual browser/SQL results here. Prototype limits: anonymous roll broadcasts are not anti-cheat, the host browser must stay connected to advance gameplay, and abrupt guest disconnect cleanup is best-effort.
+Repository implementation and static review are complete to the prototype scope. Before calling this production-ready, configure a Supabase project and run the real acceptance pass:  enable Anonymous Auth in the supplied Supabase project, apply `supabase/migrations/202611050001_multiplayer.sql`, deploy `game/` as the Vercel root, and run the multi-browser checklist in `supabase/README.md`. The public project URL/publishable key are already committed in the browser config. Fix runtime issues discovered and record actual browser/SQL results here. Prototype limits: anonymous roll broadcasts are not anti-cheat, the host browser must stay connected to advance gameplay, and abrupt guest disconnect cleanup is best-effort.
