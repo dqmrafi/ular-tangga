@@ -147,6 +147,7 @@ html{font-size:min(2.6vw,1.45vh)}
  <div class="sc" id="fl"></div></div></div>
 <div id="toast"></div>
 <script src="assets/js/item-catalog.js"></script>
+<link rel="stylesheet" href="gameplay/particle-fx.css"><script src="gameplay/particle-fx.js"></script><script src="data/power/power-fx.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/character-data.js"></script>
 <script src="assets/js/character-view.js"></script>
@@ -224,11 +225,11 @@ function loadP(){try{const d=JSON.parse(localStorage.getItem(PK)||'{}');return{e
 const PW=loadP();const saveP=()=>{try{localStorage.setItem(PK,JSON.stringify(PW))}catch(e){}};
 function renderPower(){
  $('#pcnt').textContent=PW.equipped.length+' / 5 DIPILIH';$('#psc').style.setProperty('--pn',POWERS.length);
- $('#psc').innerHTML=POWERS.map(p=>{const on=PW.equipped.includes(p.id);return `<div class="pc ${on?'sel':''}" data-id="${p.id}" role="checkbox" aria-checked="${on}" aria-label="${esc(p.name)}"><span class="ck">✓</span><img src="${p.icon}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div></div>`}).join('');
+ $('#psc').innerHTML=POWERS.map(p=>{const on=PW.equipped.includes(p.id);return `<div class="pc ${on?'sel':''}" data-id="${p.id}" role="checkbox" aria-checked="${on}" aria-label="${esc(p.name)}" title="${esc(p.name+' — '+p.desc+((UT.PowerFX&&UT.PowerFX.DATA[p.gameKey])?' Efek: '+UT.PowerFX.DATA[p.gameKey].note+'.':''))}"><span class="ck">✓</span><img src="${p.icon}" alt="" draggable="false"><div class="pwn">${esc(p.name)}</div></div>`}).join('');
 }
 $('#psc').onclick=e=>{const b=e.target.closest('[data-id]');if(!b)return;const id=b.dataset.id;
  if(PW.equipped.includes(id))PW.equipped=PW.equipped.filter(x=>x!==id);
- else{if(PW.equipped.length>=5)return toast('Maksimal 5 jenis Power untuk satu pertandingan');PW.equipped.push(id)}
+ else{if(PW.equipped.length>=5)return toast('Maksimal 5 jenis Power untuk satu pertandingan');PW.equipped.push(id);try{const pi=POWERS.find(x=>x.id===id);if(pi&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(pi.gameKey,b)}catch(er){}}
  saveP();renderPower()};
 /* ---------- MAP INFORMATION ---------- */
 /* banner gambar map (gameplay/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */

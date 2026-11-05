@@ -236,6 +236,7 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 <div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
 <div id="toast"></div>
 <script src="assets/js/item-catalog.js"></script>
+<link rel="stylesheet" href="gameplay/particle-fx.css"><script src="gameplay/particle-fx.js"></script><script src="data/power/power-fx.js"></script>
 <script src="assets/js/character-data.js"></script>
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-art.js"></script>
@@ -261,6 +262,9 @@ const icon=p=>`<svg viewBox="0 0 24 24"><path d="${p}" fill="#fff" stroke="#fff"
 const DM='<svg viewBox="0 0 24 24"><path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill="#62e178"/><path d="M12 2l8.66 5-3.72 2.15L12 6.3z" fill="#47d85f"/><path d="M20.66 7v10l-3.72-2.15v-5.7z" fill="#3dcb55"/><path d="M20.66 17L12 22v-4.3l4.94-2.85z" fill="#32a643"/><path d="M12 22l-8.66-5 3.72-2.15L12 17.7z" fill="#2a8d3a"/><path d="M3.34 17V7l3.72 2.15v5.7z" fill="#37b44c"/><path d="M12 6.3l4.94 2.85v5.7L12 17.7l-4.94-2.85v-5.7z" fill="#a7e6b1"/><path d="M12 6.3l4.94 2.85L12 12 7.06 9.15z" fill="#c4f2cc" opacity=".7"/></svg>';
 const CM='<svg viewBox="0 0 24 24"><path d="M12 12V.24A11.76 11.76 0 0 0 .24 12z" fill="#ffd12b"/><path d="M12 12h11.76A11.76 11.76 0 0 0 12 .24z" fill="#ffb800"/><path d="M12 12v11.76A11.76 11.76 0 0 0 23.76 12z" fill="#ffd12b"/><path d="M12 12H.24A11.76 11.76 0 0 0 12 23.76z" fill="#ffb800"/><circle cx="12" cy="12" r="8.75" fill="#ff8a00"/><g fill="#ffb901"><circle cx="18.90" cy="12.00" r=".6"/><circle cx="16.88" cy="16.88" r=".6"/><circle cx="12.00" cy="18.90" r=".6"/><circle cx="7.12" cy="16.88" r=".6"/><circle cx="5.10" cy="12.00" r=".6"/><circle cx="7.12" cy="7.12" r=".6"/><circle cx="12.00" cy="5.10" r=".6"/><circle cx="16.88" cy="7.12" r=".6"/></g><path d="M12 7.2l3.9 4.8-3.9 4.8-3.9-4.8z" fill="#ffd12b" stroke="#ffd12b" stroke-width="1" stroke-linejoin="round"/></svg>';
 // ---- state: tidak ada let coins/gems/own/eq permanen. Key legacy 'inv' tidak ditulis lagi.
+/* Efek visual Power (data/power/power-fx.js): partikel keluar saat Power dipilih/dilihat; catatan efek ikut tampil di deskripsi. Modul tak termuat -> dilewati. */
+const PFX={at(i,el){try{if(i&&i.kind==='powerup'&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(i.gameKey,el||document.getElementById('show'))}catch(e){}},
+ note(i){try{const d=i&&i.kind==='powerup'&&window.UT&&UT.PowerFX&&UT.PowerFX.DATA[i.gameKey];return d?' Efek: '+d.note+'.':''}catch(e){return''}}};
 let cat='skin',sel=null;
 const SET=()=>PD.settings();
 /* Item yang dimiliki utk kategori: [{item, equipped}] — langsung dari PlayerData */
@@ -290,7 +294,7 @@ function renderCats(){$('#cats').innerHTML=CATS.map(c=>`<button class="blue cat 
  $('#rlt').textContent=CATS.find(c=>c[0]===cat)[1]+' Terbaru';
  document.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{playSound('click');setCat(b.dataset.c)}))}
 function setCat(c){cat=c;const l=ownedList(c);sel=l?(l.find(o=>o.equipped)||l[0]||{}).item||null:null;off=0;pose='idle';renderCats();renderGrid();renderInfo();renderRecent();buildModels();playSound('select')}
-function pick(i){sel=i;renderGrid();renderInfo();renderRecent();buildModels();playSound('select')}
+function pick(i){sel=i;renderGrid();renderInfo();renderRecent();buildModels();playSound('select');PFX.at(i)}
 function renderGrid(){const g=$('#grid');g.innerHTML='';
  if(!CI[cat]){g.innerHTML=`<div style="grid-column:1/-1;display:grid;place-items:center;font-size:2.2rem;text-align:center">${SOON[cat]} — Segera hadir</div>`;return}
  ownedList(cat).forEach((o,n)=>{const i=o.item,eq=o.equipped,b=document.createElement('div');
@@ -309,7 +313,7 @@ function act(i){if(i.kind==='powerup'){toast('Power tersimpan — pemakaian di g
  renderGrid();renderInfo();renderRecent();buildModels()}
 function renderInfo(){const i=sel,u=$('#use');
  if(!i){$('#irar').textContent='SOON';$('#irar').style.background=bg('common');$('#iname').textContent=SOON[cat];$('#idesc').textContent='Belum ada item canonical di kategori ini.';u.className='use no';u.innerHTML='Segera hadir';renderCurrency();return}
- if(i.kind==='powerup'){const r=$('#irar');r.textContent=RN[i.rarity];r.style.background=bg(i.rarity);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc+' (Dimiliki ×'+PD.qty(i.id)+')';u.className='use no';u.innerHTML='Dimiliki ×'+PD.qty(i.id);$('#info').animate([{transform:'translateY(.8rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});renderCurrency();return}
+ if(i.kind==='powerup'){const r=$('#irar');r.textContent=RN[i.rarity];r.style.background=bg(i.rarity);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc+PFX.note(i)+' (Dimiliki ×'+PD.qty(i.id)+')';u.className='use no';u.innerHTML='Dimiliki ×'+PD.qty(i.id);$('#info').animate([{transform:'translateY(.8rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});renderCurrency();return}
  const eq=PD.isEquipped(i.id),r=$('#irar');r.textContent=RN[i.rarity];r.style.background=bg(i.rarity);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc;
  u.className='use'+(eq?' own':'');u.innerHTML=eq?CK+'Digunakan':SH+'Gunakan';
  $('#info').animate([{transform:'translateY(.8rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});

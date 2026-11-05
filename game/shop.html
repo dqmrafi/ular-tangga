@@ -416,6 +416,7 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 <div id="toast"></div>
 
 <script src="assets/js/item-catalog.js"></script>
+<link rel="stylesheet" href="gameplay/particle-fx.css"><script src="gameplay/particle-fx.js"></script><script src="data/power/power-fx.js"></script>
 <script src="assets/js/character-data.js"></script>
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-art.js"></script>
@@ -439,6 +440,9 @@ const icon=p=>`<svg viewBox="0 0 24 24"><path d="${p}" fill="#fff" stroke="#fff"
 const DM='<svg viewBox="0 0 24 24"><path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill="#62e178"/><path d="M12 2l8.66 5-3.72 2.15L12 6.3z" fill="#47d85f"/><path d="M20.66 7v10l-3.72-2.15v-5.7z" fill="#3dcb55"/><path d="M20.66 17L12 22v-4.3l4.94-2.85z" fill="#32a643"/><path d="M12 22l-8.66-5 3.72-2.15L12 17.7z" fill="#2a8d3a"/><path d="M3.34 17V7l3.72 2.15v5.7z" fill="#37b44c"/><path d="M12 6.3l4.94 2.85v5.7L12 17.7l-4.94-2.85v-5.7z" fill="#a7e6b1"/><path d="M12 6.3l4.94 2.85L12 12 7.06 9.15z" fill="#c4f2cc" opacity=".7"/></svg>';
 const CM='<svg viewBox="0 0 24 24"><path d="M12 12V.24A11.76 11.76 0 0 0 .24 12z" fill="#ffd12b"/><path d="M12 12h11.76A11.76 11.76 0 0 0 12 .24z" fill="#ffb800"/><path d="M12 12v11.76A11.76 11.76 0 0 0 23.76 12z" fill="#ffd12b"/><path d="M12 12H.24A11.76 11.76 0 0 0 12 23.76z" fill="#ffb800"/><circle cx="12" cy="12" r="8.75" fill="#ff8a00"/><g fill="#ffb901"><circle cx="18.90" cy="12.00" r=".6"/><circle cx="16.88" cy="16.88" r=".6"/><circle cx="12.00" cy="18.90" r=".6"/><circle cx="7.12" cy="16.88" r=".6"/><circle cx="5.10" cy="12.00" r=".6"/><circle cx="7.12" cy="7.12" r=".6"/><circle cx="12.00" cy="5.10" r=".6"/><circle cx="16.88" cy="7.12" r=".6"/></g><path d="M12 7.2l3.9 4.8-3.9 4.8-3.9-4.8z" fill="#ffd12b" stroke="#ffd12b" stroke-width="1" stroke-linejoin="round"/></svg>';
 
+/* Efek visual Power (data/power/power-fx.js): partikel keluar saat Power dipilih/dilihat; catatan efek ikut tampil di deskripsi. Modul tak termuat -> dilewati. */
+const PFX={at(i,el){try{if(i&&i.kind==='powerup'&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(i.gameKey,el||document.getElementById('show'))}catch(e){}},
+ note(i){try{const d=i&&i.kind==='powerup'&&window.UT&&UT.PowerFX&&UT.PowerFX.DATA[i.gameKey];return d?' Efek: '+d.note+'.':''}catch(e){return''}}};
 let cat='skin',sel=CI.skin[0];
 const list=c=>CI[c]||null;
 const owned=i=>PD.owns(i.id),equipped=i=>PD.isEquipped(i.id);
@@ -475,7 +479,7 @@ function renderGrid(){const g=$('#grid');g.innerHTML='';
   const pr=np?'<span class="pr soon">Segera hadir</span>':`<span class="pr">${CM}${fmt(i.price)}</span>`;
   const bt=np?'<button class="bt no">Segera</button>':`<button class="bt ${ow?'own':''}">${ow?(eq?'Digunakan':'Dimiliki'):'Beli'}</button>`;
   b.innerHTML=`<span class="badge">${RN[i.rarity]}</span><div class="th">${thumb(cat,i)}</div>${eq?`<span class="ck">${CK}</span>`:''}<span class="nm">${i.name}</span>${pr}${bt}`;
-  b.addEventListener('click',e=>{sel=i;renderGrid();renderInfo();buildModels();playSound('select');sparkle(b,6);if(e.target.closest('.bt'))act(i)});
+  b.addEventListener('click',e=>{sel=i;renderGrid();renderInfo();buildModels();playSound('select');sparkle(b,6);PFX.at(i,b);if(e.target.closest('.bt'))act(i)});
   b.addEventListener('keydown',e=>{if(e.key==='Enter')b.click()});g.appendChild(b)})}
 
 const CK='<svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
@@ -486,7 +490,7 @@ function act(i){if(i.price==null){toast('Belum dijual — segera hadir.');playSo
 function renderInfo(){const p=$('#info');
  if(!sel){$('#irar').textContent='SOON';$('#irar').style.setProperty('--rc',RC.common);$('#iname').textContent=SOON[cat];$('#idesc').textContent='Kategori ini belum memiliki item canonical.';$('#iprice').innerHTML='';const b=$('#buy');b.className='cta';b.disabled=true;b.innerHTML='Segera hadir';renderCurrency();return}
  const i=sel,ow=owned(i),eq=equipped(i);
- $('#irar').textContent=RN[i.rarity];$('#irar').style.setProperty('--rc',RC[i.rarity]);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc;
+ $('#irar').textContent=RN[i.rarity];$('#irar').style.setProperty('--rc',RC[i.rarity]);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc+PFX.note(i);
  if(i.price==null){$('#iprice').innerHTML='<span style="font-size:1.6rem;opacity:.85">Harga belum ditentukan</span>';const b=$('#buy');b.className='cta';b.disabled=true;b.innerHTML='Segera hadir';p.animate([{transform:'translateY(1rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});renderCurrency();return}
  $('#iprice').innerHTML=CM+fmt(i.price);
  const b=$('#buy');b.className='cta'+(ow?' own':'');b.disabled=eq;b.innerHTML=ow?(eq?CK+'Digunakan':'Pakai'):CM+'Beli';
@@ -498,7 +502,7 @@ function pulse(id){const e=$(id);e.classList.remove('pulse');void e.offsetWidth;
 
 $('#buy').addEventListener('click',e=>{if(sel){act(sel);sparkle(e.currentTarget)}});
 $('#prev').addEventListener('click',()=>step(-1));$('#next').addEventListener('click',()=>step(1));
-function step(d){const l=list(cat);if(!l)return;const n=(l.indexOf(sel)+d+l.length)%l.length;sel=l[n];renderGrid();renderInfo();buildModels();playSound('select')}
+function step(d){const l=list(cat);if(!l)return;const n=(l.indexOf(sel)+d+l.length)%l.length;sel=l[n];renderGrid();renderInfo();buildModels();playSound('select');PFX.at(sel)}
 
 UT.Events.on('currencyChanged',renderCurrency);
 UT.Events.on('inventoryChanged',()=>{const l=list(cat);if(l&&(!sel||!l.includes(sel)))sel=l.find(i=>equipped(i))||l[0];renderGrid();renderInfo()});
