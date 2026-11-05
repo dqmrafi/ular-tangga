@@ -142,8 +142,8 @@ html{font-size:min(2.6vw,1.45vh)}
 <div class="ov" id="inv"><div class="box blue" role="dialog" aria-modal="true" aria-label="Invite Friend">
  <button class="x" id="invX" aria-label="Tutup">✕</button><h2>👥 INVITE FRIEND</h2>
  <div class="rowc"><div class="seg"><button id="sPriv">PRIVAT</button><button id="sPub">PUBLIK</button></div><button class="sm" id="cCode" title="Salin kode"></button><button class="sm" id="cLink">LINK</button><span class="pill" id="slotInfo"></span></div>
- <div class="tabs"><button class="tab on" id="tOn">🟢 ONLINE</button><button class="tab" id="tOff">⚪ OFFLINE</button></div>
- <input class="srch" id="srch" placeholder="Cari nama teman..." autocomplete="off">
+ <div class="tabs" hidden><button class="tab on" id="tOn">🟢 ONLINE</button><button class="tab" id="tOff">⚪ OFFLINE</button></div>
+ <input class="srch" id="srch" placeholder="Cari nama teman..." autocomplete="off" hidden>
  <div class="sc" id="fl"></div></div></div>
 <div id="toast"></div>
 <script src="assets/js/item-catalog.js"></script>
@@ -193,7 +193,7 @@ function setup(){
 function randomRoomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',bytes=new Uint8Array(6);crypto.getRandomValues(bytes);return Array.from(bytes,b=>chars[b%chars.length]).join('')}
 function renderRoomHeader(){
  $('#rt_t').textContent=MODE==='vsc'?'VS COMPUTER':MODE==='local'?'MULTI PLAYER':(TEAM?'ROOM TEAM':'ROOM SOLO');
- $('#rs').textContent=(MAP?MAP.name.replace(/^Map /,''):'-')+' • '+COUNT+' pemain';$('#invB').hidden=true;
+ $('#rs').textContent=(MAP?MAP.name.replace(/^Map /,''):'-')+' • '+COUNT+' pemain';$('#invB').hidden=!(ONLINE&&HOST);$('#invB').textContent='ROOM ACCESS';
  $('#cCode').textContent='KODE '+(S.room.code||'------');
 }
 function applyRemoteRoom(row){
@@ -275,7 +275,7 @@ $('#plrs').onclick=e=>{const m=e.target.closest('[data-mv]'),s=e.target.closest(
 function copy(t){const v=t==='code'?S.room.code:`${location.origin}${location.pathname}?mode=online&format=${FORMAT}&count=${COUNT}&role=guest&code=${S.room.code}`;
  try{navigator.clipboard.writeText(v).then(()=>toast(t==='code'?'Kode disalin':'Link disalin'),()=>toast('Kode: '+S.room.code))}catch(e){toast('Kode: '+S.room.code)}}
 $('#cCode').onclick=()=>HOST&&copy('code');$('#cLink').onclick=()=>HOST&&copy('link');
-$('#sPriv').onclick=()=>{if(HOST)toast('Room ini menggunakan akses kode privat')};$('#sPub').onclick=()=>{if(HOST)toast('Room publik tersedia pada checkpoint berikutnya')};
+$('#sPriv').onclick=async()=>{if(HOST&&ONLINE){try{applyRemoteRoom(await UT.Multiplayer.RoomService.setVisibility(S.mpRoomId,false));renderInvite()}catch(e){toast('Gagal mengubah akses room')}}};$('#sPub').onclick=async()=>{if(HOST&&ONLINE){try{applyRemoteRoom(await UT.Multiplayer.RoomService.setVisibility(S.mpRoomId,true));renderInvite()}catch(e){toast('Gagal mengubah akses room')}}};
 function moveTeam(id){if(!HOST)return;const p=S.room.players.find(x=>x.id===id),t=p.team===1?2:1;if(S.room.players.filter(x=>x.team===t).length>=2)return toast('Team '+t+' sudah penuh');p.team=t;renderPlayers();renderBottom()}
 /* ---------- READY / START (START hanya host) ---------- */
 function check(){const P=S.room.players,h=me();
@@ -302,18 +302,12 @@ function openInvite(team){if(!ONLINE||!HOST)return;S.invTeam=team||0;S.invTab='o
 const closeInvite=()=>$('#inv').classList.remove('show');
 $('#invB').onclick=()=>openInvite(0);$('#invX').onclick=closeInvite;$('#inv').onclick=e=>{if(e.target.id==='inv')closeInvite()};
 $('#tOn').onclick=()=>{S.invTab='online';renderInvite()};$('#tOff').onclick=()=>{S.invTab='offline';renderInvite()};$('#srch').oninput=renderInvite;
-function renderInvite(){const r=S.room,left=slotsLeft(),qs=$('#srch').value.trim().toLowerCase(),on=S.invTab==='online';
- $('#tOn').classList.toggle('on',on);$('#tOff').classList.toggle('on',!on);
+function renderInvite(){
+ const r=S.room;
  $('#sPriv').classList.toggle('on',r.privacy==='private');$('#sPub').classList.toggle('on',r.privacy==='public');
- $('#slotInfo').textContent=`${r.players.length}/${COUNT} • Slot: ${Math.max(0,left)}${TEAM&&S.invTeam?' • Team '+S.invTeam:''}`;
- const list=FRIENDS.filter(f=>f.online===on&&f.name.toLowerCase().includes(qs));
- $('#fl').innerHTML=list.length?list.map(f=>{const inR=r.players.some(p=>p.fid===f.id),pe=S.invites[f.id];let b,s;
-  if(inR){b='<button class="bt" disabled>DI ROOM</button>';s='<small class="on_">● Sudah di room</small>'}
-  else if(!f.online){b='<button class="bt" disabled>OFFLINE</button>';s='<small class="off_">○ Offline</small>'}
-  else if(pe){b=`<button class="bt sent" data-c="${f.id}">✓ SENT</button>`;s='<small class="wt_">⏳ Menunggu respons • ketuk untuk batal</small>'}
-  else if(left<=0){b='<button class="bt" disabled>PENUH</button>';s='<small class="on_">● Online</small>'}
-  else{b=`<button class="bt" data-i="${f.id}">INVITE</button>`;s='<small class="on_">● Online</small>'}
-  return `<div class="fr"><span class="av">${esc(f.name[0])}</span><div class="pi"><b>${esc(f.name)}</b>${s}</div>${b}</div>`}).join(''):`<div class="emp">Tidak ada teman ${on?'yang sedang online':'offline'}</div>`}
+ $('#slotInfo').textContent=r.players.length+'/'+COUNT+' pemain';
+ $('#fl').innerHTML='<div class="emp">Bagikan kode atau tautan undangan kepada pemain lain. '+(r.privacy==='public'?'Room ini juga tersedia melalui Quick Join.':'Room privat hanya dapat dimasuki menggunakan kode undangan.')+'</div>';
+}
 $('#fl').onclick=e=>{const i=e.target.closest('[data-i]'),c=e.target.closest('[data-c]');if(i)invite(i.dataset.i);else if(c)cancelInv(c.dataset.c)};
 /* SIMULASI undangan: ganti dengan server (kirim invite, terima respons, sinkron slot/tim) */
 function invite(id){const f=FRIENDS.find(x=>x.id===id),r=S.room;if(!HOST||!f.online||S.invites[id]||r.players.some(p=>p.fid===id)||slotsLeft()<=0)return;

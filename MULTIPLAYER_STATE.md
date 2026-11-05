@@ -4,14 +4,14 @@
 
 ## Current checkpoint
 
-- **Checkpoint:** 3 — Private room lifecycle
+- **Checkpoint:** 4 — Public rooms and Quick Join
 - **Status:** Implementation committed; runtime validation pending Supabase project
 - **Working branch:** `feature/supabase-multiplayer`
 - **Repository:** https://github.com/dqmrafi/ular-tangga
 - **Base branch:** `main`
 - **Checkpoint 0 commit:** `76e71e67233116936f8c27b4c6c5241efffb275f`
 - **Checkpoint 1 commit:** `5e55393291dc70fa1535900339a6b8ef4c91253f`
-- **Current checkpoint commit:** `5c7cbbd8df3e727c583f85c36bd188f21daa7399`
+- **Current checkpoint commit:** pending
 - **Application code changed:** Yes — Supabase foundation and private-room UI integration.
 - **Tests run:** No runtime tests. No Supabase project credentials/config are available in the repository.
 
@@ -43,10 +43,18 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 | 1 | Trace room/game contracts | Complete | `5e55393291dc70fa1535900339a6b8ef4c91253f` |
 | 2 | Supabase schema/client foundation | Committed; runtime validation pending Supabase project | `1040e240d5b6a94523a12a0ba5fb29033221da05` |
 | 3 | Private room lifecycle | Committed; runtime validation pending | `5c7cbbd8df3e727c583f85c36bd188f21daa7399` |
-| 4 | Public rooms and Quick Join | Not started | — |
+| 4 | Public rooms and Quick Join | In progress until commit verified; runtime validation pending | Pending |
 | 5 | Realtime lobby | Not started | — |
 | 6 | Gameplay synchronization | Not started | — |
 | 7 | Hardening and deployment | Not started | — |
+
+## Checkpoint 4 changes
+
+- `game/assets/js/multiplayer/room-service.js`: visibility update and atomic Quick Join wrappers.
+- `supabase/migrations/202611050001_multiplayer.sql`: host-only `set_game_room_visibility` RPC. Existing `quick_join_game_room` uses row locking and `SKIP LOCKED`.
+- `game/room.html`: ROOM ACCESS modal controls persisted private/public visibility; friend/demo invitation UI is hidden and replaced by room-code/link sharing.
+- `game/mode.html`: online room tile offers Create Solo/Team and Quick Join Solo/Team. Quick Join joins through RPC, then opens the existing room page.
+- `supabase/README.md`: public room setup/behavior notes.
 
 ## Checkpoint 3 changes
 
@@ -86,4 +94,4 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 
 ## Exact next action
 
-Checkpoint 4: add persisted room visibility and public room creation/atomic Quick Join, then wire Quick Join into the existing mode/lobby entry flow. Validate private room create/join with two browser sessions as soon as a Supabase project URL/key are available.
+Checkpoint 5: implement realtime lobby lifecycle beyond basic row refresh: host start RPC integration, guest transition to gameplay, team assignment/validation, host departure/reconnect behavior, and reliable subscription cleanup. Validate public/private lobby with multiple browsers when Supabase project credentials are configured.

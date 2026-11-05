@@ -162,11 +162,13 @@ Each checkpoint must end with an updated `MULTIPLAYER_STATE.md` and a Git commit
 
 ### Checkpoint 4 — Public rooms and Quick Join
 
-- Implement public room creation and atomic Quick Join.
-- Enforce room status/capacity and avoid joining a room that has started or filled.
-- Handle no-room-available and race conditions cleanly.
+- [x] Add host-only RPC to toggle room visibility while waiting.
+- [x] Add public Quick Join RPC with row locking and `SKIP LOCKED` to avoid overfilling.
+- [x] Expose public/private access controls in the room access modal.
+- [x] Add Quick Join Solo/Team actions to the existing online room tile.
+- [ ] Validate simultaneous Quick Join attempts against a configured Supabase project.
 
-**Acceptance:** two or more independent sessions can discover and join a public waiting room without exceeding capacity.
+**Acceptance:** two or more independent sessions can discover and join a public waiting room without exceeding capacity. Runtime/race validation is pending Supabase project configuration.
 
 ### Checkpoint 5 — Realtime lobby
 

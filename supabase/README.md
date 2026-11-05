@@ -24,3 +24,7 @@ All mutations are RPC-based. RLS allows authenticated room members to read their
 - Anonymous Auth users are real Supabase Auth records. Configure Supabase Auth rate limits / CAPTCHA according to expected traffic; anonymous identities can be abused at scale.
 - This is not strong identity or anti-cheat. Clearing browser storage creates a new anonymous player identity.
 - Room expiry/cleanup policy is not included in the first schema migration; add it after choosing the desired room lifetime.
+
+## Public rooms and Quick Join
+
+A room owner can switch a waiting room between private and public from **ROOM ACCESS**. Public rooms become discoverable by Quick Join; private rooms remain joinable by code. The mode selector offers Quick Join Solo and Quick Join Team. Quick Join is an atomic database RPC and joins one compatible waiting public room.

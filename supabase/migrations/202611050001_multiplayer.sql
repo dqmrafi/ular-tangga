@@ -338,3 +338,26 @@ begin
 exception when undefined_object then
   raise notice 'supabase_realtime publication not found; enable Realtime for public.game_rooms in Supabase dashboard';
 end $$;
+
+create or replace function public.set_game_room_visibility(
+  p_room_id uuid,
+  p_is_public boolean
+) returns public.game_rooms
+language plpgsql
+security definer
+set search_path = public, auth
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_room public.game_rooms;
+begin
+  if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+  update public.game_rooms
+  set is_public = coalesce(p_is_public, false), updated_at = now()
+  where id = p_room_id and host_id = v_uid and status = 'waiting'
+  returning * into v_room;
+  if not found then raise exception 'HOST_ONLY_OR_ROOM_NOT_WAITING'; end if;
+  return v_room;
+end;
+$$;
+grant execute on function public.set_game_room_visibility(uuid,boolean) to authenticated;

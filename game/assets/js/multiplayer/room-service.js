@@ -6,6 +6,8 @@ async function ensurePlayer(){if(!MP._identity)MP._identity=await MP.ensureAnony
 async function createRoom(o){await ensurePlayer();return rpc('create_game_room',{p_code:o.code,p_name:o.name,p_is_public:!!o.isPublic,p_format:o.format||'solo',p_max_players:o.maxPlayers||4,p_config:o.config||{}})}
 async function joinRoom(o){await ensurePlayer();return rpc('join_game_room',{p_code:o.code,p_name:o.name})}
 async function setReady(roomId,ready){await ensurePlayer();return rpc('set_game_player_ready',{p_room_id:roomId,p_ready:!!ready})}
+async function setVisibility(roomId,isPublic){await ensurePlayer();return rpc('set_game_room_visibility',{p_room_id:roomId,p_is_public:!!isPublic})}
+async function quickJoin(o){await ensurePlayer();return rpc('quick_join_game_room',{p_name:o.name,p_format:o.format||'solo'})}
 async function leaveRoom(roomId){await ensurePlayer();return rpc('leave_game_room',{p_room_id:roomId})}
 function subscribe(roomId,onRoom){
  let channel,closed=false;
@@ -17,4 +19,4 @@ function subscribe(roomId,onRoom){
  }catch(e){console.error('[multiplayer] subscription failed',e)}})();
  return ()=>{closed=true;if(channel)MP.getClient().then(c=>c.removeChannel(channel)).catch(()=>{})};
 }
-Object.assign(MP,{RoomService:{ensurePlayer,createRoom,joinRoom,setReady,leaveRoom,subscribe}});
+Object.assign(MP,{RoomService:{ensurePlayer,createRoom,joinRoom,setReady,setVisibility,quickJoin,leaveRoom,subscribe}});
