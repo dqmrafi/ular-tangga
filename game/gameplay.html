@@ -4453,7 +4453,11 @@ function faceURL(k){
   FCV[k]=cv; return FURL[k]=cv.toDataURL();
 }
 const PUN=UT.Gameplay.Config.PUN;
-function startPU(){ const o={sword:0,feather:0,tnt:0,totem:0,potion_odd:0,potion_even:0,grass:0},ks=Object.keys(o).sort(()=>Math.random()-0.5); o[ks[0]]=1; o[ks[1]]=1; return o; }
+/* Loadout Power: hanya Power yang dipilih di Room (sessionStorage 'ut-room' -> cfg.powers) yang dibawa ke gameplay (tombol HUD + stok awal).
+   Tanpa konfigurasi Room (null) = perilaku lama (semua Power). ID & efek Power tidak berubah. */
+const PU_SEL=(()=>{ try{ const r=JSON.parse(sessionStorage.getItem('ut-room')||'null'); if(r&&Array.isArray(r.powers)) return r.powers.filter((k,i,a)=>PUN[k]&&a.indexOf(k)===i); }catch(e){} return null; })();
+const puKeys=()=>PU_SEL||Object.keys(PUN);
+function startPU(){ const o={sword:0,feather:0,tnt:0,totem:0,potion_odd:0,potion_even:0,grass:0}; if(PU_SEL){ PU_SEL.forEach(k=>{ o[k]=1; }); return o; } const ks=Object.keys(o).sort(()=>Math.random()-0.5); o[ks[0]]=1; o[ks[1]]=1; return o; }
 /* Chest = event/reward container. Power BUKAN reward Chest (Power = item Shop/Inventory; bobot Power di pool = 0).
    Guard: 1 landing = 1 trigger/opening/reward/closing. Trigger kedua (saat lifecycle berjalan, atau token landing sama) -> ditolak.
    Chest Feature 2: Reward Pool (data: UT.Gameplay.Config.CHEST_POOL). resolveChestReward() -> applyChestReward(), dipanggil 1x di fase OPEN. */
@@ -4612,7 +4616,7 @@ function renderChips(){
   });
   const c=players[cur];
   $('turnName').textContent=c?c.name:''; { const tn_=document.querySelector('#side .tn'),tb=tn_&&tn_.querySelector('h3'); if(tb&&c) tb.textContent=turnTag(); if(tn_&&c&&c.css) tn_.style.setProperty('--tnc',c.css); } if(c) $('turnName').style.color=c.key==='ender'?'#c9a2ff':'#fff';
-  Object.keys(PUN).forEach(k=>{
+  puKeys().forEach(k=>{
     const bt=document.createElement('button'); bt.type='button'; bt.className='pb'; bt.title=PUN[k][1]+': '+PUN[k][2];
     bt.setAttribute('aria-label',PUN[k][1]+': '+PUN[k][2]); UT.Gameplay.Config.setPuIcon(bt,k); const lb=document.createElement('em'); lb.textContent=PUN[k][3]||PUN[k][1].split(' ')[0]; bt.appendChild(lb);
     const n=document.createElement('b'); n.textContent=c?c.pu[k]:0; bt.appendChild(n);
@@ -4621,6 +4625,7 @@ function renderChips(){
     bt.addEventListener('click',()=>{ ensureAudio(); usePU(k); });
     pu.appendChild(bt);
   });
+  { const pnl=pu.closest('.pnl.pu'); if(pnl) pnl.style.display=puKeys().length?'':'none'; } /* tanpa Power terpilih: panel Power disembunyikan */
 }
 function applyPendingTheme(){
   if(pendingTheme){ const k=pendingTheme; pendingTheme=null; buildWorld(k); }
