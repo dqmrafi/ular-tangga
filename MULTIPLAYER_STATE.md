@@ -11,7 +11,7 @@
 - **Base branch:** `main`
 - **Checkpoint 0 commit:** `76e71e67233116936f8c27b4c6c5241efffb275f`
 - **Checkpoint 1 commit:** `5e55393291dc70fa1535900339a6b8ef4c91253f`
-- **Current checkpoint commit:** `62e4a017f0a49d02b50b3f6fe338dd5dc7163125`
+- **Current checkpoint commit:** pending (static audit correction)
 - **Application code changed:** Yes — Supabase foundation and private-room UI integration.
 - **Tests run:** No runtime tests. No Supabase project credentials/config are available in the repository.
 
@@ -47,6 +47,13 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 | 5 | Realtime lobby | Committed; runtime validation pending | `f4f37e7ede9a6849968930b017d6f7f11f660c9a` |
 | 6 | Gameplay synchronization | Committed; runtime validation pending | `3d6ee1b7873e8dfebeecf2e282ded0f5ebfedada` |
 | 7 | Hardening and deployment | Code committed; live Supabase validation pending | `113810753b0bb1eb26634e59a7d0bedbca9df435` |
+
+## Post-checkpoint static audit
+
+- Found a blocking PL/pgSQL syntax typo in `create_game_room`: the room-code validation operator was `!` instead of PostgreSQL's `!~` regex-not-match operator. Corrected before any real project migration was applied.
+- Re-read the complete RPC list and confirmed each security-definer mutation has PUBLIC/anon execution revoked at migration end and authenticated execution granted.
+- Reviewed the gameplay snapshot bridge. It synchronizes stable-turn player positions, turn index, dice counters, powers, crystal/boss flags, and finish state. Mid-turn animations/decisions are not represented; this remains a release validation risk, especially Totem/chest/boss interaction phases.
+- Live SQL/browser tests remain unrun: no project credentials or two-browser runtime are available.
 
 ## Checkpoint 7 changes
 
@@ -116,4 +123,4 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 
 ## Exact next action
 
-Implementation checkpoints are complete. For live acceptance, create/configure a Supabase project, enable Anonymous Auth, apply `supabase/migrations/202611050001_multiplayer.sql`, fill `game/assets/js/multiplayer/config.example.js` with the public project URL/anon key, deploy `game/` as the Vercel root, and run the multi-browser checklist in `supabase/README.md`. Fix runtime issues discovered and record actual browser/SQL results here. Prototype limits: anonymous roll broadcasts are not anti-cheat, the host browser must stay connected to advance gameplay, and abrupt guest disconnect cleanup is best-effort.
+Implementation code is committed, but not yet runtime-accepted. The SQL migration received a static syntax correction after the initial hardening commit. For live acceptance, create/configure a Supabase project, enable Anonymous Auth, apply `supabase/migrations/202611050001_multiplayer.sql`, fill `game/assets/js/multiplayer/config.example.js` with the public project URL/anon key, deploy `game/` as the Vercel root, and run the multi-browser checklist in `supabase/README.md`. Fix runtime issues discovered and record actual browser/SQL results here. Prototype limits: anonymous roll broadcasts are not anti-cheat, the host browser must stay connected to advance gameplay, and abrupt guest disconnect cleanup is best-effort.
