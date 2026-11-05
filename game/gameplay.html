@@ -1287,6 +1287,7 @@ if (typeof THREE === 'undefined') {
 <script src="gameplay/particle-fx.js"></script>
 <script src="gameplay/firework-fx.js"></script>
 <script src="gameplay/creeper-fx.js"></script>
+<script src="data/power/power-fx.js"></script>
 <script src="gameplay/skin-uv.js"></script>
 <script src="gameplay/feedback.js"></script>
 <script src="gameplay/afk.js"></script>
@@ -4559,6 +4560,14 @@ function spawnConfetti(pos){ if(FX) FX.spawnConfetti(pos); } /* visual: UT.Gamep
 function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
+/* Efek visual Power (partikel/asap/percikan): data per Power ada di data/power/power-fx.js (UT.PowerFX). Titik efek = pion di layar (diproyeksikan sekali saat dipanggil). Modul tak termuat -> dilewati. */
+function powerFxPawn(key,pl){
+  try{
+    const PF=window.UT&&UT.PowerFX; if(!PF||!pl||!pl.pawn||reduce) return;
+    const r=$('c').getBoundingClientRect(),v=pl.pawn.position.clone(); v.y+=0.6; v.project(camera);
+    if(v.z>1) return; PF.play(key,r.left+(v.x+1)/2*r.width,r.top+(1-v.y)/2*r.height);
+  }catch(e){}
+}
 let FW_GID=-1;
 function fireworkCelebrate(p){
   try{
@@ -5092,15 +5101,16 @@ async function usePU(k,cpu){
   busy=true; setRoll(false); clearTurnTimer(); p.pu[k]--; sfx.power(k); setMsg(p.name+' memakai '+PUN[k][1]+': '+PUN[k][2]+'.');
   if(k==='feather') p.extra=true; if(k==='potion_odd') chestFlag(p,'odd'); if(k==='potion_even') chestFlag(p,'even'); if(k==='totem') p.shield=true;
   puFx('pb:'+p.idx+':'+k,'pfx-'+k); if(k==='totem') puFx('pr:'+p.idx,'pfx-shield');
+  if(k==='feather'||k==='potion_odd'||k==='potion_even'||k==='totem') powerFxPawn(k,p); /* sword/tnt/grass: efek keluar di target saat KENA (bukan saat diblok Totem) */
   renderChips();
   const oldL=L?L.pos:0,oldS=SW?SW.pos:0; let blocked=false,hit=false; /* blocked = korban menahan serangan dengan Totem */ /* posisi sebelum efek, untuk feedback target (TNT/Grass) */
   try{
-    if(k==='sword'){ await sleep(reduce?100:250); if(await askTotem(SW,gid,'Pedang '+p.name)) blocked=true; else { const to=Math.max(1,SW.pos-2); hit=true; powerHitCard(p,SW,k,SW.name+(SW.pos-to>0?' mundur '+(SW.pos-to)+' petak':' tidak bergerak')); hitBlastFx(SW); sfx.playerHurt(); await fly(SW,to,0.45,1.1); SW.pos=to; renderChips(); } } /* suara pedang sudah diputar oleh sfx.power('sword') */
-    if(k==='tnt'){ if(await askTotem(L,gid,'TNT '+p.name)) blocked=true; else { const to=Math.max(1,L.pos-6); hit=true; powerHitCard(p,L,k,L.name+(L.pos-to>0?' mundur '+(L.pos-to)+' petak':' tidak bergerak')); sfx.playerHurt(); await teleport(L,to); L.pos=to; } }
-    if(k==='grass'){ if(await askTotem(L,gid,'Rumput '+p.name)) blocked=true; else { const a=p.pos,b=L.pos; hit=true; powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); sfx.playerHurt(); await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; } }
+    if(k==='sword'){ await sleep(reduce?100:250); if(await askTotem(SW,gid,'Pedang '+p.name)) blocked=true; else { const to=Math.max(1,SW.pos-2); hit=true; powerFxPawn('sword',SW); powerHitCard(p,SW,k,SW.name+(SW.pos-to>0?' mundur '+(SW.pos-to)+' petak':' tidak bergerak')); hitBlastFx(SW); sfx.playerHurt(); await fly(SW,to,0.45,1.1); SW.pos=to; renderChips(); } } /* suara pedang sudah diputar oleh sfx.power('sword') */
+    if(k==='tnt'){ if(await askTotem(L,gid,'TNT '+p.name)) blocked=true; else { const to=Math.max(1,L.pos-6); hit=true; powerFxPawn('tnt',L); powerHitCard(p,L,k,L.name+(L.pos-to>0?' mundur '+(L.pos-to)+' petak':' tidak bergerak')); sfx.playerHurt(); await teleport(L,to); L.pos=to; } }
+    if(k==='grass'){ if(await askTotem(L,gid,'Rumput '+p.name)) blocked=true; else { const a=p.pos,b=L.pos; hit=true; powerFxPawn('grass',p); powerFxPawn('grass',L); powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); sfx.playerHurt(); await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; } }
   }catch(e){ console.error(e); }
   if(gid!==gameId) return;
-  if(blocked){ const vv=k==='sword'?SW:L; puFx('pr:'+vv.idx,'pfx-shield'); sfx.pop(); renderChips(); }
+  if(blocked){ const vv=k==='sword'?SW:L; puFx('pr:'+vv.idx,'pfx-shield'); powerFxPawn('totem_block',vv); sfx.pop(); renderChips(); }
   /* Power self/diblok = feedback singkat (banner HUD). Power bertarget yang KENA = card tengah #puCard (powerHitCard, dipanggil di cabang efek). Bukan kartu hadiah Chest. Urutan: pakai → terapkan efek → feedback → lanjut.
      Self-power → Feedback.short. Power bertarget (TNT/Grass) → Feedback.event: pelaku → target → efek → hasil aktual. */
   if(k==='tnt'||k==='grass'||k==='sword'){
@@ -5353,7 +5363,7 @@ async function resolveTileAt(p,gid){
     const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); /* suara naik = sfx.ladder() di climb(); tidak ditumpuk dengan ladder-up.mp3 */
     await A(sleep(350)); await A(climb(p,p.pos,to)); p.pos=to; p.score+=10;
   }else if((SNAKES[p.pos]||(mobOn(p.pos,themeKey)&&mobOn(p.pos,themeKey)!=='villager'&&mobOn(p.pos,themeKey)!=='strider'))&&await askTotem(p,gid,SNAKES[p.pos]?'Ular':MOBNAME[mobOn(p.pos,themeKey)])){
-    p.shield=false; puFx('pr:'+p.idx,'pfx-hit'); renderChips(); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900));
+    p.shield=false; puFx('pr:'+p.idx,'pfx-hit'); powerFxPawn('totem_block',p); renderChips(); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900));
   }else if(SNAKES[p.pos]){
     const to=SNAKES[p.pos];
     if(!SNAKEINFO[p.pos]){ p.pos=to; setMsg('Ular! '+p.name+' turun ke '+to+'.'); fb('event','snake','Kena Ular! Turun ke '+to,{gid}); await A(sleep(350)); await A(hopTo(p.pawn,slotPos(p.idx,to),0.5,0.8)); }
