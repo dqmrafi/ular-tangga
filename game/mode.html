@@ -29,10 +29,12 @@ button:active:not(:disabled){transform:scale(.95)}button:focus-visible,.map:focu
 .map.far{opacity:0;pointer-events:none}
 .map.on{opacity:1;scale:1;box-shadow:0 0 0 .3rem var(--ink),0 0 0 .75rem #ffd73a,0 0 2.6rem 1rem rgba(255,225,70,.6)}
 .map .art{position:absolute;inset:0}.map .art>*{width:100%;height:100%;display:block;object-fit:cover}
-.map b{position:absolute;left:50%;bottom:.8rem;translate:-50% 0;padding:.1rem 2.2rem;border-radius:.9rem;font-size:2.4rem;white-space:nowrap;background:linear-gradient(#ffc86a,#e48a20);box-shadow:0 0 0 .2rem var(--ink);-webkit-text-stroke:.3rem var(--ink);paint-order:stroke fill}
+.map .mt{position:absolute;left:.8rem;right:.8rem;bottom:.7rem;display:flex;flex-direction:column;align-items:center;gap:.1rem;text-align:center;pointer-events:none}
+.map .mt b{font-size:2.4rem;line-height:1;white-space:nowrap;-webkit-text-stroke:.3rem var(--ink);paint-order:stroke fill;text-shadow:0 .15rem 0 var(--ink)}
+.map .mt small{font-size:1.15rem;font-weight:700;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;-webkit-text-stroke:.22rem var(--ink);paint-order:stroke fill;text-shadow:0 .1rem 0 var(--ink)}
 .arr,.arr.blue{position:absolute;top:calc(1.6rem + var(--mw)*.375);translate:0 -50%;z-index:3;width:4.4rem;height:7rem;padding:0;font-size:5.6rem;line-height:1;background:none;box-shadow:none;border-radius:0;color:#fff;text-shadow:0 .2rem 0 var(--ink),0 0 .8rem rgba(11,21,48,.55);-webkit-text-stroke:.2rem var(--ink);paint-order:stroke fill}
 .arr:active:not(:disabled){transform:scale(.88)}
-#prev{left:calc(50% - var(--mw)/2 - 6.2rem)}#next{right:calc(50% - var(--mw)/2 - 6.2rem)}
+#prev{left:max(.4rem,calc(50% - var(--mstep) - var(--mw)*.44 - 4.8rem))}#next{right:max(.4rem,calc(50% - var(--mstep) - var(--mw)*.44 - 4.8rem))}
 #dots{display:flex;justify-content:center;gap:.9rem;margin-top:-.4rem;height:1.4rem}
 #dots i{width:1.2rem;height:1.2rem;border-radius:50%;background:rgba(11,21,48,.35);cursor:pointer;transition:.2s}#dots i.on{background:#ffd73a;width:3rem;border-radius:.7rem}
 /* ===== dua card besar (tidak flip) ===== */
@@ -49,17 +51,25 @@ button:active:not(:disabled){transform:scale(.95)}button:focus-visible,.map:focu
 .fc,.bk{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:1.2rem;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;padding:.8rem;text-align:center;box-shadow:0 0 0 .2rem #0b0c10,0 .4rem 0 .2rem #0b0c10,inset 0 .2rem .2rem rgba(255,255,255,.45)}
 .fc{width:100%}
 .tile.flipped .fc{pointer-events:none}.tile:not(.flipped) .bk{pointer-events:none}
-.bk{transform:rotateY(180deg);justify-content:flex-start;gap:.6rem}
+.bk{transform:rotateY(180deg);justify-content:center;gap:.5rem;padding:.6rem .8rem}
 .tc1 .fc,.tc1 .bk{background:linear-gradient(#ffd24d,#ff9a1f);text-shadow:0 .1rem 0 #8a4a0a}
 .tc2 .fc,.tc2 .bk{background:linear-gradient(#58b6ff,#1f86ee);text-shadow:0 .1rem 0 rgba(10,40,120,.6)}
 .tc3 .fc,.tc3 .bk{background:linear-gradient(#4fd24a,#27992a);text-shadow:0 .15rem 0 #0e4a12}
 .fc>b{font-size:2.3rem;line-height:1;-webkit-text-stroke:.35rem #0b0c10;paint-order:stroke fill;text-shadow:none}
 .fc>small{font-size:1.25rem;font-weight:700;line-height:1.15;opacity:.95}
 .fc svg{width:5rem;height:5rem}
-.bh{flex:none;width:100%;display:flex;align-items:center;justify-content:space-between;font-size:1.5rem}
-.bh button{width:3.4rem;height:3.4rem;border-radius:.8rem;background:rgba(11,21,48,.4);padding:0;font-size:1.8rem}
-.bk .opt{flex:1;min-height:3.4rem;width:100%;max-height:5.4rem;border-radius:.9rem;font-size:1.7rem;line-height:1.05;background:rgba(255,255,255,.28);box-shadow:inset 0 0 0 .2rem rgba(255,255,255,.4)}
-.bk .opt:hover{background:rgba(255,255,255,.45)}
+/* tombol glossy = gaya tombol menu gameplay (#pauseMenu .lm-mode) */
+.bk{justify-content:center}
+.gl{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;width:100%;border:.3rem solid #0b1838;border-radius:1.4rem;color:#fff;line-height:1.05}
+.gl::before{content:"";position:absolute;left:4%;right:4%;top:6%;height:44%;border-radius:1rem 1rem 1.6rem 1.6rem;background:linear-gradient(rgba(255,255,255,.55),rgba(255,255,255,.08));pointer-events:none}
+.gl>*{position:relative}
+.gl-gold{background:linear-gradient(#ffe36e,#ffc21c 50%,#f7a50c 52%,#ffb81c);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.55),inset 0 -.4rem 0 rgba(160,85,0,.35),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #a8590b,0 0 .4rem #a8590b}
+.gl-blue{background:linear-gradient(#6fa6ff,#2f64d6 50%,#2455c4 52%,#2c63d4);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.45),inset 0 -.4rem 0 rgba(8,25,90,.45),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #0b1838}
+.gl-grey{background:linear-gradient(#a3add0,#6d79a4 50%,#5a668f 52%,#66719b);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.45),inset 0 -.4rem 0 rgba(25,35,80,.4),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #26305a}
+.bk .opt{flex:1;min-height:2.6rem;max-height:5rem;font-size:1.8rem}
+.bk .opt:hover{filter:brightness(1.08)}
+.bk .bx{flex:none;min-height:2.6rem;height:2.6rem;font-size:1.5rem}
+.tc1 .bk .opt{background:linear-gradient(#6fa6ff,#2f64d6 50%,#2455c4 52%,#2c63d4);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.45),inset 0 -.4rem 0 rgba(8,25,90,.45),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #0b1838}
 #mm{position:fixed;inset:0;display:none;place-items:center;background:rgba(18,51,127,.55);backdrop-filter:blur(6px);z-index:50}
 #mm.show{display:grid}
 .mbox{width:min(46rem,90vw);padding:2.4rem;text-align:center;border-radius:2rem}
@@ -124,7 +134,7 @@ const MAPS=RF.maps();const N=MAPS.length;let idx=Math.max(0,MAPS.indexOf(RF.getM
 const car=$('#car'),mod=(a,n)=>((a%n)+n)%n,els=new Map();
 $('#dots').innerHTML=MAPS.map((_,i)=>`<i data-i="${i}"></i>`).join('');
 function mk(v){const i=mod(v,N),m=MAPS[i],e=document.createElement('div');e.className='map far';e.setAttribute('role','option');e.tabIndex=0;e.dataset.i=i;e.dataset.v=v;
- e.innerHTML=`<div class="art">${ItemArt.theme(m.id)}</div><b>${m.name.replace(/^Map /,'')}</b>`;
+ e.innerHTML=`<div class="art">${ItemArt.theme(m.id)}</div><div class="mt"><b>${m.name.replace(/^Map /,'')}</b><small>${m.desc||''}</small></div>`;
  e.style.setProperty('--o',v-pos);
  e.onclick=()=>go(+e.dataset.v);e.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go(+e.dataset.v)}};car.appendChild(e);return e}
 function render(){if(!N)return;
@@ -156,7 +166,7 @@ const TILES={
      {id:'online',c:'tc3',ic:'room',t:'CREATE ROOM',d:'Online + undang teman',flip:{h:'FORMAT ROOM',o:[['TEAM',()=>room('online','team',4)],['SOLO',()=>room('online','solo',4)]]}}]};
 Object.keys(TILES).forEach(k=>{$('#'+k+'T').innerHTML=TILES[k].map(t=>`<div class="tile ${t.c}" id="t_${t.id}"><div class="ti">
  <button class="fc" data-t="${t.id}" aria-label="${t.t}">${IC_[t.ic]}<b>${t.t}</b><small>${t.d}</small></button>
- <div class="bk">${t.flip?`<div class="bh"><span>${t.flip.h}</span><button data-x aria-label="Tutup">↩</button></div>`+t.flip.o.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join(''):''}</div></div></div>`).join('')});
+ <div class="bk">${t.flip?t.flip.o.map((o,i)=>`<button class="opt gl gl-gold" data-o="${i}">${o[0]}</button>`).join('')+`<button class="bx gl gl-grey" data-x aria-label="Kembali">Kembali</button>`:''}</div></div></div>`).join('')});
 const ALL=[...TILES.qs,...TILES.cr];
 function closeAll(){document.querySelectorAll('.tile.flipped').forEach(t=>t.classList.remove('flipped'))}
 ALL.forEach(t=>{const el=$('#t_'+t.id);
