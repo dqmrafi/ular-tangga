@@ -50,6 +50,9 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 
 ## Post-checkpoint static audit
 
+- Guest power-up buttons previously invoked `usePU()` locally, changing only the guest's local game state. Added a `power_request` Broadcast event: the guest submits its player ID and power key, and the host verifies current turn ownership and remaining power before executing the existing engine path. The resulting stable-turn snapshot is then persisted and broadcast as before.
+- Corrected the migration's room-code regex operator from `!` to `!~`.
+
 - Found a blocking PL/pgSQL syntax typo in `create_game_room`: the room-code validation operator was `!` instead of PostgreSQL's `!~` regex-not-match operator. Corrected before any real project migration was applied.
 - Re-read the complete RPC list and confirmed each security-definer mutation has PUBLIC/anon execution revoked at migration end and authenticated execution granted.
 - Reviewed the gameplay snapshot bridge. It synchronizes stable-turn player positions, turn index, dice counters, powers, crystal/boss flags, and finish state. Mid-turn animations/decisions are not represented; this remains a release validation risk, especially Totem/chest/boss interaction phases.
