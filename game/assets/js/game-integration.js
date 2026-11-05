@@ -42,7 +42,7 @@
     }
 
     var theme = q.get('theme') || (ss && ss.theme) || '';
-    if (!PD.owns('theme.' + theme)) theme = eqKey('theme') || 'minecraft';
+    if (!IC.byGameKey('theme', theme)) theme = eqKey('theme') || 'minecraft';   /* map tidak perlu dimiliki */
     var dice = q.get('dice') || (ss && ss.dice) || '';
     if (!PD.owns('dice.' + dice)) dice = eqKey('dice') || 'klasik';
     var night = q.get('night'); if (night !== '0' && night !== '1') night = ss && (ss.night === '0' || ss.night === '1') ? ss.night : null;

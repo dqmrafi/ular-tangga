@@ -252,7 +252,7 @@ const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID');
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
 const RN={common:'COMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'},RC={common:'var(--r0)',rare:'var(--r1)',epic:'var(--r2)',legendary:'var(--r3)'};
 const BG={common:['#5a8aa8','#2f5f80'],rare:['#3a8ff0','#1b55c0'],epic:['#8a4ae0','#4a2aa8'],legendary:['#f0c040','#b98020']};
-const KINDS=['skin','frame','dice','theme','powerup'];
+const KINDS=['skin','frame','dice','powerup'];   /* Map bukan item inventory */
 const CI={};KINDS.forEach(k=>CI[k]=IC.items.filter(i=>i.kind===k));
 const SOON={effect:'Efek',emote:'Emote'}; /* kategori mock lama tanpa item canonical */
 const CATS=[['skin','Skin','M8 3 2 6l2 5 3-1v11h10V10l3 1 2-5-6-3c-.5 1.700-2 2.600-4 2.600S8.500 4.700 8 3Z'],['frame','Frame','M4 4h16v16H4zM8 8h8v8H8z'],['dice','Dadu','M4 4h16v16H4zM8 8h.1M16 8h.1M12 12h.1M8 16h.1M16 16h.1'],['powerup','Power','M13 2 4 14h6l-1 8 9-12h-6l1-8z'],['effect','Efek','M12 2l2.500 7.500L22 12l-7.500 2.500L12 22l-2.500-7.500L2 12l7.500-2.500z'],['emote','Emote','M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM8 10h.1M16 10h.1M7 15c2 3 8 3 10 0']];
