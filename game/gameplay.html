@@ -3613,11 +3613,21 @@ async function crystalRoll(p,v,gid){
   if(p.crystal>=CRYSTAL_N){ p.dragonReady=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.crystalsCleared(); renderChips(); await S(sleep(700)); }
   return true;
 }
+/* Kamera saat Dragon bangkit: menyorot BAGIAN ATAS Tower (tempat End Crystal & Dragon muncul), sedikit lebih jauh. Pergeseran dihitung seperti fortCamPan (mode LOCK / ANGLE). */
+const ARENA_CAM={zoomK:1.22,topY:0.8+ARENA_TOWER_H+0.35}; /* zoomK >1 = lebih jauh; topY = tinggi titik sorot (puncak tower) */
+function arenaCamPan(){
+  let bx=CAM_BASE.x,bz=CAM_BASE.z,by=CAM_BASE.y;
+  if(camLocked()){ bx=lockCenter.x; bz=lockCenter.z; by=LOCK_BOX.y; }
+  else if(isTopDown){ bx=0; bz=0; by=3.5; }
+  else if(!camFollowing()){ bx=camHold.x; bz=camHold.z; by=camHold.y; }
+  else if(focus){ bx+=focus.position.x*0.35; bz+=focus.position.z*0.35; by+=(focus.position.y-CAM_BASE.y)*0.45; }
+  return {x:clamp(ARENA_POS.x-bx,-PAN_MAX,PAN_MAX),z:clamp(ARENA_POS.z-bz,-PAN_MAX,PAN_MAX),y:Math.max(0,ARENA_CAM.topY-by)};
+}
 async function awakenDragon(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,T=TILES[GOAL],Dd=dragon.userData;
   AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer(); dragonMusicStart();
-  const pg={x:panGoal.x,z:panGoal.z}; let finished=false,qk=null,tw=null,ar=null;
+  const pg={x:panGoal.x,z:panGoal.z,zoom:goal.zoom}; let finished=false,qk=null,tw=null,ar=null;
   try{
     while(paused) await S(sleep(200)); /* pause dibuka sebelum sequence: tunggu dilanjutkan */
     setMsg('Block 100 aktif! Gunung di kiri papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); qk=sfx.quakeStart(); /* SFX existing (assets/sfx/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
@@ -3630,6 +3640,7 @@ async function awakenDragon(p,gid){
       setMsg('Gunung runtuh!'); await MW(2.3*F,k=>{ M.collapse=k; M.dust=0.6*k; });  /* batu jatuh/bergulir + debu */
     }else await S(sleep(700*F));
     setMsg('Dragon Arena terbuka...'); A.g.visible=true; ar=sfx.arenaUp(); /* bangunan (arena) muncul setelah gempa */
+    { const c=arenaCamPan(); panGoal.x=c.x; panGoal.z=c.z; panGoal.y=c.y; goal.zoom=pg.zoom*ARENA_CAM.zoomK; } /* kamera menyorot puncak Tower, agak menjauh */
     await S(Promise.all([tween(1.7*F,k=>{ A.rise=k; }),M?tween(1.4*F,k=>{ if(gid===gameId) M.dust=0.6+0.4*k; }):null])); /* arena naik dari bawah reruntuhan, debu menipis */
     sfx.quakeStop(qk); qk=null;
     await S(sleep(250*F));
@@ -3654,7 +3665,7 @@ async function awakenDragon(p,gid){
     sfx.quakeStop(qk); sfx.towerStop(tw); sfx.arenaStop(ar);
     if(gid===gameId){ /* STALE (game baru) ditangani resetAwakening di startGame */
       if(!finished){ dragon.visible=true; dragon.position.x=ARENA_POS.x; dragon.position.z=ARENA_POS.z; Dd.dy=0.8+ARENA_TOWER_H+0.6-Dd.y0; Dd.shk=Math.atan2(T.x-ARENA_POS.x,T.z-ARENA_POS.z); dragon.scale.setScalar(1.3); } /* error tak terduga: jangan sampai game macet */
-      panGoal.x=pg.x; panGoal.z=pg.z; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState(); /* gunung berakhir sebagai rubble (juga bila sequence terputus error) */
+      panGoal.x=pg.x; panGoal.z=pg.z; panGoal.y=0; goal.zoom=pg.zoom; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState(); /* gunung berakhir sebagai rubble (juga bila sequence terputus error) */
     }
   }
 }
@@ -4796,7 +4807,7 @@ const CAM_BASE={x:0,y:0.4,z:1};
 const cam={yaw:0.5,pitch:0.55,zoom:1},goal={yaw:0.5,pitch:0.55,zoom:1},camTarget=new THREE.Vector3(0,CAM_BASE.y,CAM_BASE.z);
 let baseDist=22,isTopDown=false;
 var camRefit=null; /* 4.2.2: diisi setelah state kamera ada; dipanggil onResize agar framing LOCK responsif */
-const pan={x:0,z:0},panGoal={x:0,z:0},PAN_MAX=16;
+const pan={x:0,z:0,y:0},panGoal={x:0,z:0,y:0},PAN_MAX=16; /* y = geser titik pandang ke atas (mis. menyorot puncak Tower); 0 = normal */
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function onResize(){
   const w=window.innerWidth,h=window.innerHeight;
@@ -4848,7 +4859,7 @@ function resetCam(P){
   isTopDown=!!P.top;
   const k=Math.round(cam.yaw/(Math.PI*2)); cam.yaw-=k*Math.PI*2;
   goal.yaw=P.yaw+Math.PI*2*Math.round((cam.yaw-P.yaw)/(Math.PI*2)); /* putar lewat jalur terpendek */
-  goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=0; panGoal.z=0;
+  goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=0; panGoal.z=0; panGoal.y=0;
   camHold.x=CAM_BASE.x; camHold.y=CAM_BASE.y; camHold.z=CAM_BASE.z;
 }
 const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/tabler/lock.svg" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/tabler/lock-open.svg" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/tabler/camera.svg" alt="" draggable="false">';
@@ -5670,8 +5681,8 @@ function frame(now){
   }else if(focus){
     tx+=focus.position.x*0.35; tz+=focus.position.z*0.35; ty+=(focus.position.y-CAM_BASE.y)*0.45;
   }
-  pan.x+=(panGoal.x-pan.x)*m; pan.z+=(panGoal.z-pan.z)*m;
-  tx+=pan.x; tz+=pan.z;
+  pan.x+=(panGoal.x-pan.x)*m; pan.z+=(panGoal.z-pan.z)*m; pan.y+=(panGoal.y-pan.y)*m;
+  tx+=pan.x; tz+=pan.z; ty+=pan.y;
   const f=m*0.6;
   camTarget.x+=(tx-camTarget.x)*f; camTarget.y+=(ty-camTarget.y)*f; camTarget.z+=(tz-camTarget.z)*f;
   const dist=baseDist*cam.zoom,cp=Math.cos(cam.pitch);
