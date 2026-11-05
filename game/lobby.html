@@ -125,7 +125,7 @@ html body .ut-curbar .plus{border-radius:.6rem;background:linear-gradient(#7af07
   <div id="pbox" class="pn"></div>
   <div id="ava"></div><img id="avf" src="data/frame/frame-default.webp" alt="" draggable="false" decoding="async">
   <div id="shield"><img src="assets/Images/icon/emblem/shield.webp" alt="" draggable="false" decoding="async"><strong id="lvn">26</strong></div>
-  <div id="nrow"><span id="pname" class="tx">FajarGG</span><div id="flag"><svg viewBox="0 0 3 2" width="100%" height="100%" preserveAspectRatio="none"><rect width="3" height="1" fill="#e8202a"/><rect y="1" width="3" height="1" fill="#fff"/></svg></div></div>
+  <div id="nrow"><span id="pname" class="tx">OmanBogel</span><div id="flag"><svg viewBox="0 0 3 2" width="100%" height="100%" preserveAspectRatio="none"><rect width="3" height="1" fill="#e8202a"/><rect y="1" width="3" height="1" fill="#fff"/></svg></div></div>
   <div id="xp"><i style="width:41.7%"></i></div>
   <div id="xpt"><b>1.250</b><span>/ 3.000 XP</span></div>
  </div>
@@ -183,10 +183,12 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 /* ---------- HUD ---------- */
 function renderAvatar(){$('#ava').innerHTML=AR.face(PD.equippedId('skin'))||AR.face('skin.steve')} /* wajah dari UT.CharacterData lewat ItemArt.face */
 function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
-renderAvatar();renderCurrency();
+function renderName(){const n=$('#pname');if(n)n.textContent=PD.profile().name}
+renderAvatar();renderCurrency();renderName();
 document.querySelectorAll('#ui>:not(.ut-curbar)').forEach((e,i)=>e.style.animationDelay=(i*.045)+'s');
 /* event: UI ikut berubah tanpa reload halaman */
 UT.Events.on('currencyChanged',renderCurrency);
+if(PD.subscribe)PD.subscribe(renderName);
 UT.Events.on('skinChanged',()=>{PAL=AR.palette(PD.equippedId('skin'))||PAL;renderAvatar();if(hero3d)hero3d.rebuild()});
 /* frame profil = frame yang sedang dipakai (Inventory) */
 function applyFrame(){const f=window.ItemCatalog.byId(PD.equippedId('frame')),im=document.getElementById('avf');if(im)im.src=(f&&f.image)||'data/frame/frame-default.webp'}
