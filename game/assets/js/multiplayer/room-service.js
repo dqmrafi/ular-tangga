@@ -16,7 +16,7 @@ function subscribe(roomId,onRoom){
  let channel,closed=false,heartbeatTimer=null;
  (async()=>{try{const c=await MP.getClient(),p=await ensurePlayer();if(closed)return;
   channel=c.channel('game-room:'+roomId,{config:{presence:{key:p.id}}});
-  const syncHeartbeat=row=>{if(row&&row.host_id===p.id&&!heartbeatTimer){heartbeatTimer=setInterval(()=>heartbeat(roomId).catch(e=>console.warn('[multiplayer] heartbeat failed',e)),30000)}else if((!row||row.host_id!==player.id)&&heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null}};
+  const syncHeartbeat=row=>{if(row&&row.host_id===p.id&&!heartbeatTimer){heartbeatTimer=setInterval(()=>heartbeat(roomId).catch(e=>console.warn('[multiplayer] heartbeat failed',e)),30000)}else if((!row||row.host_id!==p.id)&&heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null}};
   channel.on('postgres_changes',{event:'*',schema:'public',table:'game_rooms',filter:'id=eq.'+roomId},payload=>{if(payload.eventType!=='DELETE'&&payload.new){syncHeartbeat(payload.new);onRoom(payload.new)}});
   channel.subscribe(async status=>{if(status==='SUBSCRIBED'){try{await channel.track({player_id:p.id,online_at:new Date().toISOString()})}catch(_){}
    const {data,error}=await c.from('game_rooms').select('*').eq('id',roomId).maybeSingle();if(!error&&data&&!closed){syncHeartbeat(data);onRoom(data)}}});

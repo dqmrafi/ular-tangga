@@ -33,7 +33,7 @@
       .sort(function (a, b) { return a.seq - b.seq; }).map(function (o) { return o.item.gameKey; });
     /* 4.1.14.10: Pemain 1 SELALU skin yang sedang equipped (equipped.skin). Sebelumnya 'ut-config' lama di sessionStorage
        (skins yang disimpan sesi sebelumnya) menimpa skin baru -> pemain tetap Steve walau sudah memakai PNG. */
-    var eqk = eqSkinKey();
+    var eqk = onlineRoom ? null : eqSkinKey();
     if (eqk && !onlineRoom) skins = [eqk].concat(skins.filter(function (k) { return k !== eqk; }));
     /* Mode CPU: Computer BUKAN dari daftar skin lobi/sesi; karakter Computer ditentukan gameplay.html (Villager). Kirim hanya skin Player. */
     if (mode === 'cpu') {
