@@ -2959,12 +2959,44 @@ function addVillager(B,x,z,h){
   q(0,0.765,0,0.24,0.03,0.24,0x6B4A2A,F);
 }
 function addBlaze(B,R){
-  const F={edge:false};
-  addBox(B,0,0.75,0,0.26,0.26,0.26,0xF2B02A);
-  addBox(B,0,0.89,0,0.2,0.04,0.2,0xFFD23F,F);
-  [-1,1].forEach(a=>{ addBox(B,a*0.06,0.78,0.135,0.065,0.055,0.02,0xFFF6D0,F); addBox(B,a*0.06,0.78,0.145,0.03,0.04,0.01,0x2A1A0A,F); addBox(B,a*0.06,0.82,0.135,0.07,0.02,0.02,0x8A4A0A,F); });
-  addBox(B,0,0.7,0.135,0.12,0.035,0.02,0x2A1A0A,F);
-  [[-0.1,0.9],[0,0.94],[0.1,0.9]].forEach(a=>addBox(B,a[0],a[1],0,0.05,0.08,0.05,0xF28A1A,F));
+  const F={edge:false},BC=0xF2B02A;
+  /* variasi warna deterministik (BUKAN rnd() terseed: urutan rnd() dunia tidak boleh bergeser) */
+  const hs=(i,j)=>{ let x=Math.imul(i*374761393+j*668265263+7,1274126177); x^=x>>>13; x=Math.imul(x,1103515245); return ((x>>>0)%1000)/1000; };
+  const sh=(hex,a)=>{ const k=1+a*1.5,c=v=>Math.max(0,Math.min(255,Math.round(v*k))); return (c(hex>>16&255)<<16)|(c(hex>>8&255)<<8)|c(hex&255); }; /* warna angka (dipakai juga oleh tools/character-data) */
+  /* KEPALA: kubus dasar + kulit piksel 6x6 di depan/belakang/kiri/kanan (tiap petak beda terang-gelapnya) */
+  addBox(B,0,0.75,0,0.26,0.26,0.26,BC);
+  const N=6,T=0.26/N,TH=0.008,E=0.13+TH/2;
+  for(let a=0;a<N;a++) for(let b=0;b<N;b++){
+    const u=-0.13+T/2+a*T,v=0.62+T/2+b*T;
+    addBox(B,u,v,E,T,T,TH,sh(BC,(hs(a,b)-0.5)*0.16),F);
+    addBox(B,u,v,-E,T,T,TH,sh(BC,(hs(a+9,b)-0.5)*0.2-0.03),F);
+    addBox(B,E,v,u,TH,T,T,sh(BC,(hs(a,b+9)-0.5)*0.16),F);
+    addBox(B,-E,v,u,TH,T,T,sh(BC,(hs(a+5,b+5)-0.5)*0.16),F);
+  }
+  addBox(B,0,0.89,0,0.2,0.04,0.2,0xFFD23F,F);                       /* lempeng mahkota */
+  /* lapis 1: rongga mata, pipi, batang hidung, bingkai mulut, dagu, bintik bara di dahi */
+  [-1,1].forEach(a=>{ addBox(B,a*0.06,0.78,0.143,0.085,0.07,0.01,0x7A4308,F); addBox(B,a*0.1,0.69,0.143,0.04,0.045,0.01,0xD9801A,F); });
+  addBox(B,0,0.755,0.143,0.032,0.06,0.01,0xD98A1A,F);
+  addBox(B,0,0.69,0.143,0.14,0.05,0.01,0x3A1E08,F);
+  addBox(B,0,0.635,0.143,0.22,0.02,0.01,0xC9781A,F);
+  [[-0.07,0.85],[0.04,0.856],[0.09,0.842]].forEach(c=>addBox(B,c[0],c[1],0.143,0.025,0.025,0.01,0xFFE27A,F));
+  /* lapis 2: putih mata, alis miring (sisi dalam lebih rendah = galak), bara dalam mulut */
+  [-1,1].forEach(a=>{ addBox(B,a*0.06,0.78,0.151,0.062,0.046,0.006,0xFFF6D0,F); addBox(B,a*0.04,0.826,0.151,0.04,0.018,0.006,0x7A3A06,F); addBox(B,a*0.085,0.838,0.151,0.035,0.018,0.006,0x7A3A06,F); });
+  addBox(B,0,0.688,0.151,0.11,0.028,0.006,0xFF5A14,F);
+  /* lapis 3: pupil + kilau mata, gigi runcing atas-bawah */
+  [-1,1].forEach(a=>{ addBox(B,a*0.058,0.778,0.158,0.028,0.04,0.006,0x2A1A0A,F); addBox(B,a*0.066,0.79,0.162,0.01,0.01,0.004,0xFFFFFF,F); });
+  [-0.04,0,0.04].forEach(x=>addBox(B,x,0.7,0.155,0.018,0.016,0.008,0xFFE9A0,F));
+  [-0.02,0.02].forEach(x=>addBox(B,x,0.678,0.155,0.018,0.016,0.008,0xFFE9A0,F));
+  /* sisi: tiga celah ventilasi gelap; belakang: takik bara */
+  [-1,1].forEach(a=>[0.7,0.75,0.8].forEach(y=>addBox(B,a*0.1385,y,-0.01,0.012,0.018,0.11,0x7A4308,F)));
+  addBox(B,0,0.75,-0.1385,0.07,0.09,0.012,0x7A4308,F);
+  /* mahkota api: 6 lidah tiga tingkat (dasar oranye, tengah kuning, ujung putih-kuning) */
+  [[0,0,0.17],[-0.07,0.05,0.12],[0.07,0.05,0.12],[-0.06,-0.06,0.1],[0.06,-0.06,0.1],[0,0.08,0.08]].forEach(f=>{
+    const hb=f[2]*0.55,hm=f[2]*0.3; let y=0.91;
+    addBox(B,f[0],y+hb/2,f[1],0.055,hb,0.055,0xF28A1A,F); y+=hb;
+    addBox(B,f[0],y+hm/2,f[1],0.04,hm,0.04,0xFFB02A,F); y+=hm;
+    addBox(B,f[0],y+0.02,f[1],0.022,0.04,0.022,0xFFE98A,F);
+  });
   for(let r=0;r<3;r++){ const n=r===2?4:6; for(let i=0;i<n;i++){ const a=i/n*Math.PI*2+r*0.5,rad=r===2?0.2:(r?0.26:0.2); addBox(R,Math.cos(a)*rad,0.2+r*0.2,Math.sin(a)*rad,0.06,r===2?0.2:0.28,0.06,r?0xFFD23F:0xF28A1A); if(r===1) addBox(R,Math.cos(a)*rad,0.2+r*0.2,Math.sin(a)*rad,0.075,0.05,0.075,0xFFF0A0,F); } }
 }
 function addNetherTree(DB,x,z,s){
@@ -3102,7 +3134,7 @@ function buildMobs(th){
       if(k==='blaze'){ const R=makeBatch(); addBlaze(B,R); g.add(buildBatch(B)); rods=new THREE.Group(); rods.add(buildBatch(R)); g.add(rods); }
       else{ mk[k](B,0,0,0); g.add(buildBatch(B)); }
       g.position.set(t.x,t.h,t.z); world.add(g);
-      MOBOBJ[n]={g,k,x:t.x,y:t.h,z:t.z,s:(k==='warden'||k==='piglin_brute')?1.1:1,ph:n,react:0,rods};
+      MOBOBJ[n]={g,k,x:t.x,y:t.h,z:t.z,s:(k==='warden'||k==='piglin_brute')?1.1:1,ph:n,react:0,rods,fire:(k==='blaze'?makeBlazeFire():null)};
     }
     if(CHESTS.has(n)){
       const c=makeChest(); c.position.set(t.x,t.h,t.z-0.34); c.scale.setScalar(CHEST_SCALE); world.add(c);
@@ -3110,6 +3142,47 @@ function buildMobs(th){
       const gl=new THREE.Mesh(new THREE.SphereGeometry(0.3,12,8),new THREE.MeshBasicMaterial({color:0xFFD23F,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending})); gl.position.set(t.x,t.h+0.28,t.z-0.34); gl.visible=false; world.add(gl);
       CHESTOBJ[n]={g:c,lid:c.userData.lid,spark:sp,glow:gl,sy:t.h+0.6,open:0,a:0,x:t.x,y:t.h,z:t.z-0.34};
     }
+  }
+}
+/* ---------- Partikel api Blaze: kubus kecil berpool (tanpa alokasi per frame), warna putih-kuning -> oranye -> merah -> asap ---------- */
+const BF_COL=[0xFFF2A0,0xFFD23F,0xFF8A1A,0xE0451A],BF_SMOKE=0x3A2A26,BF_POOL=44;
+function makeBlazeFire(){
+  const grp=new THREE.Group(),geo=new THREE.BoxGeometry(1,1,1);
+  const mats=BF_COL.map(c=>new THREE.MeshBasicMaterial({color:c,fog:false}));
+  mats.push(new THREE.MeshBasicMaterial({color:BF_SMOKE,transparent:true,opacity:0.5,depthWrite:false}));
+  const ps=[];
+  for(let i=0;i<BF_POOL;i++){ const me=new THREE.Mesh(geo,mats[0]); me.visible=false; me.castShadow=false; me.receiveShadow=false; grp.add(me); ps.push({me,life:0,max:1,vx:0,vy:0,vz:0,s:0.05,ph:i*1.7}); }
+  world.add(grp);
+  return {grp,mats,ps,acc:0,i:0};
+}
+function blazeFireStep(m,dt,t,hot){
+  const f=m.fire; if(!f) return;
+  const calm=RMQ.matches||document.hidden;       /* reduced-motion / tab tersembunyi: tidak memancarkan api baru */
+  if(!calm){
+    f.acc+=dt*(hot?38:22);
+    let guard=6;
+    while(f.acc>=1&&guard--){
+      f.acc-=1;
+      let p=null; for(let k=0;k<BF_POOL;k++){ const c=f.ps[(f.i+k)%BF_POOL]; if(c.life<=0){ p=c; f.i=(f.i+k+1)%BF_POOL; break; } }
+      if(!p) break;
+      const crown=Math.random()<0.45;              /* 45% dari mahkota kepala, sisanya dari batang yang berputar */
+      const a=Math.random()*Math.PI*2,r=crown?Math.random()*0.09:0.1+Math.random()*0.16;
+      p.me.position.set(m.x+Math.cos(a)*r,m.y+(crown?0.95+Math.random()*0.1:0.12+Math.random()*0.6),m.z+Math.sin(a)*r);
+      p.max=p.life=crown?0.5+Math.random()*0.4:0.6+Math.random()*0.5;
+      p.vx=(Math.random()-0.5)*0.18; p.vz=(Math.random()-0.5)*0.18; p.vy=(crown?0.7:0.45)+Math.random()*0.5;
+      p.s=crown?0.04+Math.random()*0.045:0.05+Math.random()*0.05;
+      p.me.rotation.set(Math.random()*3,Math.random()*3,Math.random()*3); p.me.visible=true;
+    }
+  }
+  for(let k=0;k<BF_POOL;k++){
+    const p=f.ps[k]; if(p.life<=0) continue;
+    p.life-=dt;
+    if(p.life<=0){ p.me.visible=false; continue; }
+    const u=1-p.life/p.max;                         /* 0 baru lahir -> 1 padam */
+    p.me.position.x+=(p.vx+Math.sin(t*7+p.ph)*0.12)*dt; p.me.position.z+=(p.vz+Math.cos(t*6+p.ph)*0.12)*dt; p.me.position.y+=p.vy*dt;
+    p.me.rotation.x+=dt*2.5; p.me.rotation.y+=dt*3;
+    p.me.material=u<0.14?f.mats[0]:u<0.38?f.mats[1]:u<0.66?f.mats[2]:u<0.86?f.mats[3]:f.mats[4];
+    p.me.scale.setScalar(p.s*(1-0.65*u));
   }
 }
 function sparkle(pos){ if(FX) FX.sparkle(pos); } /* visual: UT.GameplayFX */
@@ -3136,6 +3209,7 @@ function updateMobs(dt,t){
     if(rx) y+=0.1*Math.abs(Math.sin(t*16));
     g.position.set(m.x+jx,m.y+y,m.z); g.scale.setScalar(m.s*sc);
     if(m.rods) m.rods.rotation.y+=dt*(near?6:2.2);
+    if(m.fire) blazeFireStep(m,dt,t,near||rx);
   }
   if(FX) FX.updateSparks(dt);
   for(const n in CHESTOBJ){
