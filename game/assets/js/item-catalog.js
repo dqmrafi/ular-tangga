@@ -83,6 +83,8 @@
   var ITEMS = [
     /* ---- Frame profil (Aksesori) ---- */
     frame('default', 'Kayu', 'common', 0,   'Frame kayu sederhana berhias daun hijau. Terpasang sejak awal.', 'frame-default.webp'),
+    frame('stone',   'Batu',    'common', 150, 'Frame batu abu-abu retak yang kokoh, langsung dari dasar tambang.', 'stone.webp'),
+    frame('copper',  'Tembaga', 'rare',   350, 'Frame tembaga berkarat hijau dengan paku-paku kecil di setiap sudutnya.', 'copper.webp'),
     frame('gold',    'Emas', 'epic',   800, 'Frame emas berkilau dengan daun rimbun untuk profil yang menonjol.', 'frame-gold.webp', { featured: true }),
 
     /* ---- Skin karakter ---- */
