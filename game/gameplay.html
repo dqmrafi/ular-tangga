@@ -2429,7 +2429,8 @@ function buildMcTerrain(TB,th){
 const BIO=UT.Gameplay.Biomes.BIO;
 function addWideFar(DB,th){
   const d=th.decor,A=({oak:[addOak,addOak],desert:[addCactus,addPalm],snow:[addPine,addPine],jungle:[addJungleTree,addJungleTree],nether:[addNetherTree,addNetherTree]})[d]||[addOak,addOak];
-  const cnt=d==='desert'?80:150; let n=0,t=0;
+  const NBC=(d==='nether'&&BOARD_CUSTOM); /* papan Nether: pohon ditaruh per biome di darat (addNetherBiomes), bukan acak di atas lava */
+  const cnt=NBC?0:(d==='desert'?80:150); let n=0,t=0;
   while(n<cnt&&t++<1500){
     const x=(rnd()-0.5)*64,z=(rnd()-0.5)*56; if(Math.abs(x)<14&&Math.abs(z)<12) continue;
     const sc=0.8+rnd()*0.7,f=rnd()<0.3?A[1]:A[0]; lift(DB,()=>f(DB,x,z,sc),hAt(x,z)); n++;
@@ -2442,12 +2443,14 @@ function addWideFar(DB,th){
     else addCave(DB,q[0],q[1]);
   },hAt(q[0],q[1])));
   [[-13,-10],[12,-12],[16,10],[-15,9],[22,-4]].forEach(q=>{ blockRect(q[0],q[1],2.2,2.2); if(d==='oak') addHouseExtras(DB,q[0],q[1],hAt(q[0],q[1])); });
+  if(NBC) addNetherBiomes(DB,th);
   if(d==='nether') [[-20,10,-14],[18,12,-18],[24,9,12]].forEach(g=>addFlyGhast(g[0],g[1],g[2]));
   if(d==='jungle') for(let i=0;i<18;i++){ const x=(rnd()-0.5)*56,z=(rnd()-0.5)*48; if(Math.abs(x)<12&&Math.abs(z)<10) continue; lift(DB,()=>(i%3?addMushroom:addBamboo)(DB,x,z),hAt(x,z)); }
   const pal=BIO[th.key]||BIO.rumput;
   for(let i=0,k=0;i<300&&k<12;i++){
     const x=(rnd()-0.5)*50,z=(rnd()-0.5)*44;
     if(Math.abs(x)<9&&Math.abs(z)<8||hAt(x,z)>0||(x>5&&x<10&&z>-5)) continue;
+    if(NBC&&k%2===0&&nOnLava(x,z)) continue; /* babi tidak di atas lava */
     const c=pal[k%2],sd=(d==='nether'&&k%2===1); queueAnimal(x,z,rnd()*6.28,k%2===0?'pig':(sd?'strider':'cow'),sd?undefined:c[0],sd?undefined:c[1]); k++; /* nether: sapi diganti Strider */
   }
 }
@@ -3539,6 +3542,55 @@ async function awakenDragon(p,gid){
 /* capture-phase guard: selama awakening klik/Enter/Space ke tombol HUD apa pun diabaikan (pelengkap CSS .awk-lock) */
 document.addEventListener('click',e=>{ if(AWK.running&&e.target.closest&&e.target.closest('button,select,input,a')){ e.stopImmediatePropagation(); e.preventDefault(); } },true);
 /* ---------- Papan sendiri (map dengan def.board): lava, alas Start, dekor dari def.props ---------- */
+/* ---------- Biome Nether di pinggir lava (Crimson, Warped, Soul Sand Valley + Bone Block, Basalt Deltas) ---------- */
+const NB_GROUND={crimson:[0x9A2A3A,0x7A1E2C],warped:[0x1F8F86,0x167068],soul:[0x6A5A48,0x54463A],basalt:[0x4C4C54,0x3A3A42]};
+function nOnLava(x,z,m){ m=m||0; return x>-15-m&&x<19+m&&z>-14-m&&z<12+m; } /* area lava papan Nether (lihat buildCustomGround) */
+function netherBiomeAt(x,z){
+  const dx=Math.max(-15-x,x-19),dz=Math.max(-14-z,z-12),d=Math.max(dx,dz);
+  if(d<=0||d>13) return null;
+  if(dx>dz) return x<0?'crimson':'soul';
+  return z<0?'warped':'basalt';
+}
+function addFungus(B,x,z,s,warped){
+  const st=warped?0x1F6B6B:0x6A1A2A,cap=warped?0x2AB8A8:0xB02A3A,wart=warped?0x14B485:0xA01E2E,h=1.2*s,F={edge:false};
+  for(let y=0;y<h;y+=0.3) addBox(B,x,y+0.15,z,0.28,0.3,0.28,jit(st,0.06));
+  for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) addBox(B,x+i*0.4,h+0.15,z+j*0.4,0.4,0.3,0.4,jit(i||j?cap:wart,0.1),F);
+  addBox(B,x,h+0.45,z,0.4,0.3,0.4,jit(wart,0.1),F);
+  addBox(B,x+0.4,h-0.1,z,0.14,0.14,0.14,0xFFC85A,F); addBox(B,x-0.4,h-0.1,z+0.4,0.14,0.14,0.14,0xFFC85A,F); /* shroomlight */
+  if(!warped) [[0.6,0.2],[-0.6,-0.3],[0.2,-0.6]].forEach(q=>{ addBox(B,x+q[0],h-0.35,z+q[1],0.05,0.7,0.05,0xC02A3A,F); }); /* weeping vines */
+  else [[0.5,0.5],[-0.5,0.3]].forEach(q=>addBox(B,x+q[0],0.08,z+q[1],0.05,0.16,0.05,0x14B485,F)); /* warped roots */
+}
+function addBoneBlock(B,x,y,z,s){ addBox(B,x,y+s/2,z,s,s,s,0xE8E2CC); addBox(B,x,y+s+0.004,z,s*0.7,0.01,s*0.7,0xCFC8A8,{edge:false}); }
+function addBonePile(B,x,z){ const s=0.4; addBoneBlock(B,x,0,z,s); addBoneBlock(B,x+0.42,0,z+0.1,s); addBoneBlock(B,x+0.1,s,z+0.05,s); }
+function addBoneFossil(B,x,z){ /* tulang punggung + rusuk dari Bone Block + tengkorak */
+  const s=0.45;
+  for(let i=-3;i<=3;i++) addBoneBlock(B,x+i*s,0,z,s);
+  [-2,0,2].forEach(i=>[-1,1].forEach(sd=>{ addBoneBlock(B,x+i*s,0,z+sd*s,s); addBoneBlock(B,x+i*s,s,z+sd*s*1.3,s); addBoneBlock(B,x+i*s,2*s,z+sd*s*0.8,s); }));
+  addBoneBlock(B,x+4*s,0,z,s*1.7); [-1,1].forEach(a=>addBox(B,x+4*s+0.76,0.4,z+a*0.2,0.02,0.16,0.14,0x3A3226,{edge:false}));
+}
+function addSoulFire(B,x,z){ const F={edge:false}; addBox(B,x,0.04,z,0.34,0.08,0.34,0x3A2E22); addBox(B,x,0.22,z,0.2,0.3,0.2,0x3AC8E8,F); addBox(B,x,0.38,z,0.1,0.2,0.1,0x9AF0FF,F); }
+function addBasalt(B,x,z){
+  const hh=0.5+rnd()*2.2,w=0.5+rnd()*0.4,F={edge:false}; let y=0;
+  for(let i=0;y<hh;i++,y+=0.5) addBox(B,x,y+0.25,z,w,0.5,w,jit(i%2?0x4C4C54:0x3A3A42,0.06),F);
+  if(rnd()<0.2) addBox(B,x+0.5,0.12,z,0.4,0.24,0.4,0xC0501A,F); /* magma block */
+}
+function addNetherBiomes(DB,th){
+  const pil=[[-13,-10],[12,-12],[16,10],[-15,9],[22,-4]];
+  lift(DB,()=>addBoneFossil(DB,23,5),hAt(23,5)); lift(DB,()=>addBoneFossil(DB,24,-8),hAt(24,-8));
+  let n=0,t=0;
+  while(n<120&&t++<3000){
+    const x=(rnd()-0.5)*66,z=(rnd()-0.5)*58;
+    if(nOnLava(x,z,0.8)||(Math.abs(x)<14&&Math.abs(z)<12)||pil.some(q=>Math.hypot(q[0]-x,q[1]-z)<2.6)) continue;
+    const b=netherBiomeAt(x,z),sc=0.8+rnd()*0.7,r=rnd();
+    lift(DB,()=>{
+      if(b==='crimson') (r<0.05?addBonePile(DB,x,z):addFungus(DB,x,z,sc,false));
+      else if(b==='warped') (r<0.05?addBonePile(DB,x,z):addFungus(DB,x,z,sc,true));
+      else if(b==='soul'){ if(r<0.4) addSoulFire(DB,x,z); else if(r<0.6) addBonePile(DB,x,z); }
+      else if(b==='basalt'){ if(r<0.6) addBasalt(DB,x,z); else if(r<0.65) addBonePile(DB,x,z); }
+      else if(r<0.5) addNetherTree(DB,x,z,sc);
+    },hAt(x,z)); n++;
+  }
+}
 function buildCustomGround(TB,th){
   const LAV=[0xFF6A1A,0xFF8A2A,0xE8501A,0xFFA23A],X0=-14,X1=18,Z0=-13,Z1=11;
   for(let gx=X0;gx<=X1;gx+=2) for(let gz=Z0;gz<=Z1;gz+=2){
@@ -3550,7 +3602,8 @@ function buildCustomGround(TB,th){
     if(gx>=X0-1&&gx<=X1+1&&gz>=Z0-1&&gz<=Z1+1) continue;
     const h=mcH(gx,gz);
     addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,jit(h>=1.5?S:W,0.07),{edge:false});
-    addBox(TB,gx,h-0.1,gz,2,0.2,2,jit(th.ground,0.08));
+    const nb=th.key==='nether'?netherBiomeAt(gx,gz):null; /* tanah di pinggir lava diwarnai sesuai biome */
+    addBox(TB,gx,h-0.1,gz,2,0.2,2,nb?jit(NB_GROUND[nb][(gx+gz)%4===0?1:0],0.08):jit(th.ground,0.08));
   }
   addBox(TB,PAD.x,-0.25,PAD.z,2.6,0.5,2.6,jit(th.wall[1],0.05)); /* alas area Start di atas lava */
   addBox(TB,PAD.x+1.7,-0.05,PAD.z,1.2,0.1,0.8,0x3A2A1A); /* papan penghubung ke petak 1 */
