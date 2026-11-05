@@ -60,6 +60,7 @@ button:active:not(:disabled){transform:scale(.95)}button:focus-visible,.map:focu
 .fc>b{font-size:2.3rem;line-height:1;-webkit-text-stroke:.35rem #0b0c10;paint-order:stroke fill;text-shadow:none}
 .fc>small{font-size:1.25rem;font-weight:700;line-height:1.15;opacity:.95}
 .fc svg{width:5rem;height:5rem}
+.fc .tart{width:100%;flex:1 1 0;min-height:0;object-fit:contain;filter:drop-shadow(0 .3rem 0 rgba(0,0,0,.35));pointer-events:none}
 /* tombol glossy = gaya tombol menu gameplay (#pauseMenu .lm-mode) */
 .bk{justify-content:center}
 .gl{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;width:100%;border:.3rem solid #0b1838;border-radius:1.4rem;color:#fff;line-height:1.05}
@@ -159,11 +160,11 @@ car.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')go(pos-1);if(e.key==='
 if(N){render();setActive(idx)}
 
 /* ---------- TILE (yang flip hanya tile kecil; hanya satu terbuka) ---------- */
-const IC_={solo:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="#fff"/><path d="M4 21c0-5 4-7 8-7s8 2 8 7z" fill="#fff"/></svg>',
-team:'<svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3.4" fill="#fff"/><circle cx="17" cy="8" r="3.4" fill="#ffe36a"/><path d="M1 20c0-4 3-6 7-6s7 2 7 6zM12 20c0-3 2-5 5-5s6 2 6 5z" fill="#fff"/></svg>',
-bot:'<img src="assets/Images/icon/mode/robot.webp" alt="" draggable="false" style="width:5rem;height:5rem">',
-loc:'<img src="assets/Images/icon/mode/kontak.webp" alt="" draggable="false" style="width:5rem;height:5rem">',
-room:'<img src="assets/Images/icon/lobby/mail.webp" alt="" draggable="false" style="width:5rem;height:5rem">'};
+const IC_={solo:'<img class="tart" src="assets/Images/icon/mode/vsolo.webp" alt="" draggable="false">',
+team:'<img class="tart" src="assets/Images/icon/mode/teamvsteam.webp" alt="" draggable="false">',
+bot:'<img class="tart" src="assets/Images/icon/mode/vsrobot.webp" alt="" draggable="false">',
+loc:'<img class="tart" src="assets/Images/icon/mode/multiplayer.webp" alt="" draggable="false">',
+room:'<img class="tart" src="assets/Images/icon/mode/createroom.webp" alt="" draggable="false">'};
 const TILES={
  qs:[{id:'solo',c:'tc1',ic:'solo',t:'SOLO',d:'Ranked 2 / 3 / 4 pemain',flip:{h:'JUMLAH PEMAIN',o:[['2 PEMAIN',()=>ranked('solo',2)],['3 PEMAIN',()=>ranked('solo',3)],['4 PEMAIN',()=>ranked('solo',4)]]}},
      {id:'team',c:'tc2',ic:'team',t:'TEAM',d:'2 vs 2 • langsung cari tim',go:()=>ranked('team',4)}],
