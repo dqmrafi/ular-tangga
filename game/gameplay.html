@@ -2857,6 +2857,7 @@ function updateNightUI(){
 function applyLook(th){
   const rs=document.documentElement.style;
   document.body.classList.toggle('th-nether',th.key==='nether'); /* HUD ikut warna Nether (CSS body.th-nether) */
+  document.body.classList.toggle('th-world',th.key==='minecraft'); /* HUD ikut warna World: daun + kayu (CSS body.th-world) */
   const top=night?mixHex(th.skyTop,'#060a22',0.9):th.skyTop,bot=night?mixHex(th.skyBot,'#1c2a5e',0.82):th.skyBot;
   rs.setProperty('--sky-top',top); rs.setProperty('--sky-bot',bot);
   rs.setProperty('--hud-bg',mixHex(th.wall[0],'#000000',night?0.86:0.78)); rs.setProperty('--hud-edge',mixHex(th.wall[0],'#ffffff',night?0.02:0.12)); rs.setProperty('--ttl',th.sw[0]);
@@ -5258,5 +5259,64 @@ requestAnimationFrame(frame);
 #pauseMenu .lm-exit{background:linear-gradient(#ff7a68,#e0352b);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ffb3a8,inset 0 calc(var(--mu)*-.3) 0 rgba(110,10,10,.4),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #7a0e0a}
 #pauseMenu .lm-grey{background:linear-gradient(#a3add0,#6d79a4);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #c9d1ea,inset 0 calc(var(--mu)*-.3) 0 rgba(25,35,80,.4),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #26305a}
 #pauseMenu .lm-grey[aria-pressed=true]{background:linear-gradient(#8a85d8,#5a50b8);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #b9b5f0,inset 0 calc(var(--mu)*-.3) 0 rgba(35,26,99,.45),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #231a63}
+</style>
+<style id="hud-theme-palette">
+/* ===== Palet HUD per tema (HANYA warna; layout, id, JS, dan gameplay tidak diubah). Dimuat paling akhir agar menimpa hud-ref-v3.
+   World  (body.th-world)  : daun hijau + kayu oak (tombol = daun, kartu = papan kayu, tombol Roll = daun berbingkai kayu).
+   Nether (body.th-nether) : kayu Crimson Forest (merah tua) + Warped Forest (hijau tua kebiruan).
+   Kelas body diset di applyLook(). Untuk membatalkan: hapus blok <style id="hud-theme-palette"> ini dan baris th-world di applyLook. ===== */
+body.th-world{--tp-ol:#2b1a0b;
+  --tp-b1:#6fc04a;--tp-b2:#2f7d2a;--tp-b-ring:#b5ec86;--tp-b-in:rgba(10,50,10,.4);--tp-b-sh:#1b3d12;
+  --tp-a1:#d49a52;--tp-a2:#9a6430;--tp-a-ring:#f0cd8e;--tp-a-in:rgba(70,35,8,.4);--tp-a-sh:#4a2a0c;
+  --tp-c1:#c08a4a;--tp-c2:#8a5a2a;--tp-c-ring:#f0cd8e;--tp-c-in:rgba(70,35,8,.4);--tp-c-sh:#4a2a0c;
+  --tp-o1:#5fbf45;--tp-o2:#2a7424;--tp-o-ring:#b5ec86;--tp-o-in:rgba(10,50,10,.45);--tp-o-sh:#14340f;
+  --tp-n1:#4fae3a;--tp-n2:#245f20;--tp-n-bd:#c4ee9a;
+  --tp-pu:rgba(43,28,14,.86);--tp-pu-bd:rgba(240,205,142,.22);--tp-badge:#3f9a2e;
+  --tp-r1:#8fe05c;--tp-r2:#4cae33;--tp-r3:#3c9628;--tp-r4:#52b838;--tp-r-bd:#6b4423;--tp-r-ring:#d2f7ac;--tp-r-in:rgba(20,70,10,.4);--tp-r-sh:#1f4d14;--tp-r-fl:#3d2610;
+  --tp-d1:#a89880;--tp-d2:#6e604e;--tp-d-bd:#5a4a3a;--tp-d-ring:#c9bba3;--tp-d-sh:#3a2e20;--tp-d-fl:#2a2016;
+  --tp-y1:#d6f06a;--tp-y2:#7cc02a;--tp-y-ring:#f2ffb0;--tp-y-in:rgba(40,80,0,.4);--tp-y-sh:#2f5a0c}
+body.th-nether{--tp-ol:#1f070d;
+  --tp-b1:#c8384f;--tp-b2:#6a1226;--tp-b-ring:#ff9fb0;--tp-b-in:rgba(40,0,10,.45);--tp-b-sh:#2a0710;
+  --tp-a1:#35b3a0;--tp-a2:#146257;--tp-a-ring:#9ff5e2;--tp-a-in:rgba(0,40,36,.45);--tp-a-sh:#06302b;
+  --tp-c1:#a23a56;--tp-c2:#5e1a2e;--tp-c-ring:#ff9fb0;--tp-c-in:rgba(40,0,10,.45);--tp-c-sh:#2a0710;
+  --tp-o1:#2fb09c;--tp-o2:#136056;--tp-o-ring:#9ff5e2;--tp-o-in:rgba(0,40,36,.45);--tp-o-sh:#06302b;
+  --tp-n1:#c2334d;--tp-n2:#6a1226;--tp-n-bd:#7ff0d8;
+  --tp-pu:rgba(32,8,16,.88);--tp-pu-bd:rgba(255,140,170,.2);--tp-badge:#159a86;
+  --tp-r1:#4fe0c8;--tp-r2:#1fa592;--tp-r3:#188a7a;--tp-r4:#27b09c;--tp-r-bd:#5a1a2e;--tp-r-ring:#c4fff0;--tp-r-in:rgba(0,60,50,.4);--tp-r-sh:#0b4a40;--tp-r-fl:#2a0710;
+  --tp-d1:#9a7480;--tp-d2:#5e4450;--tp-d-bd:#3d2230;--tp-d-ring:#c3a3ad;--tp-d-sh:#2a1520;--tp-d-fl:#1f0f18;
+  --tp-y1:#8ff7c8;--tp-y2:#25b58a;--tp-y-ring:#d6ffee;--tp-y-in:rgba(0,70,50,.4);--tp-y-sh:#0b4a38}
+
+/* --- Kanan atas: tombol (normal = daun / crimson, aktif = kayu / warped) --- */
+html body:is(.th-world,.th-nether) #hud .btn.small[class]:not(#sv){color:#fff;text-shadow:0 2px 0 var(--tp-b-sh);background:linear-gradient(var(--tp-b1),var(--tp-b2));border-color:var(--tp-ol);
+  box-shadow:inset 0 0 0 2px var(--tp-b-ring),inset 0 -4px 0 var(--tp-b-in),0 3px 0 var(--tp-ol),0 7px 10px rgba(0,0,0,.2)}
+html body:is(.th-world,.th-nether) #hud .btn.small[class]:not(#sv):active:not(:disabled){box-shadow:inset 0 0 0 2px var(--tp-b-ring),inset 0 -4px 0 var(--tp-b-in),0 1px 0 var(--tp-ol)}
+html body:is(.th-world,.th-nether) #hud .btn.small[aria-pressed=true][class]:not(#sv){text-shadow:0 2px 0 var(--tp-a-sh);background:linear-gradient(var(--tp-a1),var(--tp-a2));
+  box-shadow:inset 0 0 0 2px var(--tp-a-ring),inset 0 -4px 0 var(--tp-a-in),0 3px 0 var(--tp-ol),0 7px 10px rgba(0,0,0,.2)}
+
+/* --- Kiri atas: kartu pemain (biasa = kayu, giliran aktif = daun / warped) --- */
+html body:is(.th-world,.th-nether) #side .pr{background:linear-gradient(var(--tp-c1),var(--tp-c2));border-color:var(--tp-ol);text-shadow:0 2px 0 var(--tp-c-sh);
+  box-shadow:inset 0 0 0 2px var(--tp-c-ring),inset 0 -4px 0 var(--tp-c-in),0 3px 0 var(--tp-ol),0 8px 12px rgba(0,0,0,.22)}
+html body:is(.th-world,.th-nether) #side .pr.on{background:linear-gradient(var(--tp-o1),var(--tp-o2));text-shadow:0 2px 0 var(--tp-o-sh);
+  box-shadow:inset 0 0 0 2px var(--tp-o-ring),inset 0 -4px 0 var(--tp-o-in),0 3px 0 var(--tp-ol),0 8px 12px rgba(0,0,0,.22)}
+
+/* --- Tengah atas: banner event (snake/mob/three6/bounce tetap warna semantik masing-masing) --- */
+html body:is(.th-world,.th-nether) .ut-ghud-b:not([data-k=snake]):not([data-k=mob]):not([data-k=three6]):not([data-k=bounce]){border-color:var(--tp-n-bd);background:linear-gradient(var(--tp-n1),var(--tp-n2));text-shadow:0 2px 0 var(--tp-ol);
+  box-shadow:0 0 0 3px var(--tp-ol),0 6px 0 3px var(--tp-ol),0 12px 16px rgba(0,0,0,.25)}
+
+/* --- Kiri bawah: panel power-up --- */
+html body:is(.th-world,.th-nether) #side .pnl.pu{background:var(--tp-pu);border-color:var(--tp-pu-bd)}
+html body:is(.th-world,.th-nether) #side #pus .pb:not([data-state=locked]):not([data-state=empty]) b{background:var(--tp-badge)}
+
+/* --- Kanan bawah: Roll (daun / warped, bingkai kayu), Auto (kayu / crimson; menyala = lime / mint) --- */
+html body:is(.th-world,.th-nether) #side .rcol .pnl.tn #btnRoll{border-color:var(--tp-r-bd);background:linear-gradient(var(--tp-r1),var(--tp-r2) 50%,var(--tp-r3) 52%,var(--tp-r4));
+  text-shadow:0 3px 0 var(--tp-r-sh),2px 0 0 var(--tp-r-sh),-2px 0 0 var(--tp-r-sh),0 -2px 0 var(--tp-r-sh),2px 2px 0 var(--tp-r-sh),-2px 2px 0 var(--tp-r-sh);
+  box-shadow:inset 0 0 0 2px var(--tp-r-ring),inset 0 -5px 0 var(--tp-r-in),0 5px 0 var(--tp-r-fl),0 10px 14px rgba(0,0,0,.28)}
+html body:is(.th-world,.th-nether) #side .rcol .pnl.tn #btnRoll:not(:disabled):active{box-shadow:inset 0 0 0 2px var(--tp-r-ring),inset 0 -5px 0 var(--tp-r-in),0 1px 0 var(--tp-r-fl)}
+html body:is(.th-world,.th-nether) #side .rcol .pnl.tn #btnRoll:disabled{border-color:var(--tp-d-bd);text-shadow:0 2px 0 var(--tp-d-sh);background:linear-gradient(var(--tp-d1),var(--tp-d2));
+  box-shadow:inset 0 0 0 2px var(--tp-d-ring),inset 0 -5px 0 rgba(0,0,0,.25),0 4px 0 var(--tp-d-fl)}
+html body:is(.th-world,.th-nether) #side .rcol .pnl.tn #btnAuto{border-color:var(--tp-ol);background:linear-gradient(var(--tp-c1),var(--tp-c2));text-shadow:0 2px 0 var(--tp-c-sh);
+  box-shadow:inset 0 0 0 2px var(--tp-c-ring),inset 0 -4px 0 var(--tp-c-in),0 5px 0 var(--tp-ol),0 10px 14px rgba(0,0,0,.25)}
+html body:is(.th-world,.th-nether) #side .rcol .pnl.tn #btnAuto[aria-pressed=true]{background:linear-gradient(var(--tp-y1),var(--tp-y2));text-shadow:0 2px 0 var(--tp-y-sh);
+  box-shadow:inset 0 0 0 2px var(--tp-y-ring),inset 0 -4px 0 var(--tp-y-in),0 5px 0 var(--tp-ol),0 0 0 3px var(--tp-y-ring),0 10px 14px rgba(0,0,0,.25)}
 </style>
 </body></html>
