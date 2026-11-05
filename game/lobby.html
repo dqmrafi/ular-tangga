@@ -32,8 +32,9 @@ button:hover{transform:scale(1.05);filter:brightness(1.08)}button:active{transfo
 #shield img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 .2rem 0 #0b1220);pointer-events:none;user-select:none}
 #shield b{position:relative;display:block;font-size:1rem;line-height:1rem;-webkit-text-stroke:.2rem #8a5a0a;paint-order:stroke fill}
 #shield strong{position:relative;display:block;font-size:2.3rem;line-height:2.2rem;-webkit-text-stroke:.28rem #8a5a0a;paint-order:stroke fill}
-#nrow{position:absolute;left:15.6rem;top:1.2rem;display:flex;align-items:center;gap:1rem;z-index:3}
-#pname{font-size:3.1rem;line-height:3.8rem}
+#nrow{position:absolute;left:15.6rem;top:1.2rem;width:13.6rem;display:flex;align-items:center;gap:.8rem;z-index:3}
+#pname{font-size:3.1rem;line-height:3.8rem;flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden}
+#flag{flex:0 0 auto}
 #flag{width:2.8rem;height:1.9rem;border-radius:.3rem;overflow:hidden;border:.1rem solid #fff;box-shadow:0 .1rem .3rem rgba(0,0,0,.3)}
 #xp{position:absolute;left:9.9rem;top:5.8rem;width:8.2rem;height:2.1rem;border-radius:.6rem;background:#0e1626;box-shadow:inset 0 .15rem .25rem rgba(0,0,0,.6),0 0 0 .14rem #56667e;overflow:hidden;z-index:3}
 #xp i{position:relative;display:block;height:100%;border-radius:.6rem;overflow:hidden;background:linear-gradient(#b9ff8a 0%,#6fe03c 38%,#2fa51f 52%,#46c92c 100%);box-shadow:inset 0 .12rem .1rem rgba(255,255,255,.65),inset 0 -.15rem .15rem rgba(14,84,10,.55),0 0 .6rem rgba(120,255,80,.55);animation:xpGlow 2.4s ease-in-out infinite}
@@ -183,7 +184,11 @@ function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clea
 /* ---------- HUD ---------- */
 function renderAvatar(){$('#ava').innerHTML=AR.face(PD.equippedId('skin'))||AR.face('skin.steve')} /* wajah dari UT.CharacterData lewat ItemArt.face */
 function renderCurrency(){$('#gemV').textContent=fmt(PD.gems());$('#coinV').textContent=fmt(PD.coins())}
-function renderName(){const n=$('#pname');if(n)n.textContent=PD.profile().name}
+/* nama panjang: font otomatis mengecil agar tidak keluar panel */
+function fitName(){const n=$('#pname');if(!n)return;const MAX=3.1,MIN=1.1;let sz=MAX;n.style.fontSize=sz+'rem';n.style.lineHeight=(sz*1.22)+'rem';
+ while(n.scrollWidth>n.clientWidth&&sz>MIN){sz=Math.max(MIN,+(sz-.1).toFixed(2));n.style.fontSize=sz+'rem';n.style.lineHeight=(sz*1.22)+'rem'}}
+function renderName(){const n=$('#pname');if(n){n.textContent=PD.profile().name;fitName()}}
+window.addEventListener('resize',fitName);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitName);
 renderAvatar();renderCurrency();renderName();
 document.querySelectorAll('#ui>:not(.ut-curbar)').forEach((e,i)=>e.style.animationDelay=(i*.045)+'s');
 /* event: UI ikut berubah tanpa reload halaman */
