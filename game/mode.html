@@ -29,8 +29,6 @@ button:active:not(:disabled){transform:scale(.95)}button:focus-visible,.map:focu
 .map.far{opacity:0;pointer-events:none}
 .map.on{opacity:1;scale:1;box-shadow:0 0 0 .3rem var(--ink),0 0 0 .75rem #ffd73a,0 0 2.6rem 1rem rgba(255,225,70,.6)}
 .map .art{position:absolute;inset:0}.map .art>*{width:100%;height:100%;display:block;object-fit:cover}
-/* bayangan bawah card supaya teks terbaca, plus padding bawah */
-.map::after{content:"";position:absolute;left:0;right:0;bottom:0;height:62%;background:linear-gradient(transparent,rgba(11,21,48,.72));pointer-events:none}
 .map .mt{z-index:1;position:absolute;left:1rem;right:1rem;bottom:1.2rem;display:flex;flex-direction:column;align-items:flex-start;gap:.1rem;text-align:left;pointer-events:none}
 .map .mt b{font-size:2.4rem;line-height:1;white-space:nowrap;-webkit-text-stroke:.3rem var(--ink);paint-order:stroke fill;text-shadow:0 .15rem 0 var(--ink)}
 .map .mt small{font-size:1.15rem;font-weight:700;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;-webkit-text-stroke:.22rem var(--ink);paint-order:stroke fill;text-shadow:0 .1rem 0 var(--ink)}
@@ -54,13 +52,23 @@ button:active:not(:disabled){transform:scale(.95)}button:focus-visible,.map:focu
 .fc{width:100%}
 .tile.flipped .fc{pointer-events:none}.tile:not(.flipped) .bk{pointer-events:none}
 .bk{transform:rotateY(180deg);justify-content:center;gap:.5rem;padding:.6rem .8rem}
-.tc1 .fc,.tc1 .bk{background:linear-gradient(#ffd24d,#ff9a1f);text-shadow:0 .1rem 0 #8a4a0a}
-.tc2 .fc,.tc2 .bk{background:linear-gradient(#58b6ff,#1f86ee);text-shadow:0 .1rem 0 rgba(10,40,120,.6)}
-.tc3 .fc,.tc3 .bk{background:linear-gradient(#4fd24a,#27992a);text-shadow:0 .15rem 0 #0e4a12}
+/* latar kartu depan = gaya hadiah besar (day.big) di dailyreward; sisi flip .bk tetap warna per tile */
+.fc{background:linear-gradient(#9a5ae0,#6a32b8);padding:.6rem .8rem .7rem;gap:.4rem;box-shadow:0 0 0 .2rem #0b0c10,0 .4rem 0 .2rem #0b0c10,inset 0 0 0 .12rem rgba(220,180,255,.5),inset 0 .2rem .2rem rgba(255,255,255,.4);text-shadow:0 .12rem 0 rgba(30,8,70,.65)}
+.tc1 .bk{background:linear-gradient(#ffd24d,#ff9a1f);text-shadow:0 .1rem 0 #8a4a0a}
+.tc2 .bk{background:linear-gradient(#58b6ff,#1f86ee);text-shadow:0 .1rem 0 rgba(10,40,120,.6)}
+.tc3 .bk{background:linear-gradient(#4fd24a,#27992a);text-shadow:0 .15rem 0 #0e4a12}
 .fc>b{font-size:2.3rem;line-height:1;-webkit-text-stroke:.35rem #0b0c10;paint-order:stroke fill;text-shadow:none}
 .fc>small{font-size:1.25rem;font-weight:700;line-height:1.15;opacity:.95}
 .fc svg{width:5rem;height:5rem}
-.fc .tart{width:100%;flex:1 1 0;min-height:0;object-fit:contain;filter:drop-shadow(0 .3rem 0 rgba(0,0,0,.35));pointer-events:none}
+.fc .tart{width:100%;flex:1 1 0;min-height:10rem;object-fit:contain;filter:drop-shadow(0 .3rem 0 rgba(0,0,0,.35));pointer-events:none}
+/* hover kartu: terangkat + kilauan bintang (JS menambah <i class="hk">) */
+.tile .fc:hover{transform:translateY(-.3rem);filter:brightness(1.1)}
+.hk{position:absolute;width:1.2rem;height:1.2rem;background:#fff6a0;rotate:45deg;z-index:2;pointer-events:none;animation:hkf .7s forwards}
+@keyframes hkf{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
+/* cahaya radial berputar di balik gambar tile, gaya #chest di dailyreward */
+.fc{isolation:isolate}
+.fc::after{content:"";position:absolute;left:50%;top:37%;width:15rem;height:15rem;translate:-50% -50%;z-index:-1;pointer-events:none;background:radial-gradient(circle at 50% 50%,#fff1a8 0,rgba(255,241,168,.5) 36%,transparent 70%),repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,.32) 0 7deg,transparent 7deg 22deg);-webkit-mask:radial-gradient(circle at 50% 50%,#000 0 45%,transparent 72%);mask:radial-gradient(circle at 50% 50%,#000 0 45%,transparent 72%);animation:fcray 24s linear infinite}
+@keyframes fcray{to{rotate:360deg}}
 /* tombol glossy = gaya tombol menu gameplay (#pauseMenu .lm-mode) */
 .bk{justify-content:center}
 .gl{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;width:100%;border:.3rem solid #0b1838;border-radius:1.4rem;color:#fff;line-height:1.05}
@@ -139,9 +147,11 @@ UT.Events.on('currencyChanged',money);money();
 /* ---------- MAP CAROUSEL (loop tanpa ujung, bingkai 4:3) ---------- */
 const MAPS=RF.maps();const N=MAPS.length;let idx=Math.max(0,MAPS.indexOf(RF.getMap())),pos=idx;
 const car=$('#car'),mod=(a,n)=>((a%n)+n)%n,els=new Map();
+/* banner gambar map (gameplay/maps/banner-maps) memakai gameKey; map tanpa banner tetap pakai SVG ItemArt */
+const BANNER={minecraft:'gameplay/maps/banner-maps/world.webp',nether:'gameplay/maps/banner-maps/nether.webp'};
 $('#dots').innerHTML=MAPS.map((_,i)=>`<i data-i="${i}"></i>`).join('');
 function mk(v){const i=mod(v,N),m=MAPS[i],e=document.createElement('div');e.className='map far';e.setAttribute('role','option');e.tabIndex=0;e.dataset.i=i;e.dataset.v=v;
- e.innerHTML=`<div class="art">${ItemArt.theme(m.id)}</div><div class="mt"><b>${m.name.replace(/^Map /,'')}</b><small>${m.desc||''}</small></div>`;
+ e.innerHTML=`<div class="art">${BANNER[m.gameKey]?`<img src="${BANNER[m.gameKey]}" alt="" draggable="false">`:ItemArt.theme(m.id)}</div><div class="mt"><b>${m.name.replace(/^Map /,'')}</b><small>${m.desc||''}</small></div>`;
  e.style.setProperty('--o',v-pos);
  e.onclick=()=>go(+e.dataset.v);e.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go(+e.dataset.v)}};car.appendChild(e);return e}
 function render(){if(!N)return;
@@ -176,8 +186,16 @@ Object.keys(TILES).forEach(k=>{$('#'+k+'T').innerHTML=TILES[k].map(t=>`<div clas
  <div class="bk">${t.flip?t.flip.o.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join(''):''}</div></div></div>`).join('')});
 const ALL=[...TILES.qs,...TILES.cr];
 function closeAll(){document.querySelectorAll('.tile.flipped').forEach(t=>t.classList.remove('flipped'))}
-ALL.forEach(t=>{const el=$('#t_'+t.id);
- el.querySelector('.fc').onclick=()=>{buzz();if(t.go){closeAll();t.go();return}const was=el.classList.contains('flipped');closeAll();if(!was)el.classList.add('flipped')};
+/* kilauan hover: bintang kecil beterbangan di kartu (efek sparkle gaya dailyreward) */
+function shine(fc){const w=fc.clientWidth,h=fc.clientHeight;
+ for(let i=0;i<9;i++){const s=document.createElement('i');s.className='hk';
+  s.style.left=(6+Math.random()*(w-12))+'px';s.style.top=(6+Math.random()*(h-12))+'px';
+  s.style.setProperty('--dx',((Math.random()*2-1)*34)+'px');s.style.setProperty('--dy',(-12-Math.random()*36)+'px');
+  fc.appendChild(s);setTimeout(()=>s.remove(),700)}}
+const canHover=matchMedia('(hover:hover)').matches;
+ALL.forEach(t=>{const el=$('#t_'+t.id),fc=el.querySelector('.fc');
+ fc.onclick=()=>{buzz();if(t.go){closeAll();t.go();return}const was=el.classList.contains('flipped');closeAll();if(!was)el.classList.add('flipped')};
+ if(!reduce&&canHover)fc.addEventListener('mouseenter',()=>shine(fc));
  el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{buzz();t.flip.o[+b.dataset.o][1]()});
  });
 /* tanpa tombol kembali: ketuk di luar kartu flip untuk menutup */
