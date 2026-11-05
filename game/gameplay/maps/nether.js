@@ -27,8 +27,6 @@
              ['zoglin', [62, 101]], ['piglin', [43, 83]], ['strider', [12, 68, 95]]] /* strider = mob penolong: maju 3 petak */
     },
     props: [
-      ["pillar",-2,-10,2.5],["pillar",-9,9,3],["pillar",-11.5,9,2],
-      ["pillar",14,3,2],["pillar",-0.5,7,2.5],["pillar",-12,5.5,2.5],
       ["ghast",-9,9,-6],["ghast",10,11,-9],["ghast",3,10,7]
     ], /* dekor di atas lava: [jenis, x, z, ukuran] atau ['ghast', x, y, z] */
     /* Papan 120 petak: tiga jalan (tier) 13x3 di atas lava, disambung jembatan 1 petak di sisi bergantian.
@@ -37,25 +35,30 @@
     board: function board() {
       var T = [null], n = 0;
       function put(x, z, h) { n++; T.push({ n: n, row: Math.round(4.5 - z), col: Math.round(x + 4.5), x: x, z: z, h: h }); }
-      function wave(c, r, k, base) { return base + Math.round((Math.sin(c * 0.8 + r * 0.55) * 0.5 + 0.5) * k) * 0.2; }
+      /* tinggi tidak beraturan tapi halus (selisih antar petak kecil): lereng naik ke belakang + gundukan dari dua gelombang */
+      function H(x, z) {
+        var a = x * 0.55 + z * 0.8 + Math.sin(x * 0.3) * 1.2;
+        var v = 0.14 * (4.5 - z) + 0.8 * (0.5 + 0.5 * Math.sin(a)) + 0.12 * Math.sin(x * 1.7 + z * 1.1) + 0.12;
+        return Math.max(0, Math.round(v * 10) / 10);
+      }
       var C = 13;
       /* tiga tier jalan di atas lava: tiap tier 3 baris x 13 kolom, disambung 1 petak jembatan di sisi bergantian */
-      function tier(z0, firstDir, base, k, rise) {
+      function tier(z0, firstDir) {
         for (var r = 0; r < 3; r++) {
           var dir = (r % 2 === 0) ? firstDir : -firstDir;
           for (var i = 0; i < C; i++) {
-            var c = dir > 0 ? i : C - 1 - i, h = wave(c, r + Math.round(z0), k, base);
-            if (rise && r === 2) h = Math.max(h, 0.2 * Math.min(4, Math.max(0, c - 4))); /* tanjakan menuju benteng */
-            put(c - 4.5, z0 - r, Math.round(h * 10) / 10);
+            var c = dir > 0 ? i : C - 1 - i, x = c - 4.5, z = z0 - r;
+            put(x, z, H(x, z));
           }
         }
       }
-      tier(4.5, 1, 0, 3, false);        /* 1-39   Crimson */
-      put(7.5, 1.5, 0.2);               /* 40     jembatan kanan */
-      tier(0.5, -1, 0.4, 2, false);     /* 41-79  Warped */
-      put(-4.5, -2.5, 0.4);             /* 80     jembatan kiri */
-      tier(-3.5, 1, 0, 2, true);        /* 81-119 Basalt + tanjakan benteng */
-      put(8.5, -5.5, 1.0);              /* 120    gerbang benteng (Wither) */
+      function mid(x1, z1, x2, z2) { return Math.round((H(x1, z1) + H(x2, z2)) * 5) / 10; }
+      tier(4.5, 1);                                 /* 1-39   Crimson */
+      put(7.5, 1.5, mid(7.5, 2.5, 7.5, 0.5));       /* 40     jembatan kanan (tinggi rata-rata dua tepi) */
+      tier(0.5, -1);                                /* 41-79  Warped */
+      put(-4.5, -2.5, mid(-4.5, -1.5, -4.5, -3.5)); /* 80     jembatan kiri */
+      tier(-3.5, 1);                                /* 81-119 Basalt */
+      put(8.5, -5.5, H(7.5, -5.5) + 0.3);           /* 120    gerbang benteng (Wither), sedikit lebih tinggi */
       return T;
     },
     theme: {key:'nether',name:'Nether',skyTop:'#2a0606',skyBot:'#8a2410',
