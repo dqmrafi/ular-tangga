@@ -29,8 +29,8 @@ h2{margin:0;font-size:1.9rem;-webkit-text-stroke:.3rem var(--ink);paint-order:st
 #tt{position:absolute;left:50%;top:0;translate:-50% 0;min-width:30rem;max-width:60%;height:5.2rem;padding:0 2.4rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.05}
 #tt b{font-size:2.8rem;-webkit-text-stroke:.3rem var(--ink);paint-order:stroke fill;white-space:nowrap}#tt small{font-size:1.4rem;font-weight:700;color:#d8efff;white-space:nowrap}
 /* kiri */
-#lf{grid-area:lf;gap:.7rem;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;justify-content:space-between}#lf::-webkit-scrollbar{display:none}
-#eq{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.9rem}
+#lf{grid-area:lf;min-height:0;display:flex;flex-direction:column;gap:1.4rem;padding:.4rem .5rem 1rem;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}.sec.pn{flex:none}#lf::-webkit-scrollbar{display:none}
+#eq{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.9rem}
 .eqi{display:flex;flex-direction:column;gap:.5rem;min-width:0}
 .eqt{width:100%;min-height:7.8rem;padding:.4rem .4rem;border-radius:1.2rem;display:grid;place-items:center;gap:.1rem;text-align:center;background:linear-gradient(145deg,#477fba,#1c477f 65%,#12345f);box-shadow:0 0 0 .22rem var(--ink),inset 0 .2rem .2rem rgba(255,255,255,.3)}
 .eqt .art{width:4rem;height:4rem;display:block}.eqt .art>*{width:100%;height:100%;display:block}.eqt .art img{object-fit:contain}
@@ -102,22 +102,22 @@ html{font-size:min(2.6vw,1.45vh)}
   <div class="blue" id="tt"><b id="rt_t">GAME ROOM</b><small id="rs"></small></div>
   <button class="blue ib cl" id="cls" aria-label="Tutup room">✕</button>
  </header>
- <section class="pn" id="lf" aria-label="Persiapan">
-  <div class="sec">
+ <div id="lf" aria-label="Persiapan">
+  <section class="pn sec" id="pEq">
    <div class="st_"><h2>🎒 EQUIPMENT</h2><span class="gp" id="eqn"></span></div>
    <div id="eq"></div>
-  </div>
-  <div class="sec">
+  </section>
+  <section class="pn sec" id="pPw">
    <div class="st_"><h2>🧩 POWER LOADOUT</h2><span class="gp" id="pcnt"></span></div>
    <p class="sub">Koleksi Power milikmu bersifat permanen. Pilih maksimal 5 jenis untuk dibawa ke pertandingan.</p>
    <div id="psc"></div>
    <div class="hint">↔ Geser untuk melihat semua Power • Stok diisi ulang setiap pertandingan</div>
-  </div>
-  <div class="sec">
+  </section>
+  <section class="pn sec" id="pMp">
    <div class="st_"><h2>🗺️ MAP INFORMATION</h2></div>
    <div class="mc"><div class="ma" id="mArt"></div><div class="mcp" id="mTxt"></div></div>
-  </div>
- </section>
+  </section>
+ </div>
  <section class="pn" id="rt" aria-label="Player Room">
   <div class="st_"><h2>👥 PLAYER ROOM</h2><span class="pill" id="cnt"></span><button class="gold sm" id="invB" hidden>＋ INVITE</button></div>
   <div id="plrs"></div>
@@ -187,14 +187,16 @@ function setup(){
  if(ONLINE&&!HOST)guestSim();
 }
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
-const EQ=[['dice','DICE','DADU'],['skin','SKIN','SKIN'],['frame','FRAME','FRAME']];
+const EQ=[['dice','DICE','DADU'],['skin','SKIN','SKIN'],['frame','FRAME','FRAME'],['effect','EFEK','EFEK']];
+/* Efek: belum ada item efek di katalog (Shop/Inventory masih "segera"), jadi slot ini baru placeholder */
+const EFFECT_ICON='assets/Images/icon/items/efek.webp';
 function renderEq(){
  $('#eqn').textContent=EQ.length+' ITEMS';
- $('#eq').innerHTML=EQ.map(([k,l])=>{const it=eqItem(k);return `<div class="eqi"><button class="eqt" data-k="${k}" aria-label="Ganti ${l}"><span class="art">${it?art(it):''}</span><b>${l}</b><small>${it?esc(it.name.replace(/^(Frame|Dadu) /,'')):'-'}</small></button><button class="chg gold" data-k="${k}">CHANGE</button></div>`}).join('');
+ $('#eq').innerHTML=EQ.map(([k,l])=>{const it=k==='effect'?null:eqItem(k);const ar=k==='effect'?`<img src="${EFFECT_ICON}" alt="" draggable="false">`:(it?art(it):'');return `<div class="eqi"><button class="eqt" data-k="${k}" aria-label="Ganti ${l}"><span class="art">${ar}</span><b>${l}</b><small>${k==='effect'?'Segera':(it?esc(it.name.replace(/^(Frame|Dadu) /,'')):'-')}</small></button><button class="chg gold" data-k="${k}">CHANGE</button></div>`}).join('');
 }
 $('#eq').onclick=e=>{const b=e.target.closest('[data-k]');if(b)openChoice(b.dataset.k)};
 let CK=null;
-function openChoice(k){CK=k;renderChoice();$('#cm').classList.add('show')}
+function openChoice(k){if(k==='effect')return toast('Efek segera hadir');CK=k;renderChoice();$('#cm').classList.add('show')}
 const closeChoice=()=>$('#cm').classList.remove('show');
 function renderChoice(){
  const cur=PD.equippedId(CK),own=IC.items.filter(i=>i.kind===CK&&PD.owns(i.id));
