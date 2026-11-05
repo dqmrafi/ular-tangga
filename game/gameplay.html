@@ -1287,6 +1287,7 @@ if (typeof THREE === 'undefined') {
 <script src="gameplay/particle-fx.js"></script>
 <script src="gameplay/firework-fx.js"></script>
 <script src="gameplay/creeper-fx.js"></script>
+<script src="data/power/power-fx.js"></script>
 <script src="gameplay/skin-uv.js"></script>
 <script src="gameplay/feedback.js"></script>
 <script src="gameplay/afk.js"></script>
@@ -3612,11 +3613,21 @@ async function crystalRoll(p,v,gid){
   if(p.crystal>=CRYSTAL_N){ p.dragonReady=true; setMsg(p.name+' READY menyerang Ender Dragon!'); fb('event','dragon',p.name+' READY menyerang Dragon!',{gid,ttl:2400}); sfx.crystalsCleared(); renderChips(); await S(sleep(700)); }
   return true;
 }
+/* Kamera saat Dragon bangkit: menyorot BAGIAN ATAS Tower (tempat End Crystal & Dragon muncul), sedikit lebih jauh. Pergeseran dihitung seperti fortCamPan (mode LOCK / ANGLE). */
+const ARENA_CAM={zoomK:1.22,topY:0.8+ARENA_TOWER_H+0.35}; /* zoomK >1 = lebih jauh; topY = tinggi titik sorot (puncak tower) */
+function arenaCamPan(){
+  let bx=CAM_BASE.x,bz=CAM_BASE.z,by=CAM_BASE.y;
+  if(camLocked()){ bx=lockCenter.x; bz=lockCenter.z; by=LOCK_BOX.y; }
+  else if(isTopDown){ bx=0; bz=0; by=3.5; }
+  else if(!camFollowing()){ bx=camHold.x; bz=camHold.z; by=camHold.y; }
+  else if(focus){ bx+=focus.position.x*0.35; bz+=focus.position.z*0.35; by+=(focus.position.y-CAM_BASE.y)*0.45; }
+  return {x:clamp(ARENA_POS.x-bx,-PAN_MAX,PAN_MAX),z:clamp(ARENA_POS.z-bz,-PAN_MAX,PAN_MAX),y:Math.max(0,ARENA_CAM.topY-by)};
+}
 async function awakenDragon(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
   const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,T=TILES[GOAL],Dd=dragon.userData;
   AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer(); dragonMusicStart();
-  const pg={x:panGoal.x,z:panGoal.z}; let finished=false,qk=null,tw=null,ar=null;
+  const pg={x:panGoal.x,z:panGoal.z,zoom:goal.zoom}; let finished=false,qk=null,tw=null,ar=null;
   try{
     while(paused) await S(sleep(200)); /* pause dibuka sebelum sequence: tunggu dilanjutkan */
     setMsg('Block 100 aktif! Gunung di kiri papan mulai bergetar...'); fb('event','dragon','Dragon Awakening!',{gid,ttl:2600}); qk=sfx.quakeStart(); /* SFX existing (assets/sfx/dragon-awakening.mp3, fallback sintetis); tanpa audio system baru */
@@ -3629,6 +3640,7 @@ async function awakenDragon(p,gid){
       setMsg('Gunung runtuh!'); await MW(2.3*F,k=>{ M.collapse=k; M.dust=0.6*k; });  /* batu jatuh/bergulir + debu */
     }else await S(sleep(700*F));
     setMsg('Dragon Arena terbuka...'); A.g.visible=true; ar=sfx.arenaUp(); /* bangunan (arena) muncul setelah gempa */
+    { const c=arenaCamPan(); panGoal.x=c.x; panGoal.z=c.z; panGoal.y=c.y; goal.zoom=pg.zoom*ARENA_CAM.zoomK; } /* kamera menyorot puncak Tower, agak menjauh */
     await S(Promise.all([tween(1.7*F,k=>{ A.rise=k; }),M?tween(1.4*F,k=>{ if(gid===gameId) M.dust=0.6+0.4*k; }):null])); /* arena naik dari bawah reruntuhan, debu menipis */
     sfx.quakeStop(qk); qk=null;
     await S(sleep(250*F));
@@ -3653,7 +3665,7 @@ async function awakenDragon(p,gid){
     sfx.quakeStop(qk); sfx.towerStop(tw); sfx.arenaStop(ar);
     if(gid===gameId){ /* STALE (game baru) ditangani resetAwakening di startGame */
       if(!finished){ dragon.visible=true; dragon.position.x=ARENA_POS.x; dragon.position.z=ARENA_POS.z; Dd.dy=0.8+ARENA_TOWER_H+0.6-Dd.y0; Dd.shk=Math.atan2(T.x-ARENA_POS.x,T.z-ARENA_POS.z); dragon.scale.setScalar(1.3); } /* error tak terduga: jangan sampai game macet */
-      panGoal.x=pg.x; panGoal.z=pg.z; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState(); /* gunung berakhir sebagai rubble (juga bila sequence terputus error) */
+      panGoal.x=pg.x; panGoal.z=pg.z; panGoal.y=0; goal.zoom=pg.zoom; AWK.done=true; AWK.running=false; document.body.classList.remove('awk-lock'); applyMountainState(); /* gunung berakhir sebagai rubble (juga bila sequence terputus error) */
     }
   }
 }
@@ -3663,7 +3675,7 @@ async function awakenDragon(p,gid){
    Semua mati -> gemuruh, Wither muncul dari bawah benteng (kubus terlempar). Wither (120 HP, damage = angka dadu x DMG) dilawan dgn dadu tahan-lepas yang sama.
    Skeleton & Wither TIDAK menyerang. Menang/kalah lewat celebrate -> finishGame (sama seperti Ender Dragon). Memakai ulang AWK/DRG/crystalDone/p.crystal/p.dragonReady/p.dhp. */
 const WITHER_HP=120,WF={risen:false,cam:false,shot:false,SC:1.5};
-function fortSlot(pi){ const F=FORT; return new THREE.Vector3(F.x0+F.T+0.42,F.fl,F.cz+[-0.9,-0.3,0.3,0.9][pi%4]); } /* sisi barat halaman, dekat jembatan */
+function fortSlot(pi){ const F=FORT; return new THREE.Vector3(F.x0+0.45,F.fl,F.cz+[-0.66,-0.22,0.22,0.66][pi%4]); } /* tepat di ujung jembatan (jembatan berakhir di x0): x0+0.45 = tepat di balik ambang masuk; z dirapatkan agar sejajar lebar jembatan */
 function fitZoom(w,h){ const t=Math.tan(camera.fov*Math.PI/360),a=camera.aspect||1,m=1.1; return Math.max((w/2*m)/(t*a),(h/2*m)/t)/baseDist; }
 function fortZoom(close){ const z=close?fitZoom(8.4,7.0):fitZoom(10.4,8.6); return camLocked()?z:Math.max(0.4,z); }
 function fortCamPan(){ /* pergeseran kamera agar tengah benteng ada di tengah layar (sesuai mode LOCK / ANGLE) */
@@ -3704,12 +3716,12 @@ function numSprite(n){
   s.scale.setScalar(0.4); s.position.y=1.5; s.renderOrder=5; return s;
 }
 /* Kubus pecahan (batu/tulang/debu): satu InstancedMesh bersama, dipakai tembok runtuh, skeleton mati, Wither muncul/kalah */
-const WFX={n:110,im:null,st:[],i:0,on:false,m4:new THREE.Matrix4(),q:new THREE.Quaternion(),e:new THREE.Euler(),p:new THREE.Vector3(),s:new THREE.Vector3(),c:new THREE.Color()};
+const WFX={n:150,o1:new THREE.Color(0xFF7A12),o2:new THREE.Color(0xD92B0A),o3:new THREE.Color(0x3A3236),im:null,st:[],i:0,on:false,m4:new THREE.Matrix4(),q:new THREE.Quaternion(),e:new THREE.Euler(),p:new THREE.Vector3(),s:new THREE.Vector3(),c:new THREE.Color()};
 function wfxInit(){
   if(WFX.im) return;
   const im=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshLambertMaterial({color:0xFFFFFF}),WFX.n); im.frustumCulled=false;
   WFX.c.setHex(0x888888); WFX.m4.makeScale(0.0001,0.0001,0.0001);
-  for(let i=0;i<WFX.n;i++){ WFX.st.push({life:0,max:1,x:0,y:-50,z:0,vx:0,vy:0,vz:0,rx:0,ry:0,a:0,b:0,s:0.1,fl:-99}); im.setColorAt(i,WFX.c); im.setMatrixAt(i,WFX.m4); }
+  for(let i=0;i<WFX.n;i++){ WFX.st.push({life:0,max:1,x:0,y:-50,z:0,vx:0,vy:0,vz:0,rx:0,ry:0,a:0,b:0,s:0.1,fl:-99,g:9,fire:0}); im.setColorAt(i,WFX.c); im.setMatrixAt(i,WFX.m4); }
   scene.add(im); WFX.im=im;
 }
 function burstCubes(x,y,z,n,o){
@@ -3719,9 +3731,15 @@ function burstCubes(x,y,z,n,o){
     s.x=x+(Math.random()-0.5)*(o.spread||0.3); s.y=y; s.z=z+(Math.random()-0.5)*(o.spread||0.3);
     s.vx=Math.cos(a)*sp; s.vz=Math.sin(a)*sp; s.vy=(o.up||3)*(0.5+Math.random()*0.7);
     s.s=(o.size||0.14)*(0.6+Math.random()*0.9); s.life=s.max=(o.life||1.3)*(0.7+Math.random()*0.5);
-    s.rx=(Math.random()-0.5)*8; s.ry=(Math.random()-0.5)*8; s.a=Math.random()*6; s.b=Math.random()*6; s.fl=o.floor===undefined?-99:o.floor;
+    s.rx=(Math.random()-0.5)*8; s.ry=(Math.random()-0.5)*8; s.a=Math.random()*6; s.b=Math.random()*6; s.fl=o.floor===undefined?-99:o.floor; s.g=o.grav===undefined?9:o.grav; s.fire=o.fire?1:0;
     WFX.im.setColorAt(WFX.i===0?WFX.n-1:WFX.i-1,WFX.c.setHex(cols[Math.floor(Math.random()*cols.length)])); WFX.im.instanceColor.needsUpdate=true; WFX.on=true;
   }
+}
+/* Ledakan api + asap (ganti kubus warna-warni): blok kecil warna api naik pelan seperti semburan api naga, lalu asap abu-abu. k = skala besar ledakan */
+function fireBurst(x,y,z,k,floor){
+  k=k||1; const fl=floor===undefined?-99:floor;
+  burstCubes(x,y,z,Math.round(16*k),{fire:1,up:1.5*k,sp:0.9,size:0.055,spread:0.25*k,grav:-1.2,life:0.9,floor:fl});            /* api: kecil, naik, kuning->oranye->merah */
+  burstCubes(x,y+0.1,z,Math.round(8*k),{cols:[0x26262B,0x34343A,0x4A4A52],up:0.9,sp:0.45,size:0.09,spread:0.3*k,grav:-0.9,life:1.7,floor:fl}); /* asap */
 }
 function updateWFX(dt){
   if(!WFX.im||!WFX.on) return; let any=false;
@@ -3729,9 +3747,10 @@ function updateWFX(dt){
     const s=WFX.st[i]; if(s.life<=0) continue;
     s.life-=dt;
     if(s.life<=0){ WFX.m4.makeScale(0.0001,0.0001,0.0001); WFX.im.setMatrixAt(i,WFX.m4); continue; }
-    any=true; s.vy-=9*dt; s.x+=s.vx*dt; s.y+=s.vy*dt; s.z+=s.vz*dt; s.a+=s.rx*dt; s.b+=s.ry*dt;
+    any=true; s.vy-=s.g*dt; s.x+=s.vx*dt; s.y+=s.vy*dt; s.z+=s.vz*dt; s.a+=s.rx*dt; s.b+=s.ry*dt;
     if(s.y<s.fl+s.s*0.5){ s.y=s.fl+s.s*0.5; s.vy=0; s.vx*=0.85; s.vz*=0.85; s.rx*=0.7; s.ry*=0.7; } /* mendarat di lantai benteng */
     const k=Math.min(1,s.life/(s.max*0.35)),sc=s.s*k;
+    if(s.fire){ const t=1-s.life/s.max,c=WFX.c; if(t<0.3) c.setHex(0xFFD23C).lerp(WFX.o1,t/0.3); else if(t<0.65) c.copy(WFX.o1).lerp(WFX.o2,(t-0.3)/0.35); else c.copy(WFX.o2).lerp(WFX.o3,(t-0.65)/0.35); WFX.im.setColorAt(i,c); WFX.im.instanceColor.needsUpdate=true; }
     WFX.e.set(s.a,s.b,0); WFX.q.setFromEuler(WFX.e); WFX.p.set(s.x,s.y,s.z); WFX.s.set(sc,sc,sc); WFX.m4.compose(WFX.p,WFX.q,WFX.s); WFX.im.setMatrixAt(i,WFX.m4);
   }
   WFX.im.instanceMatrix.needsUpdate=true; if(!any) WFX.on=false;
@@ -3841,12 +3860,11 @@ async function punchSkeleton(p,i,gid){
     await S(hopTo(pw,hit,0.45*Fk,0.6)); pw.rotation.order='YXZ'; pw.rotation.y=Math.atan2(s.x-hit.x,s.z-hit.z);
     await S(tween(0.22*Fk,k=>{ pw.rotation.x=-0.5*k; }));                       /* ancang-ancang */
     await S(tween(0.12*Fk,k=>{ pw.rotation.x=-0.5+1.3*k; }));                   /* pukul */
-    sfx.hundred(); burstCubes(s.x,F.fl+0.5,s.z,12,{up:2.4,sp:1.9,size:0.08,cols:[0x1C1C20,0x3A3A42,0xE8E8E8],floor:F.fl});
+    sfx.hundred(); fireBurst(s.x,F.fl+0.5,s.z,0.6,F.fl);
     await S(Promise.all([tween(0.3*Fk,k=>{ pw.rotation.x=0.8*(1-k); }),tween(0.3*Fk,k=>{ s.body.rotation.x=-0.45*Math.sin(Math.min(1,k*1.6)*Math.PI/2); s.g.position.x=s.x-dir.x*0.12*k; s.g.position.z=s.z-dir.z*0.12*k; })]));
     sfx.crystalBreak();
     await S(tween(0.55*Fk,k=>{ s.body.rotation.x=-0.45-1.1*k; s.g.position.y=F.fl-0.45*k*k; s.g.scale.setScalar(1.35*(1-0.75*k)); }));    /* roboh & hancur */
-    burstCubes(s.x,F.fl+0.25,s.z,16,{up:2.8,sp:2.2,size:0.1,cols:[0x1C1C20,0x2A2A30,0xE8E8E8,0x55555E],floor:F.fl,life:1.2});
-    spawnConfetti(new THREE.Vector3(s.x,F.fl+0.4,s.z));
+    fireBurst(s.x,F.fl+0.3,s.z,1,F.fl);
     await S(hopTo(pw,slot,0.45*Fk,0.45)); pw.rotation.y=Math.PI/2;
   }finally{
     pw.rotation.order='XYZ'; pw.rotation.x=0;
@@ -3898,7 +3916,7 @@ async function hitWither(p,v){
     await hopTo(pw,hit,0.4*Fk,0.55); if(gid!==gameId) throw STALE;
     pw.rotation.order='YXZ'; pw.rotation.y=Math.atan2(w.x-hit.x,w.z-hit.z);
     await tween(0.2*Fk,k=>{ pw.rotation.x=-0.5*k; }); await tween(0.12*Fk,k=>{ pw.rotation.x=-0.5+1.3*k; }); if(gid!==gameId) throw STALE;
-    sfx.hundred(); w.hurt=1; burstCubes(w.x-dir.x*0.5,w.y0+0.5,w.z-dir.z*0.5,10,{up:2.4,sp:2,size:0.09,cols:[0x2A2A30,0x6FA8FF,0xE8F4FF],floor:F.fl});
+    sfx.hundred(); w.hurt=1; fireBurst(w.x-dir.x*0.5,w.y0+0.5,w.z-dir.z*0.5,0.7,F.fl);
     await Promise.all([tween(0.5*Fk,k=>{ pw.rotation.x=0.8*(1-k); }),tween(0.5*Fk,k=>{ w.shk=Math.sin(k*40)*0.07*(1-k); })]); w.shk=0; if(gid!==gameId) throw STALE;
     await hopTo(pw,slot,0.4*Fk,0.45); pw.rotation.y=Math.PI/2;
   }finally{ pw.rotation.order='XYZ'; pw.rotation.x=0; w.shk=0; }
@@ -3906,8 +3924,8 @@ async function hitWither(p,v){
   p.dhp=Math.max(0,p.dhp-dmg); renderChips(); hud('updatePlayer',p);
   if(p.dhp>0){ setMsg('Wither '+p.name+' tersisa '+p.dhp+'/'+p.hpMax+'.'); return; }
   DRG.defeated=true; dragonMusicStop(); settleDragonDefeat(p); /* sama dgn naga: tutup serangan lanjutan + simpan hadiah 1x (sinkron) */
-  sfx.dragonDeath(); setMsg('Wither kalah!'); hud('showResult','Wither kalah!',p.name+' menang!',{ttl:2600,gid}); spawnConfetti(w.g.position);
-  burstCubes(w.x,w.y0+0.6,w.z,40,{up:4.2,sp:3.4,size:0.13,spread:1.2,cols:[0x2A2A30,0x6FA8FF,0xE8F4FF,0x3C3C46],floor:F.fl,life:1.7});
+  sfx.dragonDeath(); setMsg('Wither kalah!'); hud('showResult','Wither kalah!',p.name+' menang!',{ttl:2600,gid});
+  fireBurst(w.x,w.y0+0.6,w.z,2.2,F.fl); setTimeout(()=>{ if(gid===gameId) fireBurst(w.x,w.y0+1.0,w.z,1.6,F.fl); },450);
   await tween(1.6*Fk,k=>{ w.dy=-k*2.6; w.sc=WF.SC*(1-0.8*k); w.shk=Math.sin(k*60)*0.05*(1-k); });
   w.g.visible=false; w.halo.visible=false; w.shk=0;
 }
@@ -4553,6 +4571,14 @@ function spawnConfetti(pos){ if(FX) FX.spawnConfetti(pos); } /* visual: UT.Gamep
 function clearConfetti(){ if(FX) FX.clearConfetti(); }
 /* Firework 2D (4.1.23.4): 1 visual + 1 SFX per game, dipanggil HANYA dari celebrate(p) (event kemenangan, satu-satunya jalur menuju finishGame). FW_GID = gameId terakhir yang sudah dirayakan -> tak bisa dobel dalam satu game.
    Posisi: titik di atas pion pemenang diproyeksikan ke layar (dibaca sekali saat event, bukan tiap frame). Modul tak termuat/error -> dilewati, gameplay tetap jalan. */
+/* Efek visual Power (partikel/asap/percikan): data per Power ada di data/power/power-fx.js (UT.PowerFX). Titik efek = pion di layar (diproyeksikan sekali saat dipanggil). Modul tak termuat -> dilewati. */
+function powerFxPawn(key,pl){
+  try{
+    const PF=window.UT&&UT.PowerFX; if(!PF||!pl||!pl.pawn||reduce) return;
+    const r=$('c').getBoundingClientRect(),v=pl.pawn.position.clone(); v.y+=0.6; v.project(camera);
+    if(v.z>1) return; PF.play(key,r.left+(v.x+1)/2*r.width,r.top+(1-v.y)/2*r.height);
+  }catch(e){}
+}
 let FW_GID=-1;
 function fireworkCelebrate(p){
   try{
@@ -4781,7 +4807,7 @@ const CAM_BASE={x:0,y:0.4,z:1};
 const cam={yaw:0.5,pitch:0.55,zoom:1},goal={yaw:0.5,pitch:0.55,zoom:1},camTarget=new THREE.Vector3(0,CAM_BASE.y,CAM_BASE.z);
 let baseDist=22,isTopDown=false;
 var camRefit=null; /* 4.2.2: diisi setelah state kamera ada; dipanggil onResize agar framing LOCK responsif */
-const pan={x:0,z:0},panGoal={x:0,z:0},PAN_MAX=16;
+const pan={x:0,z:0,y:0},panGoal={x:0,z:0,y:0},PAN_MAX=16; /* y = geser titik pandang ke atas (mis. menyorot puncak Tower); 0 = normal */
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function onResize(){
   const w=window.innerWidth,h=window.innerHeight;
@@ -4833,7 +4859,7 @@ function resetCam(P){
   isTopDown=!!P.top;
   const k=Math.round(cam.yaw/(Math.PI*2)); cam.yaw-=k*Math.PI*2;
   goal.yaw=P.yaw+Math.PI*2*Math.round((cam.yaw-P.yaw)/(Math.PI*2)); /* putar lewat jalur terpendek */
-  goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=0; panGoal.z=0;
+  goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=0; panGoal.z=0; panGoal.y=0;
   camHold.x=CAM_BASE.x; camHold.y=CAM_BASE.y; camHold.z=CAM_BASE.z;
 }
 const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/tabler/lock.svg" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/tabler/lock-open.svg" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/tabler/camera.svg" alt="" draggable="false">';
@@ -4949,6 +4975,7 @@ const FURL={},FCV={};
 const FRM={},FFURL={};
 (function(){ try{ window.ItemCatalog.items.filter(i=>i.kind==='frame').forEach(i=>{ const im=new Image(); im.onload=()=>{ try{ if(typeof renderChips==='function'&&typeof players!=='undefined'&&players&&players.length) renderChips(); }catch(e){} }; im.src=i.image; FRM[i.id]=im; }); }catch(e){} })();
 function frameWait(){ return Promise.all(Object.keys(FRM).map(k=>{ const im=FRM[k]; return im.complete?0:new Promise(r=>{ im.addEventListener('load',r); im.addEventListener('error',r); }); })); }
+function myProfileName(){ try{ return window.PlayerData.profile().name||''; }catch(e){ return ''; } } /* nama pemain lokal = profil PlayerData (sama dgn Lobby/Profil/Room) */
 function frameOf(p){ if(ONLINE_ROOM)return 'frame.default';try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
 function framedFace(p){
   const base=faceURL(p.key), fid=frameOf(p), fi=FRM[fid], cv0=FCV[p.key];
@@ -5092,15 +5119,16 @@ async function usePU(k,cpu){
   busy=true; setRoll(false); clearTurnTimer(); p.pu[k]--; sfx.power(k); setMsg(p.name+' memakai '+PUN[k][1]+': '+PUN[k][2]+'.');
   if(k==='feather') p.extra=true; if(k==='potion_odd') chestFlag(p,'odd'); if(k==='potion_even') chestFlag(p,'even'); if(k==='totem') p.shield=true;
   puFx('pb:'+p.idx+':'+k,'pfx-'+k); if(k==='totem') puFx('pr:'+p.idx,'pfx-shield');
+  if(k==='feather'||k==='potion_odd'||k==='potion_even'||k==='totem') powerFxPawn(k,p); /* sword/tnt/grass: efek keluar di target saat KENA (bukan saat diblok Totem) */
   renderChips();
   const oldL=L?L.pos:0,oldS=SW?SW.pos:0; let blocked=false,hit=false; /* blocked = korban menahan serangan dengan Totem */ /* posisi sebelum efek, untuk feedback target (TNT/Grass) */
   try{
-    if(k==='sword'){ await sleep(reduce?100:250); if(await askTotem(SW,gid,'Pedang '+p.name)) blocked=true; else { const to=Math.max(1,SW.pos-2); hit=true; powerHitCard(p,SW,k,SW.name+(SW.pos-to>0?' mundur '+(SW.pos-to)+' petak':' tidak bergerak')); hitBlastFx(SW); sfx.playerHurt(); await fly(SW,to,0.45,1.1); SW.pos=to; renderChips(); } } /* suara pedang sudah diputar oleh sfx.power('sword') */
-    if(k==='tnt'){ if(await askTotem(L,gid,'TNT '+p.name)) blocked=true; else { const to=Math.max(1,L.pos-6); hit=true; powerHitCard(p,L,k,L.name+(L.pos-to>0?' mundur '+(L.pos-to)+' petak':' tidak bergerak')); sfx.playerHurt(); await teleport(L,to); L.pos=to; } }
-    if(k==='grass'){ if(await askTotem(L,gid,'Rumput '+p.name)) blocked=true; else { const a=p.pos,b=L.pos; hit=true; powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); sfx.playerHurt(); await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; } }
+    if(k==='sword'){ await sleep(reduce?100:250); if(await askTotem(SW,gid,'Pedang '+p.name)) blocked=true; else { const to=Math.max(1,SW.pos-2); hit=true; powerFxPawn('sword',SW); powerHitCard(p,SW,k,SW.name+(SW.pos-to>0?' mundur '+(SW.pos-to)+' petak':' tidak bergerak')); hitBlastFx(SW); sfx.playerHurt(); await fly(SW,to,0.45,1.1); SW.pos=to; renderChips(); } } /* suara pedang sudah diputar oleh sfx.power('sword') */
+    if(k==='tnt'){ if(await askTotem(L,gid,'TNT '+p.name)) blocked=true; else { const to=Math.max(1,L.pos-6); hit=true; powerFxPawn('tnt',L); powerHitCard(p,L,k,L.name+(L.pos-to>0?' mundur '+(L.pos-to)+' petak':' tidak bergerak')); sfx.playerHurt(); await teleport(L,to); L.pos=to; } }
+    if(k==='grass'){ if(await askTotem(L,gid,'Rumput '+p.name)) blocked=true; else { const a=p.pos,b=L.pos; hit=true; powerFxPawn('grass',p); powerFxPawn('grass',L); powerHitCard(p,L,k,'Bertukar posisi dengan '+L.name+' ('+a+' ↔ '+b+')'); sfx.playerHurt(); await teleport(p,b); p.pos=b; await teleport(L,a); L.pos=a; } }
   }catch(e){ console.error(e); }
   if(gid!==gameId) return;
-  if(blocked){ const vv=k==='sword'?SW:L; puFx('pr:'+vv.idx,'pfx-shield'); sfx.pop(); renderChips(); }
+  if(blocked){ const vv=k==='sword'?SW:L; puFx('pr:'+vv.idx,'pfx-shield'); powerFxPawn('totem_block',vv); sfx.pop(); renderChips(); }
   /* Power self/diblok = feedback singkat (banner HUD). Power bertarget yang KENA = card tengah #puCard (powerHitCard, dipanggil di cabang efek). Bukan kartu hadiah Chest. Urutan: pakai → terapkan efek → feedback → lanjut.
      Self-power → Feedback.short. Power bertarget (TNT/Grass) → Feedback.event: pelaku → target → efek → hasil aktual. */
   if(k==='tnt'||k==='grass'||k==='sword'){
@@ -5354,7 +5382,7 @@ async function resolveTileAt(p,gid){
     const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); /* suara naik = sfx.ladder() di climb(); tidak ditumpuk dengan ladder-up.mp3 */
     await A(sleep(350)); await A(climb(p,p.pos,to)); p.pos=to; p.score+=10;
   }else if((SNAKES[p.pos]||(mobOn(p.pos,themeKey)&&mobOn(p.pos,themeKey)!=='villager'&&mobOn(p.pos,themeKey)!=='strider'))&&await askTotem(p,gid,SNAKES[p.pos]?'Ular':MOBNAME[mobOn(p.pos,themeKey)])){
-    p.shield=false; puFx('pr:'+p.idx,'pfx-hit'); renderChips(); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900));
+    p.shield=false; puFx('pr:'+p.idx,'pfx-hit'); powerFxPawn('totem_block',p); renderChips(); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900));
   }else if(SNAKES[p.pos]){
     const to=SNAKES[p.pos];
     if(!SNAKEINFO[p.pos]){ p.pos=to; setMsg('Ular! '+p.name+' turun ke '+to+'.'); fb('event','snake','Kena Ular! Turun ke '+to,{gid}); await A(sleep(350)); await A(hopTo(p.pawn,slotPos(p.idx,to),0.5,0.8)); }
@@ -5522,7 +5550,7 @@ function startGame(m,keys){
   defs=keys.map((k,i)=>{ const d=Object.assign({},PLAYER_DEFS.find(x=>x.key===k)||PNG_DEFS.find(x=>x.key===k)||(k==='villager'?VILLAGER_DEF:null)||PLAYER_DEFS[0]); if(m==='cpu'&&i===1){ d.cpu=true; d.name+=' CPU'; } if(ONLINE_ROOM&&ROOM_CFG.players&&ROOM_CFG.players[i]){d.name=ROOM_CFG.players[i].name||d.name;d.networkId=ROOM_CFG.players[i].id;d.team=ROOM_CFG.players[i].team||0;d.cpu=false;} const sc=SEAT_COLORS[i%SEAT_COLORS.length]; d.css=sc.css; d.hex=sc.hex; d.color=sc.name; return d; });
   defs.forEach((d,i)=>{
     const pawn=makePawn(d); pawn.position.copy(slotPos(i,0)); pawn.rotation.y=Math.atan2(-SLOT[i][0],-SLOT[i][1]); scene.add(pawn); /* duduk menghadap api */
-    players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
+    players.push({idx:i,networkId:d.networkId||null,team:d.team||0,name:(!ONLINE_ROOM&&i===0&&!d.cpu&&myProfileName())||d.name,key:d.key,css:d.css,hex:d.hex,color:d.color,cpu:!!d.cpu,pos:0,sixes:0,dhp:BOSS==='wither'?WITHER_HP:100,hpMax:BOSS==='wither'?WITHER_HP:100,crystal:0,cdone:new Array(CRYSTAL_N).fill(false),dragonReady:false,inArena:false,pawn,score:0,bonus:0,extra:false,odd:false,even:false,lucky:false,shield:false,pu:startPU()});
   });
   cur=0; resetCam();
   $('win').hidden=true;
@@ -5711,8 +5739,8 @@ function frame(now){
   }else if(focus){
     tx+=focus.position.x*0.35; tz+=focus.position.z*0.35; ty+=(focus.position.y-CAM_BASE.y)*0.45;
   }
-  pan.x+=(panGoal.x-pan.x)*m; pan.z+=(panGoal.z-pan.z)*m;
-  tx+=pan.x; tz+=pan.z;
+  pan.x+=(panGoal.x-pan.x)*m; pan.z+=(panGoal.z-pan.z)*m; pan.y+=(panGoal.y-pan.y)*m;
+  tx+=pan.x; tz+=pan.z; ty+=pan.y;
   const f=m*0.6;
   camTarget.x+=(tx-camTarget.x)*f; camTarget.y+=(ty-camTarget.y)*f; camTarget.z+=(tz-camTarget.z)*f;
   const dist=baseDist*cam.zoom,cp=Math.cos(cam.pitch);

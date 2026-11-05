@@ -10,7 +10,7 @@
   var MAP_KEY = 'ut-room-map', CFG_KEY = 'ut-config', ROOM_KEY = 'ut-room';
   var MODES = ['vsc', 'local', 'online'];
 
-  function maps() { return IC.items.filter(function (i) { return i.kind === 'theme' && PD.owns(i.id); }); }
+  function maps() { return IC.items.filter(function (i) { return i.kind === 'theme'; }); }   /* Map bukan item milik/dibeli: semua map bisa dimainkan siapa saja */
   function getMap() {
     var k = null, m = maps();
     try { k = localStorage.getItem(MAP_KEY); } catch (e) {}

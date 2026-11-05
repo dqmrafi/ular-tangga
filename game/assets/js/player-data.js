@@ -17,7 +17,7 @@
   var START_GEMS = 0;
   var START_XP = 0;            /* Chest Feature 2: XP minimal (hanya angka tersimpan; tanpa level/progression) */
   var DEFAULT_SETTINGS = { music: true, sound: true, vibration: true, graphics: 'high' };
-  var DEFAULT_PROFILE = { name: 'FajarGG' };
+  var DEFAULT_PROFILE = { name: 'OmanBogel' };   /* nama mock sementara (satu sumber: PlayerData.profile().name) */
 
   /* ---------- Mapping legacy -> canonical (EKSPLISIT, bukan tebakan) ----------
      Dice: hanya pasangan yang dapat DIBUKTIKAN dari project yang dipetakan.
@@ -63,6 +63,7 @@
   function normProfile(p) {
     var out = clone(DEFAULT_PROFILE);
     if (p && typeof p === 'object' && typeof p.name === 'string' && p.name.trim()) out.name = p.name.trim().slice(0, 16);
+    if (out.name === 'FajarGG') out.name = DEFAULT_PROFILE.name;   /* mock lama -> mock baru (data tersimpan ikut diperbarui) */
     return out;
   }
 

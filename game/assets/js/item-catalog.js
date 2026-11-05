@@ -56,9 +56,11 @@
     return Object.assign({ id: 'dice.' + gameKey, kind: 'dice', gameKey: gameKey, name: 'Dadu ' + name,
       rarity: rarity, price: price, desc: desc, starter: price === 0, art: art }, extra || {});
   }
+  /* Map = bagian dari game, BUKAN item dagangan/koleksi: tanpa harga, tidak dijual di Shop, tidak perlu dimiliki
+     (RoomFlow.maps() menampilkan semua map). `starter` dipertahankan hanya untuk map bawaan agar slot 'theme' PlayerData tetap valid. */
   function theme(gameKey, name, rarity, price, desc, art, extra) {
     return Object.assign({ id: 'theme.' + gameKey, kind: 'theme', gameKey: gameKey, name: 'Map ' + name,
-      rarity: rarity, price: price, desc: desc, starter: price === 0, art: art }, extra || {});
+      rarity: rarity, price: null, desc: desc, starter: price === 0, free: true, art: art }, extra || {});
   }
   /* Power-Up (Tahap 3.1): consumable ber-quantity.
      ID canonical = PERSIS key gameplay di gameplay.html (p.pu: sword/feather/tnt/totem/potion_odd/potion_even/grass)

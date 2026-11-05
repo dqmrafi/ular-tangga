@@ -48,7 +48,7 @@
     }
 
     var theme = (onlineRoom && roomCfg.map) || q.get('theme') || (ss && ss.theme) || '';
-    if (!onlineRoom && !PD.owns('theme.' + theme)) theme = eqKey('theme') || 'minecraft';
+    if (!onlineRoom && !IC.byGameKey('theme', theme)) theme = eqKey('theme') || 'minecraft';   /* map tidak perlu dimiliki */
     var dice = (onlineRoom && roomCfg.dice) || q.get('dice') || (ss && ss.dice) || '';
     if (!onlineRoom && !PD.owns('dice.' + dice)) dice = eqKey('dice') || 'klasik';
     var night = q.get('night'); if (night !== '0' && night !== '1') night = ss && (ss.night === '0' || ss.night === '1') ? ss.night : null;

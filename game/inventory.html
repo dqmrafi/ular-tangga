@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="id" class="stage16"><head><script src="assets/js/frame-guard.js"></script><script src="assets/js/boot-guard.js"></script><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Inventory</title>
+<title>Inventory</title><link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png"><link rel="icon" href="assets/icons/favicon.ico" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft"></script><style>
 :root{--bd:#12337f;--y1:#ffd24d;--y2:#ff9a1f;--g:#3cc23c;--r0:#6f8aa8;--r1:#2f8cf0;--r2:#9a4ae0;--r3:#f0b030}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
@@ -236,6 +236,7 @@ html body #toast{border-radius:.9rem;border:.25rem solid var(--ol);background:li
 <div class="ov" id="modal"><div class="box" id="box" role="dialog" aria-modal="true"><button class="x" id="mx" aria-label="Tutup">✕</button><div id="mb"></div></div></div>
 <div id="toast"></div>
 <script src="assets/js/item-catalog.js"></script>
+<link rel="stylesheet" href="gameplay/particle-fx.css"><script src="gameplay/particle-fx.js"></script><script src="data/power/power-fx.js"></script>
 <script src="assets/js/character-data.js"></script>
 <script src="assets/js/character-view.js"></script>
 <script src="assets/js/item-art.js"></script>
@@ -252,7 +253,7 @@ const $=s=>document.querySelector(s),fmt=n=>n.toLocaleString('id-ID');
 const PD=window.PlayerData,IC=window.ItemCatalog,AR=window.ItemArt;
 const RN={common:'COMMON',rare:'RARE',epic:'EPIC',legendary:'LEGENDARY'},RC={common:'var(--r0)',rare:'var(--r1)',epic:'var(--r2)',legendary:'var(--r3)'};
 const BG={common:['#5a8aa8','#2f5f80'],rare:['#3a8ff0','#1b55c0'],epic:['#8a4ae0','#4a2aa8'],legendary:['#f0c040','#b98020']};
-const KINDS=['skin','frame','dice','theme','powerup'];
+const KINDS=['skin','frame','dice','powerup'];   /* Map bukan item inventory */
 const CI={};KINDS.forEach(k=>CI[k]=IC.items.filter(i=>i.kind===k));
 const SOON={effect:'Efek',emote:'Emote'}; /* kategori mock lama tanpa item canonical */
 const CATS=[['skin','Skin','M8 3 2 6l2 5 3-1v11h10V10l3 1 2-5-6-3c-.5 1.700-2 2.600-4 2.600S8.500 4.700 8 3Z'],['frame','Frame','M4 4h16v16H4zM8 8h8v8H8z'],['dice','Dadu','M4 4h16v16H4zM8 8h.1M16 8h.1M12 12h.1M8 16h.1M16 16h.1'],['powerup','Power','M13 2 4 14h6l-1 8 9-12h-6l1-8z'],['effect','Efek','M12 2l2.500 7.500L22 12l-7.500 2.500L12 22l-2.500-7.500L2 12l7.500-2.500z'],['emote','Emote','M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20ZM8 10h.1M16 10h.1M7 15c2 3 8 3 10 0']];
@@ -261,6 +262,9 @@ const icon=p=>`<svg viewBox="0 0 24 24"><path d="${p}" fill="#fff" stroke="#fff"
 const DM='<svg viewBox="0 0 24 24"><path d="M3.34 7L12 2l0 4.3-4.94 2.85z" fill="#62e178"/><path d="M12 2l8.66 5-3.72 2.15L12 6.3z" fill="#47d85f"/><path d="M20.66 7v10l-3.72-2.15v-5.7z" fill="#3dcb55"/><path d="M20.66 17L12 22v-4.3l4.94-2.85z" fill="#32a643"/><path d="M12 22l-8.66-5 3.72-2.15L12 17.7z" fill="#2a8d3a"/><path d="M3.34 17V7l3.72 2.15v5.7z" fill="#37b44c"/><path d="M12 6.3l4.94 2.85v5.7L12 17.7l-4.94-2.85v-5.7z" fill="#a7e6b1"/><path d="M12 6.3l4.94 2.85L12 12 7.06 9.15z" fill="#c4f2cc" opacity=".7"/></svg>';
 const CM='<svg viewBox="0 0 24 24"><path d="M12 12V.24A11.76 11.76 0 0 0 .24 12z" fill="#ffd12b"/><path d="M12 12h11.76A11.76 11.76 0 0 0 12 .24z" fill="#ffb800"/><path d="M12 12v11.76A11.76 11.76 0 0 0 23.76 12z" fill="#ffd12b"/><path d="M12 12H.24A11.76 11.76 0 0 0 12 23.76z" fill="#ffb800"/><circle cx="12" cy="12" r="8.75" fill="#ff8a00"/><g fill="#ffb901"><circle cx="18.90" cy="12.00" r=".6"/><circle cx="16.88" cy="16.88" r=".6"/><circle cx="12.00" cy="18.90" r=".6"/><circle cx="7.12" cy="16.88" r=".6"/><circle cx="5.10" cy="12.00" r=".6"/><circle cx="7.12" cy="7.12" r=".6"/><circle cx="12.00" cy="5.10" r=".6"/><circle cx="16.88" cy="7.12" r=".6"/></g><path d="M12 7.2l3.9 4.8-3.9 4.8-3.9-4.8z" fill="#ffd12b" stroke="#ffd12b" stroke-width="1" stroke-linejoin="round"/></svg>';
 // ---- state: tidak ada let coins/gems/own/eq permanen. Key legacy 'inv' tidak ditulis lagi.
+/* Efek visual Power (data/power/power-fx.js): partikel keluar saat Power dipilih/dilihat; catatan efek ikut tampil di deskripsi. Modul tak termuat -> dilewati. */
+const PFX={at(i,el){try{if(i&&i.kind==='powerup'&&window.UT&&UT.PowerFX)UT.PowerFX.playAtElement(i.gameKey,el||document.getElementById('show'))}catch(e){}},
+ note(i){try{const d=i&&i.kind==='powerup'&&window.UT&&UT.PowerFX&&UT.PowerFX.DATA[i.gameKey];return d?' Efek: '+d.note+'.':''}catch(e){return''}}};
 let cat='skin',sel=null;
 const SET=()=>PD.settings();
 /* Item yang dimiliki utk kategori: [{item, equipped}] — langsung dari PlayerData */
@@ -290,7 +294,7 @@ function renderCats(){$('#cats').innerHTML=CATS.map(c=>`<button class="blue cat 
  $('#rlt').textContent=CATS.find(c=>c[0]===cat)[1]+' Terbaru';
  document.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{playSound('click');setCat(b.dataset.c)}))}
 function setCat(c){cat=c;const l=ownedList(c);sel=l?(l.find(o=>o.equipped)||l[0]||{}).item||null:null;off=0;pose='idle';renderCats();renderGrid();renderInfo();renderRecent();buildModels();playSound('select')}
-function pick(i){sel=i;renderGrid();renderInfo();renderRecent();buildModels();playSound('select')}
+function pick(i){sel=i;renderGrid();renderInfo();renderRecent();buildModels();playSound('select');PFX.at(i)}
 function renderGrid(){const g=$('#grid');g.innerHTML='';
  if(!CI[cat]){g.innerHTML=`<div style="grid-column:1/-1;display:grid;place-items:center;font-size:2.2rem;text-align:center">${SOON[cat]} — Segera hadir</div>`;return}
  ownedList(cat).forEach((o,n)=>{const i=o.item,eq=o.equipped,b=document.createElement('div');
@@ -309,7 +313,7 @@ function act(i){if(i.kind==='powerup'){toast('Power tersimpan — pemakaian di g
  renderGrid();renderInfo();renderRecent();buildModels()}
 function renderInfo(){const i=sel,u=$('#use');
  if(!i){$('#irar').textContent='SOON';$('#irar').style.background=bg('common');$('#iname').textContent=SOON[cat];$('#idesc').textContent='Belum ada item canonical di kategori ini.';u.className='use no';u.innerHTML='Segera hadir';renderCurrency();return}
- if(i.kind==='powerup'){const r=$('#irar');r.textContent=RN[i.rarity];r.style.background=bg(i.rarity);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc+' (Dimiliki ×'+PD.qty(i.id)+')';u.className='use no';u.innerHTML='Dimiliki ×'+PD.qty(i.id);$('#info').animate([{transform:'translateY(.8rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});renderCurrency();return}
+ if(i.kind==='powerup'){const r=$('#irar');r.textContent=RN[i.rarity];r.style.background=bg(i.rarity);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc+PFX.note(i)+' (Dimiliki ×'+PD.qty(i.id)+')';u.className='use no';u.innerHTML='Dimiliki ×'+PD.qty(i.id);$('#info').animate([{transform:'translateY(.8rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});renderCurrency();return}
  const eq=PD.isEquipped(i.id),r=$('#irar');r.textContent=RN[i.rarity];r.style.background=bg(i.rarity);$('#iname').textContent=i.name;$('#idesc').textContent=i.desc;
  u.className='use'+(eq?' own':'');u.innerHTML=eq?CK+'Digunakan':SH+'Gunakan';
  $('#info').animate([{transform:'translateY(.8rem)',opacity:.4},{transform:'none',opacity:1}],{duration:260,easing:'ease-out'});
