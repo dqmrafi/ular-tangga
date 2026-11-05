@@ -63,6 +63,8 @@ h2{margin:0;font-size:1.9rem;-webkit-text-stroke:.3rem var(--ink);paint-order:st
 .slot.t1{border-left:1rem solid #2f8cf0}.slot.t2{border-left:1rem solid #e5483f}
 .slot .plus{width:3.4rem;height:3.4rem;flex:none;display:grid;place-items:center;font-size:2.8rem;line-height:1;border-radius:.9rem;background:linear-gradient(#ffe16b,#ff9c17);color:#382000;box-shadow:0 0 0 .2rem #704008;text-shadow:none}
 .slot small{display:block;font-size:1.05rem;font-weight:700;color:#cfe0ff}.slot.static{cursor:default}
+.slot.lk{border:.25rem solid #4a2c10;background:linear-gradient(180deg,#b9824a,#8a5a2b 50%,#7a4c22 52%,#8a5a2b);box-shadow:inset 0 .2rem 0 rgba(255,225,170,.45),inset 0 -.3rem 0 rgba(60,30,8,.4);color:#ffe9c4;text-shadow:0 .15rem 0 #4a2c10;cursor:not-allowed;gap:1rem}
+.slot.lk img{width:3.4rem;height:3.4rem;object-fit:contain;filter:drop-shadow(0 .15rem 0 rgba(60,30,8,.6))}
 #sttx{flex:none;margin:.6rem 0 .5rem;font-size:1.35rem;line-height:1.15;text-align:center;color:#ffe9a6}
 #acts{flex:none;display:flex;gap:.9rem}
 .big{flex:1;min-width:0;height:5rem;padding:0 1.4rem;border-radius:1.1rem;font-size:2.2rem;white-space:nowrap;color:#fff;background:linear-gradient(#75ed46,#16a92d);box-shadow:0 0 0 .22rem #073f20,0 .4rem 0 .22rem #073f20,inset 0 .2rem .2rem rgba(255,255,255,.55);text-shadow:0 .15rem 0 #146322}
@@ -233,11 +235,13 @@ function prow(p){const kind={host:'Host',friend:'Teman',bot:'Computer',local:'Lo
 function srow(team){if(!ONLINE)return'';const lock=S.room.privacy==='private',c=TEAM?'t'+team:'';
  if(!HOST)return `<div class="slot static ${c}"><span>${lock?'🔒':'🔓'}</span><span>Slot kosong</span></div>`;
  return `<button class="slot ${c}" data-inv="${team||0}"><span class="plus">＋</span><span>Ketuk untuk Membuka<small>${lock?'Khusus undangan':'Terbuka untuk umum'}</small></span></button>`}
+/* slot terkunci (warna kayu + ikon gembok) untuk sisa slot sampai 4, mis. main berdua -> 2 slot bawah terkunci */
+function lrow(){return `<div class="slot lk" aria-label="Slot terkunci"><img src="assets/Images/icon/ui/lock.webp" alt="" draggable="false"><span>Terkunci</span></div>`}
 function renderPlayers(){
  const r=S.room,P=r.players;$('#cnt').textContent=P.length+'/'+COUNT;
  let h='';
  if(TEAM)[1,2].forEach(t=>{const tp=P.filter(p=>p.team===t);h+=`<div class="th t${t}"><span>TEAM ${t}</span><span>${tp.length}/2</span></div>`+tp.map(prow).join('');for(let i=tp.length;i<2;i++)h+=srow(t)});
- else{h=P.map(prow).join('');for(let i=P.length;i<COUNT;i++)h+=srow(0)}
+ else{h=P.map(prow).join('');for(let i=P.length;i<COUNT;i++)h+=srow(0);for(let i=COUNT;i<4;i++)h+=lrow()}
  $('#plrs').innerHTML=h;if($('#inv').classList.contains('show'))renderInvite();
 }
 $('#plrs').onclick=e=>{const m=e.target.closest('[data-mv]'),s=e.target.closest('[data-inv]');if(m)moveTeam(m.dataset.mv);else if(s)openInvite(+s.dataset.inv)};
