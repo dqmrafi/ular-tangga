@@ -120,10 +120,11 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 - This schema deliberately stores the roster in JSONB for a minimal prototype. Revisit only if concurrency/query requirements require normalization.
 - The SQL RPCs require review/test against Supabase's deployed Postgres version and role grants before production use.
 - Anonymous Auth is abuseable without rate limits/CAPTCHA; this is a prototype identity model, not verified identity.
-- Room expiry/cleanup is not implemented yet.
+- Room expiry is best-effort: host heartbeat, stale filters, and create-time pruning are implemented; there is no scheduled server cleanup job.
 - Realtime publication may need manual enablement in the Supabase dashboard if the migration role cannot alter publication.
 - The browser SDK is loaded from esm.sh at runtime; a later hardening pass may pin/version-host the dependency locally if desired.
+- Mid-turn guest decisions (Totem prompt, chest choice, boss/arena phase choices) still need real two-browser UX validation. The host currently runs the authoritative engine and owns these prompts; guest-triggered power-ups and rolls are routed to the host.
 
 ## Exact next action
 
-Implementation code is committed, but not yet runtime-accepted. The SQL migration received a static syntax correction after the initial hardening commit. For live acceptance, create/configure a Supabase project, enable Anonymous Auth, apply `supabase/migrations/202611050001_multiplayer.sql`, fill `game/assets/js/multiplayer/config.example.js` with the public project URL/anon key, deploy `game/` as the Vercel root, and run the multi-browser checklist in `supabase/README.md`. Fix runtime issues discovered and record actual browser/SQL results here. Prototype limits: anonymous roll broadcasts are not anti-cheat, the host browser must stay connected to advance gameplay, and abrupt guest disconnect cleanup is best-effort.
+Repository implementation and static review are complete to the prototype scope. Before calling this production-ready, configure a Supabase project and run the real acceptance pass:  create/configure a Supabase project, enable Anonymous Auth, apply `supabase/migrations/202611050001_multiplayer.sql`, fill `game/assets/js/multiplayer/config.example.js` with the public project URL/anon key, deploy `game/` as the Vercel root, and run the multi-browser checklist in `supabase/README.md`. Fix runtime issues discovered and record actual browser/SQL results here. Prototype limits: anonymous roll broadcasts are not anti-cheat, the host browser must stay connected to advance gameplay, and abrupt guest disconnect cleanup is best-effort.
