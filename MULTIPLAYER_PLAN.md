@@ -143,12 +143,13 @@ Each checkpoint must end with an updated `MULTIPLAYER_STATE.md` and a Git commit
 
 ### Checkpoint 2 — Supabase schema and client foundation
 
-- Add Supabase client initialization using environment configuration.
-- Add SQL migration/setup scripts for the minimal room schema, indexes, RLS, and required RPCs.
-- Add anonymous local player identity and reconnect token handling.
-- Keep room/game UI behavior unchanged until the service foundation is ready.
+- [x] Add Supabase browser client initialization.
+- [x] Add SQL migration for room schema, indexes, RLS, RPCs, and Realtime publication.
+- [x] Add anonymous Supabase Auth identity with persisted browser session.
+- [x] Add setup instructions and an ignored local browser config file template.
+- [ ] Validate migration against a real Supabase project and browser session.
 
-**Acceptance:** schema/setup instructions are reproducible; no secrets are committed; static app can initialize the client safely.
+**Acceptance:** schema/setup instructions are reproducible; no service-role secret is committed; static app can initialize the client safely. Runtime validation is pending Supabase project configuration.
 
 ### Checkpoint 3 — Private room lifecycle
 
