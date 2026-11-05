@@ -11,7 +11,7 @@
 - **Base branch:** `main`
 - **Checkpoint 0 commit:** `76e71e67233116936f8c27b4c6c5241efffb275f`
 - **Checkpoint 1 commit:** `5e55393291dc70fa1535900339a6b8ef4c91253f`
-- **Current checkpoint commit:** pending
+- **Current checkpoint commit:** `f4f37e7ede9a6849968930b017d6f7f11f660c9a`
 - **Application code changed:** Yes — Supabase foundation and private-room UI integration.
 - **Tests run:** No runtime tests. No Supabase project credentials/config are available in the repository.
 
@@ -44,7 +44,7 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 | 2 | Supabase schema/client foundation | Committed; runtime validation pending Supabase project | `1040e240d5b6a94523a12a0ba5fb29033221da05` |
 | 3 | Private room lifecycle | Committed; runtime validation pending | `5c7cbbd8df3e727c583f85c36bd188f21daa7399` |
 | 4 | Public rooms and Quick Join | Committed; runtime validation pending | `1b2461cb0c60958763cc0f1b76520dde3a93c35c` |
-| 5 | Realtime lobby | In progress until commit verified; runtime validation pending | Pending |
+| 5 | Realtime lobby | Committed; runtime validation pending | `f4f37e7ede9a6849968930b017d6f7f11f660c9a` |
 | 6 | Gameplay synchronization | Not started | — |
 | 7 | Hardening and deployment | Not started | — |
 
