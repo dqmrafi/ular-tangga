@@ -2942,21 +2942,42 @@ function addGhast(B,x,y,z){
 /* ---------- Ghast terbang (animasi): badan melayang berkeliling, tentakel mengayun ---------- */
 function makeGhast(){
   const g=new THREE.Group(),B=makeBatch(),F={edge:false};
+  const mat=new THREE.MeshLambertMaterial({vertexColors:true,transparent:true,opacity:1,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1});
+  const lmat=new THREE.LineBasicMaterial({vertexColors:true,transparent:true,opacity:0.6});
+  const BO={mat,lineMat:lmat,cast:false};
   addBox(B,0,0,0,2,2,2,0xEDEDED);
   [-0.5,0.5].forEach(a=>addBox(B,a,0.1,1.01,0.3,0.45,0.02,0x2A2A2A,F)); addBox(B,0,-0.5,1.01,0.6,0.3,0.02,0x2A2A2A,F);
-  g.add(buildBatch(B,{cast:false}));
+  g.add(buildBatch(B,BO));
   const tents=[];
   for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++){
     const TB=makeBatch(); addBox(TB,0,-0.5,0,0.25,1,0.25,0xE0E0E0,F);
-    const p=new THREE.Group(); p.position.set(i*0.7,-1,j*0.7); p.add(buildBatch(TB,{cast:false})); g.add(p);
+    const p=new THREE.Group(); p.position.set(i*0.7,-1,j*0.7); p.add(buildBatch(TB,BO)); g.add(p);
     tents.push({p,ph:(i+1)*1.7+(j+1)*2.3});
   }
-  return {g,tents};
+  return {g,tents,mat,lmat,k:1};
 }
 function addFlyGhast(x,y,z){
   const o=makeGhast(),k=GHASTS.length;
   Object.assign(o,{cx:x,cy:Math.max(y,10),cz:z,rx:6+(k%3)*1.5,rz:4.5+(k%2)*1.5,sp:0.16+0.04*(k%3),ph:k*2.1,ph2:k*1.3});
   o.g.position.set(x,o.cy,z); world.add(o.g); GHASTS.push(o);
+}
+/* Ghast yang menutupi pandangan kamera (garis kamera -> pion/papan) atau melintas di atas papan: memudar lalu dihapus (disembunyikan), muncul lagi setelah menyingkir */
+function updateGhastFade(dt,pts){
+  const C=camera.position,rate=Math.min(1,dt*7);
+  for(let i=0;i<GHASTS.length;i++){
+    const o=GHASTS[i],q=o.g.position; let hit=false;
+    for(let j=0;j<pts.length&&!hit;j++){
+      const T=pts[j],sx=T.x-C.x,sy=T.y-C.y,sz=T.z-C.z,L2=sx*sx+sy*sy+sz*sz||1;
+      let u=((q.x-C.x)*sx+(q.y-C.y)*sy+(q.z-C.z)*sz)/L2;
+      if(u>0.985) continue;
+      if(u<0) u=0;
+      const ex=C.x+sx*u-q.x,ey=C.y+sy*u-q.y,ez=C.z+sz*u-q.z;
+      if(ex*ex+ey*ey+ez*ez<3.6*3.6) hit=true;
+    }
+    if(q.x>-9&&q.x<8&&Math.abs(q.z)<8) hit=true; /* di atas area papan */
+    o.k+=((hit?0:1)-o.k)*rate; if(!hit&&o.k>0.97) o.k=1; if(hit&&o.k<0.04) o.k=0;
+    o.mat.opacity=o.k; o.mat.depthWrite=o.k>0.97; o.lmat.opacity=0.6*o.k; o.g.visible=o.k>0.01;
+  }
 }
 function updateGhasts(dt,t){
   if(RMQ.matches) return;
@@ -4912,7 +4933,7 @@ function frame(now){
   players.forEach(p=>watch.push(p.pawn.position));
   updateMobs(dt,now/1000);
   updateFX(dt,now/1000); updateRoam(dt,now/1000); updateLife(dt,now/1000); tickAuto(dt);
-  updateFades(dt,watch);
+  updateFades(dt,watch); updateGhastFade(dt,watch);
   renderer.render(scene,camera);
 }
 
