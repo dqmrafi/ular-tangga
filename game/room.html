@@ -166,7 +166,7 @@ const q=new URLSearchParams(location.search),MODE=q.get('mode');
 if(RF.MODES.indexOf(MODE)<0){location.replace('mode.html');return}
 const ONLINE=MODE==='online',FORMAT=(ONLINE&&q.get('format')==='team')?'team':'solo',TEAM=ONLINE&&FORMAT==='team';
 const COUNT=ONLINE?4:Math.min(4,Math.max(2,parseInt(q.get('count'),10)||2));
-const HOST=!(ONLINE&&q.get('role')==='guest');
+let HOST=!(ONLINE&&q.get('role')==='guest');
 const jc=(q.get('code')||'').toUpperCase(),JOIN=(!HOST&&/^[A-Z0-9]{6,8}$/.test(jc))?jc:null;
 const MAP=RF.getMap(),TILES=100;
 const MODE_LABEL={vsc:'VS Computer',local:'Multi Player',online:TEAM?'Create Room • Team':'Create Room • Solo'};
@@ -176,11 +176,11 @@ const FRIENDS=[{id:'l1',name:'Mike',online:true,level:21},{id:'l2',name:'Lisa',o
  {id:'l3',name:'Dodi',online:false,level:9},{id:'g4',name:'DinoRush',online:false,level:35}];
 const myName=()=>PD.profile().name||'Kamu',myLevel=()=>1+Math.floor(PD.xp()/100);
 const eqItem=slot=>IC.byId(PD.equippedId(slot));
-const S={invTab:'online',invites:{},timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,invTeam:0,mpIdentity:null,mpRoomId:null,mpUnsub:null};
+const S={invTab:'online',invites:{},timers:[],room:{privacy:'private',code:'',players:[]},hostT:null,invTeam:0,mpIdentity:null,mpRoomId:null,mpUnsub:null,gameLaunched:false};
 const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:ItemArt.dice(it.id);
 function clearT(){S.timers.forEach(clearTimeout);S.timers=[];clearTimeout(S.hostT);S.hostT=null;Object.values(S.invites).forEach(v=>clearTimeout(v.timer))}
 /* ---------- navigasi ---------- */
-const leave=async to=>{clearT();if(ONLINE&&S.mpRoomId&&S.mpIdentity&&UT.Multiplayer.RoomService){try{await UT.Multiplayer.RoomService.leaveRoom(S.mpRoomId)}catch(e){console.warn('[multiplayer] leave failed',e)}}if(S.mpUnsub)S.mpUnsub();RF.navigate(to)};
+const leave=async to=>{clearT();if(ONLINE&&S.mpRoomId&&S.mpIdentity&&UT.Multiplayer.RoomService){try{await UT.Multiplayer.RoomService.leaveRoom(S.mpRoomId)}catch(e){console.warn('[multiplayer] leave failed',e)}}if(S.mpUnsub)S.mpUnsub();try{sessionStorage.removeItem('ut-multiplayer-room')}catch(_){}RF.navigate(to)};
 $('#back').onclick=()=>leave('mode');$('#cls').onclick=()=>leave('home');
 /* ---------- setup room ---------- */
 function setup(){
@@ -197,18 +197,24 @@ function renderRoomHeader(){
  $('#cCode').textContent='KODE '+(S.room.code||'------');
 }
 function applyRemoteRoom(row){
- if(!row)return;S.mpRoomId=row.id;
+ if(!row)return;S.mpRoomId=row.id;HOST=!!(S.mpIdentity&&row.host_id===S.mpIdentity.id);
  S.room={id:row.id,privacy:row.is_public?'public':'private',code:row.code,players:(row.players||[]).map(p=>({id:p.id,name:p.name,level:1,ready:!!p.ready,team:Number(p.team)||0,kind:p.id===row.host_id?'host':'player'}))};
- $('#cCode').textContent='KODE '+row.code;
+ renderRoomHeader();$('#cCode').textContent='KODE '+row.code;
+ $('#rdy').hidden=HOST;$('#start').hidden=!HOST;
  $('#sPriv').classList.toggle('on',!row.is_public);$('#sPub').classList.toggle('on',!!row.is_public);
  renderPlayers();renderBottom();
+ if(row.status==='playing'&&row.game_state&&row.game_state.roomConfig&&!S.gameLaunched){S.gameLaunched=true;const gameCfg=Object.assign({},row.game_state.roomConfig,{host:HOST,code:row.code});RF.launch(gameCfg)}
 }
 async function setupOnline(){
  try{
   const MP=UT.Multiplayer.RoomService;if(!MP)throw new Error('Modul multiplayer belum siap');
   S.mpIdentity=await MP.ensurePlayer();let row;
-  if(HOST)row=await MP.createRoom({code:randomRoomCode(),name:S.mpIdentity.name,isPublic:false,format:FORMAT,maxPlayers:COUNT,config:{mode:MODE,format:FORMAT,map:MAP&&MAP.gameKey}});
-  else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
+  if(HOST){
+   let saved=null;try{saved=JSON.parse(sessionStorage.getItem('ut-multiplayer-room')||'null')}catch(_){}
+   if(saved&&saved.id){try{row=await MP.getRoom(saved.id)}catch(_){} }
+   if(!row)row=await MP.createRoom({code:randomRoomCode(),name:S.mpIdentity.name,isPublic:false,format:FORMAT,maxPlayers:COUNT,config:{mode:MODE,format:FORMAT,map:MAP&&MAP.gameKey}});
+  }else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
+  try{sessionStorage.setItem('ut-multiplayer-room',JSON.stringify({id:row.id,code:row.code}))}catch(_){}
   applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);
   $('#rdy').hidden=HOST;$('#start').hidden=!HOST;
  }catch(e){console.error('[multiplayer] room setup failed',e);toast('Gagal masuk room: '+(e.message||'Periksa koneksi'));$('#sttx').textContent='Tidak dapat terhubung ke room. Kembali dan coba lagi.';$('#rdy').disabled=true;$('#start').disabled=true}
@@ -291,10 +297,10 @@ function renderBottom(){const c=check(),h=me()||{ready:false};$('#sttx').textCon
 $('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
 function cfg(){const sk=eqItem('skin'),fr=eqItem('frame'),di=eqItem('dice');
  return{type:'room',mode:MODE,format:FORMAT,privacy:S.room.privacy,host:HOST,code:S.room.code,map:MAP&&MAP.gameKey,
-  players:S.room.players.map(p=>({name:p.name,team:p.team,kind:p.kind})),powers:PW.equipped.slice(),
+  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:PW.equipped.slice(),
   skin:sk&&sk.gameKey,frame:fr&&fr.gameKey,dice:di&&di.gameKey}}
 function launch(){clearT();RF.launch(cfg())}
-function startGame(){if(!HOST||!check().ok)return;launch()}   /* server: validasi ulang host + syarat saat backend tersedia */
+async function startGame(){if(!HOST||!check().ok)return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}
 $('#start').onclick=startGame;
 /* Online room membership/readiness comes from Supabase; no demo guest simulation. */
 /* ---------- INVITE (hanya Create Room, host) ---------- */

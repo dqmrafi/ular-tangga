@@ -172,11 +172,13 @@ Each checkpoint must end with an updated `MULTIPLAYER_STATE.md` and a Git commit
 
 ### Checkpoint 5 — Realtime lobby
 
-- Synchronize player list, ready state, host identity, and room status.
-- Implement host departure/transfer and reconnect behavior.
-- Remove `guestSim()` and timer-based simulated start behavior.
+- [x] Subscribe to room-row changes and Presence; synchronize roster/readiness/visibility.
+- [x] Add host-only start transition through the database RPC; guests navigate when the room status becomes `playing`.
+- [x] Persist the host room ID in session storage to recover the same room after refresh.
+- [x] Explicit host leave transfers ownership to a remaining player in the database; guest reconnect reuses the anonymous Auth session.
+- [ ] Validate host transfer, refresh/reconnect, and synchronized start with multiple browsers.
 
-**Acceptance:** lobby changes appear across browsers and recover after a page reload/reconnect.
+**Acceptance:** lobby changes appear across browsers and recover after a page reload/reconnect. Abrupt disconnect cleanup remains a hardening item.
 
 ### Checkpoint 6 — Gameplay synchronization
 

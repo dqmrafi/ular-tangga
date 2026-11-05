@@ -4,14 +4,14 @@
 
 ## Current checkpoint
 
-- **Checkpoint:** 4 — Public rooms and Quick Join
+- **Checkpoint:** 5 — Realtime lobby
 - **Status:** Implementation committed; runtime validation pending Supabase project
 - **Working branch:** `feature/supabase-multiplayer`
 - **Repository:** https://github.com/dqmrafi/ular-tangga
 - **Base branch:** `main`
 - **Checkpoint 0 commit:** `76e71e67233116936f8c27b4c6c5241efffb275f`
 - **Checkpoint 1 commit:** `5e55393291dc70fa1535900339a6b8ef4c91253f`
-- **Current checkpoint commit:** `1b2461cb0c60958763cc0f1b76520dde3a93c35c`
+- **Current checkpoint commit:** pending
 - **Application code changed:** Yes — Supabase foundation and private-room UI integration.
 - **Tests run:** No runtime tests. No Supabase project credentials/config are available in the repository.
 
@@ -44,9 +44,15 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 | 2 | Supabase schema/client foundation | Committed; runtime validation pending Supabase project | `1040e240d5b6a94523a12a0ba5fb29033221da05` |
 | 3 | Private room lifecycle | Committed; runtime validation pending | `5c7cbbd8df3e727c583f85c36bd188f21daa7399` |
 | 4 | Public rooms and Quick Join | Committed; runtime validation pending | `1b2461cb0c60958763cc0f1b76520dde3a93c35c` |
-| 5 | Realtime lobby | Not started | — |
+| 5 | Realtime lobby | In progress until commit verified; runtime validation pending | Pending |
 | 6 | Gameplay synchronization | Not started | — |
 | 7 | Hardening and deployment | Not started | — |
+
+## Checkpoint 5 changes
+
+- `game/room.html`: room host role is derived from the current backend host ID; waiting-room host state is restored from session storage after refresh; the host start button now calls the database start RPC; guests transition into gameplay when the Realtime room row reports `playing` with the host's room configuration; explicit leave clears the saved room reference.
+- `game/assets/js/multiplayer/room-service.js`: start-room RPC wrapper and member-scoped room recovery read.
+- SQL `start_game_room` validates host, minimum players, team balance, and all-ready before transitioning the room to `playing`.
 
 ## Checkpoint 4 changes
 
@@ -94,4 +100,4 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 
 ## Exact next action
 
-Checkpoint 5: implement realtime lobby lifecycle beyond basic row refresh: host start RPC integration, guest transition to gameplay, team assignment/validation, host departure/reconnect behavior, and reliable subscription cleanup. Validate public/private lobby with multiple browsers when Supabase project credentials are configured.
+Checkpoint 6: add a serializable gameplay snapshot bridge inside `game/gameplay.html`, route guest Roll requests to the host, publish host snapshots after each completed turn, apply remote snapshots to guest engine state, coordinate turn order, and restore the latest snapshot on reconnect. Keep Three.js objects local and serialize only gameplay data.
