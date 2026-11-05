@@ -112,14 +112,6 @@
     /* ---- Tema papan (Lainnya) ---- */
     theme('minecraft', 'World', 'common', 0,   'Padang rumput blok bergaya klasik.',
           { skyTop: '#6EC6FF', skyBot: '#E6F7FF', a: '#5FAE3E', b: '#8A5B33' }),
-    theme('rumput',    'Rumput',    'common', 0,   'Hamparan rumput hijau cerah di bawah langit biru.',
-          { skyTop: '#5EC1FF', skyBot: '#DDF4FF', a: '#78D957', b: '#9A6A3B' }),
-    theme('gurun',     'Gurun',     'rare',   250, 'Pasir hangat dan langit keemasan.',
-          { skyTop: '#FFD27A', skyBot: '#FFF4D8', a: '#FFD98C', b: '#D9763C' }),
-    theme('salju',     'Salju',     'rare',   250, 'Dataran putih dingin dengan salju turun.',
-          { skyTop: '#46AEEF', skyBot: '#E4F6FF', a: '#F4FCFF', b: '#54AEDB' }),
-    theme('hutan',     'Hutan',     'rare',   300, 'Rimbun, teduh, dan penuh pepohonan blok.',
-          { skyTop: '#27B2B8', skyBot: '#C9F5E4', a: '#46C46E', b: '#1F5F4D' }),
     theme('nether',    'Nether',    'epic',   600, 'Dunia api dan batu merah yang berbahaya.',
           { skyTop: '#2a0606', skyBot: '#8a2410', a: '#8A2B2B', b: '#3A0D0D' }, { featured: true }),
 
