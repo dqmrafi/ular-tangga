@@ -203,7 +203,7 @@ function applyRemoteRoom(row){
  $('#rdy').hidden=HOST;$('#start').hidden=!HOST;
  $('#sPriv').classList.toggle('on',!row.is_public);$('#sPub').classList.toggle('on',!!row.is_public);
  renderPlayers();renderBottom();
- if(row.status==='playing'&&row.game_state&&row.game_state.roomConfig&&!S.gameLaunched){S.gameLaunched=true;const gameCfg=Object.assign({},row.game_state.roomConfig,{host:HOST,code:row.code});RF.launch(gameCfg)}
+ if(row.status==='playing'&&row.game_state&&row.game_state.roomConfig&&!S.gameLaunched){S.gameLaunched=true;const gameCfg=Object.assign({},row.game_state.roomConfig,{host:HOST,code:row.code,roomId:row.id,roomRevision:row.revision,initialSnapshot:row.game_state.snapshot||null});RF.launch(gameCfg)}
 }
 async function setupOnline(){
  try{

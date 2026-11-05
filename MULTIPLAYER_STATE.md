@@ -4,14 +4,14 @@
 
 ## Current checkpoint
 
-- **Checkpoint:** 5 — Realtime lobby
+- **Checkpoint:** 6 — Gameplay synchronization
 - **Status:** Implementation committed; runtime validation pending Supabase project
 - **Working branch:** `feature/supabase-multiplayer`
 - **Repository:** https://github.com/dqmrafi/ular-tangga
 - **Base branch:** `main`
 - **Checkpoint 0 commit:** `76e71e67233116936f8c27b4c6c5241efffb275f`
 - **Checkpoint 1 commit:** `5e55393291dc70fa1535900339a6b8ef4c91253f`
-- **Current checkpoint commit:** `f4f37e7ede9a6849968930b017d6f7f11f660c9a`
+- **Current checkpoint commit:** pending
 - **Application code changed:** Yes — Supabase foundation and private-room UI integration.
 - **Tests run:** No runtime tests. No Supabase project credentials/config are available in the repository.
 
@@ -45,8 +45,15 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 | 3 | Private room lifecycle | Committed; runtime validation pending | `5c7cbbd8df3e727c583f85c36bd188f21daa7399` |
 | 4 | Public rooms and Quick Join | Committed; runtime validation pending | `1b2461cb0c60958763cc0f1b76520dde3a93c35c` |
 | 5 | Realtime lobby | Committed; runtime validation pending | `f4f37e7ede9a6849968930b017d6f7f11f660c9a` |
-| 6 | Gameplay synchronization | Not started | — |
+| 6 | Gameplay synchronization | In progress until commit verified; runtime validation pending | Pending |
 | 7 | Hardening and deployment | Not started | — |
+
+## Checkpoint 6 changes
+
+- `game/gameplay.html`: JSON snapshot/apply bridge; host-only simulation; guest roll requests; room seat identity/name mapping; turn, position, power, crystal/boss, and finish snapshots; online turn order is deterministic.
+- `game/assets/js/multiplayer/game-sync.js`: Realtime Broadcast roll-intent/snapshot transport; snapshots persist via revision-checked RPC.
+- `game/assets/js/game-integration.js`: online games preserve the room creator's shared skin/map/dice selections rather than substituting guest inventory cosmetics.
+- `game/room.html`: passes room ID/revision/latest persisted snapshot into gameplay.
 
 ## Checkpoint 5 changes
 
@@ -100,4 +107,4 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 
 ## Exact next action
 
-Checkpoint 6: add a serializable gameplay snapshot bridge inside `game/gameplay.html`, route guest Roll requests to the host, publish host snapshots after each completed turn, apply remote snapshots to guest engine state, coordinate turn order, and restore the latest snapshot on reconnect. Keep Three.js objects local and serialize only gameplay data.
+Checkpoint 7: harden failure/reconnect behavior, add Supabase/Vercel deployment instructions, review RLS/RPC security, and run the multi-browser test matrix. Risks requiring validation: asynchronous mid-turn/boss state consistency, anonymous roll-request spoofing, stale membership after abrupt disconnect, and the host browser being required to remain online.

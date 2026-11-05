@@ -182,12 +182,14 @@ Each checkpoint must end with an updated `MULTIPLAYER_STATE.md` and a Git commit
 
 ### Checkpoint 6 — Gameplay synchronization
 
-- Connect the existing game engine to the multiplayer transport/state layer.
-- Synchronize start configuration, turns, dice results, movement, and finish state.
-- Keep the agreed host-authoritative model and prevent out-of-turn/non-host actions.
-- Do not rewrite the game engine unless an integration boundary requires it.
+- [x] Keep the existing engine host-authoritative; guests cannot execute local dice/movement simulation.
+- [x] Add Realtime Broadcast for guest roll intents and host snapshots.
+- [x] Persist JSON gameplay snapshots with revision checks; Three.js objects remain local.
+- [x] Synchronize roster names/IDs, turns, positions, power counters, crystal/boss progress, and finish state at stable turn boundaries.
+- [x] Disable independent online ready-card shuffling; use the room roster order.
+- [ ] Validate normal turns, special dice, powers, boss phases, and reconnect snapshots in two browsers.
 
-**Acceptance:** two browsers observe the same game progression and final outcome.
+**Acceptance:** two browsers observe the same game progression and final outcome. Runtime validation remains pending Supabase configuration and multi-browser testing.
 
 ### Checkpoint 7 — Hardening and deployment
 
