@@ -2,6 +2,7 @@
    Satu file = satu map. Skrip klasik (tanpa import/export). Dimuat SETELAH gameplay/maps/registry.js
    dan SEBELUM gameplay/themes.js. Mendaftar lewat UT.Gameplay.Maps.register({...}).
    Isi definisi:
+     goal      petak akhir / fase boss (World = 100, Ender Dragon)
      theme     data tampilan (warna, langit, dekor, ...) - isi PERSIS seperti yang dulu di themes.js
    Urutan pendaftaran = urutan di THEMES (menentukan seed dunia dan tema default). */
 (function (win) {
@@ -10,6 +11,7 @@
   if (!G.Maps) return;
   G.Maps.register({
     key: 'minecraft',
+    goal: 100,
     theme: {key:'minecraft',name:'World',skyTop:'#6EC6FF',skyBot:'#E6F7FF',
      tileA:0x5A9E3C,tileB:0x5A9E3C,ladderTile:0xE2BE3C,snakeTile:0xD9577A,goalTile:0xE6E3A6,
      wall:[0x8A5B33,0x7B4E2B,0x946339,0x6B4424],deep:[0x7A7A7A,0x6A6A6A,0x8A8A8A],ground:0x4A8F33,

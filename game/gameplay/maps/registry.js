@@ -1,6 +1,8 @@
 /* Ular Tangga Blok - gameplay/maps/registry.js
    Registry map. Dimuat SEBELUM gameplay/maps/*.js dan gameplay/themes.js.
-   API: UT.Gameplay.Maps.register(def)  def = {key, theme, onlyMobs?}  (key unik; duplikat diabaikan)
+   API: UT.Gameplay.Maps.register(def)  def = {key, theme, goal?, rules?, onlyMobs?}
+        goal  = petak akhir (default 100). rules = {ladders, snakes, chests:[], mobs:[[nama,[petak]]]};
+        yang tidak diisi memakai UT.Gameplay.Config (dibaca gameplay.html -> applyMapRules)  (key unik; duplikat diabaikan)
         .list() -> array def sesuai urutan daftar   .get(key)   .themes() -> array theme
         .mobThemeOnly() -> {mob: key}  turunan dari onlyMobs tiap map
    Titik perluasan berikutnya (belum dipindah dari gameplay.html): board (bentuk papan), rules (ular/tangga/petak),

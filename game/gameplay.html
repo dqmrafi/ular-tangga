@@ -1327,16 +1327,24 @@ function dragonMusicStop(instant){
 /* ---------- Aturan papan ---------- */
 const ROW_H=0.8;
 /* Data statis papan/mob/power dari gameplay/config.js (single source: UT.Gameplay.Config). */
-const LADDERS=UT.Gameplay.Config.LADDERS;
-const SNAKES=UT.Gameplay.Config.SNAKES;
+let LADDERS=UT.Gameplay.Config.LADDERS;
+let SNAKES=UT.Gameplay.Config.SNAKES;
 const DMG=UT.Gameplay.Config.DMG;
-const MOBT={};UT.Gameplay.Config.MOB_POSITIONS.forEach(m=>m[1].forEach(n=>MOBT[n]=m[0]));
+let MOBT={};UT.Gameplay.Config.MOB_POSITIONS.forEach(m=>m[1].forEach(n=>MOBT[n]=m[0]));
 const MOBCOL=UT.Gameplay.Config.MOB_COLOR;
 const MOBNAME=UT.Gameplay.Config.MOB_NAME;
 const MOBBACK=UT.Gameplay.Config.MOB_BACK;
 const MOBTHEME=UT.Gameplay.Config.MOB_THEME_ONLY;
 function mobOn(n,themeKey){ const k=MOBT[n]; return (k&&(!MOBTHEME[k]||themeKey===MOBTHEME[k]))?k:null; }
-const CHESTS=UT.Gameplay.Config.CHESTS;
+let CHESTS=UT.Gameplay.Config.CHESTS;
+let GOAL=100; /* petak akhir (fase boss). Default 100; map bisa menimpa lewat UT.Gameplay.Maps (def.goal) */
+/* Aturan per map: def.rules = {ladders, snakes, chests:[...], mobs:[[nama,[petak]],...]}; yang tidak diisi memakai UT.Gameplay.Config (default World). */
+function applyMapRules(def){
+  const C=UT.Gameplay.Config,R=(def&&def.rules)||{};
+  GOAL=(def&&def.goal)||100;
+  LADDERS=R.ladders||C.LADDERS; SNAKES=R.snakes||C.SNAKES; CHESTS=R.chests?new Set(R.chests):C.CHESTS;
+  MOBT={}; (R.mobs||C.MOB_POSITIONS).forEach(m=>m[1].forEach(n=>MOBT[n]=m[0]));
+}
 const PLAYER_DEFS=[
   {name:'Steve',key:'steve',hex:0x2F80FF,css:'#2a78d6'},
   {name:'Alex',key:'alex',hex:0xFF8A1A,css:'#d9791c'},
@@ -1387,7 +1395,7 @@ function upgradePawnPNG(g,pal,k){
 }
 /* Geometri papan murni (tile serpentine, tinggi terrain) = UT.GameplayVoxelGeom (gameplay/voxel-geom.js). Rumus dipindah apa adanya. */
 const GV=UT.GameplayVoxelGeom;
-const TILES=GV.buildTiles();
+let TILES=GV.buildTiles();
 function terrainTop(x,z){ return GV.terrainTop(TILES,x,z); }
 function topAt(x,z,r){ return GV.topAt(TILES,x,z,r); }
 function mcBlock(n,themeKey){
@@ -2464,7 +2472,7 @@ function addMcEnv(DB){
   addGrassScenery(DB,theme); /* batu + semak + rumpun pixel kecil di luar board */
 }
 function tileColor(n,t,th){
-  if(n===100) return th.goalTile;
+  if(n===GOAL) return th.goalTile;
   if(LADDERS[n]) return th.ladderTile;
   if(SNAKES[n]) return th.snakeTile;
   return ((t.col+t.row)%2===0)?th.tileA:th.tileB;
@@ -2758,9 +2766,9 @@ function labelTexture(text,w,h,fs,fill,line){
 }
 function buildLabels(th){
   const geo=new THREE.PlaneGeometry(0.6,0.6);
-  for(let n=1;n<=100;n++){
+  for(let n=1;n<=GOAL;n++){
     const t=TILES[n];
-    const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:labelTexture(String(n),128,128,n>=100?40:54,th.label,th.labelLine),transparent:true,depthWrite:false}));
+    const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:labelTexture(String(n),128,128,n>=GOAL?40:54,th.label,th.labelLine),transparent:true,depthWrite:false}));
     m.rotation.x=-Math.PI/2; m.position.set(t.x,t.h+0.012,t.z); m.renderOrder=2;
     world.add(m);
   }
@@ -2781,7 +2789,7 @@ try{ night=localStorage.getItem('ut-malam')==='1'; }catch(e){}
 const mixHex=(a,b,k)=>'#'+new THREE.Color(a).lerp(new THREE.Color(b),k).getHexString();
 /* corak papan: petak genap = bingkai gelap + inti terang, petak ganjil = papan catur kecil */
 function tileShade(bc,n,t,i,j,themeKey){
-  const k=(n===100||LADDERS[n]||SNAKES[n]||mobOn(n,themeKey))?0.6:1;
+  const k=(n===GOAL||LADDERS[n]||SNAKES[n]||mobOn(n,themeKey))?0.6:1;
   const corner=(i%3===0&&j%3===0),inner=(i===1||i===2)&&(j===1||j===2),ring=(i===0||i===3||j===0||j===3);
   let d;
   if((t.col+t.row)%2===0) d=corner?-0.11:(inner?0.07:(ring?-0.02:0));
@@ -2789,7 +2797,7 @@ function tileShade(bc,n,t,i,j,themeKey){
   const c=new THREE.Color(bc); c.offsetHSL(0,0,d*k+(rnd()-0.5)*0.07); return c;
 }
 function tileBlock(n,t,th){
-  if(n===100) return th.goalTile;
+  if(n===GOAL) return th.goalTile;
   if(mobOn(n,th.key)) return MOBCOL[mobOn(n,th.key)];
   if(LADDERS[n]) return th.ladderTile;
   if(SNAKES[n]) return th.snakeTile;
@@ -2930,7 +2938,7 @@ let MOBOBJ={},CHESTOBJ={};
 function buildMobs(th){
   MOBOBJ={}; CHESTOBJ={};
   const mk={creeper:addCreeper,ender:addEnderman,skeleton:addSkeleton,zombie:addZombie,warden:addWarden,villager:addVillager};
-  for(let n=1;n<=100;n++){
+  for(let n=1;n<=GOAL;n++){
     const t=TILES[n],k=mobOn(n,th.key);
     if(k){
       const B=makeBatch(),g=new THREE.Group(); let rods=null;
@@ -3019,7 +3027,7 @@ function buildPortal(t){
 }
 function updatePortal(dt,now){
   const P=PORTAL; if(!P) return;
-  const t=now*0.001,want=players.some(p=>p.pos===100)?1:0;
+  const t=now*0.001,want=players.some(p=>p.pos===GOAL)?1:0;
   if(want&&!P.on){ P.on=true; if(AWK.done) dragon.visible=true; } /* Feature 2: naga baru boleh tampil setelah Awakening selesai (AWK.done) */
   else if(!want&&P.on){ P.on=false; dragon.visible=false; }
   P.act+=(want-P.act)*Math.min(1,dt*2.2); const a=P.act;
@@ -3279,7 +3287,7 @@ function arenaSlot(pi){ const o=SLOT[pi]; return new THREE.Vector3(ARENA_POS.x+o
 async function gatherArena(gid){
   if(!AWK.done) return;
   for(const pl of players){
-    if(pl.pos!==100||pl.inArena||!pl.pawn) continue;
+    if(pl.pos!==GOAL||pl.inArena||!pl.pawn) continue;
     pl.inArena=true;
     const a=pl.pawn.position.clone(),b=arenaSlot(pl.idx),o=SLOT[pl.idx];
     sfx.pop&&sfx.pop();
@@ -3299,13 +3307,13 @@ function resetAwakening(){
 function crystalDone(p){ if(!p.cdone) p.cdone=new Array(CRYSTAL_N).fill(false); return p.cdone; } /* crystal n hancur bila pemain melempar n; urutan bebas */
 function syncCrystals(){
   const A=ARENA; if(!A||!AWK.done) return;
-  const p=players[cur],d=(p&&p.pos===100)?crystalDone(p):new Array(CRYSTAL_N).fill(false);
+  const p=players[cur],d=(p&&p.pos===GOAL)?crystalDone(p):new Array(CRYSTAL_N).fill(false);
   A.cv.forEach((c,i)=>{ c.want=d[i]?0:1; }); A.act=-1; /* tanpa target: semua crystal yang masih utuh setara */
 }
 /* ---------- Dragon Feature 5: Dragon Attack ----------
    Hanya pemain yang sudah menghancurkan semua Crystal (p.dragonReady) yang boleh menyerang. Angka serangan datang dari Special Dice (Feature 4);
    damage/HP/animasi/kemenangan tetap memakai hitDragon + playTurn existing (tidak ada combat baru). */
-function canAttackDragon(p){ return !!(p&&p.dragonReady&&p.crystal>=CRYSTAL_N&&p.pos===100&&AWK.done&&!AWK.running&&!gameOver&&!DRG.defeated); }
+function canAttackDragon(p){ return !!(p&&p.dragonReady&&p.crystal>=CRYSTAL_N&&p.pos===GOAL&&AWK.done&&!AWK.running&&!gameOver&&!DRG.defeated); }
 /* ---------- Dragon Feature 6: Dragon Defeat & Reward ----------
    Efek/suara/feedback kalah memakai yang existing di hitDragon + celebrate (sfx.dragonDeath, panel "Ender Dragon kalah!", konfeti, sfx.win).
    Hadiah = PlayerData.grant existing (nominal: UT.Gameplay.Config.DRAGON_REWARD). Tidak ada currency/reward system baru.
@@ -3371,7 +3379,7 @@ async function crystalRoll(p,v,gid){
 }
 async function awakenDragon(p,gid){
   if(AWK.done||AWK.running) return; /* hanya 1x */
-  const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,T=TILES[100],Dd=dragon.userData;
+  const S=async pr=>{ await pr; if(gid!==gameId) throw STALE; },F=reduce?0.35:1,A=ARENA,T=TILES[GOAL],Dd=dragon.userData;
   AWK.running=true; document.body.classList.add('awk-lock'); setRoll(false); clearTurnTimer(); dragonMusicStart();
   const pg={x:panGoal.x,z:panGoal.z}; let finished=false,qk=null,tw=null,ar=null;
   try{
@@ -3419,6 +3427,7 @@ document.addEventListener('click',e=>{ if(AWK.running&&e.target.closest&&e.targe
 function buildWorld(key){
   const th=THEMES.find(x=>x.key===key)||THEMES[0];
   theme=th; themeKey=th.key;
+  applyMapRules(UT.Gameplay.Maps&&UT.Gameplay.Maps.get(th.key));
   const tk=++worldToken;
   seed=20241022+THEMES.indexOf(th)*977;
   PORTAL=null; ARENA=null; MOUNT=null; disposeGroup(world); disposeGroup(sky);
@@ -3429,10 +3438,10 @@ function buildWorld(key){
   scene.fog=(th.key==='minecraft')?new THREE.Fog(new THREE.Color(th.skyBot),32,64):null;
 
   const TB=makeBatch();
-  for(let n=1;n<=100;n++){
+  for(let n=1;n<=GOAL;n++){
     const t=TILES[n],colTop=t.h-0.2,hh=colTop+0.5;
     addBox(TB,t.x,-0.5+hh/2,t.z,1,hh,1,jit(pick(th.wall),0.06));
-    if(n===100){ /* Block 100 = portal: permukaan hitam gelap (4x4 kotak seperti tile lain) + rim ungu tipis */
+    if(n===GOAL){ /* Block 100 = portal: permukaan hitam gelap (4x4 kotak seperti tile lain) + rim ungu tipis */
       for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,(i+j)%2?0x0A0712:0x120B1E,{edge:false});
       [[0,-0.47,0.96,0.06],[0,0.47,0.96,0.06],[-0.47,0,0.06,0.88],[0.47,0,0.06,0.88]].forEach(f=>addBox(TB,t.x+f[0],t.h+0.012,t.z+f[1],f[2],0.024,f[3],0x2B1659,{edge:false}));
       continue;
@@ -3460,12 +3469,12 @@ function buildWorld(key){
   [[0,-0.95,2.04,0.14],[0,0.95,2.04,0.14],[-0.95,0,0.14,1.9],[0.95,0,0.14,1.9]].forEach(f=>addBox(TB,PAD.x+f[0],0.04,PAD.z+f[1],f[2],0.08,f[3],sandy2));
   addCampfire(TB,PAD.x,PAD.z);
   // bendera di petak 100
-  const G=TILES[100];
+  const G=TILES[GOAL];
   for(let y=0;y<2.2;y+=0.4) addBox(TB,G.x-0.36,G.h+0.2+y,G.z-0.36,0.12,0.4,0.12,0xE9E4D4);
   addBox(TB,G.x-0.36,G.h+2.35,G.z-0.36,0.22,0.22,0.22,0xFFD23F);
   for(let c=0;c<4;c++) for(let r=0;r<2;r++) addBox(TB,G.x-0.36+0.22+c*0.22,G.h+2.05-r*0.22,G.z-0.36,0.22,0.22,0.05,(c+r)%2===0?th.flag:0xFFFFFF);
   world.add(buildBatch(TB));
-  PORTAL=buildPortal(TILES[100]); world.add(PORTAL.g);
+  PORTAL=buildPortal(TILES[GOAL]); world.add(PORTAL.g);
   ARENA=buildArena(); world.add(ARENA.g);
   MOUNT=buildMountain(); world.add(MOUNT.g); /* Feature 2: gunung batu penutup arena (menggantikan farm kiri) */
   buildMobs(th);
@@ -3575,10 +3584,10 @@ function syncDiceGuide(){
   while(GUIDE.children.length) GUIDE.remove(GUIDE.children[0]); /* geometri/material dipakai bersama, tidak di-dispose */
   if(gameOver) return;
   players.forEach(p=>{
-    if(!(p.odd||p.even)||p.pos<0||p.pos>=100) return;
+    if(!(p.odd||p.even)||p.pos<0||p.pos>=GOAL) return;
     const first=p.odd?1:2,bn=p.bonus||0;
     for(let v=first;v<=6;v+=2){
-      const n=p.pos+v+bn,t=TILES[n]; if(!t||n>100) continue;
+      const n=p.pos+v+bn,t=TILES[n]; if(!t||n>GOAL) continue;
       [[0,-0.46,1,0.08],[0,0.46,1,0.08],[-0.46,0,0.08,0.84],[0.46,0,0.08,0.84]].forEach(f=>{
         const m=new THREE.Mesh(GUIDE_GEO,guideMat(p.hex)); m.scale.set(f[2],0.03,f[3]); m.position.set(t.x+f[0],t.h+0.025,t.z+f[1]); m.renderOrder=3; GUIDE.add(m);
       });
@@ -3753,7 +3762,7 @@ function makeDragon(){
   /* --- sayap (2 ruas: lengan + ujung yang melentur) --- */
   const R=dWing(1,P,mk,DW),L=dWing(-1,P,mk,DW);
   R.root.position.set(0.42,0.3,0.4); L.root.position.set(-0.42,0.3,0.4); rig.add(R.root); rig.add(L.root);
-  const T=TILES[100]; g.position.set(T.x,T.h+2.4,T.z);
+  const T=TILES[GOAL]; g.position.set(T.x,T.h+2.4,T.z);
   g.userData={wR:R.root,wL:L.root,wRo:R.outer,wLo:L.outer,head,jaw,tail,rig,mouth,open:0,y0:T.h+2.4,dy:0,shk:0,mats:[]};
   const seen=new Set(); g.traverse(o=>{ if(o.material&&!seen.has(o.material)){ seen.add(o.material); g.userData.mats.push(o.material); } });
   g.visible=false; /* dormant: naga baru tampil saat ada pemain di Block 100 */
@@ -4155,20 +4164,20 @@ function powerHitCard(p,T,k,effect){ showAttackCard(p.name,T.name,k,'Kena! '+eff
 function cpuPUValid(p,k){
   if(!p||!p.pu[k]) return false;
   if(k==='totem') return false; /* Totem diputuskan saat kena ular/mob (askTotem) */
-  if(p.pos===100&&(k==='sword'||k==='totem')) return false;
-  if(k==='tnt') return players.some(q=>q!==p&&q.pos>0&&q.pos<100);
-  if(k==='sword') return players.some(q=>q!==p&&q.pos>0&&q.pos<100&&q.pos===p.pos); /* Pedang: musuh di petak yang sama */
+  if(p.pos===GOAL&&(k==='sword'||k==='totem')) return false;
+  if(k==='tnt') return players.some(q=>q!==p&&q.pos>0&&q.pos<GOAL);
+  if(k==='sword') return players.some(q=>q!==p&&q.pos>0&&q.pos<GOAL&&q.pos===p.pos); /* Pedang: musuh di petak yang sama */
   if(k==='potion_odd'||k==='potion_even') return !(p.odd||p.even||p.lucky); /* dadu berikutnya sudah ditentukan -> jangan boros */
   return true;
 }
 async function usePU(k,cpu){
   const p=players[cur];
   if(!p||busy||gameOver||AWK.running||!p.pu[k]||(p.cpu&&!cpu)) return;
-  /* Fase Dragon = p.pos===100 (kondisi existing di playTurn). Pedang/Totem (id 'totem') hanya relevan untuk gerak papan: tolak SEBELUM konsumsi, Power tidak berkurang. CPU: tolak diam-diam (CPU sudah memfilter Power valid sebelum usePU, 4.1.8). */
-  if(p.pos===100&&(k==='sword'||k==='totem')){ if(!cpu){ const m=PUN[k][1]+' tidak dapat digunakan saat melawan Ender Dragon.'; fb('short',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]})||hud('showPower',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]}); } return; }
+  /* Fase Dragon = p.pos===GOAL (kondisi existing di playTurn). Pedang/Totem (id 'totem') hanya relevan untuk gerak papan: tolak SEBELUM konsumsi, Power tidak berkurang. CPU: tolak diam-diam (CPU sudah memfilter Power valid sebelum usePU, 4.1.8). */
+  if(p.pos===GOAL&&(k==='sword'||k==='totem')){ if(!cpu){ const m=PUN[k][1]+' tidak dapat digunakan saat melawan Ender Dragon.'; fb('short',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]})||hud('showPower',k,PUN[k][1],p.name,{text:m,icon:PUN[k][0]}); } return; }
   if(k==='totem'){ if(!cpu){ const m='Totem aktif otomatis: kamu akan ditanya pakai atau tidak saat kena ular, mob jahat, Pedang, TNT, atau Rumput.'; fb('event','info',m); setMsg(m); } return; } /* Totem = keputusan saat kena (askTotem), bukan aktivasi di depan */
-  const gid=gameId,L=players.filter(q=>q!==p&&q.pos>0&&q.pos<100).sort((a,b)=>b.pos-a.pos)[0];
-  const SW=k==='sword'?players.filter(q=>q!==p&&q.pos>0&&q.pos<100&&q.pos===p.pos)[0]:null; /* Pedang: musuh di petak yang SAMA */
+  const gid=gameId,L=players.filter(q=>q!==p&&q.pos>0&&q.pos<GOAL).sort((a,b)=>b.pos-a.pos)[0];
+  const SW=k==='sword'?players.filter(q=>q!==p&&q.pos>0&&q.pos<GOAL&&q.pos===p.pos)[0]:null; /* Pedang: musuh di petak yang SAMA */
   if(k==='sword'&&!SW){ if(cpu) return; fb('event','info','Pedang butuh musuh di petak yang sama.'); return setMsg('Pedang butuh musuh di petak yang sama denganmu.'); }
   if((k==='potion_odd'||k==='potion_even')&&(p.odd||p.even||p.lucky)){ if(cpu) return; fb('event','info','Dadu berikutnya sudah ditentukan.'); return setMsg('Dadu berikutnya sudah ditentukan (Ramuan / Pasti 6). Lempar dulu.'); } /* ditolak SEBELUM konsumsi */
   if(k==='tnt'&&!L){ if(cpu) return; fb('event','info','TNT belum punya target.'); return setMsg('TNT belum punya target.'); }
@@ -4210,10 +4219,10 @@ function renderChips(){
     const d=document.createElement('div'); d.className='pr'+(i===cur&&!gameOver?' on':'')+(p.shield?' shielded':''); puFxApply(d,'pr:'+p.idx); d.style.setProperty('--pc',p.css);
     const im=document.createElement('img'); im.src=framedFace(p); im.alt='';
     const nm=document.createElement('span'); nm.textContent=p.name; const od=document.createElement('i'); od.className='ord'; od.textContent=String(i+1); od.setAttribute('aria-label','Giliran ke-'+(i+1));
-    const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===100?(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N):String(p.pos));
+    const ps=document.createElement('span'); ps.className='pos'; ps.textContent=p.pos===0?'Mulai':(p.pos===GOAL?(p.dragonReady?'Naga '+p.dhp:'Crystal '+p.crystal+'/'+CRYSTAL_N):String(p.pos));
     const av=document.createElement('div'); av.className='pav'; av.appendChild(im); av.appendChild(od); d.appendChild(av); d.appendChild(nm); d.appendChild(ps);
     const bfT=[p.bonus?'👟+'+p.bonus:'',p.extra?'🪶 ekstra':'',p.odd?'🧪 ganjil':'',p.even?'🧪 genap':'',p.lucky?'🍀 pasti 6':'',p.shield?'🗿 kebal':''].filter(Boolean).join('  '); if(bfT){ const bs=document.createElement('span'); bs.className='bf'; bs.textContent=bfT; d.appendChild(bs); }
-    if(p.pos===100&&p.dragonReady){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=p.dhp+'%'; hp.appendChild(b); d.appendChild(hp); }
+    if(p.pos===GOAL&&p.dragonReady){ const hp=document.createElement('span'); hp.className='hp'; const b=document.createElement('i'); b.style.width=p.dhp+'%'; hp.appendChild(b); d.appendChild(hp); }
     box.appendChild(d);
     const r=document.createElement('div'); r.className='sr'; r.style.color=p.key==='ender'?'#c9a2ff':p.css;
     const im2=document.createElement('img'); im2.src=framedFace(p); im2.alt='';
@@ -4227,7 +4236,7 @@ function renderChips(){
     const bt=document.createElement('button'); bt.type='button'; bt.className='pb'; bt.title=PUN[k][1]+': '+PUN[k][2];
     bt.setAttribute('aria-label',PUN[k][1]+': '+PUN[k][2]); UT.Gameplay.Config.setPuIcon(bt,k); const lb=document.createElement('em'); lb.textContent=PUN[k][3]||PUN[k][1].split(' ')[0]; bt.appendChild(lb);
     const n=document.createElement('b'); n.textContent=c?c.pu[k]:0; bt.appendChild(n);
-    bt.disabled=!c||c.cpu||busy||gameOver||!c.pu[k]||(c.pos===100&&(k==='sword'||k==='totem'));
+    bt.disabled=!c||c.cpu||busy||gameOver||!c.pu[k]||(c.pos===GOAL&&(k==='sword'||k==='totem'));
     bt.dataset.state=(!c||!c.pu[k])?'empty':(bt.disabled?'locked':'ready'); /* HUD: ready/locked/empty utk styling */ if(c) puFxApply(bt,'pb:'+c.idx+':'+k);
     bt.addEventListener('click',()=>{ ensureAudio(); usePU(k); });
     pu.appendChild(bt);
@@ -4447,7 +4456,7 @@ async function resolveAfterChestMove(p,gid){ await resolveTileAt(p,gid); renderC
 async function playTurn(p,v,gid,bn){
   const A=async pr=>{ await pr; if(gid!==gameId) throw STALE; };
   focus=p.pawn;
-  if(p.pos===100){
+  if(p.pos===GOAL){
     if(!AWK.done) await A(awakenDragon(p,gid)); /* jaga-jaga: naga tak boleh diserang sebelum Awakening */
     await A(gatherArena(gid));
     if(!p.dragonReady){ /* Feature 3: belum READY -> lawan End Crystal, bukan Dragon */
@@ -4463,16 +4472,16 @@ async function playTurn(p,v,gid,bn){
     return;
   }
   const target=p.pos+v+(bn||0);
-  if(target<=100){
+  if(target<=GOAL){
     await A(walk(p,p.pos,target)); p.pos=target;
   }else{
-    const over=target-100,fin=100-over;
-    await A(walk(p,p.pos,100)); p.pos=100; renderChips();
+    const over=target-GOAL,fin=GOAL-over;
+    await A(walk(p,p.pos,GOAL)); p.pos=GOAL; renderChips();
     setMsg('Kelebihan '+over+'. '+p.name+' memantul mundur ke '+fin+'.'); fb('event','bounce','Kelebihan '+over+'! Memantul ke '+fin,{gid}); sfx.bounce();
-    await A(sleep(300)); await A(walk(p,100,fin)); p.pos=fin;
+    await A(sleep(300)); await A(walk(p,GOAL,fin)); p.pos=fin;
   }
   renderChips();
-  if(p.pos===100){ setMsg(p.name+' tiba di The End! Lempar dadu untuk melawan Ender Dragon.'); fb('event','dragon',p.name+' tiba di The End! Siap lawan Ender Dragon',{gid,ttl:2400}); sfx.hundred(); sfx.win(); await A(sleep(900)); await A(awakenDragon(p,gid)); await A(gatherArena(gid)); nextTurn(); return; }
+  if(p.pos===GOAL){ setMsg(p.name+' tiba di The End! Lempar dadu untuk melawan Ender Dragon.'); fb('event','dragon',p.name+' tiba di The End! Siap lawan Ender Dragon',{gid,ttl:2400}); sfx.hundred(); sfx.win(); await A(sleep(900)); await A(awakenDragon(p,gid)); await A(gatherArena(gid)); nextTurn(); return; }
   await A(resolveTileAt(p,gid));
   if(CHESTS.has(p.pos)){ const pre=p.pos; await A(giveChest(p,chestToken(p))); if(p.pos!==pre) await A(resolveAfterChestMove(p,gid)); }
   renderChips();
@@ -4485,7 +4494,7 @@ async function playTurn(p,v,gid,bn){
    (fase End Crystal dan fase serang Dragon). Tahan tombol Roll: angka berputar 1>2>3>4>5>6>1...; lepas: angka saat itu dipilih dan diteruskan ke doRoll({value}).
    Dadu normal (di luar Block 100, CPU, AFK auto-roll) tidak berubah. Pointer Events: pointerdown/up/cancel (+lostpointercapture, blur, visibilitychange, watchdog) agar tombol tidak stuck. */
 const DICE_HOLD_MS=170,DH={on:false,id:null,v:1,timer:0,gid:0};
-function specialDiceActive(p){ return !!(p&&!p.cpu&&p.pos===100&&AWK.done&&!gameOver); }
+function specialDiceActive(p){ return !!(p&&!p.cpu&&p.pos===GOAL&&AWK.done&&!gameOver); }
 function specialHint(p){
   if(!specialDiceActive(p)||AWK.running) return;
   setMsg(p.dragonReady?p.name+': tahan Roll, lepas untuk memilih angka serangan Dragon.':p.name+': tahan Roll, lepas di angka 1-4 untuk menghancurkan Crystal bernomor sama.');
@@ -4578,7 +4587,7 @@ function finishGame(p){
   const lost=isPlayerDefeat(p);
   if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
   $('win').dataset.state=lost?'lose':'win';
-  $('winEyebrow').textContent=lost?'Level gagal':'Sampai di petak 100';
+  $('winEyebrow').textContent=lost?'Level gagal':'Sampai di petak '+GOAL;
   $('winTitle').textContent=lost?'Kamu kalah':(mode==='cpu'&&!p.cpu)?'Kamu menang':p.name+' menang';
   $('winText').textContent=(p.cpu?'Komputer lebih beruntung kali ini. Coba lagi?':'Pionmu lebih dulu sampai di puncak. Mau main lagi?')+(DRG.text&&!p.cpu?' '+DRG.text:'');
   setTimeout(()=>{ if(gameOver) $('win').hidden=false; },500);
