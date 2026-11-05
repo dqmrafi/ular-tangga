@@ -38,7 +38,7 @@
   var tPanel = 0, tCombat = 0;
   var NORMAL = { turn: 1, extra: 1 };
   var live = [], MAX_IMPORTANT = 3; /* entri stack, terbaru di indeks 0 (= anak pertama DOM) */
-  var combatOwner = null;
+  var combatOwner = null, combatBoss = 'Ender Dragon';
 
   function injectStyle() {
     if (doc.getElementById(STYLE_ID)) return;
@@ -220,11 +220,12 @@
       if (stale(o) || !build()) return H;
       cWho.textContent = (att || '') + (def ? ' → ' + def : '');
       cText.textContent = text ? String(text) : '';
-      var hp = o && typeof o.hp === 'number' ? Math.max(0, Math.min(100, o.hp)) : null, mx = (o && o.maxHp) || 100;
+      var mx = (o && o.maxHp) || 100, hp = o && typeof o.hp === 'number' ? Math.max(0, Math.min(mx, o.hp)) : null;
+      combatBoss = (o && o.bossName) || 'Ender Dragon';
       if (hp === null) { cBar.hidden = true; cHp.hidden = true; }
       else {
         cFill.style.width = Math.max(0, Math.min(100, hp / mx * 100)) + '%';
-        cHp.textContent = 'Ender Dragon: ' + hp + '/' + mx; cBar.hidden = false; cHp.hidden = false;
+        cHp.textContent = combatBoss + ': ' + hp + '/' + mx; cBar.hidden = false; cHp.hidden = false;
       }
       combatOwner = o && o.owner ? o.owner : null;
       clearTimeout(tCombat); retrigger(combat);
@@ -243,7 +244,8 @@
       /* Hanya menyegarkan bar HP naga bila combat strip sedang tampil untuk pemain ini. */
       if (!p || !combat || combat.hidden || typeof p.dhp !== 'number') return H;
       if (combatOwner !== null && combatOwner !== p.name) return H;
-      cFill.style.width = Math.max(0, Math.min(100, p.dhp)) + '%'; cHp.textContent = 'Ender Dragon: ' + p.dhp + '/100';
+      var mx = p.hpMax || 100;
+      cFill.style.width = Math.max(0, Math.min(100, p.dhp / mx * 100)) + '%'; cHp.textContent = combatBoss + ': ' + p.dhp + '/' + mx;
       return H;
     }
   };
