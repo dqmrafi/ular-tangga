@@ -36,7 +36,7 @@
     ['creeper', [29]], ['ender', [53]], ['skeleton', [38]], ['zombie', [2]],
     ['warden', [85]], ['villager', [45]], ['blaze', [66]]
   ];
-  C.MOB_THEME_ONLY = C.MOB_THEME_ONLY || { blaze: 'nether' };
+  C.MOB_THEME_ONLY = C.MOB_THEME_ONLY || (G.Maps && G.Maps.list().length ? G.Maps.mobThemeOnly() : { blaze: 'nether' });
   C.MOB_BACK = C.MOB_BACK || { skeleton: 1, zombie: 1, warden: 10, blaze: 3 };
   C.MOB_COLOR = C.MOB_COLOR || {
     creeper: 0x3E8E3A, ender: 0x3A1F5C, skeleton: 0xB8B8B8, zombie: 0x4F8F3F,
