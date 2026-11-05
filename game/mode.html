@@ -6,9 +6,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/base.css"><link rel="stylesheet" href="assets/css/scene-bg.css"><script src="assets/js/scene-bg.js" data-auto data-preset="soft"></script>
 
-<style>:root{--curbar-right:7.8rem;--curbar-top:1.9rem;--cur-fs:1.9rem;--cur-icon:5.4rem}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1"><script src="assets/js/landscape.js"></script><style>
+<style>:root{--curbar-right:2.6rem;--curbar-top:2rem;--cur-h:4.2rem;--cur-icon:5rem;--cur-fs:2.4rem;--cur-minw:14rem;--cur-gap:1.4rem}</style><link rel="stylesheet" href="assets/css/shared-ui.css?v=icons1"><script src="assets/js/landscape.js"></script><style>
 :root{--bk:max(5rem,44px)}
-:root{--bd:#12337f;--ink:#0b1530;--cur-minw:10.5rem;--cur-gap:1rem;--cur-h:3.8rem;--cur-icon:4.2rem;--cur-fs:1.9rem}
+:root{--bd:#12337f;--ink:#0b1530}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
 html{font-size:min(1vw,1.78vh)}
 html,body{margin:0;height:100%;overflow:hidden;font-family:'Baloo 2','Fredoka','Arial Rounded MT Bold',Arial,sans-serif;font-weight:800;color:#fff;background:linear-gradient(#5db4f5,#a9dcf8 60%,#d5f0ff)}
@@ -17,11 +17,10 @@ button:active:not(:disabled){transform:scale(.95)}button:focus-visible,.map:focu
 #sky{position:fixed;inset:0}
 #stage{position:fixed;inset:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);display:flex;flex-direction:column;gap:1.2rem}
 .blue{background:linear-gradient(#3f93f4,#1d58c6);border-radius:1rem;box-shadow:0 0 0 .22rem var(--ink),0 .5rem 0 .22rem var(--ink),inset 0 .2rem .2rem rgba(255,255,255,.55),inset 0 0 0 .25rem rgba(150,205,255,.45)}
-#hd{flex:none;position:relative;display:flex;align-items:center;justify-content:space-between;padding:1.6rem 2.4rem 0;height:7.4rem}
+#hd{flex:none;position:relative;display:flex;align-items:flex-start;justify-content:flex-start;gap:1.4rem;padding:1.6rem 2.4rem 0;height:7.4rem}
 .ib{width:max(5rem,44px);height:max(5rem,44px);padding:0;display:grid;place-items:center}.ib img,.ib svg{width:3.2rem;height:3.2rem;pointer-events:none}
-#title{position:absolute;left:46%;top:1.7rem;translate:-50% 0;height:5rem;padding:0 2.4rem;display:flex;align-items:center;gap:1.2rem;font-size:3.2rem;white-space:nowrap;-webkit-text-stroke:.2rem var(--ink);paint-order:stroke fill;text-shadow:0 .2rem 0 var(--ink)}
+#title{position:relative;flex:none;height:max(5rem,44px);padding:0 2.4rem;display:flex;align-items:center;gap:1.2rem;font-size:3.2rem;white-space:nowrap;-webkit-text-stroke:.2rem var(--ink);paint-order:stroke fill;text-shadow:0 .2rem 0 var(--ink)}
 #title img{width:3.8rem;height:3.8rem}
-.ut-curbar{position:absolute;right:8.8rem;top:2.2rem}
 /* ===== select map: horizontal carousel, scroll-snap ===== */
 #mapsec{flex:none;position:relative;margin-top:.8rem}
 #car{display:flex;gap:2rem;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;padding:1.6rem 0 1.8rem;-webkit-overflow-scrolling:touch}
@@ -76,6 +75,7 @@ html{font-size:2.6vw}html,body{overflow:auto}
 #prev{left:.4rem}#next{right:.4rem}.ut-curbar{display:none}#title{font-size:2.8rem;padding:0 2rem}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+html body .ut-curbar .cur{background:linear-gradient(#3f506b,#26344c);box-shadow:inset 0 0 0 .2rem #8696ad,inset 0 0 0 .35rem #172033,0 .3rem 0 #0b1220,0 .8rem 1.2rem rgba(10,30,90,.35);border-radius:1rem;color:#f4d36e;text-shadow:0 .15rem 0 #0b1220;padding-right:1.6rem}
 </style></head>
 <body>
 <div id="sky"></div>
@@ -84,7 +84,6 @@ html{font-size:2.6vw}html,body{overflow:auto}
   <button class="blue ib" id="back" aria-label="Kembali"><img src="assets/Images/icon/ui/back.webp" alt="" draggable="false"></button>
   <div class="blue" id="title"><img src="assets/Images/icon/mode/console.webp" alt="" draggable="false">Pilih Mode</div>
   <div class="ut-curbar"><div class="ab cur" id="gem"><img class="ci" src="assets/Images/icon/currency/emerald.webp" alt="" draggable="false"><span id="gemV"></span></div><div class="ab cur" id="coin"><img class="ci" src="assets/Images/icon/currency/coin.webp" alt="" draggable="false"><span id="coinV"></span></div></div>
-  <button class="blue ib" id="home" aria-label="Home"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" fill="#fff" stroke="#0b1530" stroke-width="1.6" stroke-linejoin="round"/></svg></button>
  </header>
  <section id="mapsec" aria-label="Pilih map">
   <button class="blue arr" id="prev" aria-label="Map sebelumnya">‹</button>
@@ -170,7 +169,7 @@ function ranked(format,n){
  tm.push(setTimeout(()=>{if(mm!==cfg)return;$('#mmSpin').classList.add('done');$('#mmT').textContent='LAWAN DITEMUKAN!';$('#mmX').hidden=true;
   tm.push(setTimeout(()=>{if(mm!==cfg)return;mm=null;RF.launch(cfg)},900))},2400))}
 $('#mmX').onclick=cancelMM;
-$('#back').onclick=()=>RF.navigate('back');$('#home').onclick=()=>RF.navigate('home');
+$('#back').onclick=()=>RF.navigate('back');
 document.documentElement.classList.add('ut-ready');
 })();
 </script>
