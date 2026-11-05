@@ -3064,6 +3064,12 @@ function addHoglinLike(B,x,z,h,o){
   [-1,1].forEach(a=>{ q(a*0.1,0.44,0.6,0.04,0.12,0.04,0xF2F2E0,F); q(a*0.2,0.58,0.4,0.12,0.06,0.08,o.body,F); q(a*0.09,0.48,0.552,0.04,0.04,0.02,0x151515,F); });
   if(o.zombie){ q(0.12,0.5,0.0,0.14,0.14,0.02,0x8A5A5A,F); q(-0.1,0.46,-0.2,0.12,0.12,0.02,0x3A2A2A,F); q(0.24,0.42,0.1,0.02,0.14,0.14,0x8A5A5A,F); }
 }
+function addGhastTile(B,x,z,h){ /* Ghast mini yang melayang di atas petak */
+  const F={edge:false},q=(dx,dy,dz,w,hh,dd,c,f)=>addBox(B,x+dx,h+dy,z+dz,w,hh,dd,c,f);
+  q(0,0.95,0,0.6,0.6,0.6,0xEDEDED);
+  [-1,1].forEach(a=>q(a*0.15,0.98,0.302,0.09,0.14,0.01,0x2A2A2A,F)); q(0,0.8,0.302,0.18,0.09,0.01,0x2A2A2A,F);
+  for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) q(i*0.2,0.5,j*0.2,0.07,0.3+((i+j)&1)*0.08,0.07,0xE0E0E0,F);
+}
 function addHoglin(B,x,z,h){ addHoglinLike(B,x,z,h,{body:0xA8714A,dk:0x7A4E30,mane:0x5A3A20,snout:0xD9A07A}); }
 function addZoglin(B,x,z,h){ addHoglinLike(B,x,z,h,{body:0x6F8F6A,dk:0x4A6A48,mane:0x3A4A38,snout:0x8FA878,zombie:true}); }
 function makeChest(){
@@ -3080,7 +3086,7 @@ let MOBOBJ={},CHESTOBJ={};
 function buildMobs(th){
   MOBOBJ={}; CHESTOBJ={};
   const mk={creeper:addCreeper,ender:addEnderman,skeleton:addSkeleton,zombie:addZombie,warden:addWarden,villager:addVillager,
-    strider:addStrider,magma_cube:addMagmaCube,piglin:addPiglin,piglin_brute:addPiglinBrute,zombified_piglin:addZombifiedPiglin,hoglin:addHoglin,zoglin:addZoglin};
+    strider:addStrider,magma_cube:addMagmaCube,piglin:addPiglin,piglin_brute:addPiglinBrute,zombified_piglin:addZombifiedPiglin,hoglin:addHoglin,zoglin:addZoglin,ghast:addGhastTile};
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n],k=mobOn(n,th.key);
     if(k){
@@ -3114,6 +3120,7 @@ function updateMobs(dt,t){
     let dy=Math.atan2(lx-m.x,lz-m.z)-g.rotation.y; dy=Math.atan2(Math.sin(dy),Math.cos(dy));
     g.rotation.y+=dy*Math.min(1,dt*(near?8:2.5));
     let y=Math.abs(Math.sin(t*(near?9:2)+m.ph))*(near?0.07:0.012)*(m.k==='warden'?0.6:1),sc=1,jx=0;
+    if(m.k==='ghast') y=0.12*Math.sin(t*1.5+m.ph)+0.1;
     if(m.k==='magma_cube'){ const hp=Math.abs(Math.sin(t*(near?4:1.6)+m.ph)); y=hp*(near?0.28:0.14); sc=1+0.1*(1-hp)-0.04*hp; }
     if(m.k==='creeper'&&(near||rx)) sc=1+0.12*Math.abs(Math.sin(t*(rx?22:12)));
     if(m.k==='ender'&&(near||rx)) jx=(Math.random()-0.5)*0.05;

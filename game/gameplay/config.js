@@ -37,18 +37,18 @@
     ['warden', [85]], ['villager', [45]], ['blaze', [66]]
   ];
   C.MOB_THEME_ONLY = C.MOB_THEME_ONLY || (G.Maps && G.Maps.list().length ? G.Maps.mobThemeOnly() : { blaze: 'nether' });
-  C.MOB_BACK = C.MOB_BACK || { skeleton: 1, zombie: 1, warden: 10, blaze: 3, zombified_piglin: 1, magma_cube: 2, piglin: 2, hoglin: 3, zoglin: 5, piglin_brute: 6 };
+  C.MOB_BACK = C.MOB_BACK || { skeleton: 1, zombie: 1, warden: 10, blaze: 3, zombified_piglin: 1, magma_cube: 2, piglin: 2, hoglin: 3, zoglin: 5, piglin_brute: 6, ghast: 4 };
   C.MOB_COLOR = C.MOB_COLOR || {
     creeper: 0x3E8E3A, ender: 0x3A1F5C, skeleton: 0xB8B8B8, zombie: 0x4F8F3F,
     warden: 0x0E3A44, villager: 0xC9A24A, blaze: 0xE0561A,
     strider: 0xB02A2A, magma_cube: 0xE0561A, piglin: 0xD99A78, piglin_brute: 0x8A4A2A,
-    hoglin: 0xA8714A, zoglin: 0x6F8F6A, zombified_piglin: 0x7F9A68
+    hoglin: 0xA8714A, zoglin: 0x6F8F6A, zombified_piglin: 0x7F9A68, ghast: 0xEDEDED
   };
   C.MOB_NAME = C.MOB_NAME || {
     creeper: 'Creeper', ender: 'Enderman', skeleton: 'Skeleton', zombie: 'Zombie',
     warden: 'Warden', villager: 'Villager', blaze: 'Blaze',
     strider: 'Strider', magma_cube: 'Magma Cube', piglin: 'Piglin', piglin_brute: 'Piglin Brute',
-    hoglin: 'Hoglin', zoglin: 'Zoglin', zombified_piglin: 'Zombified Piglin'
+    hoglin: 'Hoglin', zoglin: 'Zoglin', zombified_piglin: 'Zombified Piglin', ghast: 'Ghast'
   };
   C.DMG = C.DMG || 5;
   /* Dragon Feature 6: hadiah mengalahkan Ender Dragon. Hanya NOMINAL; diberikan lewat PlayerData.grant existing

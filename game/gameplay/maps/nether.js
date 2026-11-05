@@ -14,7 +14,7 @@
   if (!G.Maps) return;
   G.Maps.register({
     key: 'nether',
-    onlyMobs: ['blaze', 'strider', 'magma_cube', 'piglin', 'piglin_brute', 'hoglin', 'zoglin', 'zombified_piglin'],
+    onlyMobs: ['blaze', 'ghast', 'strider', 'magma_cube', 'piglin', 'piglin_brute', 'hoglin', 'zoglin', 'zombified_piglin'],
     goal: 120,
     boss: 'wither', /* fase Wither belum dibuat: sementara tiba di petak 120 = menang */
     view: { minX: -8.7, maxX: 9.8, minZ: -6.6, maxZ: 6.0 }, /* kotak yang harus terlihat utuh (area Start + seluruh papan) */
@@ -22,9 +22,8 @@
       ladders: { 5: 26, 23: 46, 47: 65, 66: 89, 86: 106, 100: 118 },
       snakes: { 28: 7, 45: 22, 64: 48, 84: 61, 102: 79, 114: 94 },
       chests: [9, 17, 33, 52, 57, 72, 92, 96, 110],
-      mobs: [['zombified_piglin', [10, 36, 76]], ['blaze', [14, 55, 97]], ['magma_cube', [19, 69, 108]],
-             ['ender', [31, 59, 91]], ['piglin_brute', [50, 112]], ['hoglin', [38, 74]],
-             ['zoglin', [62, 101]], ['piglin', [43, 83]], ['strider', [12, 68, 95]]] /* strider = mob penolong: maju 3 petak */
+      mobs: [['zombified_piglin', [10]], ['strider', [12]], ['magma_cube', [19]], ['ender', [31]], ['hoglin', [38]],
+             ['piglin', [43]], ['blaze', [55]], ['zoglin', [62]], ['ghast', [91]], ['piglin_brute', [112]]] /* maksimal 1 petak per mob; strider = penolong maju 3 petak */
     },
     props: [
       ["ghast",-9,9,-6],["ghast",10,11,-9],["ghast",3,10,7]
