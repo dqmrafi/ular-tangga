@@ -3663,7 +3663,7 @@ async function awakenDragon(p,gid){
    Semua mati -> gemuruh, Wither muncul dari bawah benteng (kubus terlempar). Wither (120 HP, damage = angka dadu x DMG) dilawan dgn dadu tahan-lepas yang sama.
    Skeleton & Wither TIDAK menyerang. Menang/kalah lewat celebrate -> finishGame (sama seperti Ender Dragon). Memakai ulang AWK/DRG/crystalDone/p.crystal/p.dragonReady/p.dhp. */
 const WITHER_HP=120,WF={risen:false,cam:false,shot:false,SC:1.5};
-function fortSlot(pi){ const F=FORT; return new THREE.Vector3(F.x0+F.T+0.42,F.fl,F.cz+[-0.9,-0.3,0.3,0.9][pi%4]); } /* sisi barat halaman, dekat jembatan */
+function fortSlot(pi){ const F=FORT; return new THREE.Vector3(F.x0+0.45,F.fl,F.cz+[-0.66,-0.22,0.22,0.66][pi%4]); } /* tepat di ujung jembatan (jembatan berakhir di x0): x0+0.45 = tepat di balik ambang masuk; z dirapatkan agar sejajar lebar jembatan */
 function fitZoom(w,h){ const t=Math.tan(camera.fov*Math.PI/360),a=camera.aspect||1,m=1.1; return Math.max((w/2*m)/(t*a),(h/2*m)/t)/baseDist; }
 function fortZoom(close){ const z=close?fitZoom(8.4,7.0):fitZoom(10.4,8.6); return camLocked()?z:Math.max(0.4,z); }
 function fortCamPan(){ /* pergeseran kamera agar tengah benteng ada di tengah layar (sesuai mode LOCK / ANGLE) */
