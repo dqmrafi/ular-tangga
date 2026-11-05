@@ -4855,14 +4855,11 @@ requestAnimationFrame(frame);
 }catch(e){}})();
 </script>
 <style id="btn-flat">
-/* Tombol gameplay: bukan glossy lagi, mengikuti tombol "Gunakan" di Inventory (gradasi rata + ring terang + bayangan bawah). Dimuat paling akhir. */
-#pauseMenu .lm-mode::before,body #side .tn #btnRoll::before,html body #side .rcol .pnl.tn #btnRoll::before{content:none!important;display:none!important}
+/* Menu Jeda: bukan glossy lagi (tombol Roll tetap glossy), mengikuti tombol "Gunakan" di Inventory (gradasi rata + ring terang + bayangan bawah). Dimuat paling akhir. */
+#pauseMenu .lm-mode::before{content:none!important;display:none!important}
 #pauseMenu .lm-resume{background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ffe58a,inset 0 calc(var(--mu)*-.3) 0 rgba(150,80,0,.4),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #8a4a0a}
 #pauseMenu .lm-exit{background:linear-gradient(#ff7a68,#e0352b);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ffb3a8,inset 0 calc(var(--mu)*-.3) 0 rgba(110,10,10,.4),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #7a0e0a}
 #pauseMenu .lm-grey{background:linear-gradient(#a3add0,#6d79a4);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #c9d1ea,inset 0 calc(var(--mu)*-.3) 0 rgba(25,35,80,.4),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #26305a}
 #pauseMenu .lm-grey[aria-pressed=true]{background:linear-gradient(#8a85d8,#5a50b8);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #b9b5f0,inset 0 calc(var(--mu)*-.3) 0 rgba(35,26,99,.45),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #231a63}
-html body #side .rcol .pnl.tn #btnRoll{border-color:var(--ol);background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -5px 0 rgba(150,80,0,.4),0 5px 0 var(--ol),0 10px 14px rgba(0,0,0,.22)}
-html body #side .rcol .pnl.tn #btnRoll:not(:disabled):active{box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -5px 0 rgba(150,80,0,.4),0 1px 0 var(--ol)}
-html body #side .rcol .pnl.tn #btnRoll:disabled{background:linear-gradient(#9aa7c0,#5f6e8d);border-color:var(--ol);box-shadow:inset 0 0 0 2px #b9c4da,inset 0 -5px 0 rgba(20,30,60,.35),0 4px 0 var(--ol)}
 </style>
 </body></html>
