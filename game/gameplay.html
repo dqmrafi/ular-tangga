@@ -1337,11 +1337,15 @@ const MOBBACK=UT.Gameplay.Config.MOB_BACK;
 const MOBTHEME=UT.Gameplay.Config.MOB_THEME_ONLY;
 function mobOn(n,themeKey){ const k=MOBT[n]; return (k&&(!MOBTHEME[k]||themeKey===MOBTHEME[k]))?k:null; }
 let CHESTS=UT.Gameplay.Config.CHESTS;
+let BOSS='dragon',BOARD_CUSTOM=false,MAPDEF=null; /* BOSS: 'dragon' = fase Ender Dragon di GOAL; selain itu sementara = sampai di GOAL langsung menang */
 let GOAL=100; /* petak akhir (fase boss). Default 100; map bisa menimpa lewat UT.Gameplay.Maps (def.goal) */
 /* Aturan per map: def.rules = {ladders, snakes, chests:[...], mobs:[[nama,[petak]],...]}; yang tidak diisi memakai UT.Gameplay.Config (default World). */
 function applyMapRules(def){
   const C=UT.Gameplay.Config,R=(def&&def.rules)||{};
-  GOAL=(def&&def.goal)||100;
+  GOAL=(def&&def.goal)||100; BOSS=(def&&def.boss)||'dragon'; MAPDEF=def||null; BOARD_CUSTOM=!!(def&&typeof def.board==='function');
+  TILES=BOARD_CUSTOM?def.board():GV.buildTiles();
+  if(BOARD_CUSTOM){ const cells={}; for(let i=1;i<TILES.length;i++){ const t=TILES[i]; cells[Math.floor(t.x)+','+Math.floor(t.z)]=t.h; } TILES.cells=cells; }
+  applyView((def&&def.view)||DEFAULT_VIEW);
   LADDERS=R.ladders||C.LADDERS; SNAKES=R.snakes||C.SNAKES; CHESTS=R.chests?new Set(R.chests):C.CHESTS;
   MOBT={}; (R.mobs||C.MOB_POSITIONS).forEach(m=>m[1].forEach(n=>MOBT[n]=m[0]));
 }
@@ -1396,8 +1400,8 @@ function upgradePawnPNG(g,pal,k){
 /* Geometri papan murni (tile serpentine, tinggi terrain) = UT.GameplayVoxelGeom (gameplay/voxel-geom.js). Rumus dipindah apa adanya. */
 const GV=UT.GameplayVoxelGeom;
 let TILES=GV.buildTiles();
-function terrainTop(x,z){ return GV.terrainTop(TILES,x,z); }
-function topAt(x,z,r){ return GV.topAt(TILES,x,z,r); }
+function terrainTop(x,z){ if(TILES.cells){ const h=TILES.cells[Math.floor(x)+','+Math.floor(z)]; return h===undefined?0:h; } return GV.terrainTop(TILES,x,z); }
+function topAt(x,z,r){ if(TILES.cells) return Math.max(terrainTop(x,z),terrainTop(x+r,z),terrainTop(x-r,z),terrainTop(x,z+r),terrainTop(x,z-r)); return GV.topAt(TILES,x,z,r); }
 function mcBlock(n,themeKey){
   if(n>=99) return 0xE6E3A6;
   if(mobOn(n,themeKey)) return MOBCOL[mobOn(n,themeKey)];
@@ -2768,7 +2772,7 @@ function buildLabels(th){
   const geo=new THREE.PlaneGeometry(0.6,0.6);
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n];
-    const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:labelTexture(String(n),128,128,n>=GOAL?40:54,th.label,th.labelLine),transparent:true,depthWrite:false}));
+    const m=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({map:labelTexture(String(n),128,128,n>=100?40:54,th.label,th.labelLine),transparent:true,depthWrite:false}));
     m.rotation.x=-Math.PI/2; m.position.set(t.x,t.h+0.012,t.z); m.renderOrder=2;
     world.add(m);
   }
@@ -3424,6 +3428,32 @@ async function awakenDragon(p,gid){
 }
 /* capture-phase guard: selama awakening klik/Enter/Space ke tombol HUD apa pun diabaikan (pelengkap CSS .awk-lock) */
 document.addEventListener('click',e=>{ if(AWK.running&&e.target.closest&&e.target.closest('button,select,input,a')){ e.stopImmediatePropagation(); e.preventDefault(); } },true);
+/* ---------- Papan sendiri (map dengan def.board): lava, alas Start, dekor dari def.props ---------- */
+function buildCustomGround(TB,th){
+  const LAV=[0xFF6A1A,0xFF8A2A,0xE8501A,0xFFA23A],X0=-14,X1=18,Z0=-13,Z1=11;
+  for(let gx=X0;gx<=X1;gx+=2) for(let gz=Z0;gz<=Z1;gz+=2){
+    const k=(Math.imul(gx*73+19,0x9E3779B1)^Math.imul(gz*131+7,0x85EBCA6B))>>>0;
+    addBox(TB,gx,-0.35,gz,2,0.3,2,LAV[k%4],{edge:false});
+  }
+  const S=th.deep[0],W=th.wall[0];
+  for(let gx=-33;gx<=33;gx+=2) for(let gz=-28;gz<=28;gz+=2){
+    if(gx>=X0-1&&gx<=X1+1&&gz>=Z0-1&&gz<=Z1+1) continue;
+    const h=mcH(gx,gz);
+    addBox(TB,gx,(h-0.6)/2,gz,2,h+0.2,2,jit(h>=1.5?S:W,0.07),{edge:false});
+    addBox(TB,gx,h-0.1,gz,2,0.2,2,jit(th.ground,0.08));
+  }
+  addBox(TB,PAD.x,-0.25,PAD.z,2.6,0.5,2.6,jit(th.wall[1],0.05)); /* alas area Start di atas lava */
+  addBox(TB,PAD.x+1.7,-0.05,PAD.z,1.2,0.1,0.8,0x3A2A1A); /* papan penghubung ke petak 1 */
+}
+function decorateCustom(DB,th){
+  addWideFar(DB,th);
+  const D=MAPDEF||{},B=jit(th.wall[1],0.05);
+  (D.props||[]).forEach(q=>{
+    if(q[0]==='ghast'){ addGhast(DB,q[1],q[2],q[3]); return; }
+    addBox(DB,q[1],-0.1,q[2],1.4,0.5,1.4,B); /* alas batu kecil di atas lava */
+    if(q[0]==='tree') addNetherTree(DB,q[1],q[2],q[3]||1); else if(q[0]==='pillar') addPillar(DB,q[1],q[2],q[3]||3);
+  });
+}
 function buildWorld(key){
   const th=THEMES.find(x=>x.key===key)||THEMES[0];
   theme=th; themeKey=th.key;
@@ -3441,7 +3471,7 @@ function buildWorld(key){
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n],colTop=t.h-0.2,hh=colTop+0.5;
     addBox(TB,t.x,-0.5+hh/2,t.z,1,hh,1,jit(pick(th.wall),0.06));
-    if(n===GOAL){ /* Block 100 = portal: permukaan hitam gelap (4x4 kotak seperti tile lain) + rim ungu tipis */
+    if(n===GOAL&&BOSS==='dragon'){ /* Block 100 = portal: permukaan hitam gelap (4x4 kotak seperti tile lain) + rim ungu tipis */
       for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,(i+j)%2?0x0A0712:0x120B1E,{edge:false});
       [[0,-0.47,0.96,0.06],[0,0.47,0.96,0.06],[-0.47,0,0.06,0.88],[0.47,0,0.06,0.88]].forEach(f=>addBox(TB,t.x+f[0],t.h+0.012,t.z+f[1],f[2],0.024,f[3],0x2B1659,{edge:false}));
       continue;
@@ -3458,8 +3488,8 @@ function buildWorld(key){
     }
   }
   MCFLAT=(th.decor==='mc');
-  buildMcTerrain(TB,th);
-  if(true){
+  if(BOARD_CUSTOM) buildCustomGround(TB,th); else buildMcTerrain(TB,th);
+  if(!BOARD_CUSTOM){
     [[0,5.25,11.5,0.5],[0,-5.25,11.5,0.5],[5.25,0,0.5,10]].concat([[-5.25,0,0.5,10]]).forEach((f,fi)=>{ const wb=th.key==='minecraft'?0x6B4424:th.wall[1]; addBox(TB,f[0],0.1,f[1],f[2],0.7,f[3],jit(wb,0.08)); woodTop(TB,f[0],f[1],f[2],f[3],0.45,wb,41+fi); });
     [[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]].forEach(q=>{ addBox(TB,q[0],0.75,q[1],0.1,0.5,0.1,0x4E3118); addBox(TB,q[0],1.03,q[1],0.18,0.06,0.18,0x2E2E2E); });
   }
@@ -3474,19 +3504,21 @@ function buildWorld(key){
   addBox(TB,G.x-0.36,G.h+2.35,G.z-0.36,0.22,0.22,0.22,0xFFD23F);
   for(let c=0;c<4;c++) for(let r=0;r<2;r++) addBox(TB,G.x-0.36+0.22+c*0.22,G.h+2.05-r*0.22,G.z-0.36,0.22,0.22,0.05,(c+r)%2===0?th.flag:0xFFFFFF);
   world.add(buildBatch(TB));
+  if(BOSS==='dragon'){
   PORTAL=buildPortal(TILES[GOAL]); world.add(PORTAL.g);
   ARENA=buildArena(); world.add(ARENA.g);
   MOUNT=buildMountain(); world.add(MOUNT.g); /* Feature 2: gunung batu penutup arena (menggantikan farm kiri) */
+  }
   buildMobs(th);
 
   /* obor di 4 sudut papan: api berkedip + lampu (menyala saat malam) */
   torchMeshes=[];
-  [[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]].forEach((q,i)=>{
+  (BOARD_CUSTOM?[]:[[-5.25,5.25],[5.25,5.25],[-5.25,-5.25],[5.25,-5.25]]).forEach((q,i)=>{
     const f=addFlame(q[0],1.06,q[1],1.2,{halo:2.0,hal:0.5}); f.lt=FLIGHTS[i]; f.li=1.25; f.lt.position.set(q[0],1.35,q[1]);
   });
 
   const DB=makeBatch();
-  decorate(DB,th);
+  if(BOARD_CUSTOM) decorateCustom(DB,th); else decorate(DB,th);
   world.add(buildBatch(DB));
   applyArenaState();
   spawnRoamers();
@@ -3918,8 +3950,10 @@ const camCfg={angle:false,preset:'free',follow:true},camHold={x:CAM_BASE.x,y:CAM
 const camLocked=()=>!camCfg.angle;
 const camFollowing=()=>camCfg.angle&&camCfg.follow;
 /* kotak yang harus terlihat utuh: papan 10x10 (x,z -5..5) + area Start (api unggun di PAD x=-7.2,z=4.5, radius sekitar 1.4). Dihitung sekali dari data, bukan angka ajaib per layar */
-const LOCK_BOX={minX:-8.7,maxX:5.3,minZ:-5.3,maxZ:6.0,y:0.5,margin:1.14};
+const DEFAULT_VIEW={minX:-8.7,maxX:5.3,minZ:-5.3,maxZ:6.0}; /* map dengan papan sendiri mengisi def.view */
+const LOCK_BOX=Object.assign({y:0.5,margin:1.14},DEFAULT_VIEW);
 const lockCenter={x:(LOCK_BOX.minX+LOCK_BOX.maxX)/2,z:(LOCK_BOX.minZ+LOCK_BOX.maxZ)/2};
+function applyView(v){ LOCK_BOX.minX=v.minX; LOCK_BOX.maxX=v.maxX; LOCK_BOX.minZ=v.minZ; LOCK_BOX.maxZ=v.maxZ; lockCenter.x=(v.minX+v.maxX)/2; lockCenter.z=(v.minZ+v.maxZ)/2; }
 function lockZoom(){
   /* framing responsif: jarak kamera agar kotak (lebar x tinggi) + margin muat di viewport apa pun (portrait/landscape/tablet/desktop) */
   const t=Math.tan(camera.fov*Math.PI/360),a=camera.aspect||1;
@@ -4481,6 +4515,9 @@ async function playTurn(p,v,gid,bn){
     await A(sleep(300)); await A(walk(p,GOAL,fin)); p.pos=fin;
   }
   renderChips();
+  if(p.pos===GOAL&&BOSS!=='dragon'){ /* sementara: fase boss map ini belum ada -> tiba di petak akhir = menang */
+    setMsg(p.name+' tiba di petak '+GOAL+'!'); fb('event','dragon',p.name+' tiba di petak '+GOAL+'!',{gid,ttl:2400}); sfx.hundred(); sfx.win(); await A(sleep(900)); await A(celebrate(p)); finishGame(p); return;
+  }
   if(p.pos===GOAL){ setMsg(p.name+' tiba di The End! Lempar dadu untuk melawan Ender Dragon.'); fb('event','dragon',p.name+' tiba di The End! Siap lawan Ender Dragon',{gid,ttl:2400}); sfx.hundred(); sfx.win(); await A(sleep(900)); await A(awakenDragon(p,gid)); await A(gatherArena(gid)); nextTurn(); return; }
   await A(resolveTileAt(p,gid));
   if(CHESTS.has(p.pos)){ const pre=p.pos; await A(giveChest(p,chestToken(p))); if(p.pos!==pre) await A(resolveAfterChestMove(p,gid)); }
@@ -4583,7 +4620,7 @@ async function doRoll(opt){
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
 function finishGame(p){
   gameOver=true; clearTurnTimer(); p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
-  setMsg(p.name+' mengalahkan Ender Dragon!'); setRoll(false);
+  setMsg(BOSS==='dragon'?p.name+' mengalahkan Ender Dragon!':p.name+' sampai di petak '+GOAL+'!'); setRoll(false);
   const lost=isPlayerDefeat(p);
   if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
   $('win').dataset.state=lost?'lose':'win';
