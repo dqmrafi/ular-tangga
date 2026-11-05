@@ -11,7 +11,7 @@
 - **Base branch:** `main`
 - **Checkpoint 0 commit:** `76e71e67233116936f8c27b4c6c5241efffb275f`
 - **Checkpoint 1 commit:** `5e55393291dc70fa1535900339a6b8ef4c91253f`
-- **Current checkpoint commit:** pending
+- **Current checkpoint commit:** `0c18b941a855045abf5d91c60f6c7af353f73200` (hardening batch; follow-up runtime-state guard below)
 - **Application code changed:** Yes — Supabase foundation and private-room UI integration.
 - **Tests run:** No runtime tests. No Supabase project credentials/config are available in the repository.
 
@@ -51,7 +51,8 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 ## Checkpoint 7 changes
 
 - SQL hardening: corrected `LIMIT 1 FOR UPDATE SKIP LOCKED` ordering; added stale-room checks/pruning, active-game leave guard, finished-room status on terminal snapshots, host heartbeat, and revocation of default `PUBLIC`/`anon` execution for security-definer RPCs.
-- `room-service.js`: host heartbeat every 30 seconds while connected; heartbeat stops on unsubscribe/host transfer.
+- `room-service.js`: host heartbeat every 30 seconds while connected; heartbeat stops on unsubscribe/host transfer. A source review caught and fixed the heartbeat callback to compare against the authenticated player variable.
+- Room state now carries the server status through the UI so Ready/Start controls stay hidden after the room starts or finishes; the setup path no longer overrides that status-based visibility.
 - `client.js` imports the tracked `config.example.js`, avoiding an ignored/untracked config file in static Vercel deployments.
 - `room-flow.js`, `room.html`, `game-integration.js`, and `gameplay.html`: online rooms no longer send account inventory, equipped cosmetics, or power-up selections; neutral defaults are used.
 - `supabase/README.md`: documented Vercel root directory (`game/`), public browser config, Anonymous Auth, and live test checklist.

@@ -201,7 +201,7 @@ function renderRoomHeader(){
 }
 function applyRemoteRoom(row){
  if(!row)return;S.mpRoomId=row.id;HOST=!!(S.mpIdentity&&row.host_id===S.mpIdentity.id);
- S.room={id:row.id,privacy:row.is_public?'public':'private',code:row.code,players:(row.players||[]).map(p=>({id:p.id,name:p.name,level:1,ready:!!p.ready,team:Number(p.team)||0,kind:p.id===row.host_id?'host':'player'}))};
+ S.room={id:row.id,status:row.status,privacy:row.is_public?'public':'private',code:row.code,players:(row.players||[]).map(p=>({id:p.id,name:p.name,level:1,ready:!!p.ready,team:Number(p.team)||0,kind:p.id===row.host_id?'host':'player'}))};
  renderRoomHeader();$('#cCode').textContent='KODE '+row.code;
  $('#rdy').hidden=HOST||row.status!=='waiting';$('#start').hidden=!HOST||row.status!=='waiting';
  $('#sPriv').classList.toggle('on',!row.is_public);$('#sPub').classList.toggle('on',!!row.is_public);
@@ -219,7 +219,6 @@ async function setupOnline(){
   }else{if(!JOIN)throw new Error('Kode room tidak valid atau tidak tersedia');row=await MP.joinRoom({code:JOIN,name:S.mpIdentity.name})}
   try{sessionStorage.setItem('ut-multiplayer-room',JSON.stringify({id:row.id,code:row.code}))}catch(_){}
   applyRemoteRoom(row);S.mpUnsub=MP.subscribe(row.id,applyRemoteRoom);
-  $('#rdy').hidden=HOST;$('#start').hidden=!HOST;
  }catch(e){console.error('[multiplayer] room setup failed',e);toast('Gagal masuk room: '+(e.message||'Periksa koneksi'));$('#sttx').textContent='Tidak dapat terhubung ke room. Kembali dan coba lagi.';$('#rdy').disabled=true;$('#start').disabled=true}
 }
 /* ---------- EQUIPMENT (Dice / Skin / Frame milik pemain; CHANGE -> daftar item yang dimiliki) ---------- */
@@ -295,7 +294,7 @@ function check(){const P=S.room.players,h=me();
  return{ok:true,msg:HOST?'Semua siap — tekan START GAME!':'Menunggu host memulai'}}
 function renderBottom(){const c=check(),h=me()||{ready:false};$('#sttx').textContent=(c.ok?'✅ ':'⏳ ')+c.msg+(ONLINE&&pending()?` • ${pending()} undangan menunggu`:'');
  const rb=$('#rdy');rb.textContent=h.ready?'✕ BATAL READY':'✓ READY';rb.classList.toggle('wait',h.ready);
- $('#rdy').hidden=HOST;$('#start').hidden=!HOST;$('#start').disabled=!c.ok;
+ const locked=ONLINE&&S.room.status!=='waiting';$('#rdy').hidden=HOST||locked;$('#start').hidden=!HOST||locked;$('#start').disabled=!c.ok;
  if(!HOST&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}
 $('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
 function cfg(){const online=ONLINE,sk=online?null:eqItem('skin'),fr=online?null:eqItem('frame'),di=online?null:eqItem('dice');
