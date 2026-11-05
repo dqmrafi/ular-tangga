@@ -58,6 +58,23 @@ button:active:not(:disabled){transform:scale(.95)}button:focus-visible{outline:.
 .mv{width:4.4rem;height:4.4rem;border-radius:.9rem;padding:0;background:rgba(11,21,48,.45);font-size:1.8rem}
 .sl{display:flex;align-items:center;gap:.8rem;min-height:5rem;width:100%;padding:.4rem .8rem;border-radius:1rem;border:.2rem dashed rgba(255,255,255,.5);background:rgba(11,21,48,.2);text-align:left;font-size:1.3rem;line-height:1.1}.sl small{display:block;font-size:1rem;font-weight:700;color:#cfe0ff}
 .sl.st0{cursor:default}
+/* player list — mode Team (ikut referensi room.jpg: baris krem + badge status berwarna + aksi di kanan) */
+#pl.tm .sc{gap:.5rem}
+#pl.tm .th{height:2.3rem;align-items:center;padding:0 1rem;font-size:1.2rem;line-height:1;letter-spacing:.05rem;box-shadow:0 0 0 .15rem var(--ink)}
+#pl.tm .th.t1{background:linear-gradient(#58b6ff,#1f86ee)}#pl.tm .th.t2{background:linear-gradient(#ff7a7a,#d63a3a)}
+.tr{display:flex;align-items:stretch;gap:.7rem;min-height:4.8rem;border-radius:.9rem;overflow:hidden;background:linear-gradient(#fff8e6,#f6e8c8);color:#4a3210;box-shadow:0 0 0 .2rem var(--ink),inset 0 -.2rem 0 rgba(120,80,20,.18)}
+.tr.me{box-shadow:0 0 0 .2rem var(--ink),0 0 0 .45rem #ffd73a}
+.tr .bd{flex:none;width:7.2rem;display:grid;place-items:center;font-size:1.2rem;line-height:1;color:#fff;text-shadow:0 .1rem 0 rgba(0,0,0,.45)}
+.tr.t1 .bd{background:linear-gradient(#58b6ff,#1f86ee)}.tr.t2 .bd{background:linear-gradient(#ff7a7a,#d63a3a)}
+.tr.rd .bd{box-shadow:inset 0 0 0 .22rem #7dff7d}
+.tr .av{align-self:center;width:3.6rem;height:3.6rem}
+.tr .pi{align-self:center}.tr .pi b{font-size:1.5rem;color:#4a3210}.tr .pi small{color:#8a6a3a}
+.tr .tg{background:#e48a20;color:#fff}
+.tr .mv{align-self:center;flex:none;width:3.6rem;height:3.6rem;margin-right:.6rem;background:linear-gradient(#58b6ff,#1f86ee);box-shadow:0 0 0 .15rem var(--ink);font-size:1.6rem}
+.tr.sl{display:flex;width:100%;border:0;text-align:left;font-size:1.3rem;color:#8a6a3a;background:linear-gradient(#fbf3df,#efe2c2);box-shadow:0 0 0 .2rem var(--ink)}
+.tr.sl .bd{opacity:.6;font-size:1.6rem}
+.tr.sl .pi{flex:1}.tr.sl .pi b{color:#8a6a3a;font-size:1.35rem}
+.tr .add{align-self:center;flex:none;margin-right:.6rem;padding:.2rem 1rem;border-radius:.8rem;font-size:1.2rem;color:#fff;background:linear-gradient(#4fd24a,#27992a);box-shadow:0 0 0 .15rem var(--ink);text-shadow:0 .1rem 0 #0e4a12}
 /* action */
 #ac{grid-area:ac;display:flex;align-items:center;gap:1.2rem;min-height:6.6rem;padding:.8rem 1.4rem}
 #sttx{flex:1;min-width:0;font-size:1.6rem;line-height:1.15}
@@ -240,13 +257,18 @@ function prow(p){const kind={host:'Host',friend:'Teman',bot:'Computer',local:'Lo
 function srow(team){if(!ONLINE)return'';const lock=S.room.privacy==='private';
  if(!HOST)return `<div class="sl st0"><span>${lock?'🔒':'🔓'}</span><span>Slot kosong</span></div>`;
  return `<button class="sl" data-inv="${team||0}"><span>＋</span><span>${lock?'Khusus undangan':'Terbuka untuk umum'}<small>Ketuk untuk undang teman</small></span></button>`}
+function trow(p){const kind={host:'Host',friend:'Teman',bot:'Computer',local:'Lokal'}[p.kind],mv=(TEAM&&HOST)?`<button class="mv" data-mv="${p.id}" aria-label="Pindah tim">⇄</button>`:'';
+ return `<div class="tr t${p.team} ${p.ready?'rd':''} ${p.id==='me'?'me':''}"><span class="bd">${p.ready?'READY':'WAITING'}</span>${avatar(p)}<div class="pi"><b>${esc(p.name)}${p.kind==='host'?'<span class="tg">HOST</span>':''}</b><small>Lv ${p.level} • ${kind}</small></div>${mv}</div>`}
+function tslot(team){const lock=S.room.privacy==='private',ic=lock?'🔒':'🔓';
+ if(!HOST)return `<div class="tr sl t${team}"><span class="bd">${ic}</span><div class="pi"><b>Slot kosong</b></div></div>`;
+ return `<button class="tr sl t${team}" data-inv="${team}"><span class="bd">${ic}</span><div class="pi"><b>Slot kosong</b><small>${lock?'Khusus undangan':'Terbuka untuk umum'}</small></div><span class="add">＋ UNDANG</span></button>`}
 function renderPlayers(){
  const r=S.room,P=r.players;$('#cnt').textContent=P.length+'/'+COUNT;$('#sPriv').classList.toggle('on',r.privacy==='private');$('#sPub').classList.toggle('on',r.privacy==='public');
  let h='';
- if(TEAM)[1,2].forEach(t=>{const tp=P.filter(p=>p.team===t);h+=`<div class="th t${t}"><span>TEAM ${t}</span><span>${tp.length}/2</span></div>`+tp.map(prow).join('');for(let i=tp.length;i<2;i++)h+=srow(t)});
+ if(TEAM)[1,2].forEach(t=>{const tp=P.filter(p=>p.team===t);h+=`<div class="th t${t}"><span>TEAM ${t}</span><span>${tp.length}/2</span></div>`+tp.map(trow).join('');for(let i=tp.length;i<2;i++)h+=tslot(t)});
  else{h=P.map(prow).join('');for(let i=P.length;i<COUNT;i++)h+=srow(0)}
  if(ONLINE&&pending())h+=`<div class="note">⏳ ${pending()} undangan menunggu respons</div>`;
- $('#plr').innerHTML=h;if($('#inv').classList.contains('show'))renderInvite();
+ $('#pl').classList.toggle('tm',TEAM);$('#plr').innerHTML=h;if($('#inv').classList.contains('show'))renderInvite();
 }
 $('#plr').onclick=e=>{const m=e.target.closest('[data-mv]'),s=e.target.closest('[data-inv]');if(m)moveTeam(m.dataset.mv);else if(s)openInvite(+s.dataset.inv)};
 $('#sPriv').onclick=()=>{if(HOST){S.room.privacy='private';renderPlayers()}};$('#sPub').onclick=()=>{if(HOST){S.room.privacy='public';renderPlayers()}};
