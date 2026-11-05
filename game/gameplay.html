@@ -2961,7 +2961,7 @@ function addFlyGhast(x,y,z){
   Object.assign(o,{cx:x,cy:Math.max(y,10),cz:z,rx:6+(k%3)*1.5,rz:4.5+(k%2)*1.5,sp:0.16+0.04*(k%3),ph:k*2.1,ph2:k*1.3});
   o.g.position.set(x,o.cy,z); world.add(o.g); GHASTS.push(o);
 }
-/* Ghast yang menutupi pandangan kamera (garis kamera -> pion/papan) atau melintas di atas papan: memudar lalu dihapus (disembunyikan), muncul lagi setelah menyingkir */
+/* Ghast yang menutupi pandangan kamera (garis kamera -> pion/papan) atau melintas di atas papan: jadi transparan (tetap terlihat samar), solid lagi setelah menyingkir */
 function updateGhastFade(dt,pts){
   const C=camera.position,rate=Math.min(1,dt*7);
   for(let i=0;i<GHASTS.length;i++){
@@ -2975,8 +2975,8 @@ function updateGhastFade(dt,pts){
       if(ex*ex+ey*ey+ez*ez<3.6*3.6) hit=true;
     }
     if(q.x>-9&&q.x<8&&Math.abs(q.z)<8) hit=true; /* di atas area papan */
-    o.k+=((hit?0:1)-o.k)*rate; if(!hit&&o.k>0.97) o.k=1; if(hit&&o.k<0.04) o.k=0;
-    o.mat.opacity=o.k; o.mat.depthWrite=o.k>0.97; o.lmat.opacity=0.6*o.k; o.g.visible=o.k>0.01;
+    o.k+=((hit?0.15:1)-o.k)*rate; if(!hit&&o.k>0.97) o.k=1;
+    o.mat.opacity=o.k; o.mat.depthWrite=o.k>0.97; o.lmat.opacity=0.6*o.k; o.g.visible=true;
   }
 }
 function updateGhasts(dt,t){
