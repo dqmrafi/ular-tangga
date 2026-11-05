@@ -19,8 +19,8 @@
     boss: 'wither', /* fase Wither belum dibuat: sementara tiba di petak 120 = menang */
     view: { minX: -8.7, maxX: 12.6, minZ: -9.0, maxZ: 6.0 }, /* kotak yang harus terlihat utuh (area Start + seluruh papan + benteng di kanan atas) */
     rules: {
-      ladders: { 5: 26, 23: 46, 47: 65, 66: 89, 86: 106, 100: 118 },
-      snakes: { 28: 7, 45: 22, 64: 48, 84: 61, 102: 79, 114: 94 },
+      ladders: { 5: 26, 20: 46, 40: 64, 59: 88, 78: 106, 100: 116 },
+      snakes: { 28: 3, 50: 18, 66: 36, 82: 61, 102: 80, 118: 94 },
       chests: [9, 17, 33, 52, 57, 72, 92, 96, 110],
       mobs: [['zombified_piglin', [10]], ['strider', [12]], ['magma_cube', [19]], ['ender', [31]], ['hoglin', [38]],
              ['piglin', [43]], ['blaze', [55]], ['zoglin', [62]], ['ghast', [91]], ['piglin_brute', [112]]] /* maksimal 1 petak per mob; strider = penolong maju 3 petak */
