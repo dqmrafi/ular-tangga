@@ -110,7 +110,7 @@
          { bg: '#ffd23f', pip: '#6b4a00', edge: '#6b4a00' }, { featured: true, legacyIds: ['emas'] }),
 
     /* ---- Tema papan (Lainnya) ---- */
-    theme('minecraft', 'Minecraft', 'common', 0,   'Padang rumput blok bergaya klasik.',
+    theme('minecraft', 'World', 'common', 0,   'Padang rumput blok bergaya klasik.',
           { skyTop: '#6EC6FF', skyBot: '#E6F7FF', a: '#5FAE3E', b: '#8A5B33' }),
     theme('rumput',    'Rumput',    'common', 0,   'Hamparan rumput hijau cerah di bawah langit biru.',
           { skyTop: '#5EC1FF', skyBot: '#DDF4FF', a: '#78D957', b: '#9A6A3B' }),
