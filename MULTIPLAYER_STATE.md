@@ -4,14 +4,14 @@
 
 ## Current checkpoint
 
-- **Checkpoint:** 2 — Supabase schema and client foundation
+- **Checkpoint:** 3 — Private room lifecycle
 - **Status:** Implementation committed; runtime validation pending Supabase project
 - **Working branch:** `feature/supabase-multiplayer`
 - **Repository:** https://github.com/dqmrafi/ular-tangga
 - **Base branch:** `main`
 - **Checkpoint 0 commit:** `76e71e67233116936f8c27b4c6c5241efffb275f`
 - **Checkpoint 1 commit:** `5e55393291dc70fa1535900339a6b8ef4c91253f`
-- **Current checkpoint commit:** `1040e240d5b6a94523a12a0ba5fb29033221da05`
+- **Current checkpoint commit:** pending
 - **Application code changed:** Yes — foundation only; room/game UI not yet wired.
 - **Tests run:** No runtime tests. No Supabase project credentials/config are available in the repository.
 
@@ -42,11 +42,16 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 | 0 | Planning docs and branch baseline | Complete | `76e71e67233116936f8c27b4c6c5241efffb275f` |
 | 1 | Trace room/game contracts | Complete | `5e55393291dc70fa1535900339a6b8ef4c91253f` |
 | 2 | Supabase schema/client foundation | Committed; runtime validation pending Supabase project | `1040e240d5b6a94523a12a0ba5fb29033221da05` |
-| 3 | Private room lifecycle | Not started | — |
+| 3 | Private room lifecycle | In progress until commit verified; runtime validation pending | Pending |
 | 4 | Public rooms and Quick Join | Not started | — |
 | 5 | Realtime lobby | Not started | — |
 | 6 | Gameplay synchronization | Not started | — |
 | 7 | Hardening and deployment | Not started | — |
+
+## Checkpoint 3 changes
+
+- `game/assets/js/multiplayer/room-service.js`: create/join/ready/leave RPC calls and room-row Realtime + Presence subscription.
+- `game/room.html`: online mode creates private rooms or joins by invite code through Supabase; roster/readiness render from backend rows; fake guest readiness/start timers are removed from the active online flow; host empty slots share a room link. Local VS Computer/hot-seat setup remains local.
 
 ## Checkpoint 2 changes
 
@@ -60,6 +65,8 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 
 ## Validation log
 
+- Reviewed room integration anchors and matched client RPC names to the migration.
+- Static source review only; no browser/Supabase runtime validation is possible without a configured Supabase project.
 - Re-read the existing room flow, gameplay bootstrap, turn engine, and finish path.
 - Reviewed the migration and client bootstrap statically.
 - Confirmed no service-role key or real project credentials are included.
@@ -78,4 +85,4 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 
 ## Exact next action
 
-Checkpoint 3: implement the browser-side room service on top of `UT.Multiplayer.getClient()` and `ensureAnonymousPlayer()`, then wire private room create/join/leave and room subscriptions into `game/room.html`. Replace local fake host/guest membership for online rooms while preserving the existing equipment/power/map UI. Do not begin public Quick Join until private room flow works.
+Checkpoint 4: add persisted room visibility and public room creation/atomic Quick Join, then wire Quick Join into the existing mode/lobby entry flow. Validate private room create/join with two browser sessions as soon as a Supabase project URL/key are available.

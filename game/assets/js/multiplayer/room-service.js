@@ -1,0 +1,20 @@
+// Supabase room operations for the static room page. No profile/shop data is accessed.
+import './client.js';
+const MP=window.UT.Multiplayer;
+async function rpc(name,args){const c=await MP.getClient();const {data,error}=await c.rpc(name,args);if(error)throw error;return data}
+async function ensurePlayer(){if(!MP._identity)MP._identity=await MP.ensureAnonymousPlayer();return MP._identity}
+async function createRoom(o){await ensurePlayer();return rpc('create_game_room',{p_code:o.code,p_name:o.name,p_is_public:!!o.isPublic,p_format:o.format||'solo',p_max_players:o.maxPlayers||4,p_config:o.config||{}})}
+async function joinRoom(o){await ensurePlayer();return rpc('join_game_room',{p_code:o.code,p_name:o.name})}
+async function setReady(roomId,ready){await ensurePlayer();return rpc('set_game_player_ready',{p_room_id:roomId,p_ready:!!ready})}
+async function leaveRoom(roomId){await ensurePlayer();return rpc('leave_game_room',{p_room_id:roomId})}
+function subscribe(roomId,onRoom){
+ let channel,closed=false;
+ (async()=>{try{const c=await MP.getClient(),p=await ensurePlayer();if(closed)return;
+  channel=c.channel('game-room:'+roomId,{config:{presence:{key:p.id}}});
+  channel.on('postgres_changes',{event:'*',schema:'public',table:'game_rooms',filter:'id=eq.'+roomId},payload=>{if(payload.eventType!=='DELETE'&&payload.new)onRoom(payload.new)});
+  channel.subscribe(async status=>{if(status==='SUBSCRIBED'){try{await channel.track({player_id:p.id,online_at:new Date().toISOString()})}catch(_){}
+   const {data,error}=await c.from('game_rooms').select('*').eq('id',roomId).maybeSingle();if(!error&&data&&!closed)onRoom(data)}});
+ }catch(e){console.error('[multiplayer] subscription failed',e)}})();
+ return ()=>{closed=true;if(channel)MP.getClient().then(c=>c.removeChannel(channel)).catch(()=>{})};
+}
+Object.assign(MP,{RoomService:{ensurePlayer,createRoom,joinRoom,setReady,leaveRoom,subscribe}});

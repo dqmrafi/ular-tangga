@@ -153,11 +153,12 @@ Each checkpoint must end with an updated `MULTIPLAYER_STATE.md` and a Git commit
 
 ### Checkpoint 3 — Private room lifecycle
 
-- Implement create private room, join by code/invite URL, leave room, and room cleanup policy.
-- Replace local-only room code and membership simulation with backend operations.
-- Preserve existing lobby presentation.
+- [x] Add browser-side create/join/ready/leave service and Realtime subscription.
+- [x] Replace active online-room local fake membership/readiness with Supabase-backed room rows.
+- [x] Preserve existing room equipment/power/map UI and share private room code/link.
+- [ ] Validate two independent browser sessions against a configured Supabase project.
 
-**Acceptance:** two independent browser sessions can create/join the same private room and see consistent membership.
+**Acceptance:** two independent browser sessions can create/join the same private room and see consistent membership. Runtime validation is pending Supabase project configuration.
 
 ### Checkpoint 4 — Public rooms and Quick Join
 
