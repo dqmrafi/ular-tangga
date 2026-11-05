@@ -184,7 +184,7 @@ const leave=async to=>{clearT();if(ONLINE&&S.mpRoomId&&S.mpIdentity&&UT.Multipla
 $('#back').onclick=()=>leave('mode');$('#cls').onclick=()=>leave('home');
 /* ---------- setup room ---------- */
 function setup(){
- if(ONLINE)return;
+ if(ONLINE){renderRoomHeader();return;}
  const P=[{id:'me',name:myName(),level:myLevel(),ready:true,team:0,kind:'host'}];
  if(MODE==='vsc')for(let i=1;i<COUNT;i++)P.push({id:'b'+i,name:'Bot '+i,level:rand(4,20),ready:true,team:0,kind:'bot'});
  if(MODE==='local')for(let i=1;i<COUNT;i++)P.push({id:'p'+i,name:'Pemain '+(i+1),level:1,ready:true,team:0,kind:'local'});
