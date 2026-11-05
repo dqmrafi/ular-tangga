@@ -166,13 +166,15 @@ const TILES={
      {id:'online',c:'tc3',ic:'room',t:'CREATE ROOM',d:'Online + undang teman',flip:{h:'FORMAT ROOM',o:[['TEAM',()=>room('online','team',4)],['SOLO',()=>room('online','solo',4)]]}}]};
 Object.keys(TILES).forEach(k=>{$('#'+k+'T').innerHTML=TILES[k].map(t=>`<div class="tile ${t.c}" id="t_${t.id}"><div class="ti">
  <button class="fc" data-t="${t.id}" aria-label="${t.t}">${IC_[t.ic]}<b>${t.t}</b><small>${t.d}</small></button>
- <div class="bk">${t.flip?t.flip.o.map((o,i)=>`<button class="opt gl gl-gold" data-o="${i}">${o[0]}</button>`).join('')+`<button class="bx gl gl-grey" data-x aria-label="Kembali">Kembali</button>`:''}</div></div></div>`).join('')});
+ <div class="bk">${t.flip?t.flip.o.map((o,i)=>`<button class="opt gl gl-gold" data-o="${i}">${o[0]}</button>`).join(''):''}</div></div></div>`).join('')});
 const ALL=[...TILES.qs,...TILES.cr];
 function closeAll(){document.querySelectorAll('.tile.flipped').forEach(t=>t.classList.remove('flipped'))}
 ALL.forEach(t=>{const el=$('#t_'+t.id);
  el.querySelector('.fc').onclick=()=>{buzz();if(t.go){closeAll();t.go();return}const was=el.classList.contains('flipped');closeAll();if(!was)el.classList.add('flipped')};
  el.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{buzz();t.flip.o[+b.dataset.o][1]()});
- const x=el.querySelector('[data-x]');if(x)x.onclick=closeAll});
+ });
+/* tanpa tombol kembali: ketuk di luar kartu flip untuk menutup */
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.tile.flipped'))closeAll()});
 addEventListener('keydown',e=>{if(e.key==='Escape')closeAll()});
 addEventListener('pageshow',()=>{closeAll();cancelMM()});
 
