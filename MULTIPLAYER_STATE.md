@@ -49,6 +49,65 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 | 7 | Hardening and deployment | Code committed; live Supabase validation pending | `113810753b0bb1eb26634e59a7d0bedbca9df435` |
 | 8 | Configure supplied Supabase project | Public browser URL/publishable key committed; migration and live tests pending | `298be2d441bd3377decf58cfb2693da3b671d6df` |
 
+## SQL migration repair after first Supabase execution
+
+- User reported SQL Editor error at line 389 (`syntax error at or near then`).
+- Removed the accidental duplicate SQL fragment appended after the final permission grant; the migration now ends after the heartbeat RPC grants (388 lines).
+- Corrected `create_game_room` room-code regex to `^[A-Z0-9]{6,8}# Multiplayer Implementation State
+
+> Recovery document. Update this file in every checkpoint commit. Treat the latest committed version as the source of truth when resuming after a context loss.
+
+## Current checkpoint
+
+- **Checkpoint:** 7 — Hardening and deployment
+- **Status:** Supabase browser config committed; runtime validation pending migration application and deployment
+- **Working branch:** `feature/supabase-multiplayer`
+- **Repository:** https://github.com/dqmrafi/ular-tangga
+- **Base branch:** `main`
+- **Checkpoint 0 commit:** `76e71e67233116936f8c27b4c6c5241efffb275f`
+- **Checkpoint 1 commit:** `5e55393291dc70fa1535900339a6b8ef4c91253f`
+- **Current implementation/config commit:** `298be2d441bd3377decf58cfb2693da3b671d6df`
+- **Application code changed:** Yes — Supabase foundation and private-room UI integration.
+- **Tests run:** No runtime tests. No Supabase project credentials/config are available in the repository.
+
+## Goal and scope
+
+Implement anonymous multiplayer rooms for Ular Tangga using the existing static frontend and Supabase. Support private room creation/invite-code join, public room creation/Quick Join, synchronized lobby state, and synchronized gameplay.
+
+Out of scope: user accounts/profile/shop/inventory, friends/chat/rankings, and a custom backend server.
+
+## Repository and engine contracts
+
+See the verified source-flow analysis and integration implications in `MULTIPLAYER_PLAN.md`. Key facts: `room.html` currently simulates online behavior; `RoomFlow.launch(cfg)` stores `ut-room` before navigation; gameplay state is closure-private inside `game/gameplay.html`; `doRoll()` and `playTurn()` are the central authoritative engine path.
+
+## Architecture decisions
+
+1. Vercel serves static files; no Vercel Function is required.
+2. Supabase Postgres stores durable room/game snapshots.
+3. Supabase Realtime provides row-change notifications and Presence.
+4. Anonymous Supabase Auth provides an auth UUID without a registration UI; no profile/shop integration.
+5. Browser uses only the public anon/publishable key. Never expose service_role.
+6. Mutations use Postgres RPC functions with row locking and member/host validation.
+7. Host-authoritative game simulation remains the intended prototype model.
+
+## Checkpoint history
+
+| Checkpoint | Description | Status | Commit |
+|---|---|---|---|
+| 0 | Planning docs and branch baseline | Complete | `76e71e67233116936f8c27b4c6c5241efffb275f` |
+| 1 | Trace room/game contracts | Complete | `5e55393291dc70fa1535900339a6b8ef4c91253f` |
+| 2 | Supabase schema/client foundation | Committed; runtime validation pending Supabase project | `1040e240d5b6a94523a12a0ba5fb29033221da05` |
+| 3 | Private room lifecycle | Committed; runtime validation pending | `5c7cbbd8df3e727c583f85c36bd188f21daa7399` |
+| 4 | Public rooms and Quick Join | Committed; runtime validation pending | `1b2461cb0c60958763cc0f1b76520dde3a93c35c` |
+| 5 | Realtime lobby | Committed; runtime validation pending | `f4f37e7ede9a6849968930b017d6f7f11f660c9a` |
+| 6 | Gameplay synchronization | Committed; runtime validation pending | `3d6ee1b7873e8dfebeecf2e282ded0f5ebfedada` |
+| 7 | Hardening and deployment | Code committed; live Supabase validation pending | `113810753b0bb1eb26634e59a7d0bedbca9df435` |
+| 8 | Configure supplied Supabase project | Public browser URL/publishable key committed; migration and live tests pending | `298be2d441bd3377decf58cfb2693da3b671d6df` |
+
+ with a properly closed SQL string.
+- Commit: `293f10ac3fc6606135caed5c99eede4cae3552c1`.
+- User should rerun the complete corrected migration. It is designed to be rerunnable (`create table/index if not exists`, policy drop/create, and `create or replace function`), but confirm the actual result in Supabase.
+
 ## Post-checkpoint static audit
 
 - Guest power-up buttons previously invoked `usePU()` locally, changing only the guest's local game state. Added a `power_request` Broadcast event: the guest submits its player ID and power key, and the host verifies current turn ownership and remaining power before executing the existing engine path. The resulting stable-turn snapshot is then persisted and broadcast as before.
@@ -118,7 +177,7 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 
 ## Known limitations / risks
 
-- Runtime SQL validation and anonymous sign-in require a real Supabase project with Anonymous Auth enabled.
+- Runtime SQL validation and anonymous sign-in require a real Supabase project with Anonymous Auth enabled. The first migration execution failed on an appended duplicate fragment; a corrected migration is now committed and awaiting rerun.
 - This schema deliberately stores the roster in JSONB for a minimal prototype. Revisit only if concurrency/query requirements require normalization.
 - The SQL RPCs require review/test against Supabase's deployed Postgres version and role grants before production use.
 - Anonymous Auth is abuseable without rate limits/CAPTCHA; this is a prototype identity model, not verified identity.
