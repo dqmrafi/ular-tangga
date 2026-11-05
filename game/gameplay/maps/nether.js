@@ -17,7 +17,7 @@
     onlyMobs: ['blaze', 'ghast', 'strider', 'magma_cube', 'piglin', 'piglin_brute', 'hoglin', 'zoglin', 'zombified_piglin'],
     goal: 120,
     boss: 'wither', /* fase Wither belum dibuat: sementara tiba di petak 120 = menang */
-    view: { minX: -8.7, maxX: 9.8, minZ: -6.6, maxZ: 6.0 }, /* kotak yang harus terlihat utuh (area Start + seluruh papan) */
+    view: { minX: -8.7, maxX: 12.6, minZ: -9.0, maxZ: 6.0 }, /* kotak yang harus terlihat utuh (area Start + seluruh papan + benteng di kanan atas) */
     rules: {
       ladders: { 5: 26, 23: 46, 47: 65, 66: 89, 86: 106, 100: 118 },
       snakes: { 28: 7, 45: 22, 64: 48, 84: 61, 102: 79, 114: 94 },
@@ -26,38 +26,78 @@
              ['piglin', [43]], ['blaze', [55]], ['zoglin', [62]], ['ghast', [91]], ['piglin_brute', [112]]] /* maksimal 1 petak per mob; strider = penolong maju 3 petak */
     },
     props: [
-      ["ghast",-9,9,-6],["ghast",10,11,-9],["ghast",3,10,7]
-    ], /* dekor di atas lava: [jenis, x, z, ukuran] atau ['ghast', x, y, z] */
-    /* Papan 120 petak: tiga jalan (tier) 13x3 di atas lava, disambung jembatan 1 petak di sisi bergantian.
-       Tier 1 Crimson (1-39) -> jembatan 40 -> tier 2 Warped (41-79) -> jembatan 80 -> tier 3 Basalt (81-119) naik ke benteng; 120 = gerbang benteng.
-       Mengembalikan [null, {n,row,col,x,z,h}, ...] (format sama dengan GameplayVoxelGeom.buildTiles). */
+      ["ghast",-3,10,-1],["ghast",9,11,5.5],["ghast",2,10,-9.5]
+    ], /* ghast melayang di atas lava: ['ghast', x, y, z] */
+    /* Papan 120 petak berkelok (redesain): satu jalan selebar 1 petak di 7 lajur yang menyambung lewat tikungan, di atas pulau-pulau biome
+       dengan sungai lava di sela lajur. Crimson (1-34, kiri bawah) -> Warped (35-70) -> Soul Sand Valley + tulang (71-97) -> Basalt Deltas (98-119) naik ke
+       Benteng Nether di kanan atas; 120 = gerbang benteng (Wither).
+       Mengembalikan [null, {n,row,col,x,z,h,bio}, ...] (format sama dengan GameplayVoxelGeom.buildTiles) + properti:
+         .island  {"cx,cz": {x,z,h,bio,edge}}   sel darat non-petak (cx,cz = floor(x),floor(z))
+         .extra   {"cx,cz": tinggi}              dipakai gameplay.html untuk terrainTop (rel tangga, dsb.)
+         .fort    {x0,x1,z0,z1,y}                tapak Benteng
+         .falls   [[petak, dx, dz]]              petak di tepi sungai lava / laut lava untuk air terjun lava */
     board: function board() {
-      var T = [null], n = 0;
-      function put(x, z, h) { n++; T.push({ n: n, row: Math.round(4.5 - z), col: Math.round(x + 4.5), x: x, z: z, h: h }); }
-      /* tinggi tidak beraturan tapi halus (selisih antar petak kecil): lereng naik ke belakang + gundukan dari dua gelombang */
-      function H(x, z) {
-        var a = x * 0.55 + z * 0.8 + Math.sin(x * 0.3) * 1.2;
-        var v = 0.14 * (4.5 - z) + 0.8 * (0.5 + 0.5 * Math.sin(a)) + 0.12 * Math.sin(x * 1.7 + z * 1.1) + 0.12;
-        return Math.max(0, Math.round(v * 10) / 10);
+      /* sel grid gx 0..19 (x = gx-7.5), gz 0..12 (z = 4.5-gz); langkah gerak: [arah, jumlah] dari petak 1 di (3,0) */
+      var MV = [['R',4],['U',1],['R',4],['D',1],['R',4],['U',2],
+                ['L',3],['U',1],['L',4],['D',1],['L',7],['U',2],
+                ['R',4],['D',1],['R',2],['U',1],['R',8],['U',2],
+                ['L',2],['D',1],['L',2],['U',1],['L',3],['U',1],['L',3],['D',1],['L',4],['U',2],
+                ['R',9],['D',1],['R',3],['U',1],['R',2],['U',2],
+                ['L',4],['U',1],['L',3],['D',1],['L',5],['U',2],
+                ['R',1],['D',1],['R',2],['U',1],['R',8]];
+      var DIR = { R: [1, 0], L: [-1, 0], U: [0, 1], D: [0, -1] };
+      var P = [[3, 0]], cx = 3, cz = 0, i, j, k;
+      MV.forEach(function (m) { for (var s = 0; s < m[1]; s++) { cx += DIR[m[0]][0]; cz += DIR[m[0]][1]; P.push([cx, cz]); } });
+      var N = P.length; /* harus 120 */
+      function hsh(a, b, s) { var v = Math.sin(a * 12.9898 + b * 78.233 + s * 37.719) * 43758.5453; return v - Math.floor(v); }
+      function bioOf(n) { return n <= 34 ? 'crimson' : (n <= 70 ? 'warped' : (n <= 97 ? 'soul' : 'basalt')); }
+      /* tinggi petak: naik turun halus mengikuti biome, selisih antar petak berurutan kecil (maks 0.2) */
+      var AN = [[1, 0.2], [17, 0.45], [34, 0.6], [50, 1.05], [70, 1.4], [85, 1.0], [97, 1.45], [110, 1.95], [120, 2.35]], hs = [0];
+      for (i = 1; i <= N; i++) {
+        var a = 0; while (a < AN.length - 2 && i > AN[a + 1][0]) a++;
+        var u = Math.max(0, Math.min(1, (i - AN[a][0]) / (AN[a + 1][0] - AN[a][0])));
+        hs.push(AN[a][1] + (AN[a + 1][1] - AN[a][1]) * u + 0.07 * Math.sin(i * 1.3));
       }
-      var C = 13;
-      /* tiga tier jalan di atas lava: tiap tier 3 baris x 13 kolom, disambung 1 petak jembatan di sisi bergantian */
-      function tier(z0, firstDir) {
-        for (var r = 0; r < 3; r++) {
-          var dir = (r % 2 === 0) ? firstDir : -firstDir;
-          for (var i = 0; i < C; i++) {
-            var c = dir > 0 ? i : C - 1 - i, x = c - 4.5, z = z0 - r;
-            put(x, z, H(x, z));
-          }
+      for (i = 2; i <= N; i++) hs[i] = Math.max(hs[i - 1] - 0.2, Math.min(hs[i - 1] + 0.2, hs[i]));
+      var T = [null], cellN = {};
+      for (i = 1; i <= N; i++) {
+        var g = P[i - 1], x = g[0] - 7.5, z = 4.5 - g[1];
+        T.push({ n: i, row: g[1], col: g[0] - 3, x: x, z: z, h: Math.round(hs[i] * 20) / 20, bio: bioOf(i) });
+        cellN[g[0] + ',' + g[1]] = i;
+      }
+      /* sel darat: semua sel dalam jarak 1 dari jalan (sela lajur = darat atau sungai lava), tepi luar tidak rata */
+      var FORT = { gx0: 16, gx1: 19, gz0: 7, gz1: 12 };
+      function inFort(gx, gz) { return gx >= FORT.gx0 && gx <= FORT.gx1 && gz >= FORT.gz0 && gz <= FORT.gz1; }
+      function nearest(gx, gz, R) { var best = 0, bd = 1e9; for (var dx = -R; dx <= R; dx++) for (var dz = -R; dz <= R; dz++) { var n = cellN[(gx + dx) + ',' + (gz + dz)]; if (n) { var d = dx * dx + dz * dz + n * 1e-4; if (d < bd) { bd = d; best = n; } } } return best ? { n: best, d: Math.sqrt(Math.round(bd)) } : null; }
+      var isl = {}, extra = {};
+      for (var gx = -1; gx <= 21; gx++) for (var gz = -2; gz <= 14; gz++) {
+        var key = gx + ',' + gz; if (cellN[key] || inFort(gx, gz) || (gx <= 2 && gz <= 1)) continue;
+        var nb = nearest(gx, gz, 2); if (!nb) continue;
+        var cheb = 9; for (var q = 1; q <= 2 && cheb === 9; q++) for (var dx2 = -q; dx2 <= q; dx2++) for (var dz2 = -q; dz2 <= q; dz2++) if (Math.max(Math.abs(dx2), Math.abs(dz2)) === q && cellN[(gx + dx2) + ',' + (gz + dz2)]) cheb = Math.min(cheb, q);
+        var inner = gx >= 1 && gx <= 15 && gz >= 0 && gz <= 12, land = false, r = hsh(gx, gz, 3);
+        if (cheb === 1) {
+          if (inner) land = !((gz % 2 === 1) && hsh(gx * 0.5, gz * 1.3, 7) > 0.6 && hsh(gx, gz, 11) > 0.25); /* sela lajur: sebagian jadi sungai lava */
+          else land = r > 0.3;
+        } else if (cheb === 2) land = hsh(gx, gz, 5) > 0.74;
+        if (!land) continue;
+        var th = T[nb.n].h - 0.3 + (hsh(gx, gz, 9) - 0.5) * 0.14 - (cheb === 2 ? 0.25 : 0);
+        isl[key] = { x: gx - 7.5, z: 4.5 - gz, h: Math.max(0.05, Math.round(th * 20) / 20), bio: T[nb.n].bio, edge: false };
+      }
+      function landAt(a, b) { return !!(isl[a + ',' + b] || cellN[a + ',' + b] || inFort(a, b)); }
+      Object.keys(isl).forEach(function (kk) { var p = kk.split(','), a = +p[0], b = +p[1]; isl[kk].edge = !(landAt(a + 1, b) && landAt(a - 1, b) && landAt(a, b + 1) && landAt(a, b - 1)); extra[kk] = isl[kk].h; });
+      var fh = 2.3; for (gx = FORT.gx0; gx <= FORT.gx1; gx++) for (gz = FORT.gz0; gz <= FORT.gz1; gz++) extra[gx + ',' + gz] = fh;
+      /* air terjun lava dari tepi petak ke lava di bawahnya (tersebar merata di sepanjang jalan) */
+      var falls = [], D4 = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+      for (i = 4; i < N - 3; i += 11) {
+        var cand = null;
+        for (k = 0; k < 9 && !cand; k++) {
+          var n2 = Math.min(N - 3, i + k), g2 = P[n2 - 1];
+          for (j = 0; j < 4; j++) { var ax = g2[0] + D4[j][0], az = g2[1] + D4[j][1]; if (!landAt(ax, az) && T[n2].h > 0.45 && ax >= -1) { cand = [n2, D4[j][0], -D4[j][1]]; break; } } /* dz dunia = -dgz */
         }
+        if (cand) falls.push(cand);
       }
-      function mid(x1, z1, x2, z2) { return Math.round((H(x1, z1) + H(x2, z2)) * 5) / 10; }
-      tier(4.5, 1);                                 /* 1-39   Crimson */
-      put(7.5, 1.5, mid(7.5, 2.5, 7.5, 0.5));       /* 40     jembatan kanan (tinggi rata-rata dua tepi) */
-      tier(0.5, -1);                                /* 41-79  Warped */
-      put(-4.5, -2.5, mid(-4.5, -1.5, -4.5, -3.5)); /* 80     jembatan kiri */
-      tier(-3.5, 1);                                /* 81-119 Basalt */
-      put(8.5, -5.5, H(7.5, -5.5) + 0.3);           /* 120    gerbang benteng (Wither), sedikit lebih tinggi */
+      T.island = isl; T.extra = extra; T.falls = falls;
+      T.fort = { x0: FORT.gx0 - 7.5 - 0.5, x1: FORT.gx1 - 7.5 + 0.5, z0: 4.5 - FORT.gz1 - 0.5, z1: 4.5 - FORT.gz0 + 0.5, y: fh };
       return T;
     },
     theme: {key:'nether',name:'Nether',skyTop:'#2a0606',skyBot:'#8a2410',

@@ -1371,7 +1371,7 @@ function applyMapRules(def){
   const C=UT.Gameplay.Config,R=(def&&def.rules)||{};
   GOAL=(def&&def.goal)||100; BOSS=(def&&def.boss)||'dragon'; MAPDEF=def||null; BOARD_CUSTOM=!!(def&&typeof def.board==='function');
   TILES=BOARD_CUSTOM?def.board():GV.buildTiles();
-  if(BOARD_CUSTOM){ const cells={}; for(let i=1;i<TILES.length;i++){ const t=TILES[i]; cells[Math.floor(t.x)+','+Math.floor(t.z)]=t.h; } TILES.cells=cells; }
+  if(BOARD_CUSTOM){ const cells=Object.assign({},TILES.extra||{}); for(let i=1;i<TILES.length;i++){ const t=TILES[i]; cells[Math.floor(t.x)+','+Math.floor(t.z)]=t.h; } TILES.cells=cells; }
   applyView((def&&def.view)||DEFAULT_VIEW);
   LADDERS=R.ladders||C.LADDERS; SNAKES=R.snakes||C.SNAKES; CHESTS=R.chests?new Set(R.chests):C.CHESTS;
   MOBT={}; (R.mobs||C.MOB_POSITIONS).forEach(m=>m[1].forEach(n=>MOBT[n]=m[0]));
@@ -1732,6 +1732,7 @@ function walkBlocked(x,z){
   if(Math.abs(x)<5.9&&Math.abs(z)<5.9) return true;
   if(x>4.9&&x<9.1&&z>-13) return true; /* air sungai kanan (termasuk hilir yang melebar) */
   if(hAt(x,z)>0) return true;
+  if(TILES.cells&&(TILES.cells[Math.floor(x)+','+Math.floor(z)]!==undefined||(TILES.fort&&x>TILES.fort.x0-1&&x<TILES.fort.x1+1&&z>TILES.fort.z0-1&&z<TILES.fort.z1+1))) return true; /* papan Nether: pulau & benteng */
   for(let i=0;i<NOWALK.length;i++){ const r=NOWALK[i]; if(x>r[0]&&x<r[1]&&z>r[2]&&z<r[3]) return true; }
   return false;
 }
@@ -2476,7 +2477,7 @@ function addWideFar(DB,th){
   const pal=BIO[th.key]||BIO.rumput;
   for(let i=0,k=0;i<300&&k<12;i++){
     const x=(rnd()-0.5)*50,z=(rnd()-0.5)*44;
-    if(Math.abs(x)<9&&Math.abs(z)<8||hAt(x,z)>0||(x>5&&x<10&&z>-5)) continue;
+    if(Math.abs(x)<9&&Math.abs(z)<8||hAt(x,z)>0||(x>5&&x<10&&z>-5)||(NBC&&x>-10&&x<14&&z>-10.6&&z<7.2)) continue;
     if(NBC&&k%2===0&&nOnLava(x,z)) continue; /* babi tidak di atas lava */
     const c=pal[k%2],sd=(d==='nether'&&k%2===1); queueAnimal(x,z,rnd()*6.28,k%2===0?'pig':(sd?'strider':'cow'),sd?undefined:c[0],sd?undefined:c[1]); k++; /* nether: sapi diganti Strider */
   }
@@ -2845,7 +2846,8 @@ function tileBlock(n,t,th){
   if(mobOn(n,th.key)) return MOBCOL[mobOn(n,th.key)];
   if(LADDERS[n]) return th.ladderTile;
   if(SNAKES[n]) return th.snakeTile;
-  const r=rnd(); return r<0.22?th.wall[0]:(r<0.6?th.tileB:th.tileA);
+  const r=rnd(); if(t.bio&&NI_TILE[t.bio]) return r<0.5?NI_TILE[t.bio][1]:NI_TILE[t.bio][0]; /* papan Nether: warna petak per biome */
+  return r<0.22?th.wall[0]:(r<0.6?th.tileB:th.tileA);
 }
 function updateNightUI(){
   $('btnNight').textContent='Mode: '+(autoDN?'Auto · ':'')+(night?'Malam':'Siang');
@@ -3005,7 +3007,7 @@ function updateGhastFade(dt,pts){
       const ex=C.x+sx*u-q.x,ey=C.y+sy*u-q.y,ez=C.z+sz*u-q.z;
       if(ex*ex+ey*ey+ez*ez<3.6*3.6) hit=true;
     }
-    if(q.x>-9&&q.x<8&&Math.abs(q.z)<8) hit=true; /* di atas area papan */
+    if(q.x>LOCK_BOX.minX&&q.x<LOCK_BOX.maxX&&q.z>LOCK_BOX.minZ&&q.z<LOCK_BOX.maxZ) hit=true; /* di atas area papan */
     o.k+=((hit?0.15:1)-o.k)*rate; if(!hit&&o.k>0.97) o.k=1;
     o.mat.opacity=o.k; o.mat.depthWrite=o.k>0.97; o.lmat.opacity=0.6*o.k; o.g.visible=true;
   }
@@ -3633,8 +3635,94 @@ function addNetherBiomes(DB,th){
     },hAt(x,z)); n++;
   }
 }
+/* ---------- Pulau biome papan Nether (redesain mengikuti gambar referensi): darat per biome di sela jalan, tebing berlapis, fungus raksasa, Benteng Nether ---------- */
+const NI_TILE={crimson:[0x8A2B2B,0x6E2222],warped:[0x2A9D8F,0x1F8278],soul:[0x8F7F66,0x76684F],basalt:[0x55555E,0x3F3F48]};
+const NI_CLIFF={crimson:[0x5A1818,0x4A1212,0x6A1E1E],warped:[0x14504C,0x0F403D,0x1A5F5A],soul:[0x4A3E32,0x3A3026,0x55483A],basalt:[0x2A2A30,0x222228,0x34343C]};
+const NI_TOP={crimson:[0x9A2A3A,0x862433,0x7A1E2C],warped:[0x1F8F86,0x1A7A72,0x167068],soul:[0x7A6A55,0x665846,0x5A4D3C],basalt:[0x4C4C54,0x3E3E46,0x44444C]};
+function buildNetherIslands(TB,th){
+  const I=TILES.island,F={edge:false};
+  Object.keys(I).sort().forEach(k=>{
+    const c=I[k],cl=NI_CLIFF[c.bio],tp=NI_TOP[c.bio],h=c.h;
+    addBox(TB,c.x,(h-0.95)/2,c.z,1,h+0.05,1,jit(cl[0],0.06),F);            /* tebing bawah (turun ke lava) */
+    addBox(TB,c.x,h-0.3,c.z,1,0.3,1,jit(cl[1+Math.floor(rnd()*2)],0.07),F); /* lapis tebing atas */
+    let top=tp[Math.floor(rnd()*3)];
+    if(c.edge&&rnd()<0.28) top=(c.bio==='warped'?0x0F3F3C:0xC0501A);        /* tepi: magma / batu hangus */
+    addBox(TB,c.x,h-0.1,c.z,1,0.2,1,jit(top,0.08),F);                       /* permukaan nylium / soul sand / basalt */
+  });
+}
+/* fungus raksasa (crimson merah / warped teal): batang tebal + kanopi 3 lapis berlubang tengah + shroomlight */
+function addBigFungus(B,x,y,z,s,warped){
+  const st=warped?0x1B5E5E:0x6A1A2A,cap=warped?[0x1FB5A5,0x17998C]:[0xC4302E,0x9A1E24],wart=warped?0x14B485:0xD43A3A,F={edge:false},h=(0.55+rnd()*0.45)*s;
+  for(let yy=0;yy<h;yy+=0.25) addBox(B,x,y+yy+0.125,z,0.28,0.25,0.28,jit(st,0.06));
+  const cy=y+h;
+  for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) addBox(B,x+i*0.42,cy+0.12,z+j*0.42,0.42,0.24,0.42,jit(cap[(i+j+2)%2],0.08),F);
+  for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) if(i||j) addBox(B,x+i*0.36,cy+0.36,z+j*0.36,0.36,0.24,0.36,jit(cap[(i*j)&1?0:1],0.08),F);
+  addBox(B,x,cy+0.5,z,0.4,0.2,0.4,jit(wart,0.1),F);
+  [[0.6,0.2],[-0.55,-0.3],[0.1,-0.6]].forEach(q=>addBox(B,x+q[0],cy-0.06,z+q[1],0.15,0.15,0.15,0xFFC85A,F));
+}
+function addRibs(B,x,y,z){ /* rusuk tulang (Bone Block) melengkung, 3 lengkung berderet */
+  [-0.34,0,0.34].forEach(a=>{ [[0.4,0.1],[0.34,0.34],[0.22,0.55],[0.08,0.68]].forEach(q=>[-1,1].forEach(sd=>addBox(B,x+a,y+q[1],z+sd*q[0],0.18,0.18,0.18,0xE8E2CC))); });
+}
+function addCage(B,x,y,z){ /* menara jeruji besi */
+  const c=0xC8CCD2,F={edge:false};
+  addBox(B,x,y+0.08,z,0.95,0.16,0.95,0x6A6A72,F);
+  [[-0.4,-0.4],[0.4,-0.4],[-0.4,0.4],[0.4,0.4]].forEach(q=>addBox(B,x+q[0],y+1.2,z+q[1],0.05,2.2,0.05,c,F));
+  [0.5,1.0,1.5,2.0,2.3].forEach(yy=>{ addBox(B,x,y+yy,z-0.4,0.85,0.04,0.04,c,F); addBox(B,x,y+yy,z+0.4,0.85,0.04,0.04,c,F); addBox(B,x-0.4,y+yy,z,0.04,0.04,0.85,c,F); addBox(B,x+0.4,y+yy,z,0.04,0.04,0.85,c,F); });
+}
+function addFortress(B,Fo){
+  const x0=Fo.x0,x1=Fo.x1,z0=Fo.z0,z1=Fo.z1,y=Fo.y,cx=(x0+x1)/2,cz=(z0+z1)/2,w=x1-x0,d=z1-z0,F={edge:false},BR=[0x2B1B24,0x231820,0x35212D,0x2F1E28],bk=()=>jit(pick(BR),0.05),T=0.5;
+  addBox(B,cx,(y-0.8)/2,cz,w,y+0.3,d,jit(0x1E1418,0.04),F);        /* dasar benteng turun ke lava */
+  addBox(B,cx,y-0.1,cz,w,0.2,d,jit(0x2A1C24,0.05),F);              /* lantai halaman */
+  const wall=(a0,a1,b0,b1,H)=>{ const ww=a1-a0,dd=b1-b0; addBox(B,(a0+a1)/2,y+H/2,(b0+b1)/2,ww,H,dd,bk());
+    const horiz=ww>=dd,n=Math.floor((horiz?ww:dd)/0.6); for(let i=0;i<n;i+=2){ const t=(i+0.5)*0.6; if(horiz) addBox(B,a0+t,y+H+0.15,(b0+b1)/2,0.4,0.3,dd,bk(),F); else addBox(B,(a0+a1)/2,y+H+0.15,b0+t,ww,0.3,0.4,bk(),F); } };
+  wall(x0,x1,z0,z0+T,1.5);                       /* dinding utara (belakang) */
+  wall(x0,x1,z1-T,z1,1.5);                       /* dinding selatan (depan) */
+  wall(x1-T,x1,z0+T,z1-T,1.5);                   /* dinding timur */
+  wall(x0,x0+T,z0+T+1.0,z1-T,1.5);               /* dinding barat (sisi gerbang) */
+  addBox(B,x0+T/2,y+1.2,z0+T+0.5,T,0.6,1.0,bk());                /* ambang atas gerbang (lengkung gerbang di bawahnya) */
+  [[x0+0.45,z0+0.45],[x1-0.45,z0+0.45],[x0+0.45,z1-0.45],[x1-0.45,z1-0.45]].forEach(q=>{ /* 4 menara sudut + obor api */
+    addBox(B,q[0],y+1.4,q[1],0.9,2.8,0.9,bk());
+    [[-0.3,-0.3],[0.3,-0.3],[-0.3,0.3],[0.3,0.3]].forEach(o=>addBox(B,q[0]+o[0],y+2.95,q[1]+o[1],0.28,0.3,0.28,bk(),F));
+    addBox(B,q[0],y+2.85,q[1],0.5,0.1,0.5,0x14090E,F); addFlame(q[0],y+2.9,q[1],1.3,{halo:2.0,hal:0.45});
+  });
+  const LV=[0xFF8A1A,0xFFA02A,0xFF7A12,0xFFC03A];                  /* kolam lava di halaman (mengikuti referensi) */
+  for(let i=0;i<5;i++) for(let j=0;j<8;j++){ const lx=x0+1.0+i*0.4,lz=z0+1.0+j*0.5; if(lx>x1-1.0||lz>z1-1.0) continue; addBox(B,lx+0.2,y+0.03,lz+0.25,0.4,0.12,0.5,LV[(i*3+j*5)%4],F); }
+  addBox(B,cx,y+0.25,cz,0.9,0.5,0.9,jit(0x1A1216,0.04));             /* altar tempat Wither */
+  const bl=0x16161A,sk=0x2C2C32;                                      /* patung Wither: tulang belakang, rusuk, tiga tengkorak */
+  addBox(B,cx,y+0.85,cz,0.1,0.7,0.1,bl,F); [0.62,0.78,0.94].forEach(yy=>addBox(B,cx,y+yy,cz,0.56,0.06,0.1,bl,F));
+  addBox(B,cx,y+1.35,cz,0.32,0.32,0.32,sk); [-0.3,0.3].forEach(a=>addBox(B,cx+a,y+1.2,cz,0.24,0.24,0.24,sk));
+  [-0.07,0.07].forEach(a=>addBox(B,cx+a,y+1.38,cz-0.17,0.07,0.06,0.02,0xC8C8D0,F));
+  /* jendela menyala di dinding luar */
+  [z0+1.2,z0+2.6,z0+4.0].forEach(zz=>addBox(B,x1+0.01,y+0.85,zz,0.03,0.34,0.3,0xFF8A1A,F));
+  [x0+1.0,x0+2.0,x0+3.0].forEach(xx=>addBox(B,xx,y+0.85,z1+0.01,0.3,0.34,0.03,0xFF8A1A,F));
+}
+function decorateNetherIslands(DB,th){
+  const I=TILES.island,F={edge:false},used=[],far=(x,z,r)=>used.every(q=>Math.hypot(q[0]-x,q[1]-z)>=r);
+  let cage=false,ribs=0;
+  Object.keys(I).sort().forEach(k=>{
+    const c=I[k]; if(c.edge&&rnd()<0.6) return;
+    const r=rnd(),x=c.x+(rnd()-0.5)*0.3,z=c.z+(rnd()-0.5)*0.3,h=c.h,bio=c.bio;
+    if(bio==='crimson'||bio==='warped'){
+      const wp=bio==='warped';
+      if(r<0.2&&far(c.x,c.z,2.2)){ addBigFungus(DB,x,h,z,0.85+rnd()*0.4,wp); used.push([c.x,c.z]); }
+      else if(r<0.4) lift(DB,()=>addFungus(DB,x,z,0.3+rnd()*0.25,wp),h);
+      else if(r<0.52) addBox(DB,x,h+0.13,z,0.26,0.26,0.26,jit(wp?0x14B485:0xA01E2E,0.1),F);
+      else if(r<0.58) addBox(DB,x,h+0.04,z,0.4,0.08,0.4,0xFFC85A,F);
+      if(wp&&!cage&&c.x>-2&&c.x<2&&!c.edge&&far(c.x,c.z,1.9)){ cage=true; used.push([c.x,c.z]); addCage(DB,c.x,h,c.z); }
+    }else if(bio==='soul'){
+      if(r<0.28) lift(DB,()=>addSoulFire(DB,x,z),h);
+      else if(r<0.42&&ribs<4&&!c.edge){ ribs++; addRibs(DB,c.x,h,c.z); }
+      else if(r<0.56) lift(DB,()=>addBonePile(DB,x,z),h);
+    }else{
+      if(r<0.55){ lift(DB,()=>addBasalt(DB,x,z),h); if(rnd()<0.5) lift(DB,()=>addBasalt(DB,x+0.3,z+0.25),h); }
+      else if(r<0.66) lift(DB,()=>addSoulFire(DB,x,z),h);
+      else if(r<0.72) addBox(DB,x,h+0.1,z,0.3,0.2,0.3,0xC0501A,F);
+    }
+  });
+  if(TILES.fort) addFortress(DB,TILES.fort);
+}
 function buildCustomGround(TB,th){
-  const LAV=[0xFF6A1A,0xFF8A2A,0xE8501A,0xFFA23A],S=th.deep[0],W=th.wall[0];
+  const LAV=[0xFF8A1A,0xFFA02A,0xFF7A12,0xFFC03A],S=th.deep[0],W=th.wall[0]; /* lava cerah oranye dengan bercak kuning */
   const hsh=(x,z)=>(Math.imul(Math.floor(x*4)*73+19,0x9E3779B1)^Math.imul(Math.floor(z*4)*131+7,0x85EBCA6B))>>>0;
   /* lava dalam: sel 2x2 (x -12..16, z -11..9) */
   for(let gx=-11;gx<=15;gx+=2) for(let gz=-10;gz<=8;gz+=2) addBox(TB,gx,-0.35,gz,2,0.3,2,LAV[hsh(gx,gz)%4],{edge:false});
@@ -3663,10 +3751,11 @@ function buildCustomGround(TB,th){
   }
   addBox(TB,PAD.x,-0.25,PAD.z,2.6,0.5,2.6,jit(th.wall[1],0.05)); /* alas area Start di atas lava */
   addBox(TB,PAD.x+1.7,-0.05,PAD.z,1.2,0.1,0.8,0x3A2A1A); /* papan penghubung ke petak 1 */
+  if(TILES.island) buildNetherIslands(TB,th);
 }
 /* ---------- Lavafall: lava mengalir turun dari tepi board ke lautan lava (warna mengalir) ---------- */
 function buildLavafalls(){
-  const FALLS=[[3,0,1],[9,0,1],[14,1,0],[26,-1,0],[30,0,-1],[70,0,-1],[75,0,-1],[109,0,-1],[115,0,-1]]; /* [petak, arah keluar x, arah keluar z] */
+  const FALLS=TILES.falls||[[3,0,1],[9,0,1],[14,1,0],[26,-1,0],[30,0,-1],[70,0,-1],[75,0,-1],[109,0,-1],[115,0,-1]]; /* [petak, arah keluar x, arah keluar z] */
   FALLS.forEach((f,fi)=>{
     const t=TILES[f[0]]; if(!t) return;
     const dx=f[1],dz=f[2],px=t.x+dx*0.62,pz=t.z+dz*0.62,top=t.h,H=top+0.2;
@@ -3688,7 +3777,7 @@ function updateLavafalls(t){
 }
 function decorateCustom(DB,th){
   addWideFar(DB,th);
-  if(th.key==='nether') buildLavafalls();
+  if(th.key==='nether'){ buildLavafalls(); if(TILES.island) decorateNetherIslands(DB,th); }
   const D=MAPDEF||{},B=jit(th.wall[1],0.05);
   (D.props||[]).forEach(q=>{
     if(q[0]==='ghast'){ addFlyGhast(q[1],q[2],q[3]); return; }
@@ -3712,7 +3801,7 @@ function buildWorld(key){
   const TB=makeBatch();
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n],colTop=t.h-0.2,hh=colTop+0.5;
-    addBox(TB,t.x,-0.5+hh/2,t.z,1,hh,1,jit(pick(th.wall),0.06));
+    addBox(TB,t.x,-0.5+hh/2,t.z,1,hh,1,jit(t.bio&&NI_CLIFF[t.bio]?pick(NI_CLIFF[t.bio]):pick(th.wall),0.06));
     if(n===GOAL&&BOSS==='dragon'){ /* Block 100 = portal: permukaan hitam gelap (4x4 kotak seperti tile lain) + rim ungu tipis */
       for(let i=0;i<4;i++) for(let j=0;j<4;j++) addBox(TB,t.x+(i-1.5)*0.235,t.h-0.1,t.z+(j-1.5)*0.235,0.235,0.2,0.235,(i+j)%2?0x0A0712:0x120B1E,{edge:false});
       [[0,-0.47,0.96,0.06],[0,0.47,0.96,0.06],[-0.47,0,0.06,0.88],[0.47,0,0.06,0.88]].forEach(f=>addBox(TB,t.x+f[0],t.h+0.012,t.z+f[1],f[2],0.024,f[3],0x2B1659,{edge:false}));
