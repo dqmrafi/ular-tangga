@@ -326,6 +326,33 @@ body .hud select.camsel option{color:#12337f;background:#fff;text-shadow:none}
 body.awk-lock button,body.awk-lock select,body.awk-lock canvas{pointer-events:none}
 body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.35)}
 </style>
+<style>
+/* ===== HUD tema Nether: merah crimson / bata Nether + oranye lava (aktif lewat body.th-nether, diset di applyLook) ===== */
+body.th-nether{--bd:#3a0d0d}
+body.th-nether .pnl{background:linear-gradient(#a33a2a,#6e1f1a);box-shadow:0 6px 0 var(--bd),0 14px 24px rgba(40,5,5,.45),inset 0 2px 3px rgba(255,200,150,.45),inset 0 0 0 3px #d9663a}
+body.th-nether .pr{background:linear-gradient(#b0453a,#6a1e1e);box-shadow:0 3px 0 rgba(40,5,5,.6),inset 0 0 0 3px rgba(255,150,90,.5)}
+body.th-nether .pr.on{background:linear-gradient(#ffc04d,#ee8a1a);box-shadow:0 4px 0 #a8420c,0 0 18px #ff9a3a}
+body.th-nether .pr .pos{background:rgba(40,5,5,.5)}
+body.th-nether .hp{background:rgba(40,5,5,.6)}
+body.th-nether .btn,body.th-nether .tn .btn{background:linear-gradient(#ffc04d,#ee6a1a);text-shadow:0 2px 0 #7a2a08;box-shadow:0 5px 0 #a8420c,inset 0 3px 3px rgba(255,255,255,.55)}
+body.th-nether .btn:active:not(:disabled){box-shadow:0 1px 0 #a8420c,inset 0 3px 3px rgba(255,255,255,.55)}
+body.th-nether .btn:disabled,body.th-nether .tn .btn:disabled{background:linear-gradient(#7a5a50,#4a3430);color:#d8bfb0;box-shadow:0 3px 0 #2a1814}
+body.th-nether .btn.light,body.th-nether .hud .btn.light{background:linear-gradient(#b8423a,#7a1e1e);text-shadow:0 2px 0 var(--bd);box-shadow:0 5px 0 var(--bd),0 10px 14px rgba(40,5,5,.4),inset 0 2px 2px rgba(255,200,150,.5)}
+body.th-nether .btn.light[aria-pressed=true],body.th-nether .hud .btn.light[aria-pressed=true],body.th-nether .hud .btn.ico[aria-pressed=true],body.th-nether .hud #btnAngle[aria-pressed=true]{background:linear-gradient(#ffc04d,#ee8a1a);text-shadow:0 2px 0 #7a2a08;box-shadow:0 4px 0 #a8420c,0 0 14px #ff9a3a}
+body.th-nether .hud #btnAngle[aria-pressed=false]{background:linear-gradient(#b8423a,#7a1e1e)}
+body.th-nether .hud select.camsel{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath d='M1 3l4 4 4-4' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 8px center/10px 10px,linear-gradient(#b8423a,#7a1e1e)}
+body.th-nether .hud select.camsel option{color:#3a0d0d}
+body.th-nether .tn .msg,body.th-nether .card p,body.th-nether #pcWho{color:#ffe3b0}
+body.th-nether .eyebrow,body.th-nether .lbl{color:#ffd0a0}
+body.th-nether .pb{background:linear-gradient(#b0453a,#6a1e1e);box-shadow:0 4px 0 var(--bd),inset 0 0 0 3px rgba(255,150,90,.5),inset 0 2px 2px rgba(255,255,255,.35)}
+body.th-nether .pb b{background:#e8941a;color:#3a0d0d}
+body.th-nether .pb:disabled b{background:#8a6a5a}
+body.th-nether .pucard{background:linear-gradient(#a33a2a,#6e1f1a);box-shadow:0 8px 0 var(--bd),0 0 28px rgba(255,140,40,.65),inset 0 3px 3px rgba(255,200,150,.5),inset 0 0 0 4px #ffb85a}
+body.th-nether #pcName{color:#ffd27a}
+body.th-nether .card{background:linear-gradient(#c0502e,#8a2a1e);box-shadow:0 10px 0 var(--bd),0 22px 30px rgba(0,0,0,.35),inset 0 3px 3px rgba(255,200,150,.5)}
+body.th-nether #pauseMenu,body.th-nether #exitConfirm{background:rgba(42,6,6,.55)}
+body.th-nether .pm-vol input[type=range]{accent-color:#ff9a3a}
+</style>
 <canvas id="c" aria-label="Papan ular tangga 3D"></canvas>
 
 <header class="hud" id="hud">
@@ -2827,6 +2854,7 @@ function updateNightUI(){
 }
 function applyLook(th){
   const rs=document.documentElement.style;
+  document.body.classList.toggle('th-nether',th.key==='nether'); /* HUD ikut warna Nether (CSS body.th-nether) */
   const top=night?mixHex(th.skyTop,'#060a22',0.9):th.skyTop,bot=night?mixHex(th.skyBot,'#1c2a5e',0.82):th.skyBot;
   rs.setProperty('--sky-top',top); rs.setProperty('--sky-bot',bot);
   rs.setProperty('--hud-bg',mixHex(th.wall[0],'#000000',night?0.86:0.78)); rs.setProperty('--hud-edge',mixHex(th.wall[0],'#ffffff',night?0.02:0.12)); rs.setProperty('--ttl',th.sw[0]);
