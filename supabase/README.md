@@ -2,11 +2,11 @@
 
 ## Required Supabase project settings
 
-1. Create a Supabase project.
+1. Use the supplied Supabase project (`fxtecbxuoyavdvpcylht`).
 2. In **Authentication → Providers → Anonymous**, enable anonymous sign-ins.
 3. Apply `supabase/migrations/202611050001_multiplayer.sql` in the SQL Editor (or with Supabase CLI).
 4. Confirm `public.game_rooms` is enabled for Realtime. The migration attempts to add it to `supabase_realtime`; if publication permissions prevent that, enable it from Database → Publications / Realtime settings.
-5. Edit `game/assets/js/multiplayer/config.example.js` directly and replace the URL and anon/publishable key with the values from **Project Settings → API**. This public browser config should be committed with the deployment; the anon/publishable key is designed to be public. Never use the service_role key.
+5. The public project URL and publishable key are already configured in `game/assets/js/multiplayer/config.example.js`. If the key is rotated, update that file and commit the new public key. This key is designed to be public; never use the service_role/secret key.
 6. In Vercel, import the GitHub repository and set **Root Directory** to `game`, **Framework Preset** to `Other`, **Build Command** to none, and **Output Directory** to `.`. The site is static; no Vercel Functions or server environment variables are needed.
 
 ## Anonymous player identity
