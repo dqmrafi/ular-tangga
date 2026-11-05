@@ -17,7 +17,7 @@
     onlyMobs: ['blaze', 'ghast', 'strider', 'magma_cube', 'piglin', 'piglin_brute', 'hoglin', 'zoglin', 'zombified_piglin'],
     goal: 120,
     boss: 'wither', /* fase Wither belum dibuat: sementara tiba di petak 120 = menang */
-    view: { minX: -8.7, maxX: 12.6, minZ: -9.0, maxZ: 6.0 }, /* kotak yang harus terlihat utuh (area Start + seluruh papan + benteng di kanan atas) */
+    view: { minX: -8.7, maxX: 15.6, minZ: -10.6, maxZ: 6.0 }, /* kotak yang harus terlihat utuh (area Start + seluruh papan + benteng 5x5 di kanan atas) */
     rules: {
       ladders: { 5: 26, 20: 46, 40: 64, 59: 88, 78: 106, 100: 116 },
       snakes: { 28: 3, 50: 18, 66: 36, 82: 61, 102: 80, 118: 94 },
@@ -66,7 +66,9 @@
         cellN[g[0] + ',' + g[1]] = i;
       }
       /* sel darat: semua sel dalam jarak 1 dari jalan (sela lajur = darat atau sungai lava), tepi luar tidak rata */
-      var FORT = { gx0: 16, gx1: 19, gz0: 7, gz1: 12 };
+      /* Benteng 5x5 (rasio 1:1), digeser ke kanan: celah 3 sel dari petak 120 (gx 14) dijembatani jalan batu selebar 1 sel (BRIDGE) setinggi lantai benteng.
+         Sumbu tengah benteng sejajar petak 120 (gz 12 = z -7.5) sehingga jembatan masuk lurus ke tengah halaman. */
+      var FORT = { gx0: 18, gx1: 22, gz0: 10, gz1: 14 }, BRIDGE = { gx0: 15, gx1: 17, gz: 12 };
       function inFort(gx, gz) { return gx >= FORT.gx0 && gx <= FORT.gx1 && gz >= FORT.gz0 && gz <= FORT.gz1; }
       function nearest(gx, gz, R) { var best = 0, bd = 1e9; for (var dx = -R; dx <= R; dx++) for (var dz = -R; dz <= R; dz++) { var n = cellN[(gx + dx) + ',' + (gz + dz)]; if (n) { var d = dx * dx + dz * dz + n * 1e-4; if (d < bd) { bd = d; best = n; } } } return best ? { n: best, d: Math.sqrt(Math.round(bd)) } : null; }
       var isl = {}, extra = {};
@@ -83,6 +85,7 @@
         var th = T[nb.n].h - 0.3 + (hsh(gx, gz, 9) - 0.5) * 0.14 - (cheb === 2 ? 0.25 : 0);
         isl[key] = { x: gx - 7.5, z: 4.5 - gz, h: Math.max(0.05, Math.round(th * 20) / 20), bio: T[nb.n].bio, edge: false };
       }
+      for (gx = BRIDGE.gx0; gx <= BRIDGE.gx1; gx++) isl[gx + ',' + BRIDGE.gz] = { x: gx - 7.5, z: 4.5 - BRIDGE.gz, h: 2.3, bio: 'basalt', edge: false, bridge: true }; /* jalan batu ke gerbang benteng (tinggi = lantai benteng fh) */
       function landAt(a, b) { return !!(isl[a + ',' + b] || cellN[a + ',' + b] || inFort(a, b)); }
       Object.keys(isl).forEach(function (kk) { var p = kk.split(','), a = +p[0], b = +p[1]; isl[kk].edge = !(landAt(a + 1, b) && landAt(a - 1, b) && landAt(a, b + 1) && landAt(a, b - 1)); extra[kk] = isl[kk].h; });
       var fh = 2.3; for (gx = FORT.gx0; gx <= FORT.gx1; gx++) for (gz = FORT.gz0; gz <= FORT.gz1; gz++) extra[gx + ',' + gz] = fh;

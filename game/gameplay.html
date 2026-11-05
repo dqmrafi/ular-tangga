@@ -3726,7 +3726,8 @@ function buildNetherIslands(TB,th){
     addBox(TB,c.x,(h-0.95)/2,c.z,1,h+0.05,1,jit(cl[0],0.06),F);            /* tebing bawah (turun ke lava) */
     addBox(TB,c.x,h-0.3,c.z,1,0.3,1,jit(cl[1+Math.floor(rnd()*2)],0.07),F); /* lapis tebing atas */
     let top=tp[Math.floor(rnd()*3)];
-    if(c.edge&&rnd()<0.28) top=(c.bio==='warped'?0x0F3F3C:0xC0501A);        /* tepi: magma / batu hangus */
+    if(c.bridge) top=[0x34262F,0x3C2D37,0x2C2029][((c.x*2+c.z*3)|0)&1?1:0];     /* jalan ke benteng: batu hitam polos */
+    else if(c.edge&&rnd()<0.28) top=(c.bio==='warped'?0x0F3F3C:0xC0501A);        /* tepi: magma / batu hangus */
     addBox(TB,c.x,h-0.1,c.z,1,0.2,1,jit(top,0.08),F);                       /* permukaan nylium / soul sand / basalt */
   });
 }
@@ -3774,15 +3775,19 @@ function addFortress(B,Fo){
   wall(x0,x1,z0,z0+T,1.5);                       /* dinding utara (belakang) */
   wall(x0,x1,z1-T,z1,1.5);                       /* dinding selatan (depan) */
   wall(x1-T,x1,z0+T,z1-T,1.5);                   /* dinding timur */
-  wall(x0,x0+T,z0+T+1.0,z1-T,1.5);               /* dinding barat (sisi gerbang) */
-  addBox(B,x0+T/2,y+1.2,z0+T+0.5,T,0.6,1.0,bk());                /* ambang atas gerbang (lengkung gerbang di bawahnya) */
+  /* dinding barat (sisi papan) DIBUKA seluruhnya: hanya menara sudut + ambang lantai batu */
+  addBox(B,x0+0.15,y+0.03,cz,0.3,0.12,d-2*T,jit(0x3A2C35,0.04),F);   /* ambang masuk dari jembatan */
   [[x0+0.45,z0+0.45],[x1-0.45,z0+0.45],[x0+0.45,z1-0.45],[x1-0.45,z1-0.45]].forEach(q=>{ /* 4 menara sudut + obor api */
     addBox(B,q[0],y+1.4,q[1],0.9,2.8,0.9,bk());
     [[-0.3,-0.3],[0.3,-0.3],[-0.3,0.3],[0.3,0.3]].forEach(o=>addBox(B,q[0]+o[0],y+2.95,q[1]+o[1],0.28,0.3,0.28,bk(),F));
     addBox(B,q[0],y+2.85,q[1],0.5,0.1,0.5,0x14090E,F); addFlame(q[0],y+2.9,q[1],1.3,{halo:2.0,hal:0.45});
   });
-  const LV=[0xFF8A1A,0xFFA02A,0xFF7A12,0xFFC03A];                  /* kolam lava di halaman (mengikuti referensi) */
-  for(let i=0;i<5;i++) for(let j=0;j<8;j++){ const lx=x0+1.0+i*0.4,lz=z0+1.0+j*0.5; if(lx>x1-1.0||lz>z1-1.0) continue; addBox(B,lx+0.2,y+0.03,lz+0.25,0.4,0.12,0.5,LV[(i*3+j*5)%4],F); }
+  /* lantai halaman: batu hitam papan catur 0.5 + jalur lebih terang dari gerbang barat ke altar (tanpa lava) */
+  const FL=[0x2E222A,0x382A33],PA=[0x4A3A46,0x54424F],nx=Math.round((w-2*T)/0.5),nz=Math.round((d-2*T)/0.5);
+  for(let i=0;i<nx;i++) for(let j=0;j<nz;j++){
+    const fx=x0+T+0.25+i*0.5,fz=z0+T+0.25+j*0.5,onPath=Math.abs(fz-cz)<0.26&&fx<cx;
+    addBox(B,fx,y+0.02,fz,0.5,0.04,0.5,jit((onPath?PA:FL)[(i+j)&1],0.03),F);
+  }
   addBox(B,cx,y+0.25,cz,0.9,0.5,0.9,jit(0x1A1216,0.04));             /* altar tempat Wither */
   const bl=0x16161A,sk=0x2C2C32;                                      /* patung Wither: tulang belakang, rusuk, tiga tengkorak */
   addBox(B,cx,y+0.85,cz,0.1,0.7,0.1,bl,F); [0.62,0.78,0.94].forEach(yy=>addBox(B,cx,y+yy,cz,0.56,0.06,0.1,bl,F));
@@ -3795,7 +3800,7 @@ function addFortress(B,Fo){
 function decorateNetherIslands(DB,th){
   const I=TILES.island,F={edge:false};
   Object.keys(I).sort().forEach(k=>{
-    const c=I[k]; if(c.edge&&rnd()<0.6) return;
+    const c=I[k]; if(c.bridge) return; if(c.edge&&rnd()<0.6) return;
     const r=rnd(),x=c.x+(rnd()-0.5)*0.2,z=c.z+(rnd()-0.5)*0.2,h=c.h,bio=c.bio;
     if(nearLadderSnake(c.x,c.z,0.8)) return; /* jauhi jalur tangga & ular */
     if(bio==='crimson'||bio==='warped'){
