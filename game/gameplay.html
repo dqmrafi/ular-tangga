@@ -5318,5 +5318,60 @@ html body:is(.th-world,.th-nether) #side .rcol .pnl.tn #btnAuto{border-color:var
   box-shadow:inset 0 0 0 2px var(--tp-c-ring),inset 0 -4px 0 var(--tp-c-in),0 5px 0 var(--tp-ol),0 10px 14px rgba(0,0,0,.25)}
 html body:is(.th-world,.th-nether) #side .rcol .pnl.tn #btnAuto[aria-pressed=true]{background:linear-gradient(var(--tp-y1),var(--tp-y2));text-shadow:0 2px 0 var(--tp-y-sh);
   box-shadow:inset 0 0 0 2px var(--tp-y-ring),inset 0 -4px 0 var(--tp-y-in),0 5px 0 var(--tp-ol),0 0 0 3px var(--tp-y-ring),0 10px 14px rgba(0,0,0,.25)}
+
+/* ===== Modal & dadu: menu jeda/keluar/menang, layar Siap main (urutan dadu), kartu power-up, Totem, bar Special Dice ===== */
+body.th-world{--tp-m1:#b9803f;--tp-m2:#7d4e22;--tp-m-ring:#f0cd8e;--tp-m-txt:#fff4dc;
+  --tp-p1:#5a3a1c;--tp-p2:#3d2610;--tp-p-ring:rgba(240,205,142,.3);
+  --tp-g1:#6fc04a;--tp-g2:#2f7d2a;--tp-g-ring:#b5ec86;--tp-g-in:rgba(10,50,10,.4);--tp-g-sh:#1b3d12;
+  --tp-s1:#d49a52;--tp-s2:#9a6430;--tp-s-ring:#f0cd8e;--tp-s-in:rgba(70,35,8,.4);--tp-s-sh:#4a2a0c;
+  --tp-w:#2f7d2a;--tp-dm-bg:rgba(43,28,14,.6);--tp-dm-seg:rgba(240,205,142,.4);--tp-dm-on:rgba(143,224,92,.6)}
+body.th-nether{--tp-m1:#8e2f49;--tp-m2:#4e1626;--tp-m-ring:#ff9fb0;--tp-m-txt:#ffe6ec;
+  --tp-p1:#2f0f1c;--tp-p2:#1f0912;--tp-p-ring:rgba(255,140,170,.25);
+  --tp-g1:#35b3a0;--tp-g2:#146257;--tp-g-ring:#9ff5e2;--tp-g-in:rgba(0,40,36,.45);--tp-g-sh:#06302b;
+  --tp-s1:#d0425a;--tp-s2:#7a1630;--tp-s-ring:#ff9fb0;--tp-s-in:rgba(40,0,10,.45);--tp-s-sh:#2a0710;
+  --tp-w:#146257;--tp-dm-bg:rgba(32,8,16,.65);--tp-dm-seg:rgba(255,140,170,.4);--tp-dm-on:rgba(79,224,200,.6)}
+
+/* kotak modal */
+html body:is(.th-world,.th-nether) .lm-ov:not(#win) .lm-box,html body:is(.th-world,.th-nether) #readyScreen .rd-box{border-color:var(--tp-ol);background:linear-gradient(var(--tp-m1),var(--tp-m2));
+  box-shadow:inset 0 0 0 calc(var(--mu)*.25) var(--tp-m-ring),0 calc(var(--mu)*.5) 0 var(--tp-ol),0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+html body:is(.th-world,.th-nether) #win:not([data-state=lose]) .lm-box[class]{background-color:var(--tp-w);border-color:var(--tp-ol);
+  box-shadow:inset calc(var(--mu)*.35) calc(var(--mu)*.35) 0 var(--tp-m-ring),inset calc(var(--mu)*-.35) calc(var(--mu)*-.35) 0 rgba(0,0,0,.45),0 calc(var(--mu)*.5) 0 var(--tp-ol),0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+html body:is(.th-world,.th-nether) .lm-box h2,html body:is(.th-world,.th-nether) #readyScreen h2{text-shadow:0 calc(var(--mu)*.2) 0 var(--tp-ol)}
+html body:is(.th-world,.th-nether) .lm-eyebrow,html body:is(.th-world,.th-nether) .lm-note,html body:is(.th-world,.th-nether) #readyScreen .rd-sub{color:var(--tp-m-txt);text-shadow:0 calc(var(--mu)*.15) 0 var(--tp-ol)}
+html body:is(.th-world,.th-nether) .lm-lbl,html body:is(.th-world,.th-nether) #readyScreen .rd-nm{text-shadow:0 calc(var(--mu)*.15) 0 var(--tp-ol)}
+
+/* panel dalam (baris slider, kartu pemain & timer di layar Siap main) */
+html body:is(.th-world,.th-nether) .lm-row,html body:is(.th-world,.th-nether) #pauseMenu .lm-srow,html body:is(.th-world,.th-nether) #readyScreen .rd-card,html body:is(.th-world,.th-nether) #readyScreen .rd-time{
+  background:linear-gradient(var(--tp-p1),var(--tp-p2));border-color:var(--tp-ol);box-shadow:inset 0 0 0 calc(var(--mu)*.12) var(--tp-p-ring)}
+html body:is(.th-world,.th-nether) #readyScreen .rd-ord:not(.set):not(.scr){background:var(--tp-p2);border-color:var(--tp-m-ring)}
+html body:is(.th-world,.th-nether) #readyScreen .rd-av{background:var(--tp-p2)}
+html body:is(.th-world,.th-nether) #pauseMenu .lm-srow input[type=range]::-webkit-slider-runnable-track{background:linear-gradient(90deg,var(--c) var(--p),var(--tp-p2) var(--p))}
+html body:is(.th-world,.th-nether) #pauseMenu .lm-srow input[type=range]::-moz-range-track{background:var(--tp-p2)}
+
+/* tombol modal: utama = daun / warped, sekunder = kayu / crimson, Keluar tetap merah */
+html body:is(.th-world,.th-nether) .lm-mode:not(.lm-red):not(.lm-blue):not(.lm-grey),html body:is(.th-world,.th-nether) #pauseMenu .lm-resume,html body:is(.th-world,.th-nether) #readyScreen .rd-btn{
+  border-color:var(--tp-ol);background:linear-gradient(var(--tp-g1),var(--tp-g2));text-shadow:0 calc(var(--mu)*.2) 0 var(--tp-g-sh);
+  box-shadow:inset 0 0 0 calc(var(--mu)*.15) var(--tp-g-ring),inset 0 calc(var(--mu)*-.3) 0 var(--tp-g-in),0 calc(var(--mu)*.3) 0 var(--tp-ol)}
+html body:is(.th-world,.th-nether) .lm-mode.lm-blue,html body:is(.th-world,.th-nether) #pauseMenu .lm-grey,html body:is(.th-world,.th-nether) .lm-chip{
+  border-color:var(--tp-ol);background:linear-gradient(var(--tp-s1),var(--tp-s2));text-shadow:0 calc(var(--mu)*.2) 0 var(--tp-s-sh);
+  box-shadow:inset 0 0 0 calc(var(--mu)*.15) var(--tp-s-ring),inset 0 calc(var(--mu)*-.3) 0 var(--tp-s-in),0 calc(var(--mu)*.3) 0 var(--tp-ol)}
+html body:is(.th-world,.th-nether) #pauseMenu .lm-grey[aria-pressed=true]{background:linear-gradient(var(--tp-p1),var(--tp-p2));text-shadow:0 calc(var(--mu)*.2) 0 var(--tp-ol);
+  box-shadow:inset 0 0 0 calc(var(--mu)*.15) var(--tp-m-ring),inset 0 calc(var(--mu)*-.3) 0 rgba(0,0,0,.4),0 calc(var(--mu)*.3) 0 var(--tp-ol)}
+html body:is(.th-world,.th-nether) .lm-mode.lm-red{border-color:var(--tp-ol);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ff9a8e,inset 0 calc(var(--mu)*-.3) 0 rgba(110,10,10,.45),0 calc(var(--mu)*.3) 0 var(--tp-ol)}
+html body:is(.th-world,.th-nether) #readyScreen .rd-card.ok .rd-btn{background:linear-gradient(var(--tp-y1),var(--tp-y2));text-shadow:0 calc(var(--mu)*.15) 0 var(--tp-y-sh);
+  box-shadow:inset 0 0 0 calc(var(--mu)*.15) var(--tp-y-ring),inset 0 calc(var(--mu)*-.3) 0 var(--tp-y-in),0 calc(var(--mu)*.3) 0 var(--tp-ol)}
+
+/* kartu power-up & Totem */
+html body:is(.th-world,.th-nether) .pucard{background:linear-gradient(var(--tp-m1),var(--tp-m2));color:var(--tp-m-txt);
+  box-shadow:0 8px 0 var(--tp-ol),0 0 28px var(--tp-m-ring),inset 0 3px 3px rgba(255,255,255,.35),inset 0 0 0 4px var(--tp-m-ring)}
+html body:is(.th-world,.th-nether) #pcName{text-shadow:0 3px 0 var(--tp-ol)}
+html body:is(.th-world,.th-nether) .tm-box{background:linear-gradient(var(--tp-m1),var(--tp-m2));border-color:var(--tp-ol);color:var(--tp-m-txt);box-shadow:inset 0 0 0 3px var(--tp-m-ring),0 8px 0 rgba(0,0,0,.5)}
+html body:is(.th-world,.th-nether) .tm-bt .tm-y{background:linear-gradient(var(--tp-g1),var(--tp-g2));box-shadow:0 4px 0 var(--tp-ol)}
+html body:is(.th-world,.th-nether) .tm-bt .tm-n{background:linear-gradient(var(--tp-s1),var(--tp-s2));box-shadow:0 4px 0 var(--tp-ol)}
+
+/* bar Special Dice (saat dadu dilempar) */
+html body:is(.th-world,.th-nether) .dm-bar{background:var(--tp-dm-bg);box-shadow:inset 0 2px 4px rgba(0,0,0,.35),0 0 0 2px var(--tp-m-ring)}
+html body:is(.th-world,.th-nether) .dm-bar i{border-left-color:var(--tp-dm-seg);text-shadow:0 1px 0 var(--tp-ol)}
+html body:is(.th-world,.th-nether) .dm-bar i.on{background:var(--tp-dm-on)}
 </style>
 </body></html>
