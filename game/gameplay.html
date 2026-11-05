@@ -1266,6 +1266,7 @@ if (typeof THREE === 'undefined') {
 <script src="assets/js/item-catalog.js"></script>
 <script src="assets/js/item-art.js"></script>
 <script src="assets/js/player-data.js"></script>
+<script src="assets/js/room-flow.js"></script>
 <script src="assets/js/game-integration.js"></script>
 <script src="assets/js/app.js"></script>
 <script>UT.App.init({page:'gameplay'});</script>
@@ -5017,7 +5018,8 @@ function startGame(m,keys){
 }
 
 /* ---------- Kontrol antarmuka ---------- */
-const LOBBY_URL='lobby.html'; /* pindah halaman: layar dadu (play.html) tampil otomatis */
+const LOBBY_URL='lobby.html'; /* fallback bila tidak ada data room */
+function exitToRoom(){ if(window.UT&&UT.RoomFlow) UT.RoomFlow.exitGame(); else location.href=LOBBY_URL; } /* kembali ke room/mode asal masuk */
 function chooseTheme(key){
   if(busy){ pendingTheme=key; document.querySelectorAll('.tbtn').forEach(b=>b.setAttribute('aria-pressed',b.getAttribute('data-theme')===key?'true':'false')); const t=THEMES.find(x=>x.key===key); $('btnTheme').textContent='Maps: '+t.name; return; }
   pendingTheme=null; buildWorld(key);
@@ -5105,14 +5107,14 @@ $('pauseMenu').addEventListener('click',e=>{ if(e.target===e.currentTarget) clos
 $('exitConfirm').addEventListener('click',e=>{ if(e.target===e.currentTarget){ $('exitConfirm').hidden=true; $('pmExit').focus(); } });
 $('pmExit').addEventListener('click',()=>{ $('exitConfirm').hidden=false; $('ecNo').focus(); });
 $('ecNo').addEventListener('click',()=>{ $('exitConfirm').hidden=true; $('pmExit').focus(); });
-$('ecYes').addEventListener('click',()=>{ location.href=LOBBY_URL; });
+$('ecYes').addEventListener('click',exitToRoom);
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape'||document.body.classList.contains('playing')===false) return;
   if(!$('exitConfirm').hidden){ $('exitConfirm').hidden=true; return; }
   if(paused) closePause(); else if($('win').hidden) openPause();
 });
 $('btnAgain').addEventListener('click',()=>{ ensureAudio(); startGame(mode,lastSkins); });
-$('btnToMenu').addEventListener('click',()=>{ location.href=LOBBY_URL; });
+$('btnToMenu').addEventListener('click',exitToRoom);
 
 /* ---------- Loop render ---------- */
 let last=performance.now();

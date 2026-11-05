@@ -58,7 +58,28 @@
     try { sessionStorage.setItem(ROOM_KEY, JSON.stringify(cfg)); } catch (e) {}   /* konfigurasi lengkap (tim, power, frame, host) untuk gameplay */
     location.href = 'gameplay.html?' + p.toString();
   }
+  /* Tujuan setelah keluar gameplay, sesuai cara pemain masuk tadi:
+     - type 'room' (VS Computer / Multi Player / Create Room) -> room.html dengan parameter yang sama
+     - type 'ranked' (Quick Start solo) -> mode.html (area Quick Start)
+     - tidak ada data -> lobby.html */
+  function returnUrl() {
+    var c = lastRoom();
+    if (!c) return 'lobby.html';
+    if (c.type === 'ranked') return 'mode.html';
+    if (c.type === 'room' && MODES.indexOf(c.mode) >= 0) {
+      var q = new URLSearchParams({ mode: c.mode, format: c.format || 'solo', count: (c.players && c.players.length) || c.count || 4 });
+      if (c.mode === 'online' && c.host === false) { q.set('role', 'guest'); if (c.code) q.set('code', c.code); }
+      return 'room.html?' + q.toString();
+    }
+    return 'lobby.html';
+  }
+  function exitGame() {
+    var to = returnUrl();
+    var ev = new CustomEvent('game:navigate', { detail: { to: 'exit', url: to }, cancelable: true });
+    if (!g.dispatchEvent(ev)) return;
+    location.href = to;
+  }
   function lastRoom() { try { return JSON.parse(sessionStorage.getItem(ROOM_KEY) || 'null'); } catch (e) { return null; } }
 
-  UT.RoomFlow = { MODES: MODES, maps: maps, getMap: getMap, setMap: setMap, navigate: navigate, launch: launch, lastRoom: lastRoom, gameMode: gameMode };
+  UT.RoomFlow = { MODES: MODES, maps: maps, getMap: getMap, setMap: setMap, navigate: navigate, launch: launch, lastRoom: lastRoom, returnUrl: returnUrl, exitGame: exitGame, gameMode: gameMode };
 })(window);
