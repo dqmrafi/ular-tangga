@@ -1,7 +1,0 @@
-Frame profil dan di detail gunakan skin ini , masukan ke data/frame, dan masukan  tabs frame ke shop dan inventory 
-icon sudah saya siapkan
-
-frame-default untuk dipsangkan
-frame-gold masukan ke toko
-
-icon frame untuk tabs tkoko dan inventory
