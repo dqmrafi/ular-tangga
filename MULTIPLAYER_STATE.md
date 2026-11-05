@@ -10,7 +10,7 @@
 - **Repository:** https://github.com/dqmrafi/ular-tangga
 - **Base branch:** `main`
 - **Base commit:** `5178a7bae911ed16a638db32e019d4655de83767`
-- **Current checkpoint commit:** pending
+- **Current checkpoint commit:** `76e71e67233116936f8c27b4c6c5241efffb275f` (documentation checkpoint commit)
 - **Application code changed:** No
 - **Tests run:** None (intentionally deferred until after push, per project workflow)
 
@@ -51,7 +51,7 @@ Keep `player-data.js` and unrelated profile/shop behavior untouched. Multiplayer
 
 | Checkpoint | Description | Status | Commit |
 |---|---|---|---|
-| 0 | Planning docs and branch baseline | In progress until commit verified | Pending |
+| 0 | Planning docs and branch baseline | Complete | `76e71e67233116936f8c27b4c6c5241efffb275f` |
 | 1 | Trace room/game contracts | Not started | — |
 | 2 | Supabase schema/client foundation | Not started | — |
 | 3 | Private room lifecycle | Not started | — |
