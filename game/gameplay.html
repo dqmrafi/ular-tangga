@@ -3191,7 +3191,7 @@ function mobReact(n){ if(MOBOBJ[n]) MOBOBJ[n].react=1.6; }
 function openChest(n){ const c=CHESTOBJ[n]; if(!c) return; c.open=1; sparkle(new THREE.Vector3(c.x,c.y+0.35,c.z)); }
 function closeChest(n){ const c=CHESTOBJ[n]; if(c) c.open=0; }
 function updateMobs(dt,t){
-  updateGhasts(dt,t); updateLavafalls(t);
+  updateGhasts(dt,t); updateLavafalls(t); updateWither(dt,t);
   const pw=players.map(p=>p.pawn.position);
   for(const n in MOBOBJ){
     const m=MOBOBJ[n],g=m.g; let best=null,bd=1e9;
@@ -3726,7 +3726,8 @@ function buildNetherIslands(TB,th){
     addBox(TB,c.x,(h-0.95)/2,c.z,1,h+0.05,1,jit(cl[0],0.06),F);            /* tebing bawah (turun ke lava) */
     addBox(TB,c.x,h-0.3,c.z,1,0.3,1,jit(cl[1+Math.floor(rnd()*2)],0.07),F); /* lapis tebing atas */
     let top=tp[Math.floor(rnd()*3)];
-    if(c.edge&&rnd()<0.28) top=(c.bio==='warped'?0x0F3F3C:0xC0501A);        /* tepi: magma / batu hangus */
+    if(c.bridge) top=[0x34262F,0x3C2D37,0x2C2029][((c.x*2+c.z*3)|0)&1?1:0];     /* jalan ke benteng: batu hitam polos */
+    else if(c.edge&&rnd()<0.28) top=(c.bio==='warped'?0x0F3F3C:0xC0501A);        /* tepi: magma / batu hangus */
     addBox(TB,c.x,h-0.1,c.z,1,0.2,1,jit(top,0.08),F);                       /* permukaan nylium / soul sand / basalt */
   });
 }
@@ -3765,37 +3766,193 @@ function nearLadderSnake(x,z,r){
     return Math.hypot(x-(A.x+dx*t),z-(A.z+dz*t))<r; };
   return Object.keys(LADDERS).some(k=>chk(+k,LADDERS[k]))||Object.keys(SNAKES).some(k=>chk(+k,SNAKES[k]));
 }
+/* ---------- Benteng Nether: tembok bata detail, altar batu, Wither beranimasi ---------- */
+var WITHER=null;
+function shHex(hex,a){ const k=1+a*1.5,c=v=>Math.max(0,Math.min(255,Math.round(v*k))); return (c(hex>>16&255)<<16)|(c(hex>>8&255)<<8)|c(hex&255); } /* warna angka (aman utk tools/character-data) */
+function fhash(a,b){ let x=Math.imul(Math.floor(a*97)+Math.imul(Math.floor(b*131),7919)+13,0x9E3779B1); x^=x>>>15; x=Math.imul(x,0x85EBCA6B); x^=x>>>13; return ((x>>>0)%10000)/10000; } /* deterministik, tanpa rnd() terseed */
+/* tengkorak Wither: kubus gelap + kulit piksel 4x4, rongga mata, alis, hidung, tulang pipi, retakan, gigi atas (depan = +z) */
+function addWitherSkull(B,s,key){
+  const F={edge:false},BO=0x34343C,n=4,T=s/n,TH=0.008,E=s/2+TH/2;
+  addBox(B,0,0,0,s,s,s,BO);
+  for(let a=0;a<n;a++) for(let b=0;b<n;b++){
+    const u=-s/2+T/2+a*T,v=-s/2+T/2+b*T;
+    addBox(B,u,v,E,T,T,TH,shHex(BO,(fhash(a+key,b)-0.5)*0.34),F);
+    addBox(B,u,v,-E,T,T,TH,shHex(BO,(fhash(a,b+key+4)-0.5)*0.34-0.05),F);
+    addBox(B,E,v,u,TH,T,T,shHex(BO,(fhash(a+7,b+key)-0.5)*0.34),F);
+    addBox(B,-E,v,u,TH,T,T,shHex(BO,(fhash(a+3,b+key+9)-0.5)*0.34),F);
+    addBox(B,u,E,v,T,TH,T,shHex(BO,(fhash(a+key,b+11)-0.5)*0.3+0.04),F);
+  }
+  const z1=s/2+0.012,D=0.008;
+  [-1,1].forEach(a=>{
+    addBox(B,a*s*0.235,s*0.08,z1,s*0.32,s*0.22,D,0x0C0C10,F);                 /* rongga mata */
+    addBox(B,a*s*0.38,-s*0.17,z1,s*0.15,s*0.15,D,0x4C4C56,F);                 /* tulang pipi */
+    addBox(B,a*s*0.2,s*0.27,z1,s*0.4,s*0.07,D+0.004,0x1C1C22,F);              /* alis (miring: sisi luar lebih rendah) */
+    addBox(B,a*s*0.42,s*0.22,z1,s*0.14,s*0.06,D+0.004,0x1C1C22,F);
+  });
+  addBox(B,0,-s*0.12,z1,s*0.12,s*0.22,D,0x0C0C10,F);                         /* lubang hidung */
+  addBox(B,0,-s*0.37,z1,s*0.7,s*0.05,D,0x0C0C10,F);                          /* garis mulut */
+  addBox(B,s*0.08,s*0.36,z1+0.004,s*0.05,s*0.2,0.006,0x16161C,F);            /* retakan dahi */
+  addBox(B,s*0.13,s*0.25,z1+0.004,s*0.12,s*0.04,0.006,0x16161C,F);
+  addBox(B,E+0.004,s*0.15,-s*0.1,0.006,s*0.3,s*0.05,0x16161C,F);             /* retakan sisi */
+  addBox(B,-E-0.004,s*0.1,s*0.12,0.006,s*0.25,s*0.05,0x16161C,F);
+  for(let i=-2;i<=2;i++) addBox(B,i*s*0.15,-s/2-s*0.025,s/2-s*0.06,s*0.07,s*0.07,s*0.07,0x8A8A94,F); /* gigi atas */
+}
+/* badan Wither: tulang belakang bersendi, 4 rusuk, leher, ekor 3 ruas */
+function addWitherBody(B){
+  const F={edge:false};
+  for(let k=0;k<7;k++){ const y=0.02+k*0.095,c=k%2?0x3A3A42:0x2C2C32; addBox(B,0,y,0,0.1,0.085,0.1,c); if(k%2) [-1,1].forEach(a=>addBox(B,a*0.07,y,0,0.04,0.04,0.04,0x4A4A54,F)); }
+  [[0.64,0.62],[0.53,0.54],[0.42,0.46],[0.31,0.38]].forEach((r,i)=>{ const y=r[0],w=r[1],c=i%2?0x34343C:0x2C2C32;
+    addBox(B,0,y,0,w,0.06,0.07,c);
+    [-1,1].forEach(a=>{ addBox(B,a*(w/2-0.02),y-0.05,0.015,0.05,0.07,0.06,0x3C3C46,F); addBox(B,a*(w/2-0.02),y-0.095,0.045,0.04,0.045,0.05,0x4A4A54,F); });
+  });
+  addBox(B,0,0.72,0,0.09,0.09,0.09,0x34343C);                               /* leher */
+  [[0,-0.1,-0.07,0.085],[0,-0.17,-0.15,0.065],[0,-0.22,-0.24,0.05]].forEach(t=>addBox(B,t[0],t[1],t[2],t[3],t[3],t[3],0x2C2C32));
+}
+/* altar: tumpukan batu retak (deepslate/blackstone), batu lepas di kaki, tiga undak, rune menyala, pasir jiwa berbentuk T. Mengembalikan tinggi permukaan. */
+function addWitherAltar(B,cx,cz,y){
+  const DS=[0x2A2A30,0x34343C,0x222228,0x3C3C46],F={edge:false};
+  const pal=(i,j,a)=>shHex(DS[Math.floor(fhash(i,j+a)*4)],(fhash(j,i+a)-0.5)*0.2);
+  addBox(B,cx,y+0.08,cz,1.5,0.16,1.5,0x1C161E);
+  for(let k=0;k<4;k++) addBox(B,cx+(fhash(k,21)-0.5)*1.0,y+0.162,cz+(fhash(k,22)-0.5)*1.0,0.22,0.012,0.03,0xFF6A14,F);  /* urat lava di dasar */
+  for(let k=0;k<10;k++){ const a=k/10*Math.PI*2+fhash(k,1)*0.4,r=0.78+fhash(k,2)*0.14,sz=0.14+fhash(k,3)*0.14,h=0.08+fhash(k,4)*0.16; /* batu lepas di kaki */
+    addBox(B,cx+Math.cos(a)*r,y+h/2,cz+Math.sin(a)*r,sz,h,sz*(0.8+fhash(k,5)*0.4),pal(k,7,0)); }
+  let yy=y+0.16;
+  [[1.2,3],[0.93,3],[0.66,2]].forEach((s,si)=>{ const w=s[0],n=s[1],h=0.16,c=w/n;
+    addBox(B,cx,yy+h/2,cz,w,h,w,0x120E14,F);                                /* isian gelap = celah antar batu */
+    for(let i=0;i<n;i++) for(let j=0;j<n;j++){ const dh=(fhash(i+si*5,j)-0.5)*0.03;
+      addBox(B,cx-w/2+c/2+i*c,yy+h/2+dh/2,cz-w/2+c/2+j*c,c-0.012,h+dh,c-0.012,pal(i+si*3,j,si*11)); }
+    if(si===0) [-1,0,1].forEach(k=>addBox(B,cx+k*0.3,yy+0.08,cz+w/2+0.008,0.07,0.07,0.014,k===0?0x7FD8FF:0xFF8A1A,F)); /* rune menyala di muka depan */
+    yy+=h; });
+  const c3=0.22; /* permukaan atas: pasir jiwa membentuk T (tempat memanggil Wither) */
+  for(let i=0;i<3;i++) for(let j=0;j<3;j++){ const soul=(j===0)||(i===1),col=soul?shHex(0x5B4636,(fhash(i,j+30)-0.5)*0.15):shHex(0x26262C,(fhash(i,j+31)-0.5)*0.2);
+    addBox(B,cx-c3+i*c3,yy+0.025,cz-c3+j*c3,c3-0.012,0.05,c3-0.012,col);
+    if(soul) [[-0.05,-0.04],[0.05,0.05]].forEach(o=>addBox(B,cx-c3+i*c3+o[0],yy+0.052,cz-c3+j*c3+o[1],0.04,0.006,0.04,0x2E2218,F)); }
+  return yy+0.05-y;
+}
+/* Wither beranimasi: melayang naik-turun, 3 kepala menoleh, rahang bergerak, mata berkedip/berpendar, meraung tiap ~7 dtk, jiwa biru naik */
+function makeWither(cx,cz,y0){
+  const S=1.1,g=new THREE.Group(); g.position.set(cx,y0+0.06,cz); g.scale.setScalar(S);
+  const EYE=new THREE.MeshBasicMaterial({color:0xDDEEFF,fog:false});
+  const BB=makeBatch(); addWitherBody(BB); g.add(buildBatch(BB));
+  const heads=[];
+  const mkHead=(s,x,y,key,ph)=>{
+    const hg=new THREE.Group(); hg.position.set(x,y,0);
+    const SB=makeBatch(); addWitherSkull(SB,s,key); hg.add(buildBatch(SB));
+    const jaw=new THREE.Group(); jaw.position.set(0,-s/2+0.012,-s/2+0.05);
+    const JB=makeBatch(),F={edge:false};
+    addBox(JB,0,-s*0.05,s*0.42,s*0.84,s*0.12,s*0.78,0x2A2A30);
+    for(let i=0;i<4;i++) addBox(JB,(i-1.5)*s*0.2,s*0.03,s*0.8,s*0.07,s*0.08,s*0.07,0x8A8A94,F);
+    jaw.add(buildBatch(JB)); hg.add(jaw);
+    const geo=new THREE.BoxGeometry(s*0.26,s*0.13,0.012);
+    const eyes=[-1,1].map(a=>{ const m=new THREE.Mesh(geo,EYE); m.position.set(a*s*0.235,s*0.08,s/2+0.022); hg.add(m); return m; });
+    g.add(hg); heads.push({g:hg,jaw,eyes,ph});
+  };
+  mkHead(0.32,0,0.86,0,0); mkHead(0.24,-0.31,0.74,3,1.7); mkHead(0.24,0.31,0.74,6,3.4);
+  world.add(g);
+  const halo=makeHalo(cx,y0+0.7,cz,2.4,0x6FA8FF); world.add(halo);
+  const geo=new THREE.BoxGeometry(1,1,1),mats=[0xF0FAFF,0x9FD8FF,0x4A78B8].map(c=>new THREE.MeshBasicMaterial({color:c,fog:false}));
+  mats.push(new THREE.MeshBasicMaterial({color:0x1A1A24,transparent:true,opacity:0.5,depthWrite:false}));
+  const sg=new THREE.Group(),ps=[]; world.add(sg);
+  for(let i=0;i<28;i++){ const me=new THREE.Mesh(geo,mats[0]); me.visible=false; sg.add(me); ps.push({me,life:0,max:1,vx:0,vy:0,vz:0,s:0.04,ph:i*1.3}); }
+  WITHER={g,heads,EYE,halo,ps,mats,acc:0,i:0,x:cx,z:cz,y0:y0};
+  return WITHER;
+}
+function updateWither(dt,t){
+  const w=WITHER; if(!w) return;
+  const calm=reduce, ph=t%7, roar=calm?0:(ph<1?Math.sin(ph*Math.PI):0);
+  w.g.position.y=w.y0+0.06+(calm?0:0.035*Math.sin(t*1.7)+0.03*roar);
+  w.g.rotation.y=calm?0:0.12*Math.sin(t*0.45);
+  const shake=roar*Math.sin(t*55)*0.05;
+  w.heads.forEach((h,i)=>{
+    h.g.rotation.y=calm?0:((i===0?0.5*Math.sin(t*0.6):0.45*Math.sin(t*0.8+h.ph))+shake);
+    h.g.rotation.x=calm?0:(0.05*Math.sin(t*1.3+h.ph)-0.12*roar);
+    h.jaw.rotation.x=0.05+(calm?0:(0.04+0.04*Math.sin(t*2.1+h.ph)+0.5*roar));
+    const blink=(!calm&&((t+h.ph)%5.3)<0.12)?0.15:1;
+    h.eyes.forEach(e=>{ e.scale.y=blink; });
+  });
+  const it=Math.min(1,0.72+0.2*Math.sin(t*3)+0.5*roar);
+  w.EYE.color.setRGB(0.87*it,0.93*it,it);
+  w.halo.material.opacity=(night?0.38:0.16)*(0.75+0.25*Math.sin(t*1.9))+0.3*roar;
+  if(!calm&&!document.hidden){
+    w.acc+=dt*(9+32*roar); let guard=6;
+    while(w.acc>=1&&guard--){
+      w.acc-=1;
+      let p=null; for(let k=0;k<28;k++){ const c=w.ps[(w.i+k)%28]; if(c.life<=0){ p=c; w.i=(w.i+k+1)%28; break; } }
+      if(!p) break;
+      const a=Math.random()*Math.PI*2,r=0.12+Math.random()*0.4;
+      p.me.position.set(w.x+Math.cos(a)*r,w.y0+0.15+Math.random()*0.9,w.z+Math.sin(a)*r);
+      p.max=p.life=1.2+Math.random()*0.8; p.vx=(Math.random()-0.5)*0.12; p.vz=(Math.random()-0.5)*0.12; p.vy=0.25+Math.random()*0.35+0.4*roar;
+      p.s=0.03+Math.random()*0.035; p.me.rotation.set(Math.random()*3,Math.random()*3,Math.random()*3); p.me.visible=true;
+    }
+  }
+  for(let k=0;k<28;k++){
+    const p=w.ps[k]; if(p.life<=0) continue;
+    p.life-=dt; if(p.life<=0){ p.me.visible=false; continue; }
+    const u=1-p.life/p.max;
+    p.me.position.x+=(p.vx+Math.sin(t*3+p.ph)*0.05)*dt; p.me.position.z+=(p.vz+Math.cos(t*2.6+p.ph)*0.05)*dt; p.me.position.y+=p.vy*dt;
+    p.me.rotation.x+=dt*1.5; p.me.rotation.y+=dt*2;
+    p.me.material=u<0.2?w.mats[0]:u<0.55?w.mats[1]:u<0.85?w.mats[2]:w.mats[3];
+    p.me.scale.setScalar(p.s*(1-0.6*u));
+  }
+}
 function addFortress(B,Fo){
   const x0=Fo.x0,x1=Fo.x1,z0=Fo.z0,z1=Fo.z1,y=Fo.y,cx=(x0+x1)/2,cz=(z0+z1)/2,w=x1-x0,d=z1-z0,F={edge:false},BR=[0x2B1B24,0x231820,0x35212D,0x2F1E28],bk=()=>jit(pick(BR),0.05),T=0.5;
+  const BRK=[0x472431,0x3F1F2B,0x4E2937,0x38192A],TW=0.9; /* TW = lebar menara sudut: bata/pilaster dipangkas di antara menara */
   addBox(B,cx,(y-0.8)/2,cz,w,y+0.3,d,jit(0x1E1418,0.04),F);        /* dasar benteng turun ke lava */
   addBox(B,cx,y-0.1,cz,w,0.2,d,jit(0x2A1C24,0.05),F);              /* lantai halaman */
-  const wall=(a0,a1,b0,b1,H)=>{ const ww=a1-a0,dd=b1-b0; addBox(B,(a0+a1)/2,y+H/2,(b0+b1)/2,ww,H,dd,bk());
-    const horiz=ww>=dd,n=Math.floor((horiz?ww:dd)/0.6); for(let i=0;i<n;i+=2){ const t=(i+0.5)*0.6; if(horiz) addBox(B,a0+t,y+H+0.15,(b0+b1)/2,0.4,0.3,dd,bk(),F); else addBox(B,(a0+a1)/2,y+H+0.15,b0+t,ww,0.3,0.4,bk(),F); } };
-  wall(x0,x1,z0,z0+T,1.5);                       /* dinding utara (belakang) */
-  wall(x0,x1,z1-T,z1,1.5);                       /* dinding selatan (depan) */
-  wall(x1-T,x1,z0+T,z1-T,1.5);                   /* dinding timur */
-  wall(x0,x0+T,z0+T+1.0,z1-T,1.5);               /* dinding barat (sisi gerbang) */
-  addBox(B,x0+T/2,y+1.2,z0+T+0.5,T,0.6,1.0,bk());                /* ambang atas gerbang (lengkung gerbang di bawahnya) */
-  [[x0+0.45,z0+0.45],[x1-0.45,z0+0.45],[x0+0.45,z1-0.45],[x1-0.45,z1-0.45]].forEach(q=>{ /* 4 menara sudut + obor api */
+  /* tembok bata: badan, susunan bata bergeser 0.25 (panjang bervariasi), pilaster, jendela berbingkai, retakan, plint & cornice, gerigi bertutup, rantai + lentera jiwa di sisi dalam */
+  const wall=(ax,a0,a1,c0,c1,H,dir)=>{
+    const X=ax==='x',cc=(c0+c1)/2,t=c1-c0,s0=a0+TW,s1=a1-TW,len=s1-s0,mid=(s0+s1)/2,mk=(p,q,yy,sa,sb,sc,col,o)=>X?addBox(B,p,yy,q,sa,sb,sc,col,o):addBox(B,q,yy,p,sc,sb,sa,col,o);
+    addBox(B,X?(a0+a1)/2:cc,y+H/2,X?cc:(a0+a1)/2,X?a1-a0:t,H,X?t:a1-a0,bk());
+    const fo=cc+dir*(t/2+0.004),fi=cc-dir*(t/2+0.004);
+    [[fo,0],[fi,23]].forEach(f=>{
+      for(let r=0;r<Math.round(H/0.25);r++){ let s=s0-(r%2?0.25:0),i=0;
+        while(s<s1){ const l=0.5+(fhash(r+f[1],i)<0.25?0.12:0),e=Math.min(s+l,s1),sa=Math.max(s,s0);
+          if(e-sa>0.06) mk((sa+e)/2,f[0],y+0.125+r*0.25,e-sa-0.03,0.22,0.012,shHex(BRK[Math.floor(fhash(r*3+f[1],i+5)*4)],(fhash(i+f[1],r)-0.5)*0.22),F);
+          s=e; i++; } }
+    });
+    [1/3,2/3].forEach(k=>{ const p=s0+len*k; mk(p,cc+dir*(t/2+0.05),y+(H+0.12)/2,0.22,H+0.12,0.1,bk()); mk(p,cc+dir*(t/2+0.06),y+H+0.1,0.3,0.08,0.16,jit(0x4A2A38,0.05),F); });
+    mk(mid,cc+dir*(t/2+0.02),y+0.85,0.4,0.5,0.02,0x120A0E,F);                      /* bingkai jendela */
+    mk(mid,cc+dir*(t/2+0.032),y+0.85,0.26,0.36,0.02,0xFF8A1A,F);                   /* kaca menyala */
+    mk(mid,cc+dir*(t/2+0.04),y+0.85,0.03,0.36,0.02,0x120A0E,F); mk(mid,cc+dir*(t/2+0.04),y+0.85,0.26,0.03,0.02,0x120A0E,F);
+    for(let k=0;k<3;k++) mk(s0+fhash(k,len*10)*len,fo+dir*0.004,y+0.3+fhash(k,len*10+3)*0.9,0.02,0.28+fhash(k,5)*0.2,0.01,0x120C10,F); /* retakan */
+    mk((s0+s1)/2,cc,y+0.1,len,0.2,t+0.1,jit(0x231820,0.04),F);                     /* plint */
+    mk((s0+s1)/2,cc,y+H-0.04,len,0.1,t+0.1,jit(0x231820,0.04),F);                  /* cornice */
+    const n=Math.floor(len/0.6);
+    for(let i=0;i<n;i++){ if(fhash(i,len*7+a0)<0.08) continue; const p=s0+(i+0.5)*0.6; mk(p,cc,y+H+0.15,0.4,0.3,t,bk(),F); mk(p,cc,y+H+0.31,0.44,0.04,t+0.04,jit(0x4A2A38,0.05),F); }
+    const ci=cc-dir*(t/2+0.02);                                                     /* sisi dalam: rantai + lentera jiwa */
+    for(let k=0;k<5;k++) mk(mid,ci,y+H-0.08-k*0.09,0.03,0.07,0.03,k%2?0x4A4A54:0x32323A,F);
+    mk(mid,ci,y+H-0.6,0.16,0.2,0.16,0x1A1A22,F); mk(mid,ci-dir*0.002,y+H-0.6,0.1,0.14,0.1,0x9FE8FF,F);
+  };
+  wall('x',x0,x1,z0,z0+T,1.5,-1);                 /* dinding utara (belakang) */
+  wall('x',x0,x1,z1-T,z1,1.5,1);                  /* dinding selatan (depan) */
+  wall('z',z0+T,z1-T,x1-T,x1,1.5,1);              /* dinding timur */
+  /* dinding barat (sisi papan) DIBUKA seluruhnya: hanya menara sudut + ambang lantai batu */
+  addBox(B,x0+0.15,y+0.03,cz,0.3,0.12,d-2*T,jit(0x3A2C35,0.04),F);   /* ambang masuk dari jembatan */
+  [[x0+0.45,z0+0.45],[x1-0.45,z0+0.45],[x0+0.45,z1-0.45],[x1-0.45,z1-0.45]].forEach(q=>{ /* 4 menara sudut berdetail + obor api */
+    const sx=q[0]<cx?-1:1,sz=q[1]<cz?-1:1;
     addBox(B,q[0],y+1.4,q[1],0.9,2.8,0.9,bk());
-    [[-0.3,-0.3],[0.3,-0.3],[-0.3,0.3],[0.3,0.3]].forEach(o=>addBox(B,q[0]+o[0],y+2.95,q[1]+o[1],0.28,0.3,0.28,bk(),F));
-    addBox(B,q[0],y+2.85,q[1],0.5,0.1,0.5,0x14090E,F); addFlame(q[0],y+2.9,q[1],1.3,{halo:2.0,hal:0.45});
+    [0.6,1.9].forEach(h=>addBox(B,q[0],y+h,q[1],0.98,0.1,0.98,jit(0x231820,0.04),F));                 /* cincin pita */
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(o=>addBox(B,q[0]+o[0]*0.43,y+1.4,q[1]+o[1]*0.43,0.1,2.8,0.1,jit(0x4A2A38,0.05),F)); /* tiang sudut */
+    addBox(B,q[0]+sx*0.46,y+1.3,q[1],0.03,0.4,0.07,0x0A0508,F); addBox(B,q[0],y+1.3,q[1]+sz*0.46,0.07,0.4,0.03,0x0A0508,F); /* celah panah */
+    addBox(B,q[0]+sx*0.46,y+2.3,q[1],0.03,0.3,0.06,0xFF8A1A,F); addBox(B,q[0],y+2.3,q[1]+sz*0.46,0.06,0.3,0.03,0xFF8A1A,F);
+    addBox(B,q[0],y+2.82,q[1],1.04,0.12,1.04,jit(0x231820,0.04),F);                                    /* lantai menara */
+    [[-1,-1],[1,-1],[-1,1],[1,1],[-1,0],[1,0],[0,-1],[0,1]].forEach(o=>{ addBox(B,q[0]+o[0]*0.4,y+3.02,q[1]+o[1]*0.4,0.2,0.28,0.2,bk(),F); addBox(B,q[0]+o[0]*0.4,y+3.18,q[1]+o[1]*0.4,0.23,0.04,0.23,jit(0x4A2A38,0.05),F); });
+    addBox(B,q[0],y+2.9,q[1],0.4,0.1,0.4,0x14090E,F); addFlame(q[0],y+2.95,q[1],1.3,{halo:2.0,hal:0.45});
   });
-  const LV=[0xFF8A1A,0xFFA02A,0xFF7A12,0xFFC03A];                  /* kolam lava di halaman (mengikuti referensi) */
-  for(let i=0;i<5;i++) for(let j=0;j<8;j++){ const lx=x0+1.0+i*0.4,lz=z0+1.0+j*0.5; if(lx>x1-1.0||lz>z1-1.0) continue; addBox(B,lx+0.2,y+0.03,lz+0.25,0.4,0.12,0.5,LV[(i*3+j*5)%4],F); }
-  addBox(B,cx,y+0.25,cz,0.9,0.5,0.9,jit(0x1A1216,0.04));             /* altar tempat Wither */
-  const bl=0x16161A,sk=0x2C2C32;                                      /* patung Wither: tulang belakang, rusuk, tiga tengkorak */
-  addBox(B,cx,y+0.85,cz,0.1,0.7,0.1,bl,F); [0.62,0.78,0.94].forEach(yy=>addBox(B,cx,y+yy,cz,0.56,0.06,0.1,bl,F));
-  addBox(B,cx,y+1.35,cz,0.32,0.32,0.32,sk); [-0.3,0.3].forEach(a=>addBox(B,cx+a,y+1.2,cz,0.24,0.24,0.24,sk));
-  [-0.07,0.07].forEach(a=>addBox(B,cx+a,y+1.38,cz-0.17,0.07,0.06,0.02,0xC8C8D0,F));
-  /* jendela menyala di dinding luar */
-  [z0+1.2,z0+2.6,z0+4.0].forEach(zz=>addBox(B,x1+0.01,y+0.85,zz,0.03,0.34,0.3,0xFF8A1A,F));
-  [x0+1.0,x0+2.0,x0+3.0].forEach(xx=>addBox(B,xx,y+0.85,z1+0.01,0.3,0.34,0.03,0xFF8A1A,F));
+  /* lantai halaman: batu hitam papan catur 0.5 + jalur lebih terang dari gerbang barat ke altar (tanpa lava) */
+  const FL=[0x2E222A,0x382A33],PA=[0x4A3A46,0x54424F],nx=Math.round((w-2*T)/0.5),nz=Math.round((d-2*T)/0.5);
+  for(let i=0;i<nx;i++) for(let j=0;j<nz;j++){
+    const fx=x0+T+0.25+i*0.5,fz=z0+T+0.25+j*0.5,onPath=Math.abs(fz-cz)<0.26&&fx<cx;
+    addBox(B,fx,y+0.02,fz,0.5,0.04,0.5,jit((onPath?PA:FL)[(i+j)&1],0.03),F);
+  }
+  const top=addWitherAltar(B,cx,cz,y);                                  /* altar batu detail */
+  makeWither(cx,cz,y+top);                                              /* Wither beranimasi (grup terpisah, digerakkan updateWither) */
 }
 function decorateNetherIslands(DB,th){
   const I=TILES.island,F={edge:false};
   Object.keys(I).sort().forEach(k=>{
-    const c=I[k]; if(c.edge&&rnd()<0.6) return;
+    const c=I[k]; if(c.bridge) return; if(c.edge&&rnd()<0.6) return;
     const r=rnd(),x=c.x+(rnd()-0.5)*0.2,z=c.z+(rnd()-0.5)*0.2,h=c.h,bio=c.bio;
     if(nearLadderSnake(c.x,c.z,0.8)) return; /* jauhi jalur tangga & ular */
     if(bio==='crimson'||bio==='warped'){
@@ -3885,7 +4042,7 @@ function buildWorld(key){
   applyMapRules(UT.Gameplay.Maps&&UT.Gameplay.Maps.get(th.key));
   const tk=++worldToken;
   seed=20241022+THEMES.indexOf(th)*977;
-  PORTAL=null; ARENA=null; MOUNT=null; disposeGroup(world); disposeGroup(sky);
+  PORTAL=null; ARENA=null; MOUNT=null; WITHER=null; disposeGroup(world); disposeGroup(sky);
   clouds=[]; snow=null; LADINFO={}; SNAKEINFO={}; fades.length=0; TREEPOS.length=0; GHASTS.length=0; LAVAFALLS.length=0; clearFX();
   const rs=document.documentElement.style;
   rs.setProperty('--sky-top',th.skyTop); rs.setProperty('--sky-bot',th.skyBot);
