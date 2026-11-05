@@ -108,6 +108,8 @@ html{font-size:min(2.6vw,1.45vh)}
 #pMp{background:linear-gradient(145deg,#ffb23d,#e8841a 55%,#c4650d);box-shadow:0 0 0 .25rem var(--ink),0 .4rem 0 .25rem var(--ink),inset 0 0 0 .3rem rgba(255,228,165,.55)}
 #pMp .mc{background:linear-gradient(120deg,#fff5df,#ecd9b3)}
 #pMp .mc .ma{box-shadow:0 0 0 .2rem #5b390f}
+html.mp-online #room{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"hd" "rt"}
+html.mp-online #lf{display:none}
 </style></head>
 <body>
 <main id="room">
@@ -180,7 +182,7 @@ const S={invTab:'online',invites:{},timers:[],room:{privacy:'private',code:'',pl
 const art=it=>it.kind==='skin'?ItemArt.character(it.id):it.kind==='frame'?`<img src="${it.image}" alt="" draggable="false">`:ItemArt.dice(it.id);
 function clearT(){S.timers.forEach(clearTimeout);S.timers=[];clearTimeout(S.hostT);S.hostT=null;Object.values(S.invites).forEach(v=>clearTimeout(v.timer))}
 /* ---------- navigasi ---------- */
-const leave=async to=>{clearT();if(ONLINE&&S.mpRoomId&&S.mpIdentity&&UT.Multiplayer.RoomService){try{await UT.Multiplayer.RoomService.leaveRoom(S.mpRoomId)}catch(e){console.warn('[multiplayer] leave failed',e)}}if(S.mpUnsub)S.mpUnsub();try{sessionStorage.removeItem('ut-multiplayer-room')}catch(_){}RF.navigate(to)};
+const leave=async to=>{clearT();if(ONLINE&&S.mpRoomId&&S.mpIdentity&&UT.Multiplayer.RoomService){try{await UT.Multiplayer.RoomService.leaveRoom(S.mpRoomId)}catch(e){if(String(e.message||'').includes('GAME_IN_PROGRESS')){toast('Selesaikan permainan sebelum meninggalkan room.');return}console.warn('[multiplayer] leave failed',e)}}if(S.mpUnsub)S.mpUnsub();try{sessionStorage.removeItem('ut-multiplayer-room')}catch(_){}RF.navigate(to)};
 $('#back').onclick=()=>leave('mode');$('#cls').onclick=()=>leave('home');
 /* ---------- setup room ---------- */
 function setup(){
@@ -192,6 +194,7 @@ function setup(){
 }
 function randomRoomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',bytes=new Uint8Array(6);crypto.getRandomValues(bytes);return Array.from(bytes,b=>chars[b%chars.length]).join('')}
 function renderRoomHeader(){
+ document.documentElement.classList.toggle('mp-online',ONLINE);
  $('#rt_t').textContent=MODE==='vsc'?'VS COMPUTER':MODE==='local'?'MULTI PLAYER':(TEAM?'ROOM TEAM':'ROOM SOLO');
  $('#rs').textContent=(MAP?MAP.name.replace(/^Map /,''):'-')+' • '+COUNT+' pemain';$('#invB').hidden=!(ONLINE&&HOST);$('#invB').textContent='ROOM ACCESS';
  $('#cCode').textContent='KODE '+(S.room.code||'------');
@@ -200,10 +203,10 @@ function applyRemoteRoom(row){
  if(!row)return;S.mpRoomId=row.id;HOST=!!(S.mpIdentity&&row.host_id===S.mpIdentity.id);
  S.room={id:row.id,privacy:row.is_public?'public':'private',code:row.code,players:(row.players||[]).map(p=>({id:p.id,name:p.name,level:1,ready:!!p.ready,team:Number(p.team)||0,kind:p.id===row.host_id?'host':'player'}))};
  renderRoomHeader();$('#cCode').textContent='KODE '+row.code;
- $('#rdy').hidden=HOST;$('#start').hidden=!HOST;
+ $('#rdy').hidden=HOST||row.status!=='waiting';$('#start').hidden=!HOST||row.status!=='waiting';
  $('#sPriv').classList.toggle('on',!row.is_public);$('#sPub').classList.toggle('on',!!row.is_public);
  renderPlayers();renderBottom();
- if(row.status==='playing'&&row.game_state&&row.game_state.roomConfig&&!S.gameLaunched){S.gameLaunched=true;const gameCfg=Object.assign({},row.game_state.roomConfig,{host:HOST,code:row.code,roomId:row.id,roomRevision:row.revision,initialSnapshot:row.game_state.snapshot||null});RF.launch(gameCfg)}
+ if((row.status==='playing'||row.status==='finished')&&row.game_state&&row.game_state.roomConfig&&!S.gameLaunched){S.gameLaunched=true;const gameCfg=Object.assign({},row.game_state.roomConfig,{host:HOST,code:row.code,roomId:row.id,roomRevision:row.revision,initialSnapshot:row.game_state.snapshot||null});RF.launch(gameCfg)}
 }
 async function setupOnline(){
  try{
@@ -295,10 +298,10 @@ function renderBottom(){const c=check(),h=me()||{ready:false};$('#sttx').textCon
  $('#rdy').hidden=HOST;$('#start').hidden=!HOST;$('#start').disabled=!c.ok;
  if(!HOST&&S.hostT){clearTimeout(S.hostT);S.hostT=null}}
 $('#rdy').onclick=async()=>{const h=me();if(!h)return;if(ONLINE){try{const row=await UT.Multiplayer.RoomService.setReady(S.mpRoomId,!h.ready);applyRemoteRoom(row)}catch(e){toast('Gagal mengubah status Ready')}}else{h.ready=!h.ready;renderPlayers();renderBottom()}};
-function cfg(){const sk=eqItem('skin'),fr=eqItem('frame'),di=eqItem('dice');
+function cfg(){const online=ONLINE,sk=online?null:eqItem('skin'),fr=online?null:eqItem('frame'),di=online?null:eqItem('dice');
  return{type:'room',mode:MODE,format:FORMAT,privacy:S.room.privacy,host:HOST,code:S.room.code,map:MAP&&MAP.gameKey,
-  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:PW.equipped.slice(),
-  skin:sk&&sk.gameKey,frame:fr&&fr.gameKey,dice:di&&di.gameKey}}
+  players:S.room.players.map(p=>({id:p.id,name:p.name,team:p.team,kind:p.kind})),powers:online?[]:PW.equipped.slice(),
+  skin:online?'steve':(sk&&sk.gameKey),frame:online?null:(fr&&fr.gameKey),dice:online?'klasik':(di&&di.gameKey)}}
 function launch(){clearT();RF.launch(cfg())}
 async function startGame(){if(!HOST||!check().ok)return;if(!ONLINE){launch();return}try{const row=await UT.Multiplayer.RoomService.startRoom(S.mpRoomId,{roomConfig:cfg()});applyRemoteRoom(row)}catch(e){toast('Tidak dapat memulai game: '+(e.message||'Periksa status pemain'))}}
 $('#start').onclick=startGame;

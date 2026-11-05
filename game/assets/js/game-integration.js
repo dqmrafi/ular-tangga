@@ -29,7 +29,7 @@
     var skins = uniq(String(rawSkins).split(',').map(function (s) { return s.trim(); })
       .filter(function (k) { return k && (onlineRoom || PD.owns('skin.' + k)) && playable(k); }));
     var need = mode === 'cpu' ? 1 : +mode;
-    var ownedSkins = PD.ownedItems().filter(function (o) { return o.item.kind === 'skin' && (o.item.renderer === 'palette' || o.item.renderer === 'png'); })
+    var ownedSkins = onlineRoom ? [] : PD.ownedItems().filter(function (o) { return o.item.kind === 'skin' && (o.item.renderer === 'palette' || o.item.renderer === 'png'); })
       .sort(function (a, b) { return a.seq - b.seq; }).map(function (o) { return o.item.gameKey; });
     /* 4.1.14.10: Pemain 1 SELALU skin yang sedang equipped (equipped.skin). Sebelumnya 'ut-config' lama di sessionStorage
        (skins yang disimpan sesi sebelumnya) menimpa skin baru -> pemain tetap Steve walau sudah memakai PNG. */

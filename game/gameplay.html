@@ -4949,7 +4949,7 @@ const FURL={},FCV={};
 const FRM={},FFURL={};
 (function(){ try{ window.ItemCatalog.items.filter(i=>i.kind==='frame').forEach(i=>{ const im=new Image(); im.onload=()=>{ try{ if(typeof renderChips==='function'&&typeof players!=='undefined'&&players&&players.length) renderChips(); }catch(e){} }; im.src=i.image; FRM[i.id]=im; }); }catch(e){} })();
 function frameWait(){ return Promise.all(Object.keys(FRM).map(k=>{ const im=FRM[k]; return im.complete?0:new Promise(r=>{ im.addEventListener('load',r); im.addEventListener('error',r); }); })); }
-function frameOf(p){ try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
+function frameOf(p){ if(ONLINE_ROOM)return 'frame.default';try{ if(p&&!p.cpu&&p.idx===0){ const f=window.PlayerData.equippedId('frame'); if(f&&FRM[f]) return f; } }catch(e){} return 'frame.default'; }
 function framedFace(p){
   const base=faceURL(p.key), fid=frameOf(p), fi=FRM[fid], cv0=FCV[p.key];
   if(!cv0||!fi||!fi.complete||!fi.naturalWidth) return base;

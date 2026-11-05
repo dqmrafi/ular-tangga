@@ -53,7 +53,8 @@ declare
 begin
   if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
   if v_name = '' then raise exception 'PLAYER_NAME_REQUIRED'; end if;
-  if p_code !~ '^[A-Z0-9]{6,8}$' then raise exception 'INVALID_ROOM_CODE'; end if;
+  delete from public.game_rooms where status = 'waiting' and updated_at < now() - interval '24 hours';
+  if p_code ! '^[A-Z0-9]{6,8}$' then raise exception 'INVALID_ROOM_CODE'; end if;
   if p_format not in ('solo', 'team') then raise exception 'INVALID_FORMAT'; end if;
   if p_max_players < 2 or p_max_players > 4 then raise exception 'INVALID_CAPACITY'; end if;
   if p_format = 'team' and p_max_players <> 4 then raise exception 'TEAM_ROOM_REQUIRES_FOUR_PLAYERS'; end if;
@@ -92,6 +93,7 @@ begin
   select * into v_room from public.game_rooms
     where code = upper(trim(p_code)) for update;
   if not found then raise exception 'ROOM_NOT_FOUND'; end if;
+  if v_room.status = 'waiting' and v_room.updated_at < now() - interval '10 minutes' then raise exception 'ROOM_EXPIRED'; end if;
 
   if exists (select 1 from jsonb_array_elements(v_room.players) p where p->>'id' = v_uid::text) then
     return v_room;
@@ -141,11 +143,12 @@ begin
   select * into v_room
   from public.game_rooms r
   where r.is_public = true and r.status = 'waiting' and r.format = p_format
+    and r.updated_at > now() - interval '2 minutes'
     and jsonb_array_length(r.players) < r.max_players
     and not (r.players @> jsonb_build_array(jsonb_build_object('id', v_uid::text)))
   order by r.created_at asc
-  for update skip locked
-  limit 1;
+  limit 1
+  for update skip locked;
 
   if not found then raise exception 'NO_PUBLIC_ROOM_AVAILABLE'; end if;
 
@@ -218,6 +221,7 @@ begin
   if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
   select * into v_room from public.game_rooms where id = p_room_id for update;
   if not found then return false; end if;
+  if v_room.status = 'playing' then raise exception 'GAME_IN_PROGRESS'; end if;
   if not (v_room.players @> jsonb_build_array(jsonb_build_object('id', v_uid::text))) then
     raise exception 'ROOM_ACCESS_DENIED';
   end if;
@@ -303,7 +307,9 @@ declare
 begin
   if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
   update public.game_rooms
-  set game_state = p_game_state, revision = revision + 1, updated_at = now()
+  set game_state = p_game_state,
+      status = case when p_game_state->'snapshot'->>'gameOver' = 'true' then 'finished' else status end,
+      revision = revision + 1, updated_at = now()
   where id = p_room_id and host_id = v_uid and status = 'playing'
     and revision = p_expected_revision
   returning * into v_room;
@@ -361,3 +367,22 @@ begin
 end;
 $$;
 grant execute on function public.set_game_room_visibility(uuid,boolean) to authenticated;
+
+create or replace function public.heartbeat_game_room(p_room_id uuid)
+returns boolean language plpgsql security definer set search_path = public, auth as $$
+declare v_uid uuid := auth.uid();
+begin
+ if v_uid is null then raise exception 'AUTH_REQUIRED'; end if;
+ update public.game_rooms set updated_at = now() where id = p_room_id and host_id = v_uid and status in ('waiting','playing');
+ return found;
+end; $$;
+revoke all on function public.create_game_room(text,text,boolean,text,integer,jsonb) from public, anon;
+revoke all on function public.join_game_room(text,text) from public, anon;
+revoke all on function public.quick_join_game_room(text,text) from public, anon;
+revoke all on function public.set_game_player_ready(uuid,boolean) from public, anon;
+revoke all on function public.leave_game_room(uuid) from public, anon;
+revoke all on function public.start_game_room(uuid,jsonb) from public, anon;
+revoke all on function public.update_game_state(uuid,jsonb,bigint) from public, anon;
+revoke all on function public.set_game_room_visibility(uuid,boolean) from public, anon;
+revoke all on function public.heartbeat_game_room(uuid) from public, anon;
+grant execute on function public.heartbeat_game_room(uuid) to authenticated;

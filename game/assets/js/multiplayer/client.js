@@ -7,11 +7,11 @@ let clientPromise = null;
 async function getClient() {
   if (clientPromise) return clientPromise;
   clientPromise = (async function () {
-    const config = await import('./config.js');
+    const config = await import('./config.example.js');
     const url = String(config.SUPABASE_URL || '').trim();
     const key = String(config.SUPABASE_ANON_KEY || '').trim();
     if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(url) || !key || key.indexOf('YOUR_') === 0) {
-      throw new Error('Supabase belum dikonfigurasi. Salin config.example.js menjadi config.js lalu isi URL dan anon key.');
+      throw new Error('Supabase belum dikonfigurasi. Isi URL dan anon key publik di config.example.js.');
     }
     return createClient(url, key, {
       auth: {

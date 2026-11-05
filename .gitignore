@@ -1,2 +1,2 @@
-# Local Supabase browser configuration (contains public project values)
-game/assets/js/multiplayer/config.js
+# No server-side secrets belong in this static frontend. Never commit Supabase service_role credentials.
+supabase/.env

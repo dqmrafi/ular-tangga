@@ -4,14 +4,14 @@
 
 ## Current checkpoint
 
-- **Checkpoint:** 6 — Gameplay synchronization
+- **Checkpoint:** 7 — Hardening and deployment
 - **Status:** Implementation committed; runtime validation pending Supabase project
 - **Working branch:** `feature/supabase-multiplayer`
 - **Repository:** https://github.com/dqmrafi/ular-tangga
 - **Base branch:** `main`
 - **Checkpoint 0 commit:** `76e71e67233116936f8c27b4c6c5241efffb275f`
 - **Checkpoint 1 commit:** `5e55393291dc70fa1535900339a6b8ef4c91253f`
-- **Current checkpoint commit:** `3d6ee1b7873e8dfebeecf2e282ded0f5ebfedada`
+- **Current checkpoint commit:** pending
 - **Application code changed:** Yes — Supabase foundation and private-room UI integration.
 - **Tests run:** No runtime tests. No Supabase project credentials/config are available in the repository.
 
@@ -46,7 +46,15 @@ See the verified source-flow analysis and integration implications in `MULTIPLAY
 | 4 | Public rooms and Quick Join | Committed; runtime validation pending | `1b2461cb0c60958763cc0f1b76520dde3a93c35c` |
 | 5 | Realtime lobby | Committed; runtime validation pending | `f4f37e7ede9a6849968930b017d6f7f11f660c9a` |
 | 6 | Gameplay synchronization | Committed; runtime validation pending | `3d6ee1b7873e8dfebeecf2e282ded0f5ebfedada` |
-| 7 | Hardening and deployment | Not started | — |
+| 7 | Hardening and deployment | Code committed; live Supabase validation pending | Pending |
+
+## Checkpoint 7 changes
+
+- SQL hardening: corrected `LIMIT 1 FOR UPDATE SKIP LOCKED` ordering; added stale-room checks/pruning, active-game leave guard, finished-room status on terminal snapshots, host heartbeat, and revocation of default `PUBLIC`/`anon` execution for security-definer RPCs.
+- `room-service.js`: host heartbeat every 30 seconds while connected; heartbeat stops on unsubscribe/host transfer.
+- `client.js` imports the tracked `config.example.js`, avoiding an ignored/untracked config file in static Vercel deployments.
+- `room-flow.js`, `room.html`, `game-integration.js`, and `gameplay.html`: online rooms no longer send account inventory, equipped cosmetics, or power-up selections; neutral defaults are used.
+- `supabase/README.md`: documented Vercel root directory (`game/`), public browser config, Anonymous Auth, and live test checklist.
 
 ## Checkpoint 6 changes
 
@@ -107,4 +115,4 @@ No room UI, gameplay engine, player-data, or shop/profile files have been modifi
 
 ## Exact next action
 
-Checkpoint 7: harden failure/reconnect behavior, add Supabase/Vercel deployment instructions, review RLS/RPC security, and run the multi-browser test matrix. Risks requiring validation: asynchronous mid-turn/boss state consistency, anonymous roll-request spoofing, stale membership after abrupt disconnect, and the host browser being required to remain online.
+Implementation checkpoints are complete. For live acceptance, create/configure a Supabase project, enable Anonymous Auth, apply `supabase/migrations/202611050001_multiplayer.sql`, fill `game/assets/js/multiplayer/config.example.js` with the public project URL/anon key, deploy `game/` as the Vercel root, and run the multi-browser checklist in `supabase/README.md`. Fix runtime issues discovered and record actual browser/SQL results here. Prototype limits: anonymous roll broadcasts are not anti-cheat, the host browser must stay connected to advance gameplay, and abrupt guest disconnect cleanup is best-effort.

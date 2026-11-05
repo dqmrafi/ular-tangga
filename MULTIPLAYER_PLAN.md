@@ -193,12 +193,14 @@ Each checkpoint must end with an updated `MULTIPLAYER_STATE.md` and a Git commit
 
 ### Checkpoint 7 — Hardening and deployment
 
-- Verify RLS/RPC behavior, capacity/race handling, reconnects, and failure states.
-- Add concise setup documentation for Supabase and Vercel environment variables.
-- Verify production build/static asset paths and Vercel deployment settings.
-- Run the agreed manual multi-browser test matrix after pushing the checkpoint.
+- [x] Revoke default PUBLIC/anon execution on security-definer RPCs; grant only authenticated anonymous sessions.
+- [x] Add host heartbeat, stale waiting-room filtering, and stale-room pruning on create.
+- [x] Mark a room finished when the host persists a terminal snapshot; prevent silent host transfer during an active match.
+- [x] Keep profile/inventory/cosmetic/power-up data out of the online room payload; use anonymous names and neutral defaults.
+- [x] Document static Vercel deployment with `game/` as root and tracked public Supabase config.
+- [ ] Apply the SQL migration and run the full two-browser test matrix against a real Supabase project.
 
-**Acceptance:** a fresh deployment can be configured from repository instructions and the core private/public multiplayer flows pass the test matrix.
+**Acceptance:** code and setup are committed; live acceptance remains pending a configured Supabase project and runtime test results.
 
 ## Validation strategy
 
