@@ -1,7 +1,7 @@
 {
-  "name": "Ular Tangga Blok",
-  "short_name": "Ular Tangga",
-  "description": "Ular Tangga bertema blok voxel 3D. Lempar dadu, panjat tangga, hindari ular.",
+  "name": "DRAGON ROLL",
+  "short_name": "Dragon Roll",
+  "description": "DRAGON ROLL — ROLL • ADVENTURE • CONQUER. Lempar dadu, panjat tangga, hindari ular.",
   "id": "/game/",
   "start_url": "./index.html",
   "scope": "./",
