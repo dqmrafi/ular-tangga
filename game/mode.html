@@ -68,10 +68,14 @@ button:active:not(:disabled){transform:scale(.95)}button:focus-visible,.map:focu
 .gl-gold{background:linear-gradient(#ffe36e,#ffc21c 50%,#f7a50c 52%,#ffb81c);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.55),inset 0 -.4rem 0 rgba(160,85,0,.35),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #a8590b,0 0 .4rem #a8590b}
 .gl-blue{background:linear-gradient(#6fa6ff,#2f64d6 50%,#2455c4 52%,#2c63d4);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.45),inset 0 -.4rem 0 rgba(8,25,90,.45),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #0b1838}
 .gl-grey{background:linear-gradient(#a3add0,#6d79a4 50%,#5a668f 52%,#66719b);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.45),inset 0 -.4rem 0 rgba(25,35,80,.4),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #26305a}
-.bk .opt{flex:1;min-height:2.6rem;max-height:5rem;font-size:1.8rem}
+.bk .opt{flex:1;min-height:2.6rem;max-height:5rem;width:100%;border-radius:.9rem;font-size:1.8rem;line-height:1.05;color:#fff;border:.3rem solid var(--ink);background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 .15rem #ffe58a,inset 0 -.3rem 0 rgba(150,80,0,.4),0 .3rem 0 var(--ink);text-shadow:0 .15rem 0 #8a4a0a}
 .bk .opt:hover{filter:brightness(1.08)}
 .bk .bx{flex:none;min-height:2.6rem;height:2.6rem;font-size:1.5rem}
-.tc1 .bk .opt{background:linear-gradient(#6fa6ff,#2f64d6 50%,#2455c4 52%,#2c63d4);box-shadow:inset 0 .3rem 0 rgba(255,255,255,.45),inset 0 -.4rem 0 rgba(8,25,90,.45),0 .4rem 0 #0b1838;text-shadow:0 .25rem 0 #0b1838}
+.tc1 .bk .opt{background:linear-gradient(#58b6ff,#1f86ee);box-shadow:inset 0 0 0 .15rem #a5d8ff,inset 0 -.3rem 0 rgba(8,25,90,.45),0 .3rem 0 var(--ink);text-shadow:0 .15rem 0 #0b2a78}
+/* card glossy: kilap putih di bagian atas */
+.fc,.bk{overflow:hidden}
+.fc::before,.bk::before{content:"";position:absolute;left:4%;right:4%;top:5%;height:40%;border-radius:1rem 1rem 1.8rem 1.8rem;background:linear-gradient(rgba(255,255,255,.5),rgba(255,255,255,.06));pointer-events:none}
+.fc>*,.bk>*{position:relative}
 #mm{position:fixed;inset:0;display:none;place-items:center;background:rgba(18,51,127,.55);backdrop-filter:blur(6px);z-index:50}
 #mm.show{display:grid}
 .mbox{width:min(46rem,90vw);padding:2.4rem;text-align:center;border-radius:2rem}
@@ -168,7 +172,7 @@ const TILES={
      {id:'online',c:'tc3',ic:'room',t:'CREATE ROOM',d:'Online + undang teman',flip:{h:'FORMAT ROOM',o:[['TEAM',()=>room('online','team',4)],['SOLO',()=>room('online','solo',4)]]}}]};
 Object.keys(TILES).forEach(k=>{$('#'+k+'T').innerHTML=TILES[k].map(t=>`<div class="tile ${t.c}" id="t_${t.id}"><div class="ti">
  <button class="fc" data-t="${t.id}" aria-label="${t.t}">${IC_[t.ic]}<b>${t.t}</b><small>${t.d}</small></button>
- <div class="bk">${t.flip?t.flip.o.map((o,i)=>`<button class="opt gl gl-gold" data-o="${i}">${o[0]}</button>`).join(''):''}</div></div></div>`).join('')});
+ <div class="bk">${t.flip?t.flip.o.map((o,i)=>`<button class="opt" data-o="${i}">${o[0]}</button>`).join(''):''}</div></div></div>`).join('')});
 const ALL=[...TILES.qs,...TILES.cr];
 function closeAll(){document.querySelectorAll('.tile.flipped').forEach(t=>t.classList.remove('flipped'))}
 ALL.forEach(t=>{const el=$('#t_'+t.id);
