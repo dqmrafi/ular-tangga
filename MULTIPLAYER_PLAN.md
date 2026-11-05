@@ -106,6 +106,20 @@ Prefer a minimal set of narrowly scoped RPCs over adding a separate application 
 - Treat anonymous player IDs supplied by browsers as untrusted input. This prototype does not provide strong identity or anti-cheat guarantees.
 - Keep Supabase credentials in Vercel environment configuration and local development configuration; do not commit secrets.
 
+## Verified integration findings
+
+The existing room/game contract was traced in Checkpoint 1. The room router stores the full room config in sessionStorage under `ut-room` before gameplay navigation. Gameplay state is closure-private inside `game/gameplay.html`; its authoritative state is held in `players[]`, `cur`, and related per-player fields. `doRoll()` is the single dice entry point and `playTurn()` owns movement, tile effects, chests, boss phases, and turn advancement. The engine currently supports local hot-seat play; all seats are human except the VS Computer mode.
+
+Consequences for multiplayer implementation:
+
+- Preserve the existing engine and add a narrow bridge rather than rewriting the engine.
+- Use host-authoritative simulation: guests send roll intents, host executes existing game logic.
+- Publish serializable snapshots at stable state boundaries; never attempt to serialize Three.js objects or animation state.
+- Apply room player display names to generated engine players.
+- Coordinate or disable the independent ready-card shuffle for online play.
+- Reconnect must reconstruct the local scene, then apply the latest persisted snapshot.
+- Interactive mid-turn decisions (notably Totem, chest reward, and boss phases) are a known synchronization risk and require explicit handling and multi-client validation.
+
 ## Implementation checkpoints
 
 Each checkpoint must end with an updated `MULTIPLAYER_STATE.md` and a Git commit on the working branch. The state file is the recovery handoff: record the commit SHA, completed work, changed files, validation performed, known issues, decisions, and the exact next action.
