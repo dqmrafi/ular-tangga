@@ -52,22 +52,21 @@ button:active:not(:disabled){transform:scale(.95)}button:focus-visible,.map:focu
 .fc{width:100%}
 .tile.flipped .fc{pointer-events:none}.tile:not(.flipped) .bk{pointer-events:none}
 .bk{transform:rotateY(180deg);justify-content:center;gap:.5rem;padding:.6rem .8rem}
-/* latar kartu depan = gaya hadiah besar (day.big) di dailyreward; sisi flip .bk tetap warna per tile */
-.fc{background:linear-gradient(#9a5ae0,#6a32b8);padding:.6rem .8rem .7rem;gap:.4rem;box-shadow:0 0 0 .2rem #0b0c10,0 .4rem 0 .2rem #0b0c10,inset 0 0 0 .12rem rgba(220,180,255,.5),inset 0 .2rem .2rem rgba(255,255,255,.4);text-shadow:0 .12rem 0 rgba(30,8,70,.65)}
-.tc1 .bk{background:linear-gradient(#ffd24d,#ff9a1f);text-shadow:0 .1rem 0 #8a4a0a}
-.tc2 .bk{background:linear-gradient(#58b6ff,#1f86ee);text-shadow:0 .1rem 0 rgba(10,40,120,.6)}
-.tc3 .bk{background:linear-gradient(#4fd24a,#27992a);text-shadow:0 .15rem 0 #0e4a12}
+/* teks di atas, gambar di bawah (order) */
+.fc{padding:.6rem .8rem .7rem;gap:.4rem}
+.tc1 .fc,.tc1 .bk{background:linear-gradient(#ffd24d,#ff9a1f);text-shadow:0 .1rem 0 #8a4a0a}
+.tc2 .fc,.tc2 .bk{background:linear-gradient(#58b6ff,#1f86ee);text-shadow:0 .1rem 0 rgba(10,40,120,.6)}
+.tc3 .fc,.tc3 .bk{background:linear-gradient(#4fd24a,#27992a);text-shadow:0 .15rem 0 #0e4a12}
 .fc>b{font-size:2.3rem;line-height:1;-webkit-text-stroke:.35rem #0b0c10;paint-order:stroke fill;text-shadow:none}
 .fc>small{font-size:1.25rem;font-weight:700;line-height:1.15;opacity:.95}
 .fc svg{width:5rem;height:5rem}
-.fc .tart{width:100%;flex:1 1 0;min-height:10rem;object-fit:contain;filter:drop-shadow(0 .3rem 0 rgba(0,0,0,.35));pointer-events:none}
-/* hover kartu: terangkat + kilauan bintang (JS menambah <i class="hk">) */
-.tile .fc:hover{transform:translateY(-.3rem);filter:brightness(1.1)}
+.fc .tart{width:100%;flex:1 1 0;min-height:10rem;order:1;object-fit:contain;pointer-events:none}
+/* hover kartu: hanya kilauan bintang (JS menambah <i class="hk">) */
 .hk{position:absolute;width:1.2rem;height:1.2rem;background:#fff6a0;rotate:45deg;z-index:2;pointer-events:none;animation:hkf .7s forwards}
 @keyframes hkf{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
-/* cahaya radial berputar di balik gambar tile, gaya #chest di dailyreward */
+/* cahaya radial berputar di balik gambar tile (posisi: area gambar di bawah), gaya #chest di dailyreward */
 .fc{isolation:isolate}
-.fc::after{content:"";position:absolute;left:50%;top:37%;width:15rem;height:15rem;translate:-50% -50%;z-index:-1;pointer-events:none;background:radial-gradient(circle at 50% 50%,#fff1a8 0,rgba(255,241,168,.5) 36%,transparent 70%),repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,.32) 0 7deg,transparent 7deg 22deg);-webkit-mask:radial-gradient(circle at 50% 50%,#000 0 45%,transparent 72%);mask:radial-gradient(circle at 50% 50%,#000 0 45%,transparent 72%);animation:fcray 24s linear infinite}
+.fc::after{content:"";position:absolute;left:50%;top:65%;width:15rem;height:15rem;translate:-50% -50%;z-index:-1;pointer-events:none;background:radial-gradient(circle at 50% 50%,#fff1a8 0,rgba(255,241,168,.5) 36%,transparent 70%),repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,.32) 0 7deg,transparent 7deg 22deg);-webkit-mask:radial-gradient(circle at 50% 50%,#000 0 45%,transparent 72%);mask:radial-gradient(circle at 50% 50%,#000 0 45%,transparent 72%);animation:fcray 24s linear infinite}
 @keyframes fcray{to{rotate:360deg}}
 /* tombol glossy = gaya tombol menu gameplay (#pauseMenu .lm-mode) */
 .bk{justify-content:center}
