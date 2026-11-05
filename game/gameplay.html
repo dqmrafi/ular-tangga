@@ -333,31 +333,76 @@ body.awk-lock .hud button,body.awk-lock #btnRoll{opacity:.55;filter:grayscale(.3
     <button class="btn small light" id="btnAngle" type="button" aria-pressed="false" aria-label="Kamera terkunci"></button>
     <span class="camgrp" id="camGrp" hidden>
     <button class="btn small light" id="btnPreset" type="button" aria-label="Ganti sudut kamera"></button>
-    <button class="btn small light ico" id="btnFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="assets/Images/icon/ui/focus.webp" alt="" draggable="false"></button>
-    <button class="btn small light ico" id="btnCam" type="button" aria-label="Reset kamera"><img class="hi" src="assets/Images/icon/ui/refresh.webp" alt="" draggable="false"></button>
+    <button class="btn small light ico" id="btnFollow" type="button" aria-pressed="true" aria-label="Ikuti bidak"><img class="hi" src="assets/Images/icon/tabler/focus-2.svg" alt="" draggable="false"></button>
+    <button class="btn small light ico" id="btnCam" type="button" aria-label="Reset kamera"><img class="hi" src="assets/Images/icon/tabler/refresh.svg" alt="" draggable="false"></button>
     </span>
     <button class="btn small light" id="btnTheme" type="button" hidden>Maps</button>
     <button class="btn small light" id="btnNight" type="button" hidden>Mode: Siang</button>
     <button class="btn small light" id="btnDice" type="button" hidden>Dadu</button>
-    <button class="btn small light" id="btnSnd" type="button"><img class="hi" src="assets/Images/icon/audio/sound.webp" alt="" draggable="false">Suara: nyala</button>
-    <button class="btn small light" id="btnMenu" type="button"><img class="hi" src="assets/Images/icon/ui/menu.webp" alt="" draggable="false">Menu</button>
+    <button class="btn small light" id="btnSnd" type="button"><img class="hi" src="assets/Images/icon/tabler/volume.svg" alt="" draggable="false">Suara: nyala</button>
+    <button class="btn small light" id="btnMenu" type="button"><img class="hi" src="assets/Images/icon/tabler/menu-2.svg" alt="" draggable="false">Menu</button>
   </div>
 </header>
 
 <aside class="side" id="side">
+<div class="emote-dock" id="emoteDock">
+  <button class="em-main" type="button" aria-label="Emote">
+    <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="#ffd93b" stroke="#a35f00" stroke-width="3"/><circle cx="14" cy="16" r="2.6" fill="#4a2a00"/><circle cx="26" cy="16" r="2.6" fill="#4a2a00"/><path d="M11 24c2 6 16 6 18 0" fill="none" stroke="#4a2a00" stroke-width="3" stroke-linecap="round"/></svg>
+    <span>Emote</span>
+  </button>
+  <button class="em-tab" type="button" aria-label="Buka daftar emote" aria-expanded="false"><i>&#9656;</i></button>
+  <div class="em-list" role="group" aria-label="Pilih emote">
+    <button type="button" data-e="&#128512;">&#128512;</button>
+    <button type="button" data-e="&#128514;">&#128514;</button>
+    <button type="button" data-e="&#128526;">&#128526;</button>
+    <button type="button" data-e="&#128545;">&#128545;</button>
+    <button type="button" data-e="&#128557;">&#128557;</button>
+    <button type="button" data-e="&#128077;">&#128077;</button>
+  </div>
+</div>
 <div class="col">
-  <div class="pnl pl"><h3>Pemain</h3><div id="players" aria-label="Pemain"></div></div>
+  <div class="pnl pl" id="playersPanel" aria-label="Pemain"><div id="players"></div></div>
   <div class="pnl pu"><h3>Power-up</h3><div id="pus"></div></div>
 </div>
 <div class="rcol">
   <div class="pnl tn">
     <h3>Giliran</h3>
     <div class="tn-av" id="tnAv" aria-hidden="true"><img id="tnAvImg" alt=""></div>
-    <div class="trow"><span id="turnName"></span><div class="die-scene" id="dieScene"><div class="die-tilt"><div class="die" id="die"></div></div></div></div>
+    <div class="trow"><span id="turnName"></span><div class="die-dock" id="dieDock">
+      <svg class="die-pad" viewBox="0 0 150 70" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="dpGlow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#6fd2ff" stop-opacity=".75"/><stop offset="1" stop-color="#2e74e6" stop-opacity="0"/></radialGradient>
+          <linearGradient id="dpSide" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a6479"/><stop offset="1" stop-color="#2b3345"/></linearGradient>
+          <linearGradient id="dpTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9aa5b8"/><stop offset="1" stop-color="#626d83"/></linearGradient>
+          <linearGradient id="dpWell" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2c3448"/><stop offset="1" stop-color="#454f68"/></linearGradient>
+          <linearGradient id="dpRib" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a9bff"/><stop offset="1" stop-color="#1a4cbd"/></linearGradient>
+        </defs>
+        <ellipse class="pad-glow" cx="75" cy="34" rx="74" ry="32" fill="url(#dpGlow)"/>
+        <ellipse cx="75" cy="60" rx="62" ry="8" fill="#000" opacity=".3"/>
+        <path d="M9 32v12a66 22 0 0 0 132 0V32z" fill="url(#dpSide)" stroke="#1b2233" stroke-width="3" stroke-linejoin="round"/>
+        <path d="M30 52l-4 12 8-4 8 4-4-11z" fill="url(#dpRib)" stroke="#0b1838" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M100 55l-4 11 8-4 8 4-4-12z" fill="url(#dpRib)" stroke="#0b1838" stroke-width="2" stroke-linejoin="round"/>
+        <g class="pad-top">
+          <ellipse cx="75" cy="30" rx="66" ry="22" fill="url(#dpTop)" stroke="#1b2233" stroke-width="3"/>
+          <ellipse cx="75" cy="30" rx="60" ry="19" fill="none" stroke="#ffd35a" stroke-width="2" opacity=".9"/>
+          <g fill="#7c879c" stroke="#3a4358" stroke-width="1.5">
+            <rect x="14" y="26" width="7" height="7" rx="1"/><rect x="129" y="26" width="7" height="7" rx="1"/>
+            <rect x="71.5" y="9" width="7" height="6" rx="1"/><rect x="71.5" y="45" width="7" height="6" rx="1"/>
+          </g>
+          <ellipse cx="75" cy="31" rx="42" ry="13" fill="url(#dpWell)" stroke="#232a3c" stroke-width="2.5"/>
+          <path d="M36 35a42 13 0 0 0 78 0" fill="none" stroke="#8c97b0" stroke-width="1.5" opacity=".7"/>
+          <ellipse class="pad-shadow" cx="75" cy="32" rx="26" ry="7" fill="#000"/>
+        </g>
+      </svg>
+      <div class="dp-layer" aria-hidden="true"></div><i class="dp-ring"></i>
+      <div class="die-scene" id="dieScene"><div class="die-tilt"><div class="die" id="die"></div></div></div>
+    </div></div>
     <div class="tn-meta" id="tnMeta"><span id="tnLv">Lv. 28</span><span class="on" id="tnSt">Online</span></div>
     <button class="btn big" id="btnRoll" type="button">Roll</button>
-    <div class="dmeter" id="diceMeter" hidden aria-hidden="true"><div class="dm-bar"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><b class="dm-needle" id="dmNeedle"></b></div></div>
+    <button class="btn" id="btnAuto" type="button" aria-pressed="false" aria-label="Auto roll">Auto</button>
     <p class="msg" id="msg" aria-live="polite"></p>
+    <p class="hint" id="rollHint">Giliranmu. Tekan Roll</p>
+    <div class="dmeter" id="diceMeter" hidden aria-hidden="true"><div class="dm-bar"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><b class="dm-needle" id="dmNeedle"></b></div></div>
   </div>
   <div id="scores" hidden></div>
 </div>
@@ -484,15 +529,14 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
   background:linear-gradient(#2d78e0,var(--navy));box-shadow:0 3px 0 var(--bd),inset 0 0 0 2px var(--rim),inset 0 2px 2px rgba(255,255,255,.35);display:flex;align-items:center;gap:8px;text-align:center}
 
 /* --- Player status --- */
-#side .pnl.pl{padding:26px 12px 12px}
-#side .pl>h3{left:50%;translate:-50% 0;min-width:78%;justify-content:center}
-#side #players{display:flex;flex-direction:column;gap:8px}
-#side .pr{position:relative;margin:0;gap:10px;min-height:clamp(46px,3.5vw,56px);padding:6px 10px 6px 7px;border-radius:15px;line-height:1.1;font-size:clamp(14px,1.05vw,17px);opacity:.95;filter:none;transform:none;
-  background:linear-gradient(#3f9bff,#1c64d4);box-shadow:0 3px 0 rgba(10,30,100,.5),inset 0 0 0 2px rgba(190,225,255,.75)}
-#side .pr img{width:clamp(34px,2.7vw,42px);height:clamp(34px,2.7vw,42px);border-radius:8px;border-width:2px}
+#side .pnl.pl{padding:12px;background:transparent;box-shadow:none;border:none}
+#side #players{display:flex;flex-direction:column;gap:6px}
+#side .pr{position:relative;margin:0;gap:8px;min-height:clamp(40px,3vw,48px);padding:4px 8px;border-radius:12px;line-height:1.1;font-size:clamp(13px,1vw,15px);opacity:.95;
+  background:transparent;box-shadow:none;border:1px solid rgba(255,255,255,.15)}
+#side .pr img{width:clamp(30px,2.4vw,36px);height:clamp(30px,2.4vw,36px);border-radius:6px;border-width:2px}
 #side .pr>span:first-of-type{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-#side .pr .pos{min-width:2.4em;padding:0 10px;text-align:center;font-size:clamp(13px,1vw,16px);line-height:1.55;border-radius:999px;background:rgba(10,40,120,.6)}
-#side .pr.on{background:linear-gradient(#ffd24d,#f4a81f);box-shadow:0 3px 0 #b9740c,inset 0 0 0 2px rgba(255,255,255,.8);animation:hud-on .25s ease-out}
+#side .pr .pos{min-width:2em;padding:0 8px;text-align:center;font-size:clamp(12px,.9vw,14px);line-height:1.4;border-radius:999px;background:rgba(10,40,120,.6)}
+#side .pr.on{background:linear-gradient(#ffd24d,#f4a81f);box-shadow:0 2px 0 #b9740c,inset 0 0 0 2px rgba(255,255,255,.8);animation:hud-on .25s ease-out}
 #side .pr.on .pos{background:rgba(163,95,8,.45)}
 @keyframes hud-on{from{transform:scale(.97)}to{transform:none}}
 
@@ -546,7 +590,7 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
 #side .rcol .pnl.tn{
   display:grid;
   grid-template-columns:1fr auto;
-  grid-template-areas:"name die" "btn btn";
+  grid-template-areas:"name die" "btn btn" "hint hint";
   column-gap:12px;
   align-items:center;
   margin-top:clamp(70px,7vw,110px);
@@ -623,6 +667,17 @@ body #readyScreen .rd-btn:focus-visible{outline:calc(var(--mu)*.3) solid #f1d04a
 #side .tn #btnRoll:not(:disabled):hover{transform:scale(1.03);filter:brightness(1.08)}
 #side .tn #btnRoll:not(:disabled):active{transform:translateY(3px) scale(.98);box-shadow:inset 0 0 0 2px #8cf08a,inset 0 -4px 0 rgba(0,70,10,.45),0 1px 0 var(--ol)}
 #side .tn #btnRoll:disabled{cursor:not-allowed;background:linear-gradient(#7d8da8,#58698a);text-shadow:0 2px 0 #2a3550;transform:none;box-shadow:inset 0 0 0 2px #a6b4cc,0 3px 0 var(--ol)}
+#side .tn #rollHint{
+  grid-area:hint;
+  margin:8px 0 0;
+  padding:0;
+  font-size:clamp(12px,.95vw,14px);
+  line-height:1.25;
+  color:#d8ecff;
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
+  text-align:center;
+  font-weight:700;
+}
 #side .tn.swap #turnName,#side .tn.swap .tn-av{animation:hud-swap .4s ease-out}
 @keyframes hud-swap{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
 /* bila modul HUD eksternal sudah menambah avatar/meta sendiri, versi bawaan ini disembunyikan agar tidak dobel */
@@ -762,7 +817,7 @@ body #side .tn .dmeter{grid-area:meter;margin-top:8px;width:100%}
 @media (orientation:landscape) and (max-height:430px){
   .ttl{display:none}
   body .hud,.hud{left:auto;right:0;transform:none;max-width:calc(100vw - 8px);padding:calc(6px + env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) 0 8px}
-  #hud .tools{flex-wrap:wrap;justify-content:flex-end;gap:6px}
+  #hud .tools{flex-wrap:wrap;justify_content:flex-end;gap:6px}
   body .btn.small,body .hud .btn.small{font-size:11px;padding:6px 10px;min-height:40px}
   #side .col{left:max(8px,env(safe-area-inset-left,0px));top:calc(8px + env(safe-area-inset-top,0px));bottom:auto;right:auto;width:clamp(136px,24vw,176px);gap:6px}
   #side .pnl.pl{padding:6px}#side .pnl.pl h3,.sc{display:none}
@@ -772,15 +827,16 @@ body #side .tn .dmeter{grid-area:meter;margin-top:8px;width:100%}
   body #side .pr .pos{flex:none;padding:0 5px;font-size:9px}
   #side .pnl.pu{position:fixed;left:max(8px,env(safe-area-inset-left,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));width:auto;max-width:calc(100vw - clamp(190px,34vw,250px) - 24px);padding:16px 6px 6px}
   #side .pnl.pu h3{display:none}
-  #side #pus{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;max-width:none;gap:4px;scrollbar-width:none}
+  #side #pus{flex-wrap:nowrap;overflow-x:auto;justify_content:flex-start;max-width:none;gap:4px;scrollbar-width:none}
   #side .pb{flex:0 0 44px;min-width:44px;width:44px;height:48px;font-size:20px}#side .pb em{display:none}
   #side .rcol{left:auto;right:max(8px,env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));top:auto;width:clamp(180px,32vw,240px)}
-  body #side .rcol .pnl.tn{margin-top:16px;padding:12px 10px 8px;background:transparent;box-shadow:none;border:none;grid-template-areas:"name die" "btn btn"}
+  body #side .rcol .pnl.tn{margin-top:16px;padding:12px 10px 8px;background:transparent;box-shadow:none;border:none;grid-template-areas:"name die" "btn btn" "hint hint"}
   body #side .tn-av,body #side .tn-meta{display:none}
   body #side #turnName{font-size:16px;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.5)}
   body #side .tn .die-scene{zoom:.55;margin:0 2px 0 0}
   body #side .tn #btnRoll{height:44px;margin-top:6px;font-size:18px;border-radius:999px}
   body #side .tn .msg{display:none}
+  body #side .tn #rollHint{font-size:10px;margin-top:4px}
 }
 </style>
 <style id="hud-responsive">
@@ -816,12 +872,14 @@ body #side .pnl{border:3px solid var(--ol);border-radius:8px;background:linear-g
   box-shadow:inset 0 0 0 3px #5e90f0,0 4px 0 var(--ol),0 10px 16px rgba(10,30,90,.3)}
 body #side .pnl>h3{border:3px solid var(--ol);border-radius:5px;padding:2px 16px 3px;background:linear-gradient(var(--nv1),var(--nv2));
   box-shadow:inset 0 0 0 2px var(--rb-hi),0 3px 0 var(--ol);text-shadow:0 2px 0 var(--ol)}
+body #side .pnl.pl{background:transparent;border:none;box-shadow:none;padding:8px}
+body #side .pnl.pl>h3{display:none}
 body #side .pnl.tn>h3{display:none}
 body #side .rcol .pnl.tn{border:none;background:transparent;box-shadow:none;border-radius:12px}
-/* baris pemain */
-body #side .pr{border:3px solid var(--ol);border-radius:6px;background:linear-gradient(var(--nv1),var(--nv2));
-  box-shadow:inset 0 0 0 2px rgba(255,255,255,.18),0 3px 0 var(--ol)}
-body #side .pr.on{background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -3px 0 rgba(150,90,0,.5),0 3px 0 var(--ol);color:#fff;text-shadow:0 2px 0 #8a5a08}
+/* baris pemain - compact transparent */
+body #side .pr{border:2px solid var(--ol);border-radius:6px;background:rgba(10,30,90,.3);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.1),0 2px 0 var(--ol)}
+body #side .pr.on{background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 2px #ffe58a,inset 0 -2px 0 rgba(150,90,0,.5),0 2px 0 var(--ol);color:#fff;text-shadow:0 2px 0 #8a5a08}
 body #side .pr img{border-radius:3px}
 body #side .pr .pos{border-radius:4px;border:2px solid var(--ol);box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
 body #side .pr.on .pos{background:rgba(120,70,5,.55)}
@@ -977,6 +1035,185 @@ body #win.lm-ov{background:rgba(11,24,56,.32);backdrop-filter:none;-webkit-backd
 .pr img,.sr img,.tn-av img,#readyScreen .rd-av{image-rendering:auto}
 .pr img,.sr img{border-width:0;background:rgba(0,0,0,.18)}
 </style>
+<style id="hud-clean-silver">
+/* ===== HUD bersih + tema silver (dimuat paling akhir; HANYA tampilan, JS/logika/id tidak berubah) =====
+   1) Panel gameplay (Pemain kiri atas, Power-up kiri bawah, Giliran kanan bawah): transparan, lebih kecil, proporsi 1:1
+      (panel Giliran persegi; slot Power-up persegi).
+   2) Perbaikan dadu hilang: .trow (pembungkus nama + dadu) sebelumnya di-display:none oleh #turn-panel-v2, sehingga dadu 0x0 dan grid panel berantakan.
+      Sekarang .trow = display:contents agar nama & dadu menjadi anak grid panel Giliran.
+   3) (Modal Menu/Keluar/Ready kini kembali ke gaya modal lobby biru; lihat style lobby-modal, pause-ref, ready-pixel.) */
+
+/* --- ukuran HUD (satu tempat; ubah angka di sini untuk memperbesar/memperkecil) --- */
+html body #side{--tn-w:clamp(150px,12.5vw,188px);--pl-w:clamp(168px,13.5vw,204px);--die-z:.8;--roll-h:40px;--roll-fs:20px;--name-fs:16px;--slot:clamp(42px,3.6vw,52px)}
+@media (max-height:720px){html body #side{--tn-w:clamp(140px,11.5vw,170px);--pl-w:clamp(160px,13vw,188px);--die-z:.7;--roll-h:36px;--roll-fs:18px;--name-fs:15px;--slot:clamp(40px,3.4vw,48px)}}
+@media (orientation:landscape) and (max-height:430px){html body #side{--tn-w:clamp(112px,17vw,148px);--pl-w:clamp(138px,21vw,168px);--die-z:.5;--roll-h:30px;--roll-fs:15px;--name-fs:12px;--slot:clamp(36px,5.2vw,44px)}}
+@media not all and (max-width:699px) and (orientation:portrait){
+  html body #side .rcol{width:var(--tn-w)}
+  html body #side .col{width:var(--pl-w)}
+  html body #side .rcol .pnl.tn{aspect-ratio:1/1}
+}
+
+/* --- Panel Giliran (kanan bawah): transparan, nama + dadu + tombol Roll --- */
+html body #side .rcol .pnl.tn .trow{display:contents}
+html body #side .rcol .pnl.tn{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name die" "btn btn";align-content:center;align-items:center;column-gap:8px;row-gap:8px;box-sizing:border-box;margin:0;padding:10px;background:transparent;border:0;box-shadow:none;pointer-events:none}
+html body #side .rcol .pnl.tn #turnName{grid-area:name;display:block;min-width:0;max-width:100%;font-size:var(--name-fs);line-height:1.1;color:#fff;text-shadow:0 2px 3px rgba(0,0,0,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html body #side .rcol .pnl.tn .die-scene{grid-area:die;position:relative;top:auto;right:auto;margin:0;zoom:var(--die-z);justify-self:end;align-self:center}
+html body #side .rcol .pnl.tn #btnRoll{grid-area:btn;width:100%;height:var(--roll-h);margin:0;padding:0 10px;box-sizing:border-box;font-size:var(--roll-fs);gap:6px;pointer-events:none}
+html body:not(.awk-lock) #side .rcol .pnl.tn #btnRoll{pointer-events:auto}
+html body #side .rcol .pnl.tn #btnRoll::after{width:1.25em;height:1.25em}
+html body #side .rcol .pnl.tn #btnRoll.special{font-size:calc(var(--roll-fs)*.7);padding:0 6px}
+html body #side .rcol .pnl.tn #btnRoll.special::after{display:none}
+html body #side .rcol .pnl.tn .dmeter{grid-column:1/-1;margin-top:0}
+html body #side .rcol .pnl.tn #rollHint,html body #side .rcol .pnl.tn .msg{display:none!important} /* .msg sebelumnya dipaksa tampil oleh aturan lama ".tn .msg{display:block!important}" -> penyebab panel melar & teks melayang */
+
+/* --- Panel Pemain (kiri atas): transparan, ringkas --- */
+html body #side .pnl.pl{padding:2px;background:transparent;border:0;box-shadow:none}
+html body #side #players{gap:4px}
+html body #side .pr{min-height:clamp(30px,2.4vw,34px);padding:2px 6px 2px 4px;column-gap:5px;border:2px solid rgba(11,24,56,.55);border-radius:8px;background:rgba(10,30,90,.22);box-shadow:none;font-size:clamp(11px,.9vw,13px)}
+html body #side .pr img,html body #side .pr .pav>img{width:clamp(22px,1.9vw,28px);height:clamp(22px,1.9vw,28px)}
+html body #side .pr .pos{padding:0 6px;font-size:clamp(10px,.8vw,12px);line-height:1.35}
+html body #side .pr .bf{font-size:clamp(8px,.65vw,10px)}
+html body #side .pr.on{background:linear-gradient(#f7c940,#e0a21a);box-shadow:inset 0 0 0 1px #ffe58a}
+html body #side .pr.on::after{width:14px;height:14px}
+
+/* --- Panel Power-up (kiri bawah): transparan, slot persegi 1:1 --- */
+html body #side .pnl.pu{width:auto;max-width:calc(100vw / var(--hs) - var(--tn-w) - 44px);padding:2px;background:transparent;border:0;box-shadow:none}
+html body #side .pnl.pu>h3{display:none}
+html body #side #pus{flex:0 1 auto;gap:4px;padding:6px 4px 2px;margin-top:0}
+html body #side #pus .pb{flex:0 0 var(--slot);width:var(--slot);min-width:var(--slot);height:var(--slot);aspect-ratio:1/1;padding:0;border:2px solid rgba(11,24,56,.85);border-radius:8px;background:rgba(18,38,92,.42);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+html body #side #pus .pb[data-state=ready]{background:rgba(40,74,150,.55)}
+html body #side #pus .pb:not(:disabled):hover{background:rgba(60,100,190,.6)}
+html body #side #pus .pb em{font-size:clamp(8px,.62vw,10px);margin-top:1px}
+html body #side #pus .pb b{top:-5px;right:-5px;min-width:16px;height:16px;font-size:10px;border-width:2px}
+
+/* --- Tombol atas (kanan atas): silver --- */
+html body #hud .btn.small[class]:not(#sv){color:#14223f;text-shadow:0 1px 0 rgba(255,255,255,.8);background:linear-gradient(#f4f6fa,#c6cdda 52%,#aab4c6);border:3px solid var(--ol);border-radius:7px;box-shadow:inset 0 0 0 2px #fff,inset 0 -3px 0 rgba(70,82,110,.35),0 3px 0 var(--ol)}
+html body #hud .btn.small[class]:not(#sv):active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 0 0 2px #fff,inset 0 -3px 0 rgba(70,82,110,.35),0 1px 0 var(--ol)}
+html body #hud .btn.small[aria-pressed=true][class]:not(#sv){background:linear-gradient(#aab4c6,#d3d9e4);box-shadow:inset 0 0 0 2px #e8ecf3,inset 0 3px 0 rgba(70,82,110,.35),0 3px 0 var(--ol)}
+html body #hud #btnSnd.muted[class]:not(#sv){color:#3a4560;background:linear-gradient(#d6dbe4,#98a2b5)}
+
+/* --- Menang: biru tua + tekstur pixel ala Minecraft; Kalah: merah bertekstur sama. Teks tetap putih. --- */
+html body #win .lm-box[class]{background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAACTUlEQVR42kWRzU7bQBDHB3ud9QL2bghKIIWkQaJKJSIFqVK5lV54B96gx75V34FTb82NSqlEpLRCCSpNDQ7rdYh37YnpYVs6h9HoPx+a+c1as/8RcxXUe2k09IMWGom58oOWTqfWA4AftMKdbjS+IJXQIVSgiYssIZVwcX+JuaofnqGRAKDTKamEQb2HRqrZyA9aAODyvdNyVWCeOC4NGn3H8R/j74QKQjnAExNtAECdOMQHALHXdzzGSSVEE2OuiizxGMdc2fG2usiSrfYJGukxrmYjp8gSQkXz6BxNDP/MYzyo9x5uPgMAGjmfDJhop9EQAFzKDzBPHuc/ePPt8mFcFtpxadh4/XDzZb3aLdEs5VXQ6DO+axZ3DvFd/uJdvrwtVxmaFAAclwJAoReEcjQyz6L1ajd//F3oxVJebdS6hFCxSY89xtNoiCYO6j3Gd7PkVyYnzxtirjBXftBJo6GDRup0avcjtJbJSTS+YHyXUIG5IpUQjSSVEAC22idoYodQYQEDgE3UD8+i8YVOp2jiv21UAICajQDA3X/zoVwV9lbM1UbtVSZ/MtEqC01olQaN5fxq++C9Q9Zdz2f8pUvYHjytlStt8ZeFLlfa88Xi7qsfdtRsAABp9A2e1lAnqBNiSRMqdHrdPDpXs5HHuL3HBtX9U/s+NJKJtgMATLQX95d+0JlPBov7SwCwDKy3QbjT1ek1ABDbTWgNc4Umru6fFlmCJt7cPg53ugAwnwxIJZxPBn7QKbLE+Q/bxFZ6Vm6/fVKzEaHimRUa+QfrtlBkdYjriwAAAABJRU5ErkJggg==") 0 0/48px 48px #1a3070;image-rendering:pixelated;border-color:#060d24;border-radius:calc(var(--mu)*.5);box-shadow:inset calc(var(--mu)*.35) calc(var(--mu)*.35) 0 rgba(120,160,255,.5),inset calc(var(--mu)*-.35) calc(var(--mu)*-.35) 0 rgba(0,0,0,.45),0 calc(var(--mu)*.5) 0 #060d24,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+html body #win[data-state=lose] .lm-box[class]{background:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAACAklEQVR42j1SzWrbQBAeac2UNSOjrmVFFj2kAdsEDDn4EHwqpY+Qd+rb5CF8yik9OYfGEEwxkuooSxJPrHSKSA/TGPa0u998fxN8H48BYOn91DkAAAAWIUQAiBBX3hMii4ycA4CV9+YoCLZNM88yaduKmUWctRWzIqVtnbWE+PljVOxeCDGcOjfPsp0Ii9QitcgkiUfvbIRYMUeI18V2ksQsYo6C4DxPb7Y1GvMoMnVusSk6AErVt1aZ0Zir8vepc+ZrHD/sX6VtpW3PBgPfNJ+I0BgA6Fu78t5Zq+CuMSwS1iJDIkKsRUpmAJgksRq4qqqDYxbRyzBB3IkAgKZEiJe3dwCQEV2MTw7IIZG+hiPnlt5rsrM8VWTFXDErcuTcMVHe62rWZtTpnA0GFXNq7e7P30kSP+xfAaBommMiTZYQb7Y1i6AxYUak7ayZl94Xz/sIkRATRNW9Zo4Qa5H/kpRUUz/4WXo/ck4PAJTM8yzTisy3fv+DMZMkNm8BvU9Nrf319ITG/Li/vxifwFtQMp86V+xeQgDIe93FehMhVszq7LA8U+cub+9KZhYpmSPEkEUW641KzIiW3rPIkEg7iRABYJanhEiIJXOHRTKiL0kMAMWzeoGV9xkRi7DI1Lmf9aOqneVpqLMX681ivcl73QRxSKS/h0QsoptbMc/y9LrY/gO48junLbQ4OQAAAABJRU5ErkJggg==") 0 0/48px 48px #7a2020;border-color:#2a0608;box-shadow:inset calc(var(--mu)*.35) calc(var(--mu)*.35) 0 rgba(255,140,130,.45),inset calc(var(--mu)*-.35) calc(var(--mu)*-.35) 0 rgba(0,0,0,.45),0 calc(var(--mu)*.5) 0 #2a0608,0 calc(var(--mu)*1.6) calc(var(--mu)*2.4) rgba(0,0,0,.3)}
+</style>
+<style id="roll-square">
+/* ===== Panel Giliran (kanan bawah): dadu lebih besar + tombol Roll persegi 1:1, teks hanya "Roll", sejajar dasar dengan baris Power-up di kiri =====
+   HANYA tampilan (id/JS tidak berubah). Dimuat paling akhir agar menimpa semua aturan lama di semua ukuran layar. */
+html body #side{--die-z:1.35;--roll-sq:64px;--roll-fs:19px;--tn-pb:8px}
+@media (max-height:720px){html body #side{--die-z:1.1;--roll-sq:56px;--roll-fs:17px}}
+@media (orientation:landscape) and (max-height:430px){html body #side{--die-z:.95;--roll-sq:52px;--roll-fs:16px;--tn-pb:8px}}
+html body #side .rcol{justify-content:flex-end}
+html body #side .rcol .pnl.tn{aspect-ratio:auto;display:grid;grid-template-columns:auto auto;grid-template-areas:"name name" "die btn";justify-content:end;justify-items:end;align-items:end;align-content:end;column-gap:8px;row-gap:2px;margin:0;padding:0 var(--tn-pb) var(--tn-pb) 0;width:auto}
+html body #side .rcol .pnl.tn #turnName{grid-area:name;justify-self:end;max-width:calc(var(--tn-w) + 40px);font-size:var(--name-fs);text-align:right}
+html body #side .rcol .pnl.tn .die-scene{grid-area:die;zoom:var(--die-z);margin:0;align-self:end;justify-self:end}
+html body #side .rcol .pnl.tn #btnRoll{grid-area:btn;width:var(--roll-sq);height:var(--roll-sq);aspect-ratio:1/1;padding:0;margin:0;font-size:var(--roll-fs);gap:0;border-radius:12px;justify-content:center;align-self:end}
+html body #side .rcol .pnl.tn #btnRoll::before{border-radius:9px 9px 40% 40%}
+html body #side .rcol .pnl.tn #btnRoll::after{display:none}
+html body #side .rcol .pnl.tn #btnRoll.special{white-space:normal;text-align:center;line-height:1.05;padding:0 4px;font-size:calc(var(--roll-fs)*.5)}
+html body #side .rcol .pnl.tn .dmeter{grid-column:1/-1;grid-row:3;justify-self:stretch;margin-top:4px}
+</style>
+<style id="hud-ref-v3">
+/* ===== HUD v3: mengikuti referensi baru (kartu pemain biru/kuning + mahkota, banner event pill, tombol biru, inventori gelap, dadu + Roll emas).
+   Dimuat paling akhir; HANYA tampilan (id, class, JS, logika, kanvas 3D, dan posisi layout tidak diubah). Untuk membatalkan: hapus blok <style id="hud-ref-v3"> ini. ===== */
+html body #side{--pl-w:clamp(212px,16.8vw,270px);--pr-h:clamp(46px,3.7vw,58px);--pr-fs:clamp(15px,1.25vw,19px);--av:clamp(34px,2.9vw,42px);
+  --slot:clamp(46px,4vw,62px);--roll-w:clamp(112px,9.4vw,150px);--roll-h:clamp(52px,4.6vw,68px);--roll-fs:clamp(22px,2vw,32px);--die-z:1.2;--hud-edge-gap:14px}
+@media (max-height:720px){html body #side{--pl-w:clamp(200px,16vw,236px);--pr-h:clamp(42px,3.5vw,50px);--pr-fs:15px;--av:34px;--slot:clamp(42px,3.8vw,52px);--roll-w:clamp(104px,9vw,126px);--roll-h:clamp(48px,4.2vw,58px);--roll-fs:clamp(20px,1.8vw,26px);--die-z:1}}
+@media (orientation:landscape) and (max-height:430px){html body #side{--pl-w:clamp(160px,24vw,192px);--pr-h:36px;--pr-fs:12px;--av:26px;--slot:clamp(36px,5.2vw,44px);--roll-w:clamp(88px,13vw,108px);--roll-h:42px;--roll-fs:18px;--die-z:.78}}
+
+/* --- Kiri atas: kartu pemain (aktif = biru, lainnya = emas; mahkota + nilai di kanan) --- */
+html body #side .pnl.pl{padding:0;background:transparent;border:0;box-shadow:none}
+html body #side #players{gap:clamp(6px,.7vw,10px)}
+html body #side .pr{min-height:var(--pr-h);padding:3px 12px 3px 6px;column-gap:8px;border:3px solid #0b1838;border-radius:16px;opacity:1;
+  font-size:var(--pr-fs);font-weight:800;color:#fff;text-shadow:0 2px 0 #7a3d00;
+  background:linear-gradient(#ffcb47,#e48a0e);
+  box-shadow:inset 0 0 0 2px #ffe9a3,inset 0 -4px 0 rgba(150,75,0,.35),0 3px 0 #0b1838,0 8px 12px rgba(0,0,0,.22)}
+html body #side .pr.on{background:linear-gradient(#4a9bff,#1a4cbd);text-shadow:0 2px 0 #0b1838;
+  box-shadow:inset 0 0 0 2px #a6e0ff,inset 0 -4px 0 rgba(5,25,100,.45),0 3px 0 #0b1838,0 8px 12px rgba(0,0,0,.22)}
+html body #side .pr.on:not([class*="pfx-"])::after,html body #side .pr.on::before{content:none}
+html body #side .pr img,html body #side .pr .pav>img{width:var(--av);height:var(--av);border-radius:9px}
+html body #side .pr .pav>.ord{right:-8px;top:-10px;min-width:1.7em;height:1.7em;font-size:max(11px,.78em)}
+html body #side .pr>span:first-of-type{font-size:1em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body #side .pr .pos{display:inline-flex;align-items:center;gap:5px;min-width:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;
+  font-size:1.12em;font-weight:800;line-height:1;color:#fff;text-shadow:inherit}
+html body #side .pr .pos::before{content:"";flex:none;width:1.3em;height:1.3em;background:url("assets/Images/icon/lobby/leader.webp") center/contain no-repeat;filter:drop-shadow(0 2px 0 rgba(11,24,56,.65))}
+html body #side .pr .bf{color:#fff;text-shadow:0 1px 0 rgba(11,24,56,.7)}
+
+/* --- Kanan atas: tombol biru bergaya candy, ikon putih --- */
+html body #hud .tools{gap:8px}
+html body #hud .btn.small[class]:not(#sv){min-height:clamp(40px,3.4vw,46px);padding:0 14px;color:#fff;text-shadow:0 2px 0 #0b1838;
+  background:linear-gradient(#4a9bff,#1a4cbd);border:3px solid #0b1838;border-radius:12px;
+  box-shadow:inset 0 0 0 2px #a6e0ff,inset 0 -4px 0 rgba(5,25,100,.4),0 3px 0 #0b1838,0 7px 10px rgba(0,0,0,.2)}
+html body #hud .btn.small[class]:not(#sv):active:not(:disabled){transform:translateY(2px);box-shadow:inset 0 0 0 2px #a6e0ff,inset 0 -4px 0 rgba(5,25,100,.4),0 1px 0 #0b1838}
+html body #hud .btn.small[aria-pressed=true][class]:not(#sv){color:#fff;text-shadow:0 2px 0 #8a4a05;background:linear-gradient(#ffd44f,#f0960f);
+  box-shadow:inset 0 0 0 2px #fff0a8,inset 0 -4px 0 rgba(150,75,0,.35),0 3px 0 #0b1838,0 7px 10px rgba(0,0,0,.2)}
+html body #hud #btnSnd.muted[class]:not(#sv){color:#e8ecf5;background:linear-gradient(#98a2b8,#5f6a82);text-shadow:0 2px 0 #2a3144;
+  box-shadow:inset 0 0 0 2px #c3cadb,inset 0 -4px 0 rgba(30,35,50,.4),0 3px 0 #0b1838}
+html body #hud #btnSnd[class]:not(#sv),html body #hud #btnMenu[class]:not(#sv),html body #hud .btn.ico[class]:not(#sv){width:clamp(40px,3.4vw,46px);min-width:clamp(40px,3.4vw,46px);padding:0;gap:0}
+html body #hud .btn .hi{width:clamp(22px,1.9vw,26px);height:clamp(22px,1.9vw,26px);max-width:none;margin:0;filter:brightness(0) invert(1) drop-shadow(0 2px 0 rgba(11,24,56,.7))}
+html body #hud #btnAngle .hi{width:clamp(18px,1.5vw,22px);height:clamp(18px,1.5vw,22px);margin-right:6px}
+
+/* --- Tengah atas: banner event berbentuk pill (UT.GameplayHUD.showEvent) --- */
+html body .ut-ghud{top:calc(10px + env(safe-area-inset-top,0px));width:min(50vw,520px)}
+@media (max-width:820px){html body .ut-ghud{top:calc(54px + env(safe-area-inset-top,0px));width:min(64vw,420px)}}
+html body .ut-ghud-b{justify-content:center;gap:10px;padding:8px 26px 9px;border:3px solid #7fd0ff;border-radius:999px;color:#fff;text-align:center;
+  font-size:clamp(14px,1.5vw,22px);text-shadow:0 2px 0 #0b1838;background:linear-gradient(#2e74e6,#123a94);
+  box-shadow:0 0 0 3px #0b1838,0 6px 0 3px #0b1838,0 12px 16px rgba(0,0,0,.25)}
+html body .ut-ghud-b i{font-size:1.5em}
+html body .ut-ghud-b i>img{width:1.7em;height:1.7em}
+html body .ut-ghud-b[data-k=ladder]{background:linear-gradient(#2e74e6,#123a94)}
+html body .ut-ghud-b[data-k=snake]{border-color:#ffb3a6;background:linear-gradient(#f0605a,#b02b2b)}
+html body .ut-ghud-b[data-k=mob]{border-color:#dcc0ff;background:linear-gradient(#a86ee8,#6f3cc0)}
+html body .ut-ghud-b[data-k=three6],html body .ut-ghud-b[data-k=bounce]{border-color:#ffe28a;background:linear-gradient(#ffb23f,#e5780c);text-shadow:0 2px 0 #7a3d00}
+html body .ut-ghud-b[data-k=turn],html body .ut-ghud-b[data-k=extra]{font-size:clamp(13px,1.2vw,17px);padding:6px 20px 7px}
+html body .ut-ghud-b.ut-ghud-pw{justify-content:flex-start;gap:12px;border-radius:24px;padding:8px 20px;text-align:left}
+
+/* --- Kiri bawah: inventori power-up = panel gelap semi-transparan, slot + badge jumlah --- */
+html body #side .pnl.pu{padding:6px 10px 6px;border:2px solid rgba(255,255,255,.1);border-radius:20px;background:rgba(12,24,36,.82);
+  box-shadow:0 5px 0 rgba(0,0,0,.35),0 10px 18px rgba(0,0,0,.25)}
+html body #side .pnl.pu>h3{display:none}
+html body #side #pus{gap:clamp(6px,.7vw,10px);padding:10px 8px 4px}
+html body #side #pus .pb{flex:0 0 var(--slot);width:var(--slot);min-width:var(--slot);height:var(--slot);padding:0;margin:0;border:0;border-radius:12px;
+  background:rgba(255,255,255,.07);box-shadow:none}
+html body #side #pus .pb[data-state=ready]{background:rgba(255,255,255,.15)}
+html body #side #pus .pb:not(:disabled):hover{background:rgba(255,255,255,.24)}
+html body #side #pus .pb em{display:none}
+html body #side #pus .pb b{top:-8px;right:-8px;min-width:22px;height:22px;padding:0 3px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+  border:2px solid #fff;border-radius:7px;background:#1f64d6;color:#fff;font-size:12px;line-height:1;text-shadow:0 1px 0 rgba(0,0,0,.5);box-shadow:0 2px 0 rgba(0,0,0,.35)}
+html body #side #pus .pb[data-state=locked] b{background:#ffb62a;color:#5a3000;text-shadow:none}
+html body #side #pus .pb[data-state=empty] b{background:#5f6f90}
+html body #side #pus .pb[data-state=empty]{opacity:.78;filter:grayscale(.25)}
+
+/* --- Kanan bawah: dadu di kiri + tombol Roll emas besar --- */
+html body #side .rcol .pnl.tn #btnRoll{width:var(--roll-w);height:var(--roll-h);aspect-ratio:auto;padding:0 8px;border:4px solid #d4720c;border-radius:20px;
+  color:#fff;font-size:var(--roll-fs);letter-spacing:.02em;
+  text-shadow:0 3px 0 #a45500,2px 0 0 #a45500,-2px 0 0 #a45500,0 -2px 0 #a45500,2px 2px 0 #a45500,-2px 2px 0 #a45500;
+  background:linear-gradient(#ffe56f,#ffc61f 50%,#f8a80d 52%,#ffbb1e);
+  box-shadow:inset 0 0 0 2px #fff0a8,inset 0 -5px 0 rgba(160,80,0,.35),0 5px 0 #8f4a05,0 10px 14px rgba(0,0,0,.28)}
+html body #side .rcol .pnl.tn #btnRoll::before{border-radius:14px 14px 40% 40%}
+html body #side .rcol .pnl.tn #btnRoll:not(:disabled):hover{filter:brightness(1.07)}
+html body #side .rcol .pnl.tn #btnRoll:not(:disabled):active{transform:translateY(4px);box-shadow:inset 0 0 0 2px #fff0a8,inset 0 -5px 0 rgba(160,80,0,.35),0 1px 0 #8f4a05}
+html body #side .rcol .pnl.tn #btnRoll:disabled{border-color:#4a5878;color:#e6ebf5;text-shadow:0 2px 0 #2a3550;background:linear-gradient(#9aa7c0,#5f6e8d);
+  box-shadow:inset 0 0 0 2px #b9c4da,inset 0 -5px 0 rgba(20,30,60,.35),0 4px 0 #1f2a46}
+html body #side .rcol .pnl.tn #turnName{font-weight:800;text-shadow:0 2px 0 rgba(11,24,56,.8)}
+html body #side{--auto-w:calc(var(--roll-h)*1.15);--tn-w:calc(var(--roll-w) + var(--auto-w) + 10px)}
+html body #side .rcol .pnl.tn{grid-template-columns:auto auto;grid-template-areas:"name name" ". die" "auto btn";column-gap:10px;row-gap:4px;padding-bottom:var(--tn-pb,8px)}
+html body #side .rcol .pnl.tn .die-scene{grid-area:die;justify-self:center;align-self:end}
+html body #side .rcol .pnl.tn .dmeter{grid-row:4;grid-column:1/-1}
+/* tombol Auto roll (kiri Roll): biru = mati, hijau menyala = aktif */
+html body #side .rcol .pnl.tn #btnAuto{grid-area:auto;align-self:end;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:var(--auto-w);height:var(--roll-h);padding:0;margin:0;
+  border:4px solid #0b1838;border-radius:18px;font:inherit;font-weight:800;line-height:1;font-size:calc(var(--roll-fs)*.6);color:#fff;text-shadow:0 2px 0 #0b1838;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  background:linear-gradient(#4a9bff,#1a4cbd);box-shadow:inset 0 0 0 2px #a6e0ff,inset 0 -4px 0 rgba(5,25,100,.4),0 5px 0 #0b1838,0 10px 14px rgba(0,0,0,.25)}
+html body #side .rcol .pnl.tn #btnAuto::after{content:"OFF";font-size:.78em;opacity:.85}
+html body #side .rcol .pnl.tn #btnAuto[aria-pressed=true]{background:linear-gradient(#6ff26a,#1fa83c);text-shadow:0 2px 0 #0d4a14;
+  box-shadow:inset 0 0 0 2px #b8ffb0,inset 0 -4px 0 rgba(0,70,10,.4),0 5px 0 #0b1838,0 0 0 3px rgba(111,242,106,.55),0 10px 14px rgba(0,0,0,.25)}
+html body #side .rcol .pnl.tn #btnAuto[aria-pressed=true]::after{content:"ON";opacity:1}
+html body #side .rcol .pnl.tn #btnAuto:active{transform:translateY(3px)}
+html body.awk-lock #btnAuto{opacity:.55;filter:grayscale(.35)}
+html body #side .rcol .pnl.tn #btnAuto:disabled{opacity:.45;filter:grayscale(.6);cursor:not-allowed;pointer-events:none;transform:none}
+
+/* --- Modal "Pilih kartu": lebar mengikuti jumlah pemain (bukan selalu lebar) --- */
+body #readyScreen .rd-box{width:fit-content;min-width:min(250px,100%);max-width:100%;padding-left:calc(var(--mu)*2.6);padding-right:calc(var(--mu)*2.6);box-sizing:border-box}
+</style>
 <script src="gameplay/hud-scale.js"></script>
 <script src="assets/js/vendor/three.min.js"></script>
 <script>
@@ -1010,7 +1247,9 @@ if (typeof THREE === 'undefined') {
 <script src="gameplay/config.js"></script>
 <script src="gameplay/biomes.js"></script>
 <script src="gameplay/hud.js"></script>
+<link rel="stylesheet" href="gameplay/dice-pad.css">
 <script src="gameplay/dice-ui.js"></script>
+<script src="gameplay/dice-pad.js"></script>
 <script src="gameplay/audio.js"></script>
 <script src="gameplay/voxel-geom.js"></script>
 <script src="gameplay/fx.js"></script>
@@ -3689,7 +3928,7 @@ function resetCam(P){
   goal.pitch=P.pitch; goal.zoom=P.zoom; panGoal.x=0; panGoal.z=0;
   camHold.x=CAM_BASE.x; camHold.y=CAM_BASE.y; camHold.z=CAM_BASE.z;
 }
-const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/ui/lock.webp" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/ui/unlock.webp" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/profile/camera.webp" alt="" draggable="false">';
+const ICON_LOCK='<img class="hi sm" src="assets/Images/icon/tabler/lock.svg" alt="" draggable="false">',ICON_OPEN='<img class="hi sm" src="assets/Images/icon/tabler/lock-open.svg" alt="" draggable="false">',ICON_CAM='<img class="hi sm" src="assets/Images/icon/tabler/camera.svg" alt="" draggable="false">';
 function camUI(){
   const a=$('btnAngle'); if(!a) return;
   a.innerHTML=camCfg.angle?ICON_OPEN+'ANGLE':ICON_LOCK+'LOCK'; a.setAttribute('aria-pressed',String(camCfg.angle));
@@ -3999,10 +4238,10 @@ function beginTurn(extra){
   const p=players[cur];
   if(FBK) FBK.setCurrentMarker(players,cur);
   players.forEach((q,i)=>pawnOutline(q.pawn,i===cur&&!gameOver,q.hex));
-  focus=p.pawn; renderChips(); syncCrystals(); syncRollLabel();
+  focus=p.pawn; renderChips(); syncCrystals(); syncRollLabel(); try{ syncAutoBtn(); }catch(e){}
   if(extra) hud('showTurn',p,{extra:true}); /* toast "Giliran X" dihapus (sudah ada penanda giliran di panel Pemain); "Giliran tambahan!" tetap karena tidak ada penanda lain */
-  if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Lempar dadu.'));
-  else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll dadu.':'Giliran '+p.name+'. Tekan Lempar dadu.'));
+  if(extra) setMsg(p.name+' dapat giliran tambahan, lempar lagi.'+(p.cpu?'':' Tekan Roll.'));
+  else setMsg(p.cpu?p.name+' sedang melempar dadu...':(mode==='cpu'?'Giliranmu. Tekan Roll.':'Giliran '+p.name+'. Tekan Roll.'));
   specialHint(p); setRoll(!p.cpu); startTurnTimer();
   if(p.cpu){ const gid=gameId; setTimeout(async()=>{ if(gid!==gameId||gameOver) return; const ks=['sword','feather','potion_odd','potion_even','totem','tnt'].filter(k=>cpuPUValid(p,k)); const go=()=>{ if(gid!==gameId||gameOver) return; if(busy||paused){ setTimeout(go,paused?250:500); return; } doRoll(); }; if(paused){ go(); return; } if(ks.length&&Math.random()<0.6) await usePU(ks[0],true); go(); },950); }
 }
@@ -4250,7 +4489,7 @@ function specialHint(p){
 }
 function syncRollLabel(){
   const b=$('btnRoll'),sp=specialDiceActive(players[cur]); b.classList.toggle('special',sp); b.classList.toggle('holding',DH.on);
-  b.textContent=DH.on?'Lepas untuk memilih':(sp?'Tahan & lepas':'Roll dadu');
+  b.textContent=DH.on?'Lepas untuk memilih':(sp?'Tahan & lepas':'Roll');
   dmShow(sp&&!AWK.running); if(sp&&!DH.on) dmDraw(0);
 }
 const DM_SWEEP_MS=850; /* waktu satu sapuan kiri -> kanan */
@@ -4331,7 +4570,7 @@ async function doRoll(opt){
 }
 let RES_GID=-1; /* Stage 4.1.24.D.1: gameId terakhir yang sudah memutar suara hasil -> 1x per game, tak bisa dobel */
 function finishGame(p){
-  gameOver=true; clearTurnTimer(); p.score+=50; renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
+  gameOver=true; clearTurnTimer(); p.score+=50; try{ syncAutoBtn(); }catch(e){} renderChips(); if(FBK) FBK.hideMarker(p); pawnOutline(p.pawn,false);
   setMsg(p.name+' mengalahkan Ender Dragon!'); setRoll(false);
   const lost=isPlayerDefeat(p);
   if(lost&&RES_GID!==gameId){ RES_GID=gameId; sfx.defeat(); } /* event hasil KALAH (bukan perubahan teks/render): 1x per game */
@@ -4399,6 +4638,25 @@ $('btnDice').addEventListener('click',()=>applyDice(DICE[(DICE.findIndex(x=>x.ke
 applyDice(diceKey);
 updateNightUI();
 $('btnRoll').addEventListener('click',()=>{ if(specialDiceActive(players[cur])) return; /* mode khusus ditangani pointer/keyboard hold */ ensureAudio(); doRoll(); });
+/* Auto roll (4.1.25 ownership): hanya menjalankan giliran PEMAIN LOKAL lewat doRoll() yang sama dengan tombol Roll/AFK.
+   Pemain lokal = pemain non-CPU dengan idx 0 (pemilik profil PlayerData; konvensi sama dengan frameOf). Sistem turn/ID tetap players[]+cur+p.idx.
+   Tombol disabled (bukan dihapus, agar layout tetap) saat giliran pemain lain/CPU, jeda, busy, atau game selesai. Status ON/OFF disimpan di localStorage 'ut-autoroll'. */
+const AUTO_ROLL_DELAY=900,AUTO_KEY='ut-autoroll'; let autoRoll=false,autoSince=0,autoGid=-1;
+try{ autoRoll=localStorage.getItem(AUTO_KEY)==='1'; }catch(e){}
+function localPlayerIdx(){ return 0; }
+function isLocalPlayer(p){ return !!p&&!p.cpu&&p.idx===localPlayerIdx(); }
+function autoCanRoll(){ const p=players[cur]; return isLocalPlayer(p)&&!busy&&!paused&&!gameOver&&!AWK.running&&!DH.on&&!$('btnRoll').disabled&&!document.getElementById('readyScreen'); }
+function syncAutoBtn(){ const b=$('btnAuto'); if(!b) return; b.setAttribute('aria-pressed',String(autoRoll)); b.disabled=!(players.length&&isLocalPlayer(players[cur])&&!gameOver); }
+function setAutoRoll(on){ if(!isLocalPlayer(players[cur])) return; autoRoll=!!on; autoSince=0; try{ localStorage.setItem(AUTO_KEY,autoRoll?'1':'0'); }catch(e){} syncAutoBtn(); try{ fb('event','info','Auto roll '+(autoRoll?'aktif':'mati'),{gid:gameId,ttl:1200}); }catch(e){} }
+$('btnAuto').addEventListener('click',()=>{ if($('btnAuto').disabled) return; ensureAudio(); setAutoRoll(!autoRoll); });
+syncAutoBtn();
+setInterval(()=>{
+  syncAutoBtn();
+  if(autoGid!==gameId){ autoGid=gameId; autoSince=0; return; } /* game baru: reset penghitung */
+  if(!autoRoll||!autoCanRoll()){ autoSince=0; return; }
+  const now=performance.now(); if(!autoSince){ autoSince=now; return; }
+  if(now-autoSince>=AUTO_ROLL_DELAY){ autoSince=0; ensureAudio(); doRoll(); } /* doRoll() set busy sinkron -> tick berikut tidak bisa roll ganda */
+},150);
 $('btnCam').addEventListener('click',()=>resetCam());
 camLoad(); camUI();
 camRefit=()=>{ if(camLocked()) goal.zoom=lockZoom(); };
@@ -4410,7 +4668,7 @@ $('btnTheme').addEventListener('click',()=>{
   const now=pendingTheme||themeKey,i=THEMES.findIndex(t=>t.key===now);
   chooseTheme(THEMES[(i+1)%THEMES.length].key);
 });
-$('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="assets/Images/icon/audio/'+(muted?'mute':'sound')+'.webp" alt="" draggable="false">Suara: '+t; $('btnSnd').classList.toggle('muted',muted); });
+$('btnSnd').addEventListener('click',()=>{ muted=!muted; if(GA) GA.setMuted(muted); setMusicOn(!muted); ensureAudio(); const t=muted?'mati':'nyala'; $('btnSnd').innerHTML='<img class="hi" src="assets/Images/icon/tabler/'+(muted?'volume-off':'volume')+'.svg" alt="" draggable="false">Suara: '+t; $('btnSnd').classList.toggle('muted',muted); });
 function paintRange(el){ if(el) el.style.setProperty('--p',el.value+'%'); }
 let sfxVol=100; try{ const sv=parseInt(localStorage.getItem('ut-sfxvol'),10); if(!isNaN(sv)) sfxVol=Math.max(0,Math.min(100,sv)); }catch(e){}
 function setSfxVol(v){ sfxVol=Math.max(0,Math.min(100,v)); try{ localStorage.setItem('ut-sfxvol',String(sfxVol)); }catch(e){} try{ if(GA&&GA.setSfxVolume) GA.setSfxVolume(sfxVol/100); }catch(e){} }
@@ -4591,9 +4849,17 @@ requestAnimationFrame(frame);
   lv.style.display=cpu?'none':'';st.textContent=cpu?'Berpikir...':'Online'}catch(e){}}
  new MutationObserver(function(){sync();tn.classList.remove('swap');void tn.offsetWidth;tn.classList.add('swap')}).observe(n,{childList:true,characterData:true,subtree:true});
  sync();
- setTimeout(function(){var own='H3,.TROW,.MSG,BUTTON,.TN-AV,.TN-META';if([].some.call(tn.children,function(c){return !(c.tagName==='H3'||c.classList.contains('trow')||c.classList.contains('msg')||c.id==='btnRoll'||c.id==='tnAv'||c.id==='tnMeta')}))tn.classList.add('ext')},900);
+ setTimeout(function(){var own='H3,.TROW,.MSG,BUTTON,.TN-AV,.TN-META';if([].some.call(tn.children,function(c){return !(c.tagName==='H3'||c.classList.contains('trow')||c.classList.contains('msg')||c.id==='btnRoll'||c.id==='btnAuto'||c.id==='tnAv'||c.id==='tnMeta')}))tn.classList.add('ext')},900);
  var pus=document.getElementById('pus');
  if(pus){pus.addEventListener('wheel',function(e){if(Math.abs(e.deltaY)>Math.abs(e.deltaX)&&pus.scrollWidth>pus.clientWidth){pus.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false})} /* panah dihapus: geser dengan swipe / roda mouse */
 }catch(e){}})();
 </script>
+<style id="btn-flat">
+/* Menu Jeda: bukan glossy lagi (tombol Roll tetap glossy), mengikuti tombol "Gunakan" di Inventory (gradasi rata + ring terang + bayangan bawah). Dimuat paling akhir. */
+#pauseMenu .lm-mode::before{content:none!important;display:none!important}
+#pauseMenu .lm-resume{background:linear-gradient(#ffcf47,#f09a1c);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ffe58a,inset 0 calc(var(--mu)*-.3) 0 rgba(150,80,0,.4),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #8a4a0a}
+#pauseMenu .lm-exit{background:linear-gradient(#ff7a68,#e0352b);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #ffb3a8,inset 0 calc(var(--mu)*-.3) 0 rgba(110,10,10,.4),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #7a0e0a}
+#pauseMenu .lm-grey{background:linear-gradient(#a3add0,#6d79a4);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #c9d1ea,inset 0 calc(var(--mu)*-.3) 0 rgba(25,35,80,.4),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #26305a}
+#pauseMenu .lm-grey[aria-pressed=true]{background:linear-gradient(#8a85d8,#5a50b8);box-shadow:inset 0 0 0 calc(var(--mu)*.15) #b9b5f0,inset 0 calc(var(--mu)*-.3) 0 rgba(35,26,99,.45),0 calc(var(--mu)*.3) 0 #0b1838;text-shadow:0 calc(var(--mu)*.2) 0 #231a63}
+</style>
 </body></html>

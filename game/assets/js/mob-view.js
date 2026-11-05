@@ -130,11 +130,12 @@
   };
   var FORE = ['..KKKK.', '.KAAAWK', 'KAABAAK', 'KABBWAK', 'KAAAAK.', '.KKKK..'];   /* sayap depan: kolom 0 = dekat badan */
   var HIND = ['KAAAK', 'KABAK', '.KAAK', '..KK.'];                                   /* sayap belakang */
-  function wingBoxes(grid, cs, x0, y0, z, pal, side) {
+  /* Sayap mendatar di kiri-kanan badan: kolom grid = ke samping (x), baris grid = sepanjang badan (z, baris 0 paling depan), tebal di y. */
+  function wingBoxes(grid, cs, x0, z0, y, pal, side) {
     var out = [];
     grid.forEach(function (row, j) { row.split('').forEach(function (ch, i) {
       if (ch === '.') return;
-      out.push([side * (x0 + (i + 0.5) * cs), y0 - (j + 0.5) * cs, z, cs, cs, 0.12, pal[ch]]);
+      out.push([side * (x0 + (i + 0.5) * cs), y, z0 - (j + 0.5) * cs, cs, 0.12, cs, pal[ch]]);
     }); });
     return out;
   }
@@ -155,13 +156,13 @@
     });
     var wings = [1, -1].map(function (sd) {
       var pv = [sd * 0.2, 0, 0];
-      return c.part(bf, wingBoxes(FORE, CS, 0.2, 0.95, 0.04, pal, sd).concat(wingBoxes(HIND, CS, 0.2, -0.55, -0.06, pal, sd)), pv);
+      return c.part(bf, wingBoxes(FORE, CS, 0.2, 0.55, 0.03, pal, sd).concat(wingBoxes(HIND, CS, 0.2, -0.6, -0.04, pal, sd)), pv);
     });
     function anim(t) {
       var sn = Math.sin, a = sn(t * 13) * 0.7 + 0.35;
       wings[0].rotation.z = a; wings[1].rotation.z = -a;
       ants[0].rotation.z = -0.3 + sn(t * 3) * 0.08; ants[1].rotation.z = 0.3 - sn(t * 3) * 0.08;
-      ants[0].rotation.x = ants[1].rotation.x = 0.35;
+      ants[0].rotation.x = ants[1].rotation.x = 0.6; /* sungut condong ke depan */
       bf.position.y = sn(t * 13) * 0.07; /* tubuh ikut naik-turun saat mengepak */
     }
     return { root: root, anim: anim };
@@ -197,10 +198,12 @@
     var T = c.THREE, root = new T.Group();
     var fl = make(T, 'flowers', c.opts), bf = make(T, 'butterfly', c.opts);
     root.add(fl, bf);
+    bf.scale.setScalar(0.72); bf.rotation.order = 'YXZ';
     function anim(t) {
       fl.userData.anim(t); bf.userData.anim(t);
-      bf.position.set(Math.sin(t * 0.6) * 2.2, 5.6 + Math.sin(t * 1.7) * 0.45 + Math.sin(t * 0.6) * 0.3, Math.cos(t * 0.6) * 0.9);
-      bf.rotation.set(0.35, Math.cos(t * 0.6) * 0.55, Math.sin(t * 0.6) * 0.18);
+      /* jalur oval kecil di atas bunga; seluruh badan + sayap (rentang ±2.6 x skala) harus tetap di dalam bingkai kamera Teman */
+      bf.position.set(Math.sin(t * 0.6) * 1.1, 5.0 + Math.sin(t * 1.7) * 0.3 + Math.sin(t * 0.6) * 0.2, Math.cos(t * 0.6) * 0.6);
+      bf.rotation.set(-0.85, Math.cos(t * 0.6) * 0.4, Math.sin(t * 0.6) * 0.12);
     }
     return { root: root, anim: anim };
   });
