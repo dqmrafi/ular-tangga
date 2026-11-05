@@ -1681,7 +1681,7 @@ function cascadeHill(B,dir,u0,u1,v0,v1,stone,K){
 }
 
 /* ---------- makhluk berkeliling (domba, babi, sapi, ayam, penduduk) ---------- */
-const ROAM=[],ROAMQ=[],NOWALK=[],TREEPOS=[];
+const ROAM=[],ROAMQ=[],NOWALK=[],TREEPOS=[],GHASTS=[];
 /* peternakan + mob liar: state (dibersihkan di clearFX) */
 const BEES=[],HOST=[],HOSTQ=[],ARROWS=[];
 const RB=1;                                            /* tinggi tanah dasar peternakan (kaki lereng, di sini jalan batu mulai naik) */
@@ -1738,6 +1738,16 @@ function makeCreature(kind,c1,c2,far){
     o.head=P(0,0.5,0.34,b=>{ addBox(b,0,0,0.08,0.22,0.22,0.2,ljit(wh,0.04)); addBox(b,0,-0.06,0.2,0.15,0.1,0.05,0xE8B8B0,F); [-1,1].forEach(a=>{ addBox(b,a*0.1,0.14,0.05,0.04,0.09,0.04,0xD8CBA0,F); addBox(b,a*0.14,0.05,0.04,0.1,0.04,0.05,ljit(sp,0.05),F); addBox(b,a*0.06,0.05,0.18,0.035,0.035,0.02,0x151515,F); }); });
     o.tail=P(0,0.52,-0.32,b=>addBox(b,0,-0.1,-0.01,0.04,0.22,0.04,ljit(sp,0.05),F));
     o.speed=0.3;
+  }else if(kind==='strider'){ /* Nether: pengganti sapi. 2 kaki panjang, badan merah, rambut api di punggung */
+    const bd=c1||0xA82E2E,dk=c2||0x6E1818;
+    [-1,1].forEach(a=>o.legs.push(P(a*0.1,0.4,0,b=>{ addBox(b,0,-0.2,0,0.09,0.4,0.09,ljit(dk,0.06),F); addBox(b,0,-0.38,0.02,0.1,0.05,0.14,0x3A0C0C,F); })));
+    P(0,0.54,0,b=>{
+      addBox(b,0,0,0,0.36,0.3,0.36,ljit(bd,0.05)); addBox(b,0,-0.11,0,0.34,0.06,0.34,ljit(dk,0.05),F);
+      [-1,1].forEach(a=>addBox(b,a*0.185,0,0.05,0.03,0.2,0.2,ljit(bd,0.08),F));
+      [[-0.1,-0.08],[0.08,0.02],[-0.05,0.1],[0.1,-0.1],[0,0]].forEach(q=>addBox(b,q[0],0.2,q[1],0.04,0.12+lr()*0.06,0.04,ljit(0xE05A32,0.1),F));
+      [-1,1].forEach(a=>addBox(b,a*0.09,0.05,0.182,0.05,0.05,0.02,0x151515,F)); addBox(b,0,-0.06,0.182,0.14,0.03,0.02,0x2A0A0A,F);
+    });
+    o.speed=0.35; o.graze=false; o.rad=3;
   }else if(kind==='chicken'){
     P(0,0.21,0,b=>{ addBox(b,0,0,0,0.14,0.13,0.2,ljit(c1||0xF4F4F4,0.04)); addBox(b,0,0.08,-0.11,0.06,0.1,0.04,ljit(0xE8E8E8,0.04),F); });
     [-1,1].forEach(a=>o.legs.push(P(a*0.04,0.15,0,b=>{ addBox(b,0,-0.07,0,0.025,0.14,0.025,0xE89A2A,F); addBox(b,0,-0.14,0.02,0.07,0.015,0.06,0xE89A2A,F); })));
@@ -2432,13 +2442,13 @@ function addWideFar(DB,th){
     else addCave(DB,q[0],q[1]);
   },hAt(q[0],q[1])));
   [[-13,-10],[12,-12],[16,10],[-15,9],[22,-4]].forEach(q=>{ blockRect(q[0],q[1],2.2,2.2); if(d==='oak') addHouseExtras(DB,q[0],q[1],hAt(q[0],q[1])); });
-  if(d==='nether') [[-20,10,-14],[18,12,-18],[24,9,12]].forEach(g=>addGhast(DB,g[0],g[1],g[2]));
+  if(d==='nether') [[-20,10,-14],[18,12,-18],[24,9,12]].forEach(g=>addFlyGhast(g[0],g[1],g[2]));
   if(d==='jungle') for(let i=0;i<18;i++){ const x=(rnd()-0.5)*56,z=(rnd()-0.5)*48; if(Math.abs(x)<12&&Math.abs(z)<10) continue; lift(DB,()=>(i%3?addMushroom:addBamboo)(DB,x,z),hAt(x,z)); }
   const pal=BIO[th.key]||BIO.rumput;
   for(let i=0,k=0;i<300&&k<12;i++){
     const x=(rnd()-0.5)*50,z=(rnd()-0.5)*44;
     if(Math.abs(x)<9&&Math.abs(z)<8||hAt(x,z)>0||(x>5&&x<10&&z>-5)) continue;
-    const c=pal[k%2]; queueAnimal(x,z,rnd()*6.28,k%2===0?'pig':'cow',c[0],c[1]); k++;
+    const c=pal[k%2],sd=(d==='nether'&&k%2===1); queueAnimal(x,z,rnd()*6.28,k%2===0?'pig':(sd?'strider':'cow'),sd?undefined:c[0],sd?undefined:c[1]); k++; /* nether: sapi diganti Strider */
   }
 }
 function addMcFar(DB){
@@ -2928,6 +2938,82 @@ function addGhast(B,x,y,z){
   addBox(B,x,y,z,2,2,2,0xEDEDED); [-0.5,0.5].forEach(a=>addBox(B,x+a,y+0.1,z+1.01,0.3,0.45,0.02,0x2A2A2A,{edge:false})); addBox(B,x,y-0.5,z+1.01,0.6,0.3,0.02,0x2A2A2A,{edge:false});
   for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) addBox(B,x+i*0.7,y-1.5,z+j*0.7,0.25,1,0.25,0xE0E0E0,{edge:false});
 }
+
+/* ---------- Ghast terbang (animasi): badan melayang berkeliling, tentakel mengayun ---------- */
+function makeGhast(){
+  const g=new THREE.Group(),B=makeBatch(),F={edge:false};
+  addBox(B,0,0,0,2,2,2,0xEDEDED);
+  [-0.5,0.5].forEach(a=>addBox(B,a,0.1,1.01,0.3,0.45,0.02,0x2A2A2A,F)); addBox(B,0,-0.5,1.01,0.6,0.3,0.02,0x2A2A2A,F);
+  g.add(buildBatch(B,{cast:false}));
+  const tents=[];
+  for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++){
+    const TB=makeBatch(); addBox(TB,0,-0.5,0,0.25,1,0.25,0xE0E0E0,F);
+    const p=new THREE.Group(); p.position.set(i*0.7,-1,j*0.7); p.add(buildBatch(TB,{cast:false})); g.add(p);
+    tents.push({p,ph:(i+1)*1.7+(j+1)*2.3});
+  }
+  return {g,tents};
+}
+function addFlyGhast(x,y,z){
+  const o=makeGhast(),k=GHASTS.length;
+  Object.assign(o,{cx:x,cy:Math.max(y,10),cz:z,rx:6+(k%3)*1.5,rz:4.5+(k%2)*1.5,sp:0.16+0.04*(k%3),ph:k*2.1,ph2:k*1.3});
+  o.g.position.set(x,o.cy,z); world.add(o.g); GHASTS.push(o);
+}
+function updateGhasts(dt,t){
+  if(RMQ.matches) return;
+  for(let i=0;i<GHASTS.length;i++){
+    const o=GHASTS[i],a=t*o.sp+o.ph,
+      x=o.cx+Math.sin(a)*o.rx+Math.sin(a*2.3+1)*1.2, z=o.cz+Math.sin(a*0.77+o.ph2)*o.rz, y=o.cy+Math.sin(a*1.6)*0.9,
+      dx=x-o.g.position.x, dz=z-o.g.position.z;
+    if(dx*dx+dz*dz>1e-7){ let da=Math.atan2(dx,dz)-o.g.rotation.y; da=Math.atan2(Math.sin(da),Math.cos(da)); o.g.rotation.y+=da*Math.min(1,dt*2.5); o.g.rotation.z=-da*0.25; }
+    o.g.position.set(x,y,z);
+    for(let j=0;j<o.tents.length;j++){ const q=o.tents[j]; q.p.rotation.x=Math.sin(t*2.2+q.ph)*0.22; q.p.rotation.z=Math.cos(t*1.9+q.ph*1.3)*0.22; }
+  }
+}
+/* ---------- Mob Nether di papan (petak): model voxel kecil, menghadap +z ---------- */
+function addStrider(B,x,z,h){
+  const F={edge:false},q=(dx,dy,dz,w,hh,dd,c,f)=>addBox(B,x+dx,h+dy,z+dz,w,hh,dd,c,f);
+  [-1,1].forEach(a=>{ q(a*0.1,0.2,0,0.1,0.4,0.1,0x7A1818); q(a*0.1,0.025,0.03,0.12,0.05,0.16,0x3A0C0C,F); });
+  q(0,0.56,0,0.44,0.32,0.4,0xB02A2A); q(0,0.43,0,0.42,0.06,0.38,0x7A1818,F);
+  [-1,1].forEach(a=>q(a*0.225,0.52,0.04,0.03,0.2,0.22,0x9A2222,F));
+  [[-0.12,-0.1],[0.1,0],[-0.04,0.1],[0.13,-0.12],[0,-0.04],[-0.14,0.06]].forEach((p,i)=>q(p[0],0.78+(i%2)*0.03,p[1],0.05,0.14+(i%3)*0.03,0.05,0xE05A32,F));
+  [-1,1].forEach(a=>{ q(a*0.1,0.6,0.202,0.07,0.06,0.02,0xFFF1D0,F); q(a*0.1,0.6,0.212,0.035,0.05,0.01,0x151515,F); });
+  q(0,0.5,0.202,0.2,0.04,0.02,0x2A0A0A,F);
+}
+function addMagmaCube(B,x,z,h){
+  const F={edge:false},q=(dx,dy,dz,w,hh,dd,c,f)=>addBox(B,x+dx,h+dy,z+dz,w,hh,dd,c,f);
+  q(0,0.26,0,0.5,0.5,0.5,0x3E1A10);
+  [0.1,0.26,0.42].forEach(y=>q(0,y,0,0.52,0.05,0.52,0xFF6A1A,F));
+  [-1,1].forEach(a=>q(a*0.1,0.32,0.256,0.1,0.07,0.01,0xFFD23F,F));
+  q(0,0.17,0.256,0.22,0.05,0.01,0xFF6A1A,F);
+}
+function addPiglinLike(B,x,z,h,o){
+  const F={edge:false},s=o.s||1,q=(dx,dy,dz,w,hh,dd,c,f)=>addBox(B,x+dx*s,h+dy*s,z+dz*s,w*s,hh*s,dd*s,c,f);
+  [-1,1].forEach(a=>q(a*0.07,0.14,0,0.12,0.28,0.12,o.pants));
+  q(0,0.43,0,0.28,0.34,0.18,o.cloth); q(0,0.3,0.1,0.3,0.06,0.02,o.belt||0xFFD23F,F);
+  [-1,1].forEach(a=>q(a*0.2,0.43,0.02,0.1,0.32,0.12,o.skin));
+  q(0,0.74,0,0.3,0.26,0.26,o.skin); q(0,0.7,0.15,0.14,0.1,0.06,o.snout);
+  [-1,1].forEach(a=>{
+    q(a*0.04,0.7,0.185,0.025,0.04,0.02,0x2A1A1A,F); q(a*0.08,0.66,0.17,0.035,0.06,0.03,0xF2F2E0,F);
+    q(a*0.2,0.8,0,0.1,0.12,0.05,o.snout,F);
+    q(a*0.07,0.8,0.136,0.06,0.04,0.02,0xFFFFFF,F); q(a*0.07,0.8,0.146,0.03,0.04,0.01,o.eye,F);
+  });
+  if(o.crown) q(0,0.89,0,0.3,0.04,0.26,0xFFD23F,F);
+  if(o.weapon==='sword'){ q(0.2,0.5,0.16,0.04,0.04,0.34,0xFFD23F,F); q(0.2,0.5,0.0,0.1,0.04,0.04,0x8A5A1A,F); }
+  if(o.weapon==='axe'){ q(0.2,0.5,0.16,0.04,0.04,0.36,0x5A3A1A,F); q(0.2,0.56,0.32,0.05,0.18,0.12,0xFFD23F,F); }
+}
+function addPiglin(B,x,z,h){ addPiglinLike(B,x,z,h,{skin:0xD99A78,snout:0xC47A5A,cloth:0xB5651D,pants:0x6A4A2A,eye:0x2A1A1A,weapon:'sword'}); }
+function addPiglinBrute(B,x,z,h){ addPiglinLike(B,x,z,h,{skin:0xB87050,snout:0x9A5A3A,cloth:0x3A3A3A,pants:0x2A2A2A,eye:0xD22B2B,weapon:'axe',crown:true,s:1.1}); }
+function addZombifiedPiglin(B,x,z,h){ addPiglinLike(B,x,z,h,{skin:0x8FA878,snout:0x6F8A5A,cloth:0x5A4A3A,pants:0x3A3A5A,eye:0x2A2A2A,weapon:'sword'}); }
+function addHoglinLike(B,x,z,h,o){
+  const F={edge:false},q=(dx,dy,dz,w,hh,dd,c,f)=>addBox(B,x+dx,h+dy,z+dz,w,hh,dd,c,f);
+  [[-0.14,0.22],[0.14,0.22],[-0.14,-0.22],[0.14,-0.22]].forEach(p=>q(p[0],0.13,p[1],0.12,0.26,0.12,o.dk));
+  q(0,0.42,0,0.46,0.34,0.7,o.body); q(0,0.62,0,0.2,0.1,0.5,o.mane,F);
+  q(0,0.4,0.42,0.34,0.3,0.26,o.body); q(0,0.33,0.57,0.26,0.16,0.06,o.snout);
+  [-1,1].forEach(a=>{ q(a*0.1,0.44,0.6,0.04,0.12,0.04,0xF2F2E0,F); q(a*0.2,0.58,0.4,0.12,0.06,0.08,o.body,F); q(a*0.09,0.48,0.552,0.04,0.04,0.02,0x151515,F); });
+  if(o.zombie){ q(0.12,0.5,0.0,0.14,0.14,0.02,0x8A5A5A,F); q(-0.1,0.46,-0.2,0.12,0.12,0.02,0x3A2A2A,F); q(0.24,0.42,0.1,0.02,0.14,0.14,0x8A5A5A,F); }
+}
+function addHoglin(B,x,z,h){ addHoglinLike(B,x,z,h,{body:0xA8714A,dk:0x7A4E30,mane:0x5A3A20,snout:0xD9A07A}); }
+function addZoglin(B,x,z,h){ addHoglinLike(B,x,z,h,{body:0x6F8F6A,dk:0x4A6A48,mane:0x3A4A38,snout:0x8FA878,zombie:true}); }
 function makeChest(){
   const g=new THREE.Group(),B=makeBatch(),L=makeBatch();
   addBox(B,0,0.07,0,0.3,0.14,0.22,0xA8742E);
@@ -2941,7 +3027,8 @@ const RMQ=matchMedia('(prefers-reduced-motion: reduce)'); /* dibaca live: idle C
 let MOBOBJ={},CHESTOBJ={};
 function buildMobs(th){
   MOBOBJ={}; CHESTOBJ={};
-  const mk={creeper:addCreeper,ender:addEnderman,skeleton:addSkeleton,zombie:addZombie,warden:addWarden,villager:addVillager};
+  const mk={creeper:addCreeper,ender:addEnderman,skeleton:addSkeleton,zombie:addZombie,warden:addWarden,villager:addVillager,
+    strider:addStrider,magma_cube:addMagmaCube,piglin:addPiglin,piglin_brute:addPiglinBrute,zombified_piglin:addZombifiedPiglin,hoglin:addHoglin,zoglin:addZoglin};
   for(let n=1;n<=GOAL;n++){
     const t=TILES[n],k=mobOn(n,th.key);
     if(k){
@@ -2949,7 +3036,7 @@ function buildMobs(th){
       if(k==='blaze'){ const R=makeBatch(); addBlaze(B,R); g.add(buildBatch(B)); rods=new THREE.Group(); rods.add(buildBatch(R)); g.add(rods); }
       else{ mk[k](B,0,0,0); g.add(buildBatch(B)); }
       g.position.set(t.x,t.h,t.z); world.add(g);
-      MOBOBJ[n]={g,k,x:t.x,y:t.h,z:t.z,s:k==='warden'?1.1:1,ph:n,react:0,rods};
+      MOBOBJ[n]={g,k,x:t.x,y:t.h,z:t.z,s:(k==='warden'||k==='piglin_brute')?1.1:1,ph:n,react:0,rods};
     }
     if(CHESTS.has(n)){
       const c=makeChest(); c.position.set(t.x,t.h,t.z-0.34); c.scale.setScalar(CHEST_SCALE); world.add(c);
@@ -2965,6 +3052,7 @@ function mobReact(n){ if(MOBOBJ[n]) MOBOBJ[n].react=1.6; }
 function openChest(n){ const c=CHESTOBJ[n]; if(!c) return; c.open=1; sparkle(new THREE.Vector3(c.x,c.y+0.35,c.z)); }
 function closeChest(n){ const c=CHESTOBJ[n]; if(c) c.open=0; }
 function updateMobs(dt,t){
+  updateGhasts(dt,t);
   const pw=players.map(p=>p.pawn.position);
   for(const n in MOBOBJ){
     const m=MOBOBJ[n],g=m.g; let best=null,bd=1e9;
@@ -2974,6 +3062,7 @@ function updateMobs(dt,t){
     let dy=Math.atan2(lx-m.x,lz-m.z)-g.rotation.y; dy=Math.atan2(Math.sin(dy),Math.cos(dy));
     g.rotation.y+=dy*Math.min(1,dt*(near?8:2.5));
     let y=Math.abs(Math.sin(t*(near?9:2)+m.ph))*(near?0.07:0.012)*(m.k==='warden'?0.6:1),sc=1,jx=0;
+    if(m.k==='magma_cube'){ const hp=Math.abs(Math.sin(t*(near?4:1.6)+m.ph)); y=hp*(near?0.28:0.14); sc=1+0.1*(1-hp)-0.04*hp; }
     if(m.k==='creeper'&&(near||rx)) sc=1+0.12*Math.abs(Math.sin(t*(rx?22:12)));
     if(m.k==='ender'&&(near||rx)) jx=(Math.random()-0.5)*0.05;
     if(m.k==='warden'&&(near||rx)){ jx=Math.sin(t*40)*0.02*(rx?2:1); sc=1+0.03*Math.sin(t*14)*(rx?2:1); }
@@ -3449,7 +3538,7 @@ function decorateCustom(DB,th){
   addWideFar(DB,th);
   const D=MAPDEF||{},B=jit(th.wall[1],0.05);
   (D.props||[]).forEach(q=>{
-    if(q[0]==='ghast'){ addGhast(DB,q[1],q[2],q[3]); return; }
+    if(q[0]==='ghast'){ addFlyGhast(q[1],q[2],q[3]); return; }
     addBox(DB,q[1],-0.1,q[2],1.4,0.5,1.4,B); /* alas batu kecil di atas lava */
     if(q[0]==='tree') addNetherTree(DB,q[1],q[2],q[3]||1); else if(q[0]==='pillar') addPillar(DB,q[1],q[2],q[3]||3);
   });
@@ -3461,7 +3550,7 @@ function buildWorld(key){
   const tk=++worldToken;
   seed=20241022+THEMES.indexOf(th)*977;
   PORTAL=null; ARENA=null; MOUNT=null; disposeGroup(world); disposeGroup(sky);
-  clouds=[]; snow=null; LADINFO={}; SNAKEINFO={}; fades.length=0; TREEPOS.length=0; clearFX();
+  clouds=[]; snow=null; LADINFO={}; SNAKEINFO={}; fades.length=0; TREEPOS.length=0; GHASTS.length=0; clearFX();
   const rs=document.documentElement.style;
   rs.setProperty('--sky-top',th.skyTop); rs.setProperty('--sky-bot',th.skyBot);
   hemi.groundColor.setHex(th.hemi);
@@ -4429,6 +4518,9 @@ async function resolveMobAt(p,gid){
   }else if(k==='villager'){
     const to=Math.min(99,p.pos+5); setMsg('Villager membantu! '+p.name+' maju 5 blok ke '+to+'.'); fb('event','mob','Villager membantu! Maju 5 blok',{gid}); sfx.villager(); p.score+=5;
     await A(sleep(500)); await A(walk(p,p.pos,to)); p.pos=to;
+}else if(k==='strider'){
+    const to=Math.min(GOAL-1,p.pos+3); setMsg('Strider membantu! '+p.name+' maju 3 blok ke '+to+'.'); fb('event','mob','Strider membantu! Maju 3 blok',{gid}); sfx.villager(); p.score+=3;
+    await A(sleep(500)); await A(walk(p,p.pos,to)); p.pos=to;
 }else if(k==='skeleton'){
     setMsg('Skeleton menembak! '+p.name+' terpental mundur 1 blok.'); fb('event','mob','Skeleton! Terpental mundur 1 blok',{gid});
     sfx.skeltonSh();
@@ -4475,7 +4567,7 @@ async function resolveTileAt(p,gid){
   if(LADDERS[p.pos]){
     const to=LADDERS[p.pos]; setMsg('Tangga! '+p.name+' naik dari '+p.pos+' ke '+to+'.'); fb('event','ladder','Naik Tangga! +'+(to-p.pos)+' langkah',{gid}); /* suara naik = sfx.ladder() di climb(); tidak ditumpuk dengan ladder-up.mp3 */
     await A(sleep(350)); await A(climb(p,p.pos,to)); p.pos=to; p.score+=10;
-  }else if((SNAKES[p.pos]||(mobOn(p.pos,themeKey)&&mobOn(p.pos,themeKey)!=='villager'))&&await askTotem(p,gid,SNAKES[p.pos]?'Ular':MOBNAME[mobOn(p.pos,themeKey)])){
+  }else if((SNAKES[p.pos]||(mobOn(p.pos,themeKey)&&mobOn(p.pos,themeKey)!=='villager'&&mobOn(p.pos,themeKey)!=='strider'))&&await askTotem(p,gid,SNAKES[p.pos]?'Ular':MOBNAME[mobOn(p.pos,themeKey)])){
     p.shield=false; puFx('pr:'+p.idx,'pfx-hit'); renderChips(); setMsg(PUN.totem[1]+' melindungi '+p.name+'!'); fb('event','shield',PUN.totem[1]+' melindungi '+p.name+'!',{gid}); sfx.pop(); await A(sleep(900));
   }else if(SNAKES[p.pos]){
     const to=SNAKES[p.pos];
