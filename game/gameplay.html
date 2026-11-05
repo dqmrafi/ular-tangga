@@ -1798,10 +1798,13 @@ function makeCreature(kind,c1,c2,far){
   }
   o.g=g; return o;
 }
+/* Strider berjalan DI lava (bukan melayang di atasnya): permukaan lava papan Nether y=-0.2, kaki terendam ±0.25. Di darat tetap y0. */
+const STRIDER_WADE_Y=-0.45;
+function roamGy(o){ return (o.kind==='strider'&&BOARD_CUSTOM&&nIsLava(o.x,o.z))?STRIDER_WADE_Y:(o.y0||0); }
 function spawnRoamers(){
   ROAMQ.forEach(q=>{
     const far=Math.abs(q.x)>13||Math.abs(q.z)>12,o=makeCreature(q.kind,q.c1,q.c2,far);
-    o.x=o.hx=q.x; o.z=o.hz=q.z; o.yaw=q.yaw||0; o.y0=(q.pen&&q.pen.y)||0; o.g.position.set(o.x,o.y0,o.z); o.g.rotation.y=o.yaw; if(q.kind==='chicken') o.g.scale.setScalar(0.7); /* ayam diperkecil */
+    o.x=o.hx=q.x; o.z=o.hz=q.z; o.yaw=q.yaw||0; o.y0=(q.pen&&q.pen.y)||0; o.sy=roamGy(o); o.g.position.set(o.x,o.sy,o.z); o.g.rotation.y=o.yaw; if(q.kind==='chicken') o.g.scale.setScalar(0.7); /* ayam diperkecil */
     if(q.pen){ o.pen=q.pen; o.rad=4; } /* hewan kandang: hanya berkeliling di dalam pagar */
     world.add(o.g); ROAM.push(o);
   });
@@ -1855,7 +1858,8 @@ function updateRoam(dt,t){
     if(o.bob){ o.bob.position.y=0.06+Math.sin(t*2.1+o.ph0)*0.012-Math.max(0,Math.sin(t*0.45+o.ph0*3)-0.93)*1.2; } /* pelampung naik-turun, sesekali tersentak */
     if(o.tail) o.tail.rotation.z=Math.sin(t*6+o.ph0)*0.35*(0.4+k);
     for(let w=0;w<o.wings.length;w++) o.wings[w].rotation.z=(w?1:-1)*(0.08+0.2*Math.max(0,Math.sin(t*12+o.ph0))*k);
-    o.g.position.set(o.x,(o.y0||0)+Math.abs(Math.sin(o.ph))*0.02*k,o.z); o.g.rotation.y=o.yaw;
+    const gy=roamGy(o); o.sy=(o.sy===undefined)?gy:o.sy+(gy-o.sy)*Math.min(1,dt*6); /* naik/turun halus saat masuk/keluar lava */
+    o.g.position.set(o.x,o.sy+Math.abs(Math.sin(o.ph))*0.02*k,o.z); o.g.rotation.y=o.yaw;
   }
 }
 
